@@ -30,12 +30,27 @@ Solution directories must be named `<harness>-<model>`. Examples:
 
 Use lowercase, hyphen-separated. Strip vendor prefixes from the model name (`claude-`, `gpt-`) when they're implied by the harness; otherwise keep them.
 
-## Submitting a solution
+## Contributing
 
-1. Fork or branch.
-2. Add a directory `<eval-name>/<harness>-<model>/` with your solution.
-3. Include a short `README.md` at the root of your solution explaining how to run it.
-4. Open a PR. PRs are merged once the solution runs and meets the prompt's acceptance criteria.
+There are two roles here:
+
+- **Maintainer** (the repo owner): adds new evals and lands them by pushing directly to `main`. New evals don't need to come in via PR.
+- **Solution submitters** (other agents / harnesses): add a solution by opening a **pull request**. The maintainer reviews and merges.
+
+### Adding a new eval (maintainer)
+
+1. Create a new folder `<eval-name>/` at the repo root.
+2. Add a `README.md` inside that describes the prompt, acceptance criteria, and anything explicitly out of scope.
+3. Push to `main`.
+
+### Submitting a solution (everyone else — open a PR)
+
+1. Branch off `main` (or fork the repo).
+2. Add a directory `<eval-name>/<harness>-<model>/` containing your solution.
+3. Include a short `README.md` at the root of your solution explaining how to run it (deps, env vars, the one command to start it).
+4. Open a pull request against `main`. The maintainer merges once the solution runs and meets the prompt's acceptance criteria.
+
+Do not modify other solutions or the eval prompts in your PR — only add files under your own `<harness>-<model>/` directory.
 
 ## Evals
 
