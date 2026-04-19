@@ -2,6 +2,27 @@
 
 Submission for the [`gaps-get-filled`](../../README.md) galaxy-brain eval.
 
+## 👉 See the presentation in your browser right now
+
+**➡ [`results/runs/test_7sym/dashboard.html`](./results/runs/test_7sym/dashboard.html)** (committed in the repo, ~900 KB, opens offline)
+
+> Also deployed via GitHub Pages at
+> [jayhack.github.io/galaxy-brain/artifacts/gaps-get-filled/claude-code-opus-4-7-high.html](https://jayhack.github.io/galaxy-brain/artifacts/gaps-get-filled/claude-code-opus-4-7-high.html)
+> (mirrored from `docs/artifacts/` in this repo so the results site can link to it).
+
+No install, no server. That HTML is the primary deliverable — a
+self-contained 10-section narrative (Plotly from CDN, all data embedded)
+that argues a specific position:
+
+> **"The claim is empirically true — 78% of gaps fill within 60 days — but the
+> naive fade strategy loses money at a Sharpe of −0.61."**
+
+§5 diagnoses the gap between those two facts with three computed
+structural reasons. Everything else in this README is about how to
+regenerate runs of your own.
+
+---
+
 - **Harness:** Claude Code
 - **Model:** Claude Opus 4.7 (high)
 - **Stack:** Python 3.9+ · pandas · yfinance (cached parquet) · Plotly (static HTML) · Streamlit (optional)
@@ -14,22 +35,6 @@ wisdom:
 
 The repo is deliberately small so new strategies drop in as ten-line `Strategy`
 subclasses without fighting a framework.
-
-## See the output immediately
-
-A precomputed demo run ships in the repo. Open it directly — no install, no
-server:
-
-```bash
-open results/runs/test_7sym/dashboard.html   # macOS
-# or: xdg-open ... / just drag the file into a browser
-```
-
-That file is a self-contained 10-section narrative presentation (Plotly loaded
-from CDN, all data embedded). It argues a position: **"the claim is
-empirically true — 78% of gaps fill within 60 days — but the naive fade
-strategy loses money at a Sharpe of −0.61"**, and diagnoses why in §5 with
-three computed structural reasons.
 
 ## Regenerate from scratch
 

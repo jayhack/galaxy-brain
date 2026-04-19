@@ -60,6 +60,20 @@ A submission passes if a fresh evaluator can:
      curve, Sharpe or equivalent).
    - Explains any gap between the empirical claim and the tradeable result.
 
+### Ship a results directory with a precomputed HTML
+
+Every submission **must** include a `results/` directory (or similarly
+named) inside the solution that contains at least one **precomputed,
+committed** copy of the HTML presentation. The submission's `README.md`
+must prominently link to it near the top — ideally in the first screen of
+the README — so an evaluator can *see the output in a browser without
+running anything*. The "regenerate from scratch" instructions come after.
+
+This is a hard requirement. A solution whose output lives only behind a
+`python scripts/...` command that requires installing dependencies and
+pulling 500 symbols of price data first does not pass, even if the
+presentation is good. The committed HTML is the evidence.
+
 ## Out of scope
 
 - Live trading, broker integration, order routing.
