@@ -1,0 +1,26 @@
+# Default parameters for the gap-fill strategy.
+# Everything here is overridable via CLI flags (see scripts/run_gap_fill.py --help).
+
+universe: sp500           # "sp500" | list of tickers, e.g. ["SPY", "AAPL"]
+start_date: null          # null => today - years*365
+end_date: null            # null => today
+years: 10
+
+gap:
+  type: strict            # "strict" (low_t > high_{t-1} / high_t < low_{t-1})
+  min_gap_pct: 0.005      # skip gaps smaller than 0.5% of prior close
+  direction: both         # "up" | "down" | "both"
+  fill_horizons: [1, 5, 20, 60]   # diagnostic horizons, in trading days
+
+trade:
+  enabled: true
+  time_stop_days: 20       # close the position if not filled in N days
+  stop_loss_pct: 0.02      # 2% adverse move from entry -> stop out
+  position_size_usd: 10000 # fixed notional per trade
+  allow_short: true        # gap-up trades require shorting
+  commission_bps: 1.0      # 1 bp per side
+  slippage_bps: 2.0        # 2 bp per side
+
+output:
+  results_dir: results/runs
+  run_name: null           # null => auto-generated timestamp

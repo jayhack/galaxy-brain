@@ -1,0 +1,23 @@
+# This submission ships a small demo dataset (data/cache/*.parquet for 7
+# symbols) and a sample run (results/runs/test_7sym/) so the evaluator can
+# see a dashboard immediately. Fresh runs the evaluator kicks off land in
+# results/runs/<timestamp>/ — ignored so they don't pollute the submission.
+
+# runtime artifacts from fresh runs (timestamped dirs start with "20..")
+results/runs/20*/
+
+# Python hygiene
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp

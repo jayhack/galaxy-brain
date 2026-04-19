@@ -1,0 +1,31 @@
+universe:
+- SPY
+- AAPL
+- MSFT
+- NVDA
+- TSLA
+- JPM
+- XOM
+start_date: null
+end_date: null
+years: 10
+gap:
+  type: strict
+  min_gap_pct: 0.005
+  direction: both
+  fill_horizons:
+  - 1
+  - 5
+  - 20
+  - 60
+trade:
+  enabled: true
+  time_stop_days: 20
+  stop_loss_pct: 0.02
+  position_size_usd: 10000
+  allow_short: true
+  commission_bps: 1.0
+  slippage_bps: 2.0
+output:
+  results_dir: results/runs
+  run_name: test_7sym

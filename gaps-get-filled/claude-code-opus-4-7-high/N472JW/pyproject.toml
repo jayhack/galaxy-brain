@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "n472jw"
+version = "0.1.0"
+description = "Lightweight equity backtesting sandbox"
+requires-python = ">=3.9"
+dependencies = [
+    "pandas>=2.0",
+    "numpy>=1.24",
+    "yfinance>=0.2.40",
+    "pyarrow>=14.0",
+    "pyyaml>=6.0",
+    "streamlit>=1.30",
+    "plotly>=5.18",
+    "lxml>=4.9",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]

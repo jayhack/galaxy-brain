@@ -1,0 +1,31 @@
+{
+  "run_name": "test_7sym",
+  "generated_at": "2026-04-19T10:54:13",
+  "n_symbols": 7,
+  "start_date": "2016-04-21",
+  "end_date": "2026-04-19",
+  "gap_diagnostic": {
+    "n_gaps": 882,
+    "fill_rate_1d_pct": 15.192743764172336,
+    "fill_rate_5d_pct": 44.44444444444444,
+    "fill_rate_20d_pct": 65.98639455782312,
+    "fill_rate_60d_pct": 77.89115646258503
+  },
+  "trade_summary": {
+    "n_trades": 881,
+    "n_wins": 326,
+    "n_losses": 555,
+    "win_rate": 0.37003405221339386,
+    "avg_return_pct": -0.13595558331477994,
+    "median_return_pct": -0.2631423602710297,
+    "best_return_pct": 13.900702912066984,
+    "worst_return_pct": -13.64024018134726,
+    "total_net_pnl_usd": -11977.686890032111,
+    "avg_bars_held": 1.6118047673098752,
+    "pct_target": 39.16004540295119,
+    "pct_stop": 60.61293984108968,
+    "pct_time_stop": 0.22701475595913734
+  },
+  "sharpe_annualized": -0.6100251140749458,
+  "max_drawdown_usd": -20431.69967350004
+}
