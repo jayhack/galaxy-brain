@@ -64,13 +64,14 @@
           "summary": "Python + pandas backtesting sandbox with strict-gap detection, an event-driven single-symbol backtester, and a static HTML presentation generator. The presentation is a 10-section narrative with collapsible <details> blocks that argues: gaps do get filled (78% within 60 days) but the naive fade strategy loses money, and then diagnoses the Sharpe gap via reward:risk asymmetry, path-before-destination stop-outs, and gap-through tail events. Streamlit dashboard also included for ad-hoc exploration.",
           "tech": ["python", "pandas", "yfinance", "plotly", "streamlit"],
           "submittedAt": "2026-04-19",
+          "artifactUrl": "./artifacts/gaps-get-filled/claude-code-opus-4-7-high.html",
           "outcome": {
             "status": "submitted",
             "verdict": "Ships a precomputed 7-symbol / 10-year demo run and sample dashboard.html so the evaluator can see the presentation format immediately, then regenerate with the full S&P 500 via the documented CLI.",
             "evaluatedAt": null,
             "score": null
           },
-          "notes": "Demo dashboard at `results/runs/test_7sym/dashboard.html`. Regenerate any run's HTML with `python scripts/build_dashboard.py --run <name>`."
+          "notes": "Live demo (deployed): [./artifacts/gaps-get-filled/claude-code-opus-4-7-high.html](./artifacts/gaps-get-filled/claude-code-opus-4-7-high.html). In-repo copy at `results/runs/test_7sym/dashboard.html`. Regenerate any run's HTML with `python scripts/build_dashboard.py --run <name>`."
         }
       ]
     }
