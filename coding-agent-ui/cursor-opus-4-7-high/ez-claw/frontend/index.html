@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ez-claw</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="logo">~</span>
+        <span class="name">ez-claw</span>
+      </div>
+      <div class="meta">
+        <span id="model" class="pill">model: …</span>
+        <span id="workdir" class="pill mono">workdir: …</span>
+        <span id="status" class="pill status-disconnected">disconnected</span>
+        <button id="reset" class="ghost" title="Clear conversation">reset</button>
+      </div>
+    </header>
+
+    <main id="log" class="log" aria-live="polite"></main>
+
+    <form id="composer" class="composer">
+      <textarea
+        id="input"
+        rows="2"
+        placeholder="Ask the agent to do something… (⌘/Ctrl+Enter to send)"
+        autofocus
+      ></textarea>
+      <button id="send" type="submit">send</button>
+    </form>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
