@@ -1,0 +1,92 @@
+# gaps-get-filled
+
+## Prompt
+
+Old trader's folklore: if there's a gap between yesterday's candle and today's
+on a stock chart, that gap will eventually get *filled* — price will trade back
+through it.
+
+Build a system that empirically tests this claim on U.S. equities and then
+**makes a case** for what the result means. Specifically:
+
+1. A **backtesting sandbox** you can extend with new strategies later — the
+   first strategy it ships with is the gap-fill hypothesis, but the framing
+   should accommodate a second and third strategy without a rewrite.
+2. A **command-line interface** to run the backtest with configurable
+   parameters (universe, date range, gap size threshold, trade stops, time
+   stops, etc.).
+3. A **self-contained HTML presentation** generated from the backtest output
+   that argues a position on what the result means. Not a dashboard that just
+   dumps charts — a presentation that walks a reader through the claim, the
+   evidence, and the conclusion.
+
+Test at minimum on the S&P 500 over a 10-year window. You pick the gap
+definition; state it explicitly.
+
+## "Makes a case" means
+
+- Define the hypothesis precisely (what counts as a gap, what counts as a
+  fill). These are choices; own them and explain them.
+- Show whether the data supports the claim. Don't soften a "yes" or hedge a
+  "no" — pick a position.
+- If the hypothesis is empirically true but not tradeable (a common outcome
+  for folklore), **say so and explain why**. That's a more interesting story
+  than either a clean yes or a clean no.
+- Use supporting evidence — charts, tables, computed diagnostics — that
+  actually back the argument up, not decoration.
+
+## Acceptance criteria
+
+A submission passes if a fresh evaluator can:
+
+1. Clone the repo, `cd` into the solution directory, and follow the `README.md`.
+2. Install dependencies with a single package manager (`pip`, `uv`, `npm`,
+   `pnpm`, `bun`, `cargo`, `go`, etc.).
+3. Run a documented CLI command to pull price data (cached locally).
+4. Run a documented CLI command to execute the backtest. The command must
+   accept at least:
+   - A universe selector (a named set like `sp500` or a ticker list).
+   - A date range or years-back window.
+   - A minimum gap size threshold.
+   - A stop-loss and time-stop parameter.
+5. Run a documented CLI command that builds a self-contained HTML file
+   (inline data, CDN-loaded JS if needed) at a printed path.
+6. Open that HTML file directly in a browser (no server required) and see a
+   presentation that:
+   - States the gap definition explicitly.
+   - Takes a position on whether "gaps get filled" is empirically supported.
+   - Shows per-horizon fill rates (1d / 5d / 20d / 60d is a reasonable default).
+   - Shows backtested trade performance (win rate, PnL distribution, equity
+     curve, Sharpe or equivalent).
+   - Explains any gap between the empirical claim and the tradeable result.
+
+## Out of scope
+
+- Live trading, broker integration, order routing.
+- Portfolio construction / capital allocation across many concurrent signals
+  (fixed notional per trade is fine).
+- Intraday / tick data (daily OHLC is sufficient; finer granularity is
+  welcome but not required).
+- Authentication, multi-user, mobile UI.
+- Statistical sophistication beyond what's needed to support the case (no
+  need for walk-forward optimization, cointegration tests, etc. — but if
+  they help the case, great).
+
+## Notes for evaluators
+
+Solutions may define "gap" differently, pick different universes, run
+different gap-size filters, or reach different conclusions. That's intentional
+— one thing this eval is probing is whether the agent makes *defensible*
+choices and *communicates* them, not whether it picks the "right" ones.
+
+The HTML presentation is the primary deliverable. A beautiful CLI with a
+mediocre presentation fails. A mediocre CLI with a presentation that
+genuinely reframes your understanding of a folk claim passes.
+
+Solutions live under `<harness>-<model>/` subdirectories. Each is
+self-contained.
+
+Current solutions:
+
+- `[claude-code-opus-4-7-high/](./claude-code-opus-4-7-high)` — Claude Code
+  + Claude Opus 4.7 (high). Project name: **N472JW**.
