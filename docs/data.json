@@ -49,6 +49,33 @@
       ]
     },
     {
+      "slug": "evading-demons",
+      "title": "evading-demons",
+      "tagline": "Build a browser-playable 3D survival game in a solarpunk mall where demons hunt the player.",
+      "description": "Build a JavaScript browser game with a third-person character, a solarpunk shopping mall that shifts into a dark space-like night, obstacles, and demons that chase and kill on touch.",
+      "tags": ["games", "browser", "threejs", "realtime", "3d"],
+      "createdAt": "2026-04-19",
+      "solutions": [
+        {
+          "slug": "codex-gpt-5",
+          "harness": "codex",
+          "model": "gpt-5",
+          "projectName": "heliomall-escape",
+          "summary": "Single-file Three.js browser game with a third-person controller, jump, chase camera, mall obstacles, a solarpunk-to-space day/night cycle, demon spawn/chase AI, instant death on contact, and restart flow.",
+          "tech": ["html", "css", "javascript", "threejs"],
+          "submittedAt": "2026-04-19",
+          "artifactUrl": "./artifacts/evading-demons/codex-gpt-5.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a playable HTML game artifact directly in the submission and mirrors it into GitHub Pages for one-click evaluation.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `index.html` directly in the solution, or use the mirrored artifact at `./artifacts/evading-demons/codex-gpt-5.html`."
+        }
+      ]
+    },
+    {
       "slug": "gaps-get-filled",
       "title": "gaps-get-filled",
       "tagline": "Empirically test the gap-fill folklore on U.S. equities and make a case for what the result means.",

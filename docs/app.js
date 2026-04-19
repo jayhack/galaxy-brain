@@ -376,6 +376,11 @@ function viewSolution(route) {
       <div class="mt-4 flex flex-wrap gap-2">
         <a class="btn btn-sm btn-primary" href="${esc(urls.tree(dirPath))}" target="_blank" rel="noopener">Source on GitHub</a>
         <a class="btn btn-sm btn-ghost" href="${esc(urls.blob(`${innerProject}/README.md`))}" target="_blank" rel="noopener">Open README</a>
+        ${
+          sol.artifactUrl
+            ? `<a class="btn btn-sm btn-secondary" href="${esc(sol.artifactUrl)}" target="_blank" rel="noopener">Open artifact</a>`
+            : ""
+        }
       </div>
     </header>
 
