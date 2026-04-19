@@ -45,6 +45,34 @@ html {
   text-decoration: none;
   width: 100%;
   text-align: left;
+  min-width: 0;
+}
+
+.sidebar-link > svg,
+.sidebar-link > .sidebar-bullet {
+  flex: 0 0 auto;
+}
+
+.sidebar-link > .sidebar-slug,
+.sidebar-link > span:not(.sidebar-bullet) {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar-bullet {
+  display: inline-block;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 9999px;
+  background: oklch(var(--bc) / 0.35);
+  margin-left: 0.4rem;
+}
+
+.sidebar-link.active .sidebar-bullet {
+  background: oklch(var(--p));
 }
 
 .sidebar-link:hover {

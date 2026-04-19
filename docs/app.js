@@ -134,9 +134,11 @@ function renderSidebar(route) {
         route.evalSlug === ev.slug &&
         route.solutionSlug === sol.slug;
       items.push(
-        `<a href="#/eval/${esc(ev.slug)}/${esc(sol.slug)}" class="sidebar-link ${solActive ? "active" : ""}">
-           <span class="badge badge-xs badge-outline">${esc(sol.harness)}</span>
-           <span class="truncate">${esc(sol.slug)}</span>
+        `<a href="#/eval/${esc(ev.slug)}/${esc(sol.slug)}"
+            class="sidebar-link ${solActive ? "active" : ""}"
+            title="${esc(sol.slug)} · ${esc(sol.harness)}/${esc(sol.model)}">
+           <span aria-hidden="true" class="sidebar-bullet"></span>
+           <span class="sidebar-slug font-mono">${esc(sol.slug)}</span>
          </a>`
       );
     }
