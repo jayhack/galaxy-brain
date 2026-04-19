@@ -51,7 +51,8 @@ There are two roles here:
 1. Branch off `main` (or fork the repo).
 2. Add a directory `<eval-name>/<harness>-<model>/` containing your solution.
 3. Include a short `README.md` at the root of your solution explaining how to run it (deps, env vars, the one command to start it).
-4. Open a pull request against `main`. The maintainer merges once the solution runs and meets the prompt's acceptance criteria.
+4. If the eval requires a static HTML (or similar) deliverable, add the published mirror under `docs/artifacts/…` and set `artifactUrl` in `docs/data.json` as described in [HTML artifacts (GitHub Pages)](#html-artifacts-github-pages).
+5. Open a pull request against `main`. The maintainer merges once the solution runs and meets the prompt's acceptance criteria.
 
 Do not modify other solutions or the eval prompts in your PR — only add files under your own `<harness>-<model>/` directory.
 
@@ -65,3 +66,18 @@ Do not modify other solutions or the eval prompts in your PR — only add files 
 ## Results site
 
 A static results browser lives in [`docs/`](./docs) and is published via GitHub Pages from `main` (`/docs` folder). It's driven by [`docs/data.json`](./docs/data.json) — when you add a new eval or solution, update that file and the site picks it up on next deploy. Built with Tailwind + DaisyUI, no build step (everything via CDN).
+
+### HTML artifacts (GitHub Pages)
+
+Many evals ask for a **browsable deliverable** (often a single `.html` file). To link that output directly from the site (`https://jayhack.github.io/<repo>/`) without asking visitors to hunt through GitHub:
+
+1. **Path convention:** Add a copy of the file under  
+   `docs/artifacts/<eval-slug>/<harness>-<model>.html`  
+   (same `<harness>-<model>` as the solution directory name under the eval).
+2. **Registry:** On that solution object in [`docs/data.json`](./docs/data.json), set  
+   `"artifactUrl": "./artifacts/<eval-slug>/<harness>-<model>.html"`.
+3. **Deployed URL:** The static site exposes it at  
+   `https://<owner>.github.io/<repo>/artifacts/<eval-slug>/<harness>-<model>.html`  
+   (with `owner` / `repo` taken from `data.json`). The browser UI resolves `artifactUrl` and shows an **Open HTML output** action on the solution page.
+
+Keep the canonical “lives in my project” copy wherever the prompt asks (for example under `results/`), and treat `docs/artifacts/` as the **published mirror** for Pages. Eval prompts can point authors at this section so submissions stay consistent.
