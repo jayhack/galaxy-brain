@@ -262,36 +262,28 @@ function viewEval(route) {
       ? `<div class="alert">No solutions submitted yet.</div>`
       : ev.solutions
           .map((sol) => {
-            const tech = (sol.tech || [])
-              .map((t) => `<span class="badge badge-outline badge-xs">${esc(t)}</span>`)
-              .join(" ");
             const htmlOut = siteArtifactUrl(sol.artifactUrl);
             const htmlBtn = htmlOut
-              ? `<a href="${esc(htmlOut)}" target="_blank" rel="noopener" class="btn btn-xs btn-outline gap-1 shrink-0" onclick="event.stopPropagation()">
+              ? `<a href="${esc(htmlOut)}" target="_blank" rel="noopener" class="btn btn-xs btn-outline gap-1 h-7 min-h-7 px-2 shrink-0" onclick="event.stopPropagation()">
                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                   HTML output
+                   HTML
                  </a>`
               : "";
+            const metaBits = [
+              esc(sol.harness),
+              esc(sol.model),
+              sol.projectName ? `project ${esc(sol.projectName)}` : "",
+            ]
+              .filter(Boolean)
+              .join(" · ");
             return `
-              <a href="#/eval/${esc(ev.slug)}/${esc(sol.slug)}" class="card bg-base-200 hover:bg-base-300 transition-colors border border-base-300 hover:border-primary/40">
-                <div class="card-body gap-2">
-                  <div class="flex items-start justify-between gap-3 flex-wrap">
-                    <div class="min-w-0 flex-1">
-                      <h3 class="card-title text-base font-semibold font-mono">${esc(sol.slug)}</h3>
-                      <p class="text-xs text-base-content/60 mt-0.5">
-                        <span class="font-mono">${esc(sol.harness)}</span>
-                        ·
-                        <span class="font-mono">${esc(sol.model)}</span>
-                        ${sol.projectName ? `· project <span class="font-mono">${esc(sol.projectName)}</span>` : ""}
-                      </p>
-                    </div>
-                    <div class="flex items-center gap-2 shrink-0">
-                      ${htmlBtn}
-                      ${statusBadge(sol.outcome?.status)}
-                    </div>
-                  </div>
-                  <p class="text-sm text-base-content/80">${esc(sol.summary || "")}</p>
-                  <div class="flex flex-wrap gap-1.5 mt-1">${tech}</div>
+              <a href="#/eval/${esc(ev.slug)}/${esc(sol.slug)}" class="group flex flex-row items-center gap-2 sm:gap-3 w-full rounded-lg border border-base-300 bg-base-200 hover:bg-base-300 hover:border-primary/30 transition-colors px-3 py-2 min-h-0">
+                <span class="font-mono text-sm font-semibold text-base-content shrink-0">${esc(sol.slug)}</span>
+                <span class="text-[11px] sm:text-xs text-base-content/55 font-mono truncate shrink-0 max-w-[9rem] sm:max-w-none">${metaBits}</span>
+                <span class="text-xs text-base-content/65 truncate min-w-0 flex-1 hidden sm:block" title="${esc(sol.summary || "")}">${esc(sol.summary || "")}</span>
+                <div class="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-auto">
+                  ${htmlBtn}
+                  ${statusBadge(sol.outcome?.status)}
                 </div>
               </a>`;
           })
@@ -318,11 +310,11 @@ function viewEval(route) {
     </header>
 
     <section class="mb-10">
-      <div class="flex items-center justify-between mb-3 max-w-xl mx-auto w-full">
+      <div class="flex items-center justify-between mb-3 max-w-3xl mx-auto w-full">
         <h2 class="text-xl font-semibold">Solutions</h2>
         <span class="text-sm text-base-content/60">${ev.solutions.length} total</span>
       </div>
-      <div class="max-w-xl mx-auto w-full grid grid-cols-1 gap-3">${solRows}</div>
+      <div class="max-w-3xl mx-auto w-full flex flex-col gap-1.5">${solRows}</div>
     </section>
 
     <section>
