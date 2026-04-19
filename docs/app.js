@@ -9,7 +9,10 @@ const state = {
   view: document.getElementById("view"),
   sidebar: document.getElementById("sidebar-nav"),
   themeMenu: document.getElementById("theme-menu"),
-  themes: ["night", "winter", "synthwave", "dracula", "lofi"],
+  themes: {
+    light: ["lofi", "light", "cupcake", "emerald", "corporate", "retro", "garden", "pastel", "nord", "autumn", "winter"],
+    dark: ["night", "dracula", "synthwave", "business"],
+  },
   markdownCache: new Map(),
 };
 
@@ -297,7 +300,7 @@ function viewEval(route) {
         <h2 class="text-xl font-semibold">Prompt</h2>
         <span class="text-xs text-base-content/50 font-mono">${esc(promptPath)}</span>
       </div>
-      <article id="prompt-md" class="prose prose-invert max-w-none bg-base-200 border border-base-300 rounded-2xl p-6 markdown-target">
+      <article id="prompt-md" class="prose max-w-none bg-base-200 border border-base-300 rounded-2xl p-6 markdown-target">
         <div class="flex items-center gap-2 text-base-content/60 text-sm">
           <span class="loading loading-dots loading-sm"></span>
           loading prompt…
@@ -427,7 +430,7 @@ function viewSolution(route) {
         <h2 class="text-xl font-semibold">README</h2>
         <span id="readme-path" class="text-xs text-base-content/50 font-mono"></span>
       </div>
-      <article id="solution-md" class="prose prose-invert max-w-none bg-base-200 border border-base-300 rounded-2xl p-6 markdown-target">
+      <article id="solution-md" class="prose max-w-none bg-base-200 border border-base-300 rounded-2xl p-6 markdown-target">
         <div class="flex items-center gap-2 text-base-content/60 text-sm">
           <span class="loading loading-dots loading-sm"></span>
           loading README…
@@ -488,25 +491,45 @@ function view404(msg) {
 /* ------------------------------------------------------------------ */
 
 function setupTheme() {
+  const allThemes = [...state.themes.light, ...state.themes.dark];
   const stored = localStorage.getItem("gb:theme");
-  if (stored && state.themes.includes(stored)) {
-    document.documentElement.setAttribute("data-theme", stored);
-  }
-  state.themeMenu.innerHTML = state.themes
-    .map(
-      (t) =>
-        `<li><button data-theme-set="${t}" class="capitalize justify-between">
-           <span>${t}</span>
-           <span class="text-xs text-base-content/50">theme</span>
-         </button></li>`
-    )
-    .join("");
+  const initial = stored && allThemes.includes(stored) ? stored : "lofi";
+  document.documentElement.setAttribute("data-theme", initial);
+
+  const groupHtml = (label, list) => `
+    <li class="menu-title pt-2"><span class="text-[10px] uppercase tracking-wider">${label}</span></li>
+    ${list
+      .map(
+        (t) => `
+        <li>
+          <button data-theme-set="${t}" class="capitalize gap-2 ${t === initial ? "active" : ""}">
+            <span class="inline-flex gap-1" aria-hidden="true">
+              <span class="w-2 h-3 rounded-sm border border-base-content/20" data-theme="${t}" style="background:oklch(var(--p))"></span>
+              <span class="w-2 h-3 rounded-sm border border-base-content/20" data-theme="${t}" style="background:oklch(var(--s))"></span>
+              <span class="w-2 h-3 rounded-sm border border-base-content/20" data-theme="${t}" style="background:oklch(var(--b1))"></span>
+            </span>
+            <span class="flex-1 text-left">${t}</span>
+          </button>
+        </li>`
+      )
+      .join("")}
+  `;
+
+  state.themeMenu.classList.add("max-h-96", "overflow-y-auto", "flex-nowrap");
+  state.themeMenu.innerHTML = `
+    ${groupHtml("light", state.themes.light)}
+    ${groupHtml("dark", state.themes.dark)}
+  `;
+
   state.themeMenu.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-theme-set]");
     if (!btn) return;
     const t = btn.dataset.themeSet;
     document.documentElement.setAttribute("data-theme", t);
     localStorage.setItem("gb:theme", t);
+    state.themeMenu
+      .querySelectorAll("[data-theme-set]")
+      .forEach((el) => el.classList.toggle("active", el.dataset.themeSet === t));
   });
 }
 

@@ -29,6 +29,22 @@
             "score": null
           },
           "notes": "Run with `python -m ez_claw` after exporting ANTHROPIC_API_KEY."
+        },
+        {
+          "slug": "cursor-composer-2",
+          "harness": "cursor",
+          "model": "composer-2",
+          "projectName": "signal-path",
+          "summary": "FastAPI + WebSocket backend running an OpenAI Chat Completions tool-use loop with parallel function calling (bash, read/write/edit files, list_dir). Single-page vanilla JS chat UI streams assistant text and tool calls.",
+          "tech": ["python", "fastapi", "websockets", "openai", "vanilla-js"],
+          "submittedAt": "2026-04-19",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Builds and serves cleanly. Not yet evaluated end-to-end against the acceptance criteria.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Run with `python -m cc2` after exporting OPENAI_API_KEY."
         }
       ]
     },
