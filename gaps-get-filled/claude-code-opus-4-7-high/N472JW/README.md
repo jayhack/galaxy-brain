@@ -4,7 +4,7 @@ Submission for the [`gaps-get-filled`](../../README.md) galaxy-brain eval.
 
 ## 👉 See the presentation in your browser right now
 
-**➡ [`results/runs/test_7sym/dashboard.html`](./results/runs/test_7sym/dashboard.html)** (committed in the repo, ~900 KB, opens offline)
+**➡ [`results/runs/test_7sym/dashboard.html`](https://jayhack.github.io/galaxy-brain/#/eval/gaps-get-filled/claude-code-opus-4-7-high/results/runs/test_7sym/dashboard.html)** (same path committed in the repo, ~900 KB, opens offline)
 
 > Also deployed via GitHub Pages at
 > [jayhack.github.io/galaxy-brain/artifacts/gaps-get-filled/claude-code-opus-4-7-high.html](https://jayhack.github.io/galaxy-brain/artifacts/gaps-get-filled/claude-code-opus-4-7-high.html)
