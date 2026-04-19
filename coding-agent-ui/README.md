@@ -38,3 +38,4 @@ Solutions live under `<harness>-<model>/` subdirectories. Each is self-contained
 Current solutions:
 
 - `[cursor-opus-4-7-high/](./cursor-opus-4-7-high)` — Cursor + Claude Opus 4.7 (high). Project name: **ez-claw**.
+- `[cursor-composer-2/](./cursor-composer-2)` — Cursor + OpenAI Chat Completions (default `gpt-4o`). Project name: **signal-path**.
