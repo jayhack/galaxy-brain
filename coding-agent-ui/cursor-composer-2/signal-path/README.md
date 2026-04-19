@@ -16,6 +16,11 @@ The agent exposes:
 
 Assistant text and tool use stream to the browser so you can follow the run in real time.
 
+## UI (HTML)
+
+- **Markup / assets:** [`frontend/index.html`](frontend/index.html) (loads [`frontend/styles.css`](frontend/styles.css) and [`frontend/app.js`](frontend/app.js)).
+- **Rendered in the browser** (after `python -m cc2`): **http://127.0.0.1:8765/** (same as http://localhost:8765/).
+
 ## Run it
 
 Requires Python 3.10+ and an OpenAI API key (`OPENAI_API_KEY`).
