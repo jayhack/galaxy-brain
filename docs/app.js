@@ -305,7 +305,7 @@ function viewEval(route) {
       </ul>
     </nav>
 
-    <header class="mb-8">
+    <header class="mb-6">
       <div class="flex items-center gap-2 mb-2 flex-wrap">
         ${tags}
       </div>
@@ -318,6 +318,14 @@ function viewEval(route) {
     </header>
 
     <section class="mb-10">
+      <div class="flex items-center justify-between mb-3 max-w-xl mx-auto w-full">
+        <h2 class="text-xl font-semibold">Solutions</h2>
+        <span class="text-sm text-base-content/60">${ev.solutions.length} total</span>
+      </div>
+      <div class="max-w-xl mx-auto w-full grid grid-cols-1 gap-3">${solRows}</div>
+    </section>
+
+    <section>
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-xl font-semibold">Prompt</h2>
         <span class="text-xs text-base-content/50 font-mono">${esc(promptPath)}</span>
@@ -328,14 +336,6 @@ function viewEval(route) {
           loading prompt…
         </div>
       </article>
-    </section>
-
-    <section>
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-xl font-semibold">Solutions</h2>
-        <span class="text-sm text-base-content/60">${ev.solutions.length} total</span>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">${solRows}</div>
     </section>
   `;
 
