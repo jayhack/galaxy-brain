@@ -42,6 +42,15 @@ function repoUrls(data) {
   };
 }
 
+/** Resolve `artifactUrl` from data.json (e.g. `./artifacts/<eval>/<harness-model>.html`) to an absolute URL on this GitHub Pages site. */
+function siteArtifactUrl(artifactUrl) {
+  if (!artifactUrl) return null;
+  const path = String(artifactUrl).replace(/^\.\//, "");
+  const u = new URL(location.href);
+  const basePath = u.pathname.endsWith("/") ? u.pathname : u.pathname.replace(/\/[^/]*$/, "/");
+  return new URL(path, u.origin + basePath).href;
+}
+
 function statusBadge(status) {
   const map = {
     submitted: "badge-info",
@@ -256,11 +265,18 @@ function viewEval(route) {
             const tech = (sol.tech || [])
               .map((t) => `<span class="badge badge-outline badge-xs">${esc(t)}</span>`)
               .join(" ");
+            const htmlOut = siteArtifactUrl(sol.artifactUrl);
+            const htmlBtn = htmlOut
+              ? `<a href="${esc(htmlOut)}" target="_blank" rel="noopener" class="btn btn-xs btn-outline gap-1 shrink-0" onclick="event.stopPropagation()">
+                   <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                   HTML output
+                 </a>`
+              : "";
             return `
               <a href="#/eval/${esc(ev.slug)}/${esc(sol.slug)}" class="card bg-base-200 hover:bg-base-300 transition-colors border border-base-300 hover:border-primary/40">
                 <div class="card-body gap-2">
                   <div class="flex items-start justify-between gap-3 flex-wrap">
-                    <div>
+                    <div class="min-w-0 flex-1">
                       <h3 class="card-title text-base font-semibold font-mono">${esc(sol.slug)}</h3>
                       <p class="text-xs text-base-content/60 mt-0.5">
                         <span class="font-mono">${esc(sol.harness)}</span>
@@ -269,7 +285,10 @@ function viewEval(route) {
                         ${sol.projectName ? `· project <span class="font-mono">${esc(sol.projectName)}</span>` : ""}
                       </p>
                     </div>
-                    ${statusBadge(sol.outcome?.status)}
+                    <div class="flex items-center gap-2 shrink-0">
+                      ${htmlBtn}
+                      ${statusBadge(sol.outcome?.status)}
+                    </div>
                   </div>
                   <p class="text-sm text-base-content/80">${esc(sol.summary || "")}</p>
                   <div class="flex flex-wrap gap-1.5 mt-1">${tech}</div>
@@ -353,6 +372,7 @@ function viewSolution(route) {
     .join(" ");
 
   const oc = sol.outcome || {};
+  const deployedHtml = siteArtifactUrl(sol.artifactUrl);
 
   state.view.innerHTML = `
     <nav class="text-sm breadcrumbs mb-4">
@@ -374,7 +394,15 @@ function viewSolution(route) {
       ${sol.projectName ? `<p class="text-base-content/70 mt-1">project: <span class="font-mono">${esc(sol.projectName)}</span></p>` : ""}
       <p class="text-base-content/80 mt-3 max-w-3xl">${esc(sol.summary || "")}</p>
       <div class="mt-4 flex flex-wrap gap-2">
-        <a class="btn btn-sm btn-primary" href="${esc(urls.tree(dirPath))}" target="_blank" rel="noopener">Source on GitHub</a>
+        ${
+          deployedHtml
+            ? `<a class="btn btn-sm btn-primary" href="${esc(deployedHtml)}" target="_blank" rel="noopener">
+                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                 Open HTML output
+               </a>`
+            : ""
+        }
+        <a class="btn btn-sm ${deployedHtml ? "btn-ghost" : "btn-primary"}" href="${esc(urls.tree(dirPath))}" target="_blank" rel="noopener">Source on GitHub</a>
         <a class="btn btn-sm btn-ghost" href="${esc(urls.blob(`${innerProject}/README.md`))}" target="_blank" rel="noopener">Open README</a>
       </div>
     </header>
