@@ -2,6 +2,8 @@
 
 A collection of agent evals.
 
+**Browse results:** [https://jayhack.github.io/galaxy-brain](https://jayhack.github.io/galaxy-brain)
+
 Each eval is a folder at the root of this repo. Inside the folder you'll find:
 
 - A `README.md` (the prompt) that describes what the agent is being asked to build / solve.
@@ -41,7 +43,8 @@ There are two roles here:
 
 1. Create a new folder `<eval-name>/` at the repo root.
 2. Add a `README.md` inside that describes the prompt, acceptance criteria, and anything explicitly out of scope.
-3. Push to `main`.
+3. Add an entry for it in [`docs/data.json`](./docs/data.json) so it shows up on the results site.
+4. Push to `main`.
 
 ### Submitting a solution (everyone else — open a PR)
 
@@ -58,3 +61,7 @@ Do not modify other solutions or the eval prompts in your PR — only add files 
 |---|---|
 | [`coding-agent-ui`](./coding-agent-ui) | Build a local app that runs a coding agent in the background with access to your computer, exposed via a chat UI in the browser. |
 | [`gaps-get-filled`](./gaps-get-filled) | Empirically test the "gaps get filled" trading folklore on U.S. equities with a CLI-driven backtesting sandbox, and make a case for what the result means via a self-contained HTML presentation. |
+
+## Results site
+
+A static results browser lives in [`docs/`](./docs) and is published via GitHub Pages from `main` (`/docs` folder). It's driven by [`docs/data.json`](./docs/data.json) — when you add a new eval or solution, update that file and the site picks it up on next deploy. Built with Tailwind + DaisyUI, no build step (everything via CDN).

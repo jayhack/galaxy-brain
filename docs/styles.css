@@ -1,0 +1,68 @@
+/* small overrides on top of Tailwind + DaisyUI */
+
+html {
+  scroll-behavior: smooth;
+}
+
+.prose pre {
+  background: oklch(var(--b2));
+  color: oklch(var(--bc));
+  border: 1px solid oklch(var(--b3));
+}
+
+.prose code {
+  background: oklch(var(--b2) / 0.6);
+  padding: 0.1em 0.35em;
+  border-radius: 0.35rem;
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+.prose pre code {
+  background: transparent;
+  padding: 0;
+}
+
+.prose a {
+  color: oklch(var(--p));
+}
+
+.sidebar-link.active {
+  background-color: oklch(var(--b3));
+  color: oklch(var(--p));
+  font-weight: 600;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  color: oklch(var(--bc) / 0.85);
+  cursor: pointer;
+  text-decoration: none;
+  width: 100%;
+  text-align: left;
+}
+
+.sidebar-link:hover {
+  background-color: oklch(var(--b3) / 0.6);
+  color: oklch(var(--bc));
+}
+
+.sidebar-eval-header {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: oklch(var(--bc) / 0.5);
+  padding: 0.75rem 0.6rem 0.25rem;
+  font-weight: 600;
+}
+
+.markdown-target h1,
+.markdown-target h2,
+.markdown-target h3 {
+  scroll-margin-top: 5rem;
+}

@@ -1,0 +1,45 @@
+{
+  "$schema": "./schema.json",
+  "repo": {
+    "owner": "jayhack",
+    "name": "galaxy-brain",
+    "branch": "main"
+  },
+  "evals": [
+    {
+      "slug": "coding-agent-ui",
+      "title": "coding-agent-ui",
+      "tagline": "Build a local coding agent with a browser chat UI.",
+      "description": "Build an application I can run locally that runs a coding agent in the background with access to my computer (read/write files, execute shell commands), exposed via a chat interface in the browser.",
+      "tags": ["agents", "ui", "tool-use", "local"],
+      "createdAt": "2026-04-19",
+      "solutions": [
+        {
+          "slug": "cursor-opus-4-7-high",
+          "harness": "cursor",
+          "model": "claude-opus-4-7-high",
+          "projectName": "ez-claw",
+          "summary": "FastAPI + WebSocket backend running an Anthropic tool-use loop (bash, read/write/edit files, list_dir). Single-page vanilla JS chat UI streams tokens and tool calls live.",
+          "tech": ["python", "fastapi", "websockets", "anthropic", "vanilla-js"],
+          "submittedAt": "2026-04-19",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Builds and serves cleanly. Not yet evaluated end-to-end against the acceptance criteria.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Run with `python -m ez_claw` after exporting ANTHROPIC_API_KEY."
+        }
+      ]
+    },
+    {
+      "slug": "gaps-get-filled",
+      "title": "gaps-get-filled",
+      "tagline": "Empirically test the gap-fill folklore on U.S. equities and make a case for what the result means.",
+      "description": "Build a backtesting sandbox + CLI that tests whether price gaps on stock charts get filled, on the S&P 500 over a 10-year window. Ship a self-contained HTML presentation that takes a position on what the result means — not just a dashboard.",
+      "tags": ["finance", "backtesting", "cli", "data-viz"],
+      "createdAt": "2026-04-19",
+      "solutions": []
+    }
+  ]
+}

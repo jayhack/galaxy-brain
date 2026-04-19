@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en" data-theme="night">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>galaxy-brain — agent evals</title>
+    <meta
+      name="description"
+      content="A collection of agent evals. Browse evals, harnesses, models, and outcomes."
+    />
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <script>
+      tailwind.config = {
+        daisyui: { themes: ["night", "winter", "synthwave", "dracula", "lofi"] },
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+              mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+            },
+          },
+        },
+      };
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <script src="https://cdn.jsdelivr.net/npm/marked@14.1.3/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+
+  <body class="min-h-screen bg-base-100 text-base-content font-sans antialiased">
+    <div class="drawer lg:drawer-open">
+      <input id="nav-drawer" type="checkbox" class="drawer-toggle" />
+
+      <div class="drawer-content flex flex-col">
+        <!-- Navbar -->
+        <header
+          class="navbar bg-base-200/70 backdrop-blur sticky top-0 z-30 border-b border-base-300"
+        >
+          <div class="flex-none lg:hidden">
+            <label for="nav-drawer" class="btn btn-square btn-ghost" aria-label="open menu">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="inline-block w-5 h-5 stroke-current"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            </label>
+          </div>
+
+          <div class="flex-1">
+            <a href="#/" class="btn btn-ghost normal-case text-xl gap-2">
+              <span
+                class="inline-grid place-items-center w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary text-base-100 font-mono font-bold"
+                >~</span
+              >
+              <span class="font-semibold tracking-tight">galaxy-brain</span>
+              <span class="badge badge-ghost badge-sm hidden sm:inline-flex">agent evals</span>
+            </a>
+          </div>
+
+          <div class="flex-none gap-2">
+            <a
+              id="repo-link"
+              class="btn btn-ghost btn-sm gap-2"
+              href="#"
+              target="_blank"
+              rel="noopener"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                class="w-4 h-4 fill-current"
+                aria-hidden="true"
+              >
+                <path
+                  d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2.16c-3.2.7-3.88-1.36-3.88-1.36-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.69 1.24 3.34.95.1-.74.4-1.24.72-1.53-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.15 1.18a10.9 10.9 0 0 1 5.74 0c2.19-1.49 3.15-1.18 3.15-1.18.62 1.58.23 2.75.11 3.04.74.81 1.18 1.84 1.18 3.1 0 4.43-2.7 5.41-5.27 5.69.41.36.78 1.06.78 2.14v3.18c0 .31.21.68.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"
+                />
+              </svg>
+              <span class="hidden sm:inline">repo</span>
+            </a>
+
+            <div class="dropdown dropdown-end">
+              <label tabindex="0" class="btn btn-ghost btn-sm gap-1" title="theme">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-4 h-4 fill-current"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"
+                  />
+                </svg>
+                <span class="hidden sm:inline">theme</span>
+              </label>
+              <ul
+                tabindex="0"
+                class="dropdown-content menu p-2 shadow bg-base-200 rounded-box w-40 mt-2 z-40"
+                id="theme-menu"
+              >
+                <!-- populated by app.js -->
+              </ul>
+            </div>
+          </div>
+        </header>
+
+        <!-- View root -->
+        <main id="view" class="flex-1 px-4 sm:px-6 lg:px-10 py-8 max-w-6xl w-full mx-auto">
+          <div class="flex items-center justify-center py-24">
+            <span class="loading loading-dots loading-lg text-primary"></span>
+          </div>
+        </main>
+
+        <footer class="footer footer-center p-6 text-base-content/60 border-t border-base-300">
+          <aside>
+            <p class="text-xs">
+              galaxy-brain · static site ·
+              <a id="footer-repo-link" class="link link-hover" href="#">view source</a>
+            </p>
+          </aside>
+        </footer>
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="drawer-side z-40">
+        <label for="nav-drawer" class="drawer-overlay" aria-label="close menu"></label>
+        <div
+          class="min-h-full w-72 bg-base-200 border-r border-base-300 flex flex-col"
+        >
+          <div class="p-4 border-b border-base-300">
+            <a href="#/" class="flex items-center gap-2">
+              <span
+                class="inline-grid place-items-center w-7 h-7 rounded-md bg-gradient-to-br from-primary to-secondary text-base-100 font-mono font-bold text-sm"
+                >~</span
+              >
+              <span class="font-semibold">galaxy-brain</span>
+            </a>
+            <p class="text-xs text-base-content/60 mt-1">A collection of agent evals.</p>
+          </div>
+
+          <nav id="sidebar-nav" class="p-2 flex-1 overflow-y-auto">
+            <!-- populated by app.js -->
+          </nav>
+        </div>
+      </aside>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
