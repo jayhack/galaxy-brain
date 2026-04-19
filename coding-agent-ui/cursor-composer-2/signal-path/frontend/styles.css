@@ -1,0 +1,361 @@
+:root {
+  --bg: #0e0f12;
+  --bg-elev: #16181d;
+  --bg-elev-2: #1d2027;
+  --border: #262a33;
+  --fg: #e6e8ee;
+  --fg-dim: #9aa3b2;
+  --fg-faint: #6b7280;
+  --accent: #7c5cff;
+  --accent-2: #5cc8ff;
+  --good: #59d499;
+  --bad: #ff6b6b;
+  --warn: #f5b042;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.5;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100vh;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-elev);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+}
+
+.brand .logo {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #0e0f12;
+  font-family: var(--mono);
+  font-weight: 700;
+}
+
+.brand .name {
+  letter-spacing: 0.02em;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pill {
+  font-size: 12px;
+  color: var(--fg-dim);
+  background: var(--bg-elev-2);
+  border: 1px solid var(--border);
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+
+.pill.mono {
+  font-family: var(--mono);
+}
+
+.pill.status-connected {
+  color: var(--good);
+  border-color: rgba(89, 212, 153, 0.4);
+}
+
+.pill.status-disconnected {
+  color: var(--bad);
+  border-color: rgba(255, 107, 107, 0.4);
+}
+
+.pill.status-thinking {
+  color: var(--warn);
+  border-color: rgba(245, 176, 66, 0.4);
+}
+
+button {
+  font-family: var(--sans);
+  font-size: 13px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  padding: 6px 12px;
+  cursor: pointer;
+  background: var(--bg-elev-2);
+  color: var(--fg);
+}
+
+button.ghost {
+  background: transparent;
+  color: var(--fg-dim);
+}
+
+button.ghost:hover {
+  color: var(--fg);
+  border-color: var(--fg-faint);
+}
+
+.log {
+  overflow-y: auto;
+  padding: 24px max(16px, calc((100% - 880px) / 2));
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.msg {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.msg .who {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--fg-faint);
+}
+
+.msg.user .who {
+  color: var(--accent-2);
+}
+
+.msg.agent .who {
+  color: var(--accent);
+}
+
+.msg.system .who {
+  color: var(--fg-faint);
+}
+
+.bubble {
+  padding: 12px 14px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+
+.msg.user .bubble {
+  background: var(--bg-elev-2);
+  border-color: rgba(92, 200, 255, 0.25);
+}
+
+.msg.system .bubble {
+  background: transparent;
+  border-style: dashed;
+  color: var(--fg-dim);
+  font-size: 13px;
+}
+
+.tool {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-elev);
+  overflow: hidden;
+}
+
+.tool-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 1px solid transparent;
+  background: var(--bg-elev);
+}
+
+.tool.open .tool-head {
+  border-bottom-color: var(--border);
+}
+
+.tool-icon {
+  width: 20px;
+  height: 20px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 5px;
+  background: var(--bg-elev-2);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+}
+
+.tool.error .tool-icon {
+  color: var(--bad);
+}
+
+.tool-name {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.tool-summary {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--fg-dim);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tool-status {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fg-faint);
+}
+
+.tool.running .tool-status {
+  color: var(--warn);
+}
+
+.tool.done .tool-status {
+  color: var(--good);
+}
+
+.tool.error .tool-status {
+  color: var(--bad);
+}
+
+.tool-body {
+  display: none;
+  padding: 12px;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+
+.tool.open .tool-body {
+  display: block;
+}
+
+.tool-body h5 {
+  margin: 0 0 6px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--fg-faint);
+  font-weight: 600;
+}
+
+.tool-body pre {
+  background: var(--bg-elev-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px;
+  margin: 0 0 10px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--fg);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.tool-body pre:last-child {
+  margin-bottom: 0;
+}
+
+.composer {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  padding: 12px max(16px, calc((100% - 880px) / 2));
+  border-top: 1px solid var(--border);
+  background: var(--bg-elev);
+}
+
+.composer textarea {
+  resize: none;
+  background: var(--bg-elev-2);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-family: var(--sans);
+  font-size: 14px;
+  outline: none;
+  line-height: 1.5;
+  max-height: 200px;
+}
+
+.composer textarea:focus {
+  border-color: var(--accent);
+}
+
+.composer button {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #0e0f12;
+  font-weight: 600;
+  border: 0;
+  padding: 0 18px;
+  border-radius: 10px;
+}
+
+.composer button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cursor-blink::after {
+  content: "▍";
+  display: inline-block;
+  margin-left: 2px;
+  color: var(--accent);
+  animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #353a45;
+}
