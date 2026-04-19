@@ -133,11 +133,12 @@ function renderSidebar(route) {
         route.name === "solution" &&
         route.evalSlug === ev.slug &&
         route.solutionSlug === sol.slug;
+      const shortHarness = sol.harnessShort || sol.harness.split("-")[0];
       items.push(
         `<a href="#/eval/${esc(ev.slug)}/${esc(sol.slug)}"
             class="sidebar-link ${solActive ? "active" : ""}"
             title="${esc(sol.slug)} · ${esc(sol.harness)}/${esc(sol.model)}">
-           <span aria-hidden="true" class="sidebar-bullet"></span>
+           <span class="sidebar-badge">${esc(shortHarness)}</span>
            <span class="sidebar-slug font-mono">${esc(sol.slug)}</span>
          </a>`
       );

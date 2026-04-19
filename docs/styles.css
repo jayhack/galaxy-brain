@@ -49,12 +49,12 @@ html {
 }
 
 .sidebar-link > svg,
-.sidebar-link > .sidebar-bullet {
+.sidebar-link > .sidebar-badge {
   flex: 0 0 auto;
 }
 
 .sidebar-link > .sidebar-slug,
-.sidebar-link > span:not(.sidebar-bullet) {
+.sidebar-link > span:not(.sidebar-badge) {
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
@@ -62,17 +62,27 @@ html {
   white-space: nowrap;
 }
 
-.sidebar-bullet {
+.sidebar-badge {
   display: inline-block;
-  width: 0.4rem;
-  height: 0.4rem;
+  padding: 0.05rem 0.4rem;
   border-radius: 9999px;
-  background: oklch(var(--bc) / 0.35);
-  margin-left: 0.4rem;
+  border: 1px solid oklch(var(--bc) / 0.25);
+  background: oklch(var(--b1));
+  color: oklch(var(--bc) / 0.7);
+  font-size: 0.65rem;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  max-width: 5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: lowercase;
 }
 
-.sidebar-link.active .sidebar-bullet {
-  background: oklch(var(--p));
+.sidebar-link.active .sidebar-badge {
+  border-color: oklch(var(--p) / 0.5);
+  color: oklch(var(--p));
 }
 
 .sidebar-link:hover {
