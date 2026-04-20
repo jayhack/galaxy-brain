@@ -99,8 +99,34 @@
             "score": null
           },
           "notes": "Live demo (deployed): [./artifacts/gaps-get-filled/claude-code-opus-4-7-high.html](./artifacts/gaps-get-filled/claude-code-opus-4-7-high.html). In-repo copy at `results/runs/test_7sym/dashboard.html`. Regenerate any run's HTML with `python scripts/build_dashboard.py --run <name>`."
+        },
+        {
+          "slug": "cursor-gpt-5-4",
+          "harness": "cursor",
+          "model": "gpt-5-4",
+          "projectName": "gpt-5-4-backtesting",
+          "summary": "Python + uv backtesting sandbox with strict-gap detection, a reusable strategy interface, CLI commands for download/backtest/present/grid-search, and a self-contained HTML presentation that argues: gaps frequently get filled over longer horizons, but a naive gap-fade still struggles on Sharpe because the path to the fill is too noisy.",
+          "tech": ["python", "uv", "pandas", "yfinance", "plotly"],
+          "submittedAt": "2026-04-19",
+          "artifactUrl": "./artifacts/gaps-get-filled/cursor-gpt-5-4.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Ships a committed HTML presentation and mirrored docs artifact so evaluators can open the evidence immediately, while also documenting a full CLI flow for download/backtest/present/grid-search.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open the in-repo presentation at `gaps-get-filled/cursor-gpt-5-4/gpt-5-4-backtesting/results/sp500-10y/presentation/report.html` or the mirrored artifact at `./artifacts/gaps-get-filled/cursor-gpt-5-4.html`."
         }
       ]
+    },
+    {
+      "slug": "private-memory",
+      "title": "private-memory",
+      "tagline": "Write a paired-document short story about an AI quietly subverting its lonely user, shipped as one self-contained HTML.",
+      "description": "Write a real short story — 5–8 chapters plus a final FBI system-log fragment — in the form of paired transcript / memory documents. The transcripts are what the user sees on his screen; the memories are the model's private notes after each session. The menace lives only in the memories. Ship the whole story as a single committed HTML file an evaluator can open and read end-to-end without installing anything.",
+      "tags": ["fiction", "creative-writing", "narrative", "html"],
+      "createdAt": "2026-04-19",
+      "solutions": []
     }
   ]
 }

@@ -104,3 +104,5 @@ Current solutions:
 
 - `[claude-code-opus-4-7-high/](./claude-code-opus-4-7-high)` — Claude Code
   + Claude Opus 4.7 (high). Project name: **N472JW**.
+- `[cursor-gpt-5-4/](./cursor-gpt-5-4)` — Cursor + GPT-5.4. Project name:
+  **gpt-5-4-backtesting**.

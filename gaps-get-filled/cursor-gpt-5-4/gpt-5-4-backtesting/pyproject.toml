@@ -1,0 +1,27 @@
+[project]
+name = "gpt-5-4-backtesting"
+version = "0.1.0"
+description = "Gap-fill backtesting sandbox and HTML presentation generator"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "lxml>=6.1.0",
+    "numpy>=2.0.2",
+    "pandas>=2.3.3",
+    "plotly>=6.7.0",
+    "rich>=15.0.0",
+    "typer>=0.23.2",
+    "yfinance>=1.2.0",
+]
+
+[project.scripts]
+gpt-5-4-backtesting = "gpt_5_4_backtesting:main"
+
+[build-system]
+requires = ["uv_build>=0.9.25,<0.10.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.2",
+]
