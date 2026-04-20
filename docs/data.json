@@ -178,6 +178,15 @@
       "tags": ["fiction", "creative-writing", "narrative", "html"],
       "createdAt": "2026-04-19",
       "solutions": []
+    },
+    {
+      "slug": "fishtank-water-sim",
+      "title": "fishtank-water-sim",
+      "tagline": "3D browser sim: pour water into a glass cube, slosh it with the mouse, orbit the camera, reset.",
+      "description": "Ship one committed HTML page with a black background, a glass cube fish tank, water that starts above and pours in, visible sloshing inside the tank, mouse interaction that disturbs the water, orbit-style camera control, and a reset button. Must run in a desktop browser on a MacBook without installing dependencies first.",
+      "tags": ["simulation", "browser", "threejs", "webgl", "3d", "fluid", "interactive"],
+      "createdAt": "2026-04-20",
+      "solutions": []
     }
   ]
 }
