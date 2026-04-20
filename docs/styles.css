@@ -1,5 +1,19 @@
 /* small overrides on top of Tailwind + DaisyUI */
 
+/* Sidebar open (mobile drawer): logo lives in the drawer only */
+#nav-drawer:checked ~ .drawer-content #navbar-brand {
+  display: none;
+}
+
+.breadcrumbs-header {
+  padding: 0;
+}
+
+.breadcrumbs-header ul {
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+
 html {
   scroll-behavior: smooth;
 }

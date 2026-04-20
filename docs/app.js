@@ -8,6 +8,7 @@ const state = {
   data: null,
   view: document.getElementById("view"),
   sidebar: document.getElementById("sidebar-nav"),
+  headerBreadcrumbs: document.getElementById("header-breadcrumbs"),
   themeMenu: document.getElementById("theme-menu"),
   themes: {
     light: ["lofi", "light", "cupcake", "emerald", "corporate", "retro", "garden", "pastel", "nord", "autumn", "winter"],
@@ -19,6 +20,10 @@ const state = {
 /* ------------------------------------------------------------------ */
 /* utils                                                               */
 /* ------------------------------------------------------------------ */
+
+function updateHeaderBreadcrumbs(html) {
+  if (state.headerBreadcrumbs) state.headerBreadcrumbs.innerHTML = html || "";
+}
 
 function esc(s) {
   return String(s ?? "")
@@ -206,6 +211,8 @@ function viewHome() {
     })
     .join("");
 
+  updateHeaderBreadcrumbs("");
+
   state.view.innerHTML = `
     <section class="hero bg-base-200 rounded-2xl border border-base-300 mb-10">
       <div class="hero-content py-12 px-6 lg:px-12 text-left w-full">
@@ -295,14 +302,16 @@ function viewEval(route) {
           })
           .join("");
 
-  state.view.innerHTML = `
-    <nav class="text-sm breadcrumbs mb-4">
-      <ul>
-        <li><a href="#/">Overview</a></li>
-        <li class="text-base-content/70">${esc(ev.title)}</li>
+  updateHeaderBreadcrumbs(`
+    <nav class="text-sm breadcrumbs breadcrumbs-header max-w-full min-w-0">
+      <ul class="flex-nowrap max-w-full">
+        <li class="min-w-0 shrink"><a href="#/">Overview</a></li>
+        <li class="text-base-content/70 min-w-0 truncate">${esc(ev.title)}</li>
       </ul>
     </nav>
+  `);
 
+  state.view.innerHTML = `
     <header class="mb-6">
       <div class="flex items-center gap-2 mb-2 flex-wrap">
         ${tags}
@@ -372,15 +381,17 @@ function viewSolution(route) {
   const oc = sol.outcome || {};
   const deployedHtml = siteArtifactUrl(sol.artifactUrl);
 
-  state.view.innerHTML = `
-    <nav class="text-sm breadcrumbs mb-4">
-      <ul>
-        <li><a href="#/">Overview</a></li>
-        <li><a href="#/eval/${esc(ev.slug)}">${esc(ev.title)}</a></li>
-        <li class="text-base-content/70 font-mono">${esc(sol.slug)}</li>
+  updateHeaderBreadcrumbs(`
+    <nav class="text-sm breadcrumbs breadcrumbs-header max-w-full min-w-0">
+      <ul class="flex-nowrap max-w-full">
+        <li class="min-w-0 shrink"><a href="#/">Overview</a></li>
+        <li class="min-w-0 shrink"><a href="#/eval/${esc(ev.slug)}">${esc(ev.title)}</a></li>
+        <li class="text-base-content/70 font-mono min-w-0 truncate">${esc(sol.slug)}</li>
       </ul>
     </nav>
+  `);
 
+  state.view.innerHTML = `
     <header class="mb-8">
       <div class="flex items-center gap-2 mb-2">
         ${statusBadge(oc.status)}
@@ -508,6 +519,7 @@ function viewSolution(route) {
 }
 
 function view404(msg) {
+  updateHeaderBreadcrumbs("");
   state.view.innerHTML = `
     <div class="hero bg-base-200 rounded-2xl border border-base-300">
       <div class="hero-content text-center py-16">
@@ -595,6 +607,7 @@ async function main() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     state.data = await res.json();
   } catch (e) {
+    updateHeaderBreadcrumbs("");
     state.view.innerHTML = `
       <div class="alert alert-error">
         <span>Failed to load <code>data.json</code>: ${esc(e.message)}</span>
