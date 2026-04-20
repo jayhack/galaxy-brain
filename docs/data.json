@@ -95,9 +95,9 @@
     {
       "slug": "gaps-get-filled",
       "title": "gaps-get-filled",
-      "tagline": "Empirically test the gap-fill folklore on U.S. equities and make a case for what the result means.",
-      "description": "Build a backtesting sandbox + CLI that tests whether price gaps on stock charts get filled, on the S&P 500 over a 10-year window. Ship a self-contained HTML presentation that takes a position on what the result means — not just a dashboard.",
-      "tags": ["finance", "backtesting", "cli", "data-viz"],
+      "tagline": "Build backtest + grid-search machinery, run it for real, and argue what the gap-fill folklore means — with an experiment spec and comparative visuals.",
+      "description": "Build a backtesting sandbox and CLI, actually execute backtests on U.S. equities (S&P 500 / 10-year minimum), run a documented parameter grid search, and specify the experiments (fixed vs. varied dimensions, metrics). Ship a self-contained HTML presentation with comparative visualizations of how configurations perform, not only a single-run narrative — plus a clear position on what the result means.",
+      "tags": ["finance", "backtesting", "cli", "data-viz", "experiments", "grid-search"],
       "createdAt": "2026-04-19",
       "solutions": [
         {
