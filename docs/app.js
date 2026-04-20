@@ -502,11 +502,10 @@ function viewSolution(route) {
 
   state.view.innerHTML = `
     <header class="mb-8">
-      <div class="flex items-center gap-2 mb-2">
+      <div class="flex flex-wrap items-center gap-2 mb-2">
         ${statusBadge(oc.status)}
         <span class="badge badge-ghost badge-sm">${esc(sol.harness)}</span>
         <span class="badge badge-ghost badge-sm">${esc(sol.model)}</span>
-        ${sol.submittedAt ? `<span class="badge badge-ghost badge-sm">submitted ${esc(sol.submittedAt)}</span>` : ""}
       </div>
       <h1 class="text-3xl font-bold tracking-tight font-mono">${esc(sol.slug)}</h1>
       ${sol.projectName ? `<p class="text-base-content/70 mt-1">project: <span class="font-mono">${esc(sol.projectName)}</span></p>` : ""}
