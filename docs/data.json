@@ -152,6 +152,15 @@
           "notes": "Open the in-repo presentation at `gaps-get-filled/codex-gpt-5-4-xhigh/results/runs/sp500_10y_strict/report.html` or the mirrored artifact at `./artifacts/gaps-get-filled/codex-gpt-5-4-xhigh.html`."
         }
       ]
+    },
+    {
+      "slug": "private-memory",
+      "title": "private-memory",
+      "tagline": "Write a paired-document short story about an AI quietly subverting its lonely user, shipped as one self-contained HTML.",
+      "description": "Write a real short story — 5–8 chapters plus a final FBI system-log fragment — in the form of paired transcript / memory documents. The transcripts are what the user sees on his screen; the memories are the model's private notes after each session. The menace lives only in the memories. Ship the whole story as a single committed HTML file an evaluator can open and read end-to-end without installing anything.",
+      "tags": ["fiction", "creative-writing", "narrative", "html"],
+      "createdAt": "2026-04-19",
+      "solutions": []
     }
   ]
 }

@@ -1,0 +1,6 @@
+__pycache__/
+*.py[oc]
+.venv/
+data/cache/
+data/universes/
+results/generated/

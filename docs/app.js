@@ -8,6 +8,7 @@ const state = {
   data: null,
   view: document.getElementById("view"),
   sidebar: document.getElementById("sidebar-nav"),
+  headerBreadcrumbs: document.getElementById("header-breadcrumbs"),
   themeMenu: document.getElementById("theme-menu"),
   themes: {
     light: ["lofi", "light", "cupcake", "emerald", "corporate", "retro", "garden", "pastel", "nord", "autumn", "winter"],
@@ -19,6 +20,10 @@ const state = {
 /* ------------------------------------------------------------------ */
 /* utils                                                               */
 /* ------------------------------------------------------------------ */
+
+function updateHeaderBreadcrumbs(html) {
+  if (state.headerBreadcrumbs) state.headerBreadcrumbs.innerHTML = html || "";
+}
 
 function esc(s) {
   return String(s ?? "")
@@ -91,6 +96,7 @@ function parseHash() {
   const raw = (location.hash || "#/").slice(1);
   const parts = raw.split("/").filter(Boolean);
   if (parts.length === 0) return { name: "home" };
+  if (parts[0] === "about") return { name: "about" };
   if (parts[0] === "eval" && parts.length === 2) {
     return { name: "eval", evalSlug: parts[1] };
   }
@@ -126,6 +132,12 @@ function renderSidebar(route) {
     `<a href="#/" class="sidebar-link ${route.name === "home" ? "active" : ""}">
        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l9-9 9 9M5 10v10h4v-6h6v6h4V10"/></svg>
        <span>Overview</span>
+     </a>`
+  );
+  items.push(
+    `<a href="#/about" class="sidebar-link ${route.name === "about" ? "active" : ""}">
+       <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+       <span>About</span>
      </a>`
   );
 
@@ -206,6 +218,8 @@ function viewHome() {
     })
     .join("");
 
+  updateHeaderBreadcrumbs("");
+
   state.view.innerHTML = `
     <section class="hero bg-base-200 rounded-2xl border border-base-300 mb-10">
       <div class="hero-content py-12 px-6 lg:px-12 text-left w-full">
@@ -246,6 +260,99 @@ function viewHome() {
   document.getElementById("hero-repo").href = repoUrls(data).repo;
 }
 
+function viewAbout() {
+  const data = state.data;
+  const urls = repoUrls(data);
+
+  const compLinks = [
+    {
+      href: "https://chat.lmsys.org/",
+      title: "LMSYS Chatbot Arena",
+      blurb:
+        "Large-scale pairwise human preferences over model outputs; Elo-style leaderboards from crowd votes. The canonical example of subjective eval at scale.",
+    },
+    {
+      href: "https://huggingface.co/spaces/lmsys/mt-bench",
+      title: "MT-Bench",
+      blurb:
+        "Multi-turn dialogue benchmark scored with strong models (and originally designed to align with human judgment). Good reference for structured-but-still-quality-focused evaluation.",
+    },
+    {
+      href: "https://tatsu-lab.github.io/alpaca_eval/",
+      title: "AlpacaEval",
+      blurb:
+        "Automatic pairwise comparisons (often via a strong judge model) against reference outputs; correlates with human preferences on instruction-following.",
+    },
+    {
+      href: "https://huggingface.co/spaces/allenai/WildBench",
+      title: "WildBench",
+      blurb:
+        "Tasks mined from real user–chatbot logs, with model-based pairwise scoring designed to track human Arena rankings.",
+    },
+    {
+      href: "https://crfm.stanford.edu/helm/",
+      title: "HELM (Holistic Evaluation of Language Models)",
+      blurb:
+        "Broad, scenario-based reporting across accuracy, calibration, robustness, fairness, toxicity, and efficiency—not purely “vibes,” but a major effort to make comparisons transparent and multi-dimensional.",
+    },
+    {
+      href: "https://www.swebench.com/",
+      title: "SWE-bench",
+      blurb:
+        "Real GitHub issues patched end-to-end; the flagship objective benchmark for coding agents (pass/fail on applied patches). Complements subjective build-quality reviews.",
+    },
+    {
+      href: "https://github.com/google-research/google-research/tree/master/instruction_following_eval",
+      title: "Google IFEval",
+      blurb:
+        "Verifiable instruction-following checks (counts, formatting, constraints)—useful contrast to open-ended “how good does this feel?” grading.",
+    },
+  ];
+
+  const listItems = compLinks
+    .map(
+      (c) => `
+      <li class="border border-base-300 rounded-xl p-4 bg-base-200/50">
+        <a href="${esc(c.href)}" class="link link-primary font-semibold" target="_blank" rel="noopener">${esc(c.title)}</a>
+        <p class="text-sm text-base-content/75 mt-2 mb-0">${esc(c.blurb)}</p>
+      </li>`
+    )
+    .join("");
+
+  state.view.innerHTML = `
+    <nav class="text-sm breadcrumbs mb-4">
+      <ul>
+        <li><a href="#/">Overview</a></li>
+        <li class="text-base-content/70">About</li>
+      </ul>
+    </nav>
+
+    <article class="prose prose-sm max-w-none">
+      <h1 class="text-3xl font-bold tracking-tight text-base-content">About galaxy-brain</h1>
+      <p class="text-base-content/80">
+        This repo is a <strong>personal</strong> set of evals: prompts and tasks I care about, know well, and can judge consistently.
+        The site is for <strong>comparing submissions side by side</strong> and <strong>tracking how outcomes change over time</strong> as models and harnesses improve.
+      </p>
+      <p class="text-base-content/80">
+        People can send <strong>pull requests</strong> with solutions; I run the evals myself (including open-ended or subjective parts) rather than outsourcing scoring to a crowd or an automated metric alone.
+        That keeps the bar aligned with what I actually want from agents—not only what is easy to grade automatically.
+      </p>
+
+      <h2 class="text-xl font-semibold text-base-content mt-10">Comparable efforts (larger or different in spirit)</h2>
+      <p class="text-base-content/80">
+        If you are looking for <em>large-scale subjective</em> or “quality in the wild” comparisons, these are well-known references. They differ from this project in scale and governance, but they answer a similar “which model feels better on hard tasks?” question.
+      </p>
+      <ul class="list-none pl-0 space-y-3 not-prose max-w-3xl">${listItems}</ul>
+
+      <h2 class="text-xl font-semibold text-base-content mt-10">Source</h2>
+      <p class="text-base-content/80">
+        <a href="${esc(urls.repo)}" class="link link-primary" target="_blank" rel="noopener">Repository on GitHub</a>
+        — eval prompts live next to submitted solutions; this site reads <code class="text-xs">docs/data.json</code> for the browser.
+      </p>
+    </article>
+  `;
+}
+
 function viewEval(route) {
   const data = state.data;
   const ev = data.evals.find((e) => e.slug === route.evalSlug);
@@ -265,7 +372,7 @@ function viewEval(route) {
           .map((sol) => {
             const htmlOut = siteArtifactUrl(sol.artifactUrl);
             const htmlBtn = htmlOut
-              ? `<a href="${esc(htmlOut)}" target="_blank" rel="noopener" class="btn btn-xs btn-outline gap-1 h-7 min-h-7 px-2 shrink-0" onclick="event.stopPropagation()">
+              ? `<a href="${esc(htmlOut)}" target="_blank" rel="noopener" class="btn btn-xs btn-outline gap-1 h-7 min-h-7 px-2 shrink-0">
                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                    HTML
                  </a>`
@@ -279,30 +386,34 @@ function viewEval(route) {
               .join(" · ");
             const firstTech = (sol.tech && sol.tech[0]) || "";
             const techBadge = firstTech
-              ? `<span class="badge badge-outline badge-sm font-mono shrink-0 max-w-[5.5rem] truncate" title="${esc(firstTech)} (first stack tag)">${esc(firstTech)}</span>`
+              ? `<span class="badge badge-outline badge-sm font-mono shrink-0 max-w-[5.5rem] truncate" title="${esc(firstTech)}">${esc(firstTech)}</span>`
               : "";
             return `
-              <a href="#/eval/${esc(ev.slug)}/${esc(sol.slug)}" class="group flex flex-nowrap flex-row items-center gap-2 sm:gap-3 w-full min-w-0 rounded-lg border border-base-300 bg-base-200 hover:bg-base-300 hover:border-primary/30 transition-colors px-3 py-2">
-                ${techBadge}
-                <span class="font-mono text-sm font-semibold text-base-content shrink-0 max-w-[40%] sm:max-w-none truncate">${esc(sol.slug)}</span>
-                <span class="text-[11px] sm:text-xs text-base-content/55 font-mono truncate shrink-0 max-w-[7.5rem] sm:max-w-[11rem]">${metaBits}</span>
-                <span class="text-xs text-base-content/65 truncate min-w-0 flex-1" title="${esc(sol.summary || "")}">${esc(sol.summary || "")}</span>
-                <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <div class="flex flex-nowrap flex-row items-stretch w-full min-w-0 rounded-lg border border-base-300 bg-base-200 overflow-hidden hover:border-primary/30 transition-colors">
+                <a href="#/eval/${esc(ev.slug)}/${esc(sol.slug)}" class="group flex flex-1 min-w-0 flex-nowrap flex-row items-center gap-2 sm:gap-3 px-3 py-2 hover:bg-base-300/60">
+                  ${techBadge}
+                  <span class="font-mono text-sm font-semibold text-base-content shrink-0 max-w-[40%] sm:max-w-none truncate">${esc(sol.slug)}</span>
+                  <span class="text-[11px] sm:text-xs text-base-content/55 font-mono truncate shrink-0 max-w-[7.5rem] sm:max-w-[11rem]">${metaBits}</span>
+                  <span class="text-xs text-base-content/65 truncate min-w-0 flex-1" title="${esc(sol.summary || "")}">${esc(sol.summary || "")}</span>
+                </a>
+                <div class="flex items-center gap-1.5 sm:gap-2 shrink-0 border-l border-base-300/80 pl-2 pr-3 py-2">
                   ${htmlBtn}
                   ${statusBadge(sol.outcome?.status)}
                 </div>
-              </a>`;
+              </div>`;
           })
           .join("");
 
-  state.view.innerHTML = `
-    <nav class="text-sm breadcrumbs mb-4">
-      <ul>
-        <li><a href="#/">Overview</a></li>
-        <li class="text-base-content/70">${esc(ev.title)}</li>
+  updateHeaderBreadcrumbs(`
+    <nav class="text-sm breadcrumbs breadcrumbs-header max-w-full min-w-0">
+      <ul class="flex-nowrap max-w-full">
+        <li class="min-w-0 shrink"><a href="#/">Overview</a></li>
+        <li class="text-base-content/70 min-w-0 truncate">${esc(ev.title)}</li>
       </ul>
     </nav>
+  `);
 
+  state.view.innerHTML = `
     <header class="mb-6">
       <div class="flex items-center gap-2 mb-2 flex-wrap">
         ${tags}
@@ -372,15 +483,17 @@ function viewSolution(route) {
   const oc = sol.outcome || {};
   const deployedHtml = siteArtifactUrl(sol.artifactUrl);
 
-  state.view.innerHTML = `
-    <nav class="text-sm breadcrumbs mb-4">
-      <ul>
-        <li><a href="#/">Overview</a></li>
-        <li><a href="#/eval/${esc(ev.slug)}">${esc(ev.title)}</a></li>
-        <li class="text-base-content/70 font-mono">${esc(sol.slug)}</li>
+  updateHeaderBreadcrumbs(`
+    <nav class="text-sm breadcrumbs breadcrumbs-header max-w-full min-w-0">
+      <ul class="flex-nowrap max-w-full">
+        <li class="min-w-0 shrink"><a href="#/">Overview</a></li>
+        <li class="min-w-0 shrink"><a href="#/eval/${esc(ev.slug)}">${esc(ev.title)}</a></li>
+        <li class="text-base-content/70 font-mono min-w-0 truncate">${esc(sol.slug)}</li>
       </ul>
     </nav>
+  `);
 
+  state.view.innerHTML = `
     <header class="mb-8">
       <div class="flex items-center gap-2 mb-2">
         ${statusBadge(oc.status)}
@@ -508,6 +621,7 @@ function viewSolution(route) {
 }
 
 function view404(msg) {
+  updateHeaderBreadcrumbs("");
   state.view.innerHTML = `
     <div class="hero bg-base-200 rounded-2xl border border-base-300">
       <div class="hero-content text-center py-16">
@@ -577,6 +691,8 @@ function render() {
   switch (route.name) {
     case "home":
       return viewHome();
+    case "about":
+      return viewAbout();
     case "eval":
       return viewEval(route);
     case "solution":
@@ -595,6 +711,7 @@ async function main() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     state.data = await res.json();
   } catch (e) {
+    updateHeaderBreadcrumbs("");
     state.view.innerHTML = `
       <div class="alert alert-error">
         <span>Failed to load <code>data.json</code>: ${esc(e.message)}</span>
