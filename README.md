@@ -68,6 +68,20 @@ Do not modify other solutions or the eval prompts in your PR — only add files 
 
 A static results browser lives in [`docs/`](./docs) and is published via GitHub Pages from `main` (`/docs` folder). It's driven by [`docs/data.json`](./docs/data.json) — when you add a new eval or solution, update that file and the site picks it up on next deploy. Built with Tailwind + DaisyUI, no build step (everything via CDN).
 
+### Local development
+
+From the repository root:
+
+1. Install dependencies once: `npm install`
+2. Start a local server and open the results site in your browser: `npx dev`  
+   (equivalent: `npm run dev`)
+
+The dev command serves the [`docs/`](./docs) folder on **http://127.0.0.1:8080/** (port 8080) and opens your default browser. Reload the page after editing HTML, CSS, or `data.json`.
+
+Without installing repo dependencies, you can run the same behavior in one shot (downloads `http-server` on first use):
+
+`npx --yes http-server docs -p 8080 -o`
+
 ### HTML artifacts (GitHub Pages)
 
 Many evals ask for a **browsable deliverable** (often a single `.html` file). To link that output directly from the site (`https://jayhack.github.io/<repo>/`) without asking visitors to hunt through GitHub:
