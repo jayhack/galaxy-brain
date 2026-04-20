@@ -372,7 +372,7 @@ function viewEval(route) {
           .map((sol) => {
             const htmlOut = siteArtifactUrl(sol.artifactUrl);
             const htmlBtn = htmlOut
-              ? `<a href="${esc(htmlOut)}" target="_blank" rel="noopener" class="btn btn-xs btn-outline gap-1 h-7 min-h-7 px-2 shrink-0" onclick="event.stopPropagation()">
+              ? `<a href="${esc(htmlOut)}" target="_blank" rel="noopener" class="btn btn-xs btn-outline gap-1 h-7 min-h-7 px-2 shrink-0">
                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                    HTML
                  </a>`
@@ -386,19 +386,21 @@ function viewEval(route) {
               .join(" · ");
             const firstTech = (sol.tech && sol.tech[0]) || "";
             const techBadge = firstTech
-              ? `<span class="badge badge-outline badge-sm font-mono shrink-0 max-w-[5.5rem] truncate" title="${esc(firstTech)} (first stack tag)">${esc(firstTech)}</span>`
+              ? `<span class="badge badge-outline badge-sm font-mono shrink-0 max-w-[5.5rem] truncate" title="${esc(firstTech)}">${esc(firstTech)}</span>`
               : "";
             return `
-              <a href="#/eval/${esc(ev.slug)}/${esc(sol.slug)}" class="group flex flex-nowrap flex-row items-center gap-2 sm:gap-3 w-full min-w-0 rounded-lg border border-base-300 bg-base-200 hover:bg-base-300 hover:border-primary/30 transition-colors px-3 py-2">
-                ${techBadge}
-                <span class="font-mono text-sm font-semibold text-base-content shrink-0 max-w-[40%] sm:max-w-none truncate">${esc(sol.slug)}</span>
-                <span class="text-[11px] sm:text-xs text-base-content/55 font-mono truncate shrink-0 max-w-[7.5rem] sm:max-w-[11rem]">${metaBits}</span>
-                <span class="text-xs text-base-content/65 truncate min-w-0 flex-1" title="${esc(sol.summary || "")}">${esc(sol.summary || "")}</span>
-                <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <div class="flex flex-nowrap flex-row items-stretch w-full min-w-0 rounded-lg border border-base-300 bg-base-200 overflow-hidden hover:border-primary/30 transition-colors">
+                <a href="#/eval/${esc(ev.slug)}/${esc(sol.slug)}" class="group flex flex-1 min-w-0 flex-nowrap flex-row items-center gap-2 sm:gap-3 px-3 py-2 hover:bg-base-300/60">
+                  ${techBadge}
+                  <span class="font-mono text-sm font-semibold text-base-content shrink-0 max-w-[40%] sm:max-w-none truncate">${esc(sol.slug)}</span>
+                  <span class="text-[11px] sm:text-xs text-base-content/55 font-mono truncate shrink-0 max-w-[7.5rem] sm:max-w-[11rem]">${metaBits}</span>
+                  <span class="text-xs text-base-content/65 truncate min-w-0 flex-1" title="${esc(sol.summary || "")}">${esc(sol.summary || "")}</span>
+                </a>
+                <div class="flex items-center gap-1.5 sm:gap-2 shrink-0 border-l border-base-300/80 pl-2 pr-3 py-2">
                   ${htmlBtn}
                   ${statusBadge(sol.outcome?.status)}
                 </div>
-              </a>`;
+              </div>`;
           })
           .join("");
 
