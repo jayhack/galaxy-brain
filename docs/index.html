@@ -103,7 +103,7 @@
             </a>
             <div
               id="header-breadcrumbs"
-              class="min-w-0 flex-1 flex items-center overflow-hidden"
+              class="min-w-0 flex-1 flex items-center overflow-hidden w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-10"
               aria-live="polite"
             ></div>
           </div>
@@ -177,18 +177,25 @@
           class="min-h-full w-72 bg-base-200 border-r border-base-300 flex flex-col"
         >
           <div
-            class="sidebar-brand shrink-0 h-16 min-h-16 px-4 border-b border-base-300 flex flex-col justify-center gap-0 overflow-hidden"
+            class="sidebar-brand shrink-0 h-16 min-h-16 px-4 border-b border-base-300 flex items-center overflow-hidden"
           >
-            <a href="#/" class="flex items-center gap-2 min-w-0">
+            <a href="#/" class="flex items-center gap-2 min-w-0 flex-1">
               <span
                 class="inline-grid place-items-center w-8 h-8 shrink-0 rounded-lg bg-gradient-to-br from-primary to-secondary text-base-100 font-mono font-bold text-sm"
+                aria-hidden="true"
                 >~</span
               >
-              <span class="font-semibold tracking-tight truncate">galaxy-brain</span>
+              <div
+                class="min-w-0 flex-1 h-8 flex flex-col justify-between py-0.5"
+              >
+                <span class="text-xs font-semibold leading-none tracking-tight truncate"
+                  >galaxy-brain</span
+                >
+                <p class="text-[10px] leading-none text-base-content/60 truncate">
+                  A collection of agent evals.
+                </p>
+              </div>
             </a>
-            <p class="text-[11px] leading-tight text-base-content/60 truncate mt-0.5">
-              A collection of agent evals.
-            </p>
           </div>
 
           <nav id="sidebar-nav" class="p-2 flex-1 overflow-y-auto">
