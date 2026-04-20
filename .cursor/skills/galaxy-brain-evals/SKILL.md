@@ -59,7 +59,7 @@ Cross-check the canonical overview in the root **`README.md`** (“Layout”, �
 
 ## Eval `README.md` content (recommended sections)
 
-Mirror existing evals (e.g. `evading-demons`, `gaps-get-filled`, `private-memory`):
+Mirror existing evals (e.g. `evading-demons`, `gaps-get-filled`, `web-short-story`):
 
 1. **Title** — H1 with the eval slug or human name.
 2. **Prompt** — Numbered or bulleted requirements; say what must be **committed** (e.g. a playable `.html`) and what stack is allowed.

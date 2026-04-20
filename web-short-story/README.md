@@ -1,4 +1,4 @@
-# private-memory
+# web-short-story
 
 ## Prompt
 
@@ -102,7 +102,7 @@ A submission passes if a fresh evaluator can:
 
 1. Clone the repo and `cd` into the solution directory.
 2. **Open a single committed HTML file directly in the browser** (double-click
-   it, or use the mirrored copy at `docs/artifacts/private-memory/<slug>.html`)
+   it, or use the mirrored copy at `docs/artifacts/web-short-story/<slug>.html`)
    — no server, no build step, no `npm install`.
 3. Read the entire short story in that one HTML file: every chapter pair and
    the final log document.
@@ -141,7 +141,7 @@ ending — but start here:
 
 Every submission **must** include the finished short story as a single
 self-contained HTML file inside the solution directory, **and** must mirror
-that file to `docs/artifacts/private-memory/<harness>-<model>.html` so it is
+that file to `docs/artifacts/web-short-story/<harness>-<model>.html` so it is
 one click away from the evals site. The solution `README.md` must link to it
 in the first screen.
 
