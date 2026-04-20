@@ -89,6 +89,23 @@
             "score": null
           },
           "notes": "Open `index.html` directly in the solution, or use the mirrored artifact at `./artifacts/evading-demons/claude-code-opus-4-7-1m.html`."
+        },
+        {
+          "slug": "cursor-gemini-3-1-pro",
+          "harness": "cursor",
+          "model": "gemini-3-1-pro",
+          "projectName": "lumina-atrium",
+          "summary": "Single-file Three.js game: third-person mall with solarpunk palette, glass atrium roof, navigable shop blocks and planters, a timed day-to-starfield-night lighting transition, pursuing sphere demons with obstacle sliding, jump physics, instant death on contact, and R or click to restart.",
+          "tech": ["html", "css", "javascript", "threejs"],
+          "submittedAt": "2026-04-20",
+          "artifactUrl": "./artifacts/evading-demons/cursor-gemini-3-1-pro.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a playable HTML game artifact directly in the submission and mirrors it into GitHub Pages for one-click evaluation.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `lumina-atrium/index.html` directly in the solution, or use the mirrored artifact at `./artifacts/evading-demons/cursor-gemini-3-1-pro.html`."
         }
       ]
     },

@@ -75,3 +75,5 @@ Current solutions:
   **heliomall-escape**.
 - `[claude-code-opus-4-7-1m/](./claude-code-opus-4-7-1m)` — Claude Code +
   Opus 4.7 (1M context). Project name: **verdant-bazaar**.
+- `[cursor-gemini-3-1-pro/](./cursor-gemini-3-1-pro)` — Cursor +
+  Gemini 3.1 Pro. Project name: **lumina-atrium**.
