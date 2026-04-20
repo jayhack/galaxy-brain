@@ -47,18 +47,9 @@
     <span id="hint">Drag = orbit · Scroll = zoom · Move mouse over the tank to ripple the surface</span>
   </div>
 
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
-    }
-  }
-  </script>
-
   <script type="module">
-    import * as THREE from 'three';
-    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import * as THREE from "https://esm.sh/three@0.170.0";
+    import { OrbitControls } from "https://esm.sh/three@0.170.0/examples/jsm/controls/OrbitControls.js";
 
     const TANK_SIZE = 2;
     const TANK_HALF = TANK_SIZE * 0.5;

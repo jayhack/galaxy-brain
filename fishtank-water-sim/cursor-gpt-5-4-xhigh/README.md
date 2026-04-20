@@ -4,7 +4,7 @@
 
 [Open `index.html`](./index.html) directly in Chrome, Firefox, or Safari (`File → Open` or drag the file into the window).
 
-The page loads **Three.js r170** and **OrbitControls** from jsDelivr; a network connection is required the first time so the CDN modules resolve.
+The page loads **Three.js r170** and **OrbitControls** from **esm.sh** (rewrites addon imports so the browser never hits bare `three` module specifiers); a network connection is required the first time so the CDN modules resolve.
 
 ## What it does
 

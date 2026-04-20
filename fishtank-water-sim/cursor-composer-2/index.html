@@ -47,18 +47,9 @@
     <span id="hint">Drag to orbit · Move the mouse over the water to disturb it · Scroll = zoom</span>
   </div>
 
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
-    }
-  }
-  </script>
-
   <script type="module">
-    import * as THREE from 'three';
-    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import * as THREE from "https://esm.sh/three@0.170.0";
+    import { OrbitControls } from "https://esm.sh/three@0.170.0/examples/jsm/controls/OrbitControls.js";
 
     const TANK = 2;
     const HALF = TANK * 0.5;
