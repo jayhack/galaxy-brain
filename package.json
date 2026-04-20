@@ -5,9 +5,9 @@
     "dev": "./bin/dev.cjs"
   },
   "scripts": {
-    "dev": "http-server docs -p 8080 -o"
+    "dev": "live-server docs --port=8080"
   },
   "devDependencies": {
-    "http-server": "^14.1.1"
+    "live-server": "^1.2.2"
   }
 }

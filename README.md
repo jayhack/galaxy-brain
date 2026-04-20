@@ -77,11 +77,11 @@ From the repository root:
 2. Start a local server and open the results site in your browser: `npx dev`  
    (equivalent: `npm run dev`)
 
-The dev command serves the [`docs/`](./docs) folder on **http://127.0.0.1:8080/** (port 8080) and opens your default browser. Reload the page after editing HTML, CSS, or `data.json`.
+The dev command serves the [`docs/`](./docs) folder on **http://127.0.0.1:8080/** (port 8080), opens your default browser, and **live-reloads** when files under `docs/` change ([live-server](https://github.com/tapio/live-server) watches the tree and refreshes the page; CSS changes are injected when possible).
 
-Without installing repo dependencies, you can run the same behavior in one shot (downloads `http-server` on first use):
+Without installing repo dependencies, you can run the same stack in one shot (downloads `live-server` on first use):
 
-`npx --yes http-server docs -p 8080 -o`
+`npx --yes live-server docs --port=8080`
 
 ### HTML artifacts (GitHub Pages)
 
