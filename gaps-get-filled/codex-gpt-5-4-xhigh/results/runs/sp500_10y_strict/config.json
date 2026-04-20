@@ -1,0 +1,23 @@
+{
+  "universe": "sp500",
+  "tickers": null,
+  "start_date": "2016-04-19",
+  "end_date": "2026-04-19",
+  "gap": {
+    "direction": "both",
+    "min_gap_pct": 0.01,
+    "fill_horizons": [
+      1,
+      5,
+      20,
+      60
+    ]
+  },
+  "trade": {
+    "position_size_usd": 10000.0,
+    "stop_loss_pct": 0.03,
+    "time_stop_days": 20,
+    "commission_bps": 1.0,
+    "slippage_bps": 2.0
+  }
+}

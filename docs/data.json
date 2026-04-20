@@ -133,6 +133,23 @@
             "score": null
           },
           "notes": "Open the in-repo presentation at `gaps-get-filled/cursor-gpt-5-4/gpt-5-4-backtesting/results/sp500-10y/presentation/report.html` or the mirrored artifact at `./artifacts/gaps-get-filled/cursor-gpt-5-4.html`."
+        },
+        {
+          "slug": "codex-gpt-5-4-xhigh",
+          "harness": "codex",
+          "model": "gpt-5-4-xhigh",
+          "projectName": "closing-bell",
+          "summary": "Python + uv backtesting sandbox with strict range-gap detection, a reusable strategy interface, local per-symbol caching, and a narrative HTML report generator. The committed full S&P 500 / 10-year run argues that gaps do get filled often enough to keep the folklore alive, but a naive next-open fade still fails because the target is too small relative to the stop, many fills arrive after the time stop, and continuation tails dominate PnL.",
+          "tech": ["python", "uv", "pandas", "yfinance", "plotly"],
+          "submittedAt": "2026-04-19",
+          "artifactUrl": "./artifacts/gaps-get-filled/codex-gpt-5-4-xhigh.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Ships a committed full-run HTML artifact built from 503 live S&P 500 constituents across a 10-year window, plus mirrored Pages output for one-click review. The narrative makes a clear case: 73.1% of strict gaps fill within 60 trading days and 90.0% eventually fill, yet the naive fade still posts a negative Sharpe.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open the in-repo presentation at `gaps-get-filled/codex-gpt-5-4-xhigh/results/runs/sp500_10y_strict/report.html` or the mirrored artifact at `./artifacts/gaps-get-filled/codex-gpt-5-4-xhigh.html`."
         }
       ]
     },

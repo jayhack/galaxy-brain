@@ -1,0 +1,36 @@
+{
+  "run_name": "sp500_10y_strict",
+  "generated_at": "2026-04-19T18:48:25",
+  "symbols_requested": 503,
+  "symbols_with_data": 503,
+  "start_date": "2016-04-19",
+  "end_date": "2026-04-19",
+  "gap_summary": {
+    "n_gaps": 21640,
+    "eventual_fill_rate_pct": 90.00462107208872,
+    "median_days_to_fill": 9.0,
+    "median_gap_pct": 1.8424630810744949,
+    "mean_gap_pct": 2.706842944673023,
+    "fill_rate_1d_pct": 11.367837338262476,
+    "fill_rate_5d_pct": 35.517560073937155,
+    "fill_rate_20d_pct": 57.7634011090573,
+    "fill_rate_60d_pct": 73.10998151571164
+  },
+  "trade_summary": {
+    "n_trades": 21614,
+    "win_rate_pct": 38.872952715832334,
+    "loss_rate_pct": 61.127047284167666,
+    "avg_return_pct": -0.2748981817669778,
+    "median_return_pct": -1.1239429348309427,
+    "best_return_pct": 44.91906954310522,
+    "worst_return_pct": -36.216352135565636,
+    "avg_bars_held": 3.232950865179976,
+    "median_bars_held": 1.0,
+    "total_net_pnl_usd": -594164.9300711458,
+    "pct_target": 37.70241510132322,
+    "pct_stop": 58.577773665216995,
+    "pct_time_stop": 3.6041454612751,
+    "sharpe": -0.5959391131263769,
+    "max_drawdown_usd": -594144.3264638608
+  }
+}
