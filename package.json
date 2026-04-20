@@ -5,9 +5,12 @@
     "dev": "./bin/dev.cjs"
   },
   "scripts": {
-    "dev": "live-server docs --port=8080"
+    "dev": "live-server docs --port=8080",
+    "test:e2e": "playwright test"
   },
   "devDependencies": {
+    "@playwright/mcp": "^0.0.70",
+    "@playwright/test": "^1.59.1",
     "live-server": "^1.2.2"
   }
 }
