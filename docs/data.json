@@ -237,6 +237,23 @@
             "score": null
           },
           "notes": "Open `fishtank-water-sim/cursor-gpt-5-4-xhigh/index.html` directly in a browser, or the mirrored artifact at `./artifacts/fishtank-water-sim/cursor-gpt-5-4-xhigh.html`."
+        },
+        {
+          "slug": "cursor-composer-2-f48c",
+          "harness": "cursor",
+          "model": "composer-2-f48c",
+          "projectName": "fishtank-water-sim-cursor-f48c",
+          "summary": "Single-page Three.js: glass cube tank with inner floor for depth cues, shallow-water heightfield, pour stream from above, explicit wave slosh after fill, pointer impulses on the surface, orbit camera with zoom, Reset to replay.",
+          "tech": ["html", "javascript", "threejs", "webgl"],
+          "submittedAt": "2026-04-20",
+          "artifactUrl": "./artifacts/fishtank-water-sim/cursor-composer-2-f48c.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a self-contained index.html under the solution folder and mirrors it under docs/artifacts for GitHub Pages review.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `fishtank-water-sim/cursor-composer-2-f48c/index.html` directly in a browser, or the mirrored artifact at `./artifacts/fishtank-water-sim/cursor-composer-2-f48c.html`."
         }
       ]
     }
