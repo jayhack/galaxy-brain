@@ -3,9 +3,9 @@ const { spawn } = require('child_process');
 const path = require('path');
 
 const root = path.join(__dirname, '..');
-const httpServerCli = path.join(root, 'node_modules', 'http-server', 'bin', 'http-server');
+const liveServerCli = path.join(root, 'node_modules', 'live-server', 'live-server.js');
 
-const child = spawn(process.execPath, [httpServerCli, 'docs', '-p', '8080', '-o'], {
+const child = spawn(process.execPath, [liveServerCli, 'docs', '--port=8080'], {
   cwd: root,
   stdio: 'inherit',
 });
