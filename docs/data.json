@@ -150,6 +150,23 @@
             "score": null
           },
           "notes": "Open the in-repo presentation at `gaps-get-filled/codex-gpt-5-4-xhigh/results/runs/sp500_10y_strict/report.html` or the mirrored artifact at `./artifacts/gaps-get-filled/codex-gpt-5-4-xhigh.html`."
+        },
+        {
+          "slug": "cursor-composer-2",
+          "harness": "cursor",
+          "model": "composer-2",
+          "projectName": "gapfill-sandbox",
+          "summary": "Python + pip package with a Click CLI (fetch / run / present), strict range-gap detection on cached daily OHLC, a pluggable strategy registry, and a self-contained HTML presentation. The committed 503-symbol / 10-year run argues that most filtered gaps eventually touch the prior bar extreme within 60 sessions, while the naive next-open fade still loses most trades because stops dominate exits.",
+          "tech": ["python", "pip", "pandas", "numpy", "yfinance", "click", "chart.js"],
+          "submittedAt": "2026-04-20",
+          "artifactUrl": "./artifacts/gaps-get-filled/cursor-composer-2.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Ships committed run.json + presentation.html under results/sp500_10y_default, mirrored to docs/artifacts for GitHub Pages. Narrative separates empirical fill rates from naive trade outcomes.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open the in-repo presentation at `gaps-get-filled/cursor-composer-2/results/sp500_10y_default/presentation.html` or the mirrored artifact at `./artifacts/gaps-get-filled/cursor-composer-2.html`."
         }
       ]
     },
