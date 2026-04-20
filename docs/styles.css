@@ -14,6 +14,11 @@
   overflow: hidden;
 }
 
+/* DaisyUI badges: avoid mid-word wrapping when a flex row squeezes pill width (mobile). */
+.badge {
+  white-space: nowrap;
+}
+
 html {
   scroll-behavior: smooth;
 }
