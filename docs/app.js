@@ -328,7 +328,7 @@ function viewEval(route) {
         <h2 class="text-xl font-semibold">Prompt</h2>
         <span class="text-xs text-base-content/50 font-mono">${esc(promptPath)}</span>
       </div>
-      <article id="prompt-md" class="prose max-w-none bg-base-200 border border-base-300 rounded-2xl p-6 markdown-target">
+      <article id="prompt-md" class="prose prose-sm max-w-none bg-base-200 border border-base-300 rounded-2xl p-4 markdown-target">
         <div class="flex items-center gap-2 text-base-content/60 text-sm">
           <span class="loading loading-dots loading-sm"></span>
           loading prompt…
@@ -464,7 +464,7 @@ function viewSolution(route) {
         <h2 class="text-xl font-semibold">README</h2>
         <span id="readme-path" class="text-xs text-base-content/50 font-mono"></span>
       </div>
-      <article id="solution-md" class="prose max-w-none bg-base-200 border border-base-300 rounded-2xl p-6 markdown-target">
+      <article id="solution-md" class="prose prose-sm max-w-none bg-base-200 border border-base-300 rounded-2xl p-4 markdown-target">
         <div class="flex items-center gap-2 text-base-content/60 text-sm">
           <span class="loading loading-dots loading-sm"></span>
           loading README…
