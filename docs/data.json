@@ -72,6 +72,23 @@
             "score": null
           },
           "notes": "Open `index.html` directly in the solution, or use the mirrored artifact at `./artifacts/evading-demons/codex-gpt-5.html`."
+        },
+        {
+          "slug": "claude-code-opus-4-7-1m",
+          "harness": "claude-code",
+          "model": "opus-4-7-1m",
+          "projectName": "verdant-bazaar",
+          "summary": "Single-file Three.js browser game. Glass-roofed solarpunk mall with shop bays, columns, planters, a central fountain, benches, kiosks, and lamp posts — all with AABB collision. Arrow-key third-person controller with jump, sprint, and chase camera. Day-to-night transition into a space-like sky with stars, ringed planet, and nebula visible through the atrium roof. Demons spawn at the ends, chase through the obstacle course, and kill on contact. Death overlay + R-to-restart, optional sunmote scoring loop.",
+          "tech": ["html", "css", "javascript", "threejs"],
+          "submittedAt": "2026-04-19",
+          "artifactUrl": "./artifacts/evading-demons/claude-code-opus-4-7-1m.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a playable HTML game artifact directly in the submission and mirrors it into GitHub Pages for one-click evaluation.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `index.html` directly in the solution, or use the mirrored artifact at `./artifacts/evading-demons/claude-code-opus-4-7-1m.html`."
         }
       ]
     },
@@ -105,13 +122,13 @@
           "harness": "cursor",
           "model": "gpt-5-4",
           "projectName": "gpt-5-4-backtesting",
-          "summary": "Python + uv backtesting sandbox with strict-gap detection, a reusable strategy interface, CLI commands for download/backtest/present/grid-search, and a self-contained HTML presentation that argues: gaps frequently get filled over longer horizons, but a naive gap-fade still struggles on Sharpe because the path to the fill is too noisy.",
+          "summary": "Python + uv backtesting sandbox with a strict-gap hypothesis tester, reusable strategy interface, CLI commands for download/backtest/present/grid-search, and a self-contained HTML presentation that explicitly argues: the folklore is empirically supported over longer horizons, but a naive fade still struggles on Sharpe because the path to the fill is too noisy.",
           "tech": ["python", "uv", "pandas", "yfinance", "plotly"],
           "submittedAt": "2026-04-19",
           "artifactUrl": "./artifacts/gaps-get-filled/cursor-gpt-5-4.html",
           "outcome": {
             "status": "submitted",
-            "verdict": "Ships a committed HTML presentation and mirrored docs artifact so evaluators can open the evidence immediately, while also documenting a full CLI flow for download/backtest/present/grid-search.",
+            "verdict": "Ships a committed HTML presentation and mirrors it into the docs artifact path for one-click evaluation. The presentation distinguishes the empirical fill-rate claim from the weaker claim that a naive gap-fade is actually tradeable.",
             "evaluatedAt": null,
             "score": null
           },

@@ -42,6 +42,15 @@ function repoUrls(data) {
   };
 }
 
+/** Resolve `artifactUrl` from data.json (e.g. `./artifacts/<eval>/<harness-model>.html`) to an absolute URL on this GitHub Pages site. */
+function siteArtifactUrl(artifactUrl) {
+  if (!artifactUrl) return null;
+  const path = String(artifactUrl).replace(/^\.\//, "");
+  const u = new URL(location.href);
+  const basePath = u.pathname.endsWith("/") ? u.pathname : u.pathname.replace(/\/[^/]*$/, "/");
+  return new URL(path, u.origin + basePath).href;
+}
+
 function statusBadge(status) {
   const map = {
     submitted: "badge-info",
@@ -51,7 +60,8 @@ function statusBadge(status) {
     skipped: "badge-ghost",
   };
   const cls = map[status] || "badge-ghost";
-  return `<span class="badge ${cls} badge-sm gap-1 capitalize">${esc(status || "unknown")}</span>`;
+  const label = status || "unknown";
+  return `<span class="badge ${cls} badge-sm whitespace-nowrap capitalize inline-flex items-center">${esc(label)}</span>`;
 }
 
 async function fetchMarkdown(url) {
@@ -253,26 +263,33 @@ function viewEval(route) {
       ? `<div class="alert">No solutions submitted yet.</div>`
       : ev.solutions
           .map((sol) => {
-            const tech = (sol.tech || [])
-              .map((t) => `<span class="badge badge-outline badge-xs">${esc(t)}</span>`)
-              .join(" ");
+            const htmlOut = siteArtifactUrl(sol.artifactUrl);
+            const htmlBtn = htmlOut
+              ? `<a href="${esc(htmlOut)}" target="_blank" rel="noopener" class="btn btn-xs btn-outline gap-1 h-7 min-h-7 px-2 shrink-0" onclick="event.stopPropagation()">
+                   <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                   HTML
+                 </a>`
+              : "";
+            const metaBits = [
+              esc(sol.harness),
+              esc(sol.model),
+              sol.projectName ? `project ${esc(sol.projectName)}` : "",
+            ]
+              .filter(Boolean)
+              .join(" · ");
+            const firstTech = (sol.tech && sol.tech[0]) || "";
+            const techBadge = firstTech
+              ? `<span class="badge badge-outline badge-sm font-mono shrink-0 max-w-[5.5rem] truncate" title="${esc(firstTech)} (first stack tag)">${esc(firstTech)}</span>`
+              : "";
             return `
-              <a href="#/eval/${esc(ev.slug)}/${esc(sol.slug)}" class="card bg-base-200 hover:bg-base-300 transition-colors border border-base-300 hover:border-primary/40">
-                <div class="card-body gap-2">
-                  <div class="flex items-start justify-between gap-3 flex-wrap">
-                    <div>
-                      <h3 class="card-title text-base font-semibold font-mono">${esc(sol.slug)}</h3>
-                      <p class="text-xs text-base-content/60 mt-0.5">
-                        <span class="font-mono">${esc(sol.harness)}</span>
-                        ·
-                        <span class="font-mono">${esc(sol.model)}</span>
-                        ${sol.projectName ? `· project <span class="font-mono">${esc(sol.projectName)}</span>` : ""}
-                      </p>
-                    </div>
-                    ${statusBadge(sol.outcome?.status)}
-                  </div>
-                  <p class="text-sm text-base-content/80">${esc(sol.summary || "")}</p>
-                  <div class="flex flex-wrap gap-1.5 mt-1">${tech}</div>
+              <a href="#/eval/${esc(ev.slug)}/${esc(sol.slug)}" class="group flex flex-nowrap flex-row items-center gap-2 sm:gap-3 w-full min-w-0 rounded-lg border border-base-300 bg-base-200 hover:bg-base-300 hover:border-primary/30 transition-colors px-3 py-2">
+                ${techBadge}
+                <span class="font-mono text-sm font-semibold text-base-content shrink-0 max-w-[40%] sm:max-w-none truncate">${esc(sol.slug)}</span>
+                <span class="text-[11px] sm:text-xs text-base-content/55 font-mono truncate shrink-0 max-w-[7.5rem] sm:max-w-[11rem]">${metaBits}</span>
+                <span class="text-xs text-base-content/65 truncate min-w-0 flex-1" title="${esc(sol.summary || "")}">${esc(sol.summary || "")}</span>
+                <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                  ${htmlBtn}
+                  ${statusBadge(sol.outcome?.status)}
                 </div>
               </a>`;
           })
@@ -286,7 +303,7 @@ function viewEval(route) {
       </ul>
     </nav>
 
-    <header class="mb-8">
+    <header class="mb-6">
       <div class="flex items-center gap-2 mb-2 flex-wrap">
         ${tags}
       </div>
@@ -298,25 +315,25 @@ function viewEval(route) {
       </div>
     </header>
 
-    <section class="mb-10">
+    <section class="mb-10 w-full max-w-full min-w-0">
+      <div class="flex items-center justify-between mb-3 w-full">
+        <h2 class="text-xl font-semibold">Solutions</h2>
+        <span class="text-sm text-base-content/60">${ev.solutions.length} total</span>
+      </div>
+      <div class="w-full flex flex-col gap-1.5">${solRows}</div>
+    </section>
+
+    <section>
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-xl font-semibold">Prompt</h2>
         <span class="text-xs text-base-content/50 font-mono">${esc(promptPath)}</span>
       </div>
-      <article id="prompt-md" class="prose max-w-none bg-base-200 border border-base-300 rounded-2xl p-6 markdown-target">
+      <article id="prompt-md" class="prose prose-sm max-w-none bg-base-200 border border-base-300 rounded-2xl p-4 markdown-target">
         <div class="flex items-center gap-2 text-base-content/60 text-sm">
           <span class="loading loading-dots loading-sm"></span>
           loading prompt…
         </div>
       </article>
-    </section>
-
-    <section>
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-xl font-semibold">Solutions</h2>
-        <span class="text-sm text-base-content/60">${ev.solutions.length} total</span>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">${solRows}</div>
     </section>
   `;
 
@@ -353,6 +370,7 @@ function viewSolution(route) {
     .join(" ");
 
   const oc = sol.outcome || {};
+  const deployedHtml = siteArtifactUrl(sol.artifactUrl);
 
   state.view.innerHTML = `
     <nav class="text-sm breadcrumbs mb-4">
@@ -374,7 +392,15 @@ function viewSolution(route) {
       ${sol.projectName ? `<p class="text-base-content/70 mt-1">project: <span class="font-mono">${esc(sol.projectName)}</span></p>` : ""}
       <p class="text-base-content/80 mt-3 max-w-3xl">${esc(sol.summary || "")}</p>
       <div class="mt-4 flex flex-wrap gap-2">
-        <a class="btn btn-sm btn-primary" href="${esc(urls.tree(dirPath))}" target="_blank" rel="noopener">Source on GitHub</a>
+        ${
+          deployedHtml
+            ? `<a class="btn btn-sm btn-primary" href="${esc(deployedHtml)}" target="_blank" rel="noopener">
+                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                 Open HTML output
+               </a>`
+            : ""
+        }
+        <a class="btn btn-sm ${deployedHtml ? "btn-ghost" : "btn-primary"}" href="${esc(urls.tree(dirPath))}" target="_blank" rel="noopener">Source on GitHub</a>
         <a class="btn btn-sm btn-ghost" href="${esc(urls.blob(`${innerProject}/README.md`))}" target="_blank" rel="noopener">Open README</a>
         ${
           sol.artifactUrl
@@ -438,7 +464,7 @@ function viewSolution(route) {
         <h2 class="text-xl font-semibold">README</h2>
         <span id="readme-path" class="text-xs text-base-content/50 font-mono"></span>
       </div>
-      <article id="solution-md" class="prose max-w-none bg-base-200 border border-base-300 rounded-2xl p-6 markdown-target">
+      <article id="solution-md" class="prose prose-sm max-w-none bg-base-200 border border-base-300 rounded-2xl p-4 markdown-target">
         <div class="flex items-center gap-2 text-base-content/60 text-sm">
           <span class="loading loading-dots loading-sm"></span>
           loading README…

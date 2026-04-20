@@ -23,6 +23,14 @@ Build a system that empirically tests this claim on U.S. equities and then
 Test at minimum on the S&P 500 over a 10-year window. You pick the gap
 definition; state it explicitly.
 
+## Deliverable: an HTML file (required)
+
+This eval’s submission **must include at least one committed `.html` file**:
+the self-contained presentation described above. That HTML is not optional
+decoration — it is the primary artifact reviewers open in a browser. A
+solution that only ships code, notebooks, or a server-rendered UI **without**
+this committed HTML file does not pass, even if the analysis is strong.
+
 ## "Makes a case" means
 
 - Define the hypothesis precisely (what counts as a gap, what counts as a
@@ -49,9 +57,11 @@ A submission passes if a fresh evaluator can:
    - A date range or years-back window.
    - A minimum gap size threshold.
    - A stop-loss and time-stop parameter.
-5. Run a documented CLI command that builds a self-contained HTML file
-   (inline data, CDN-loaded JS if needed) at a printed path.
-6. Open that HTML file directly in a browser (no server required) and see a
+5. Run a documented CLI command that builds a **self-contained HTML file**
+   (inline data, CDN-loaded JS if needed) at a printed path. The submission
+   **must** include that HTML (or an equivalent generated copy) as a real file
+   in the repo — not only as instructions to build it.
+6. Open that **HTML file** directly in a browser (no server required) and see a
    presentation that:
    - States the gap definition explicitly.
    - Takes a position on whether "gaps get filled" is empirically supported.
@@ -60,19 +70,24 @@ A submission passes if a fresh evaluator can:
      curve, Sharpe or equivalent).
    - Explains any gap between the empirical claim and the tradeable result.
 
-### Ship a results directory with a precomputed HTML
+### Ship a results directory with a precomputed HTML file
 
 Every submission **must** include a `results/` directory (or similarly
 named) inside the solution that contains at least one **precomputed,
-committed** copy of the HTML presentation. The submission's `README.md`
-must prominently link to it near the top — ideally in the first screen of
-the README — so an evaluator can *see the output in a browser without
+committed `.html` file** — the HTML presentation. The submission's `README.md`
+must prominently link to that file near the top — ideally in the first screen of
+the README — so an evaluator can *open the `.html` in a browser without
 running anything*. The "regenerate from scratch" instructions come after.
 
 This is a hard requirement. A solution whose output lives only behind a
 `python scripts/...` command that requires installing dependencies and
 pulling 500 symbols of price data first does not pass, even if the
-presentation is good. The committed HTML is the evidence.
+presentation is good. The committed HTML file is the evidence.
+
+**galaxy-brain site:** To surface the same HTML from
+[jayhack.github.io/galaxy-brain](https://jayhack.github.io/galaxy-brain), follow
+the repo convention in the root [`README.md`](../README.md#html-artifacts-github-pages)
+(copy under `docs/artifacts/…` and set `artifactUrl` in `docs/data.json`).
 
 ## Out of scope
 
