@@ -229,9 +229,16 @@ function viewHome() {
             <span class="badge badge-ghost">${data.evals.length} eval${data.evals.length === 1 ? "" : "s"}</span>
             <span class="badge badge-ghost">${totalSolutions} submission${totalSolutions === 1 ? "" : "s"}</span>
           </div>
-          <h1 class="text-4xl md:text-5xl font-bold tracking-tight">
-            <span class="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">galaxy-brain</span>
-          </h1>
+          <div class="flex flex-wrap items-center gap-3 md:gap-5 mb-1">
+            <span
+              class="inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-2xl bg-gradient-to-br from-primary to-secondary text-4xl md:text-5xl leading-none select-none"
+              aria-hidden="true"
+              >🧠</span
+            >
+            <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-base-content min-w-0">
+              galaxy-brain
+            </h1>
+          </div>
           <p class="text-base-content/70 mt-3 text-lg">
             A collection of agent evals. Each eval is a prompt; each solution is one
             harness/model pair's attempt. Browse them below.
