@@ -10,6 +10,13 @@
   border: 1px solid oklch(var(--b3));
 }
 
+/* Mobile top bar: smaller mark than sidebar (navbar brand is lg:hidden). */
+.site-logo--navbar {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.375rem;
+}
+
 /* Sidebar open (mobile drawer): logo lives in the drawer only */
 #nav-drawer:checked ~ .drawer-content #navbar-brand {
   display: none;
@@ -21,7 +28,17 @@
 
 .breadcrumbs-header ul {
   flex-wrap: nowrap;
-  overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  .breadcrumbs-header ul {
+    overflow: hidden;
+  }
+}
+
+/* DaisyUI badges: avoid mid-word wrapping when a flex row squeezes pill width (mobile). */
+.badge {
+  white-space: nowrap;
 }
 
 html {
