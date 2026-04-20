@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gapfill-sandbox"
+version = "0.1.0"
+description = "Extensible daily OHLC backtesting sandbox for gap-fill folklore (gaps-get-filled eval)"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "pandas>=2.2",
+  "numpy>=2.0",
+  "yfinance>=0.2.40",
+  "click>=8.1",
+  "pyarrow>=16.0",
+  "lxml>=5.0",
+  "html5lib>=1.1",
+]
+
+[project.scripts]
+gapfill = "gapfill_sandbox.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
