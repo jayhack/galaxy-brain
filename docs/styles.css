@@ -11,7 +11,12 @@
 
 .breadcrumbs-header ul {
   flex-wrap: nowrap;
-  overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  .breadcrumbs-header ul {
+    overflow: hidden;
+  }
 }
 
 /* DaisyUI badges: avoid mid-word wrapping when a flex row squeezes pill width (mobile). */
