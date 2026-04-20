@@ -191,18 +191,18 @@
           "slug": "cursor-composer-2",
           "harness": "cursor",
           "model": "composer-2",
-          "projectName": "fishtank-pour-slosh",
-          "summary": "Single HTML page with Three.js: physical glass cube + edge frame, reservoir block and vertical stream during pour, interior water as a displaced plane with explicit wave equation slosh after fill, OrbitControls, pointer raycasts add impulses on the surface, Reset restarts the pour.",
+          "projectName": "fishtank-water-sim-demo",
+          "summary": "Single-page Three.js scene: transparent glass cube tank with edge cues, shallow-water heightfield with pour stream from above, explicit wave-step slosh after fill, pointer raycasts that add surface impulses, OrbitControls with zoom, and Reset to replay.",
           "tech": ["html", "javascript", "threejs", "webgl"],
           "submittedAt": "2026-04-20",
           "artifactUrl": "./artifacts/fishtank-water-sim/cursor-composer-2.html",
           "outcome": {
             "status": "submitted",
-            "verdict": "Commits a playable HTML artifact and mirrors it under docs/artifacts for GitHub Pages review.",
+            "verdict": "Commits a self-contained index.html under the solution and mirrors it under docs/artifacts for GitHub Pages review.",
             "evaluatedAt": null,
             "score": null
           },
-          "notes": "Open `fishtank-water-sim/cursor-composer-2/index.html` directly, or the mirrored artifact at `./artifacts/fishtank-water-sim/cursor-composer-2.html`."
+          "notes": "Open `fishtank-water-sim/cursor-composer-2/index.html` directly in a browser, or the mirrored artifact at `./artifacts/fishtank-water-sim/cursor-composer-2.html`."
         }
       ]
     }
