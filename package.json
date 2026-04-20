@@ -1,0 +1,13 @@
+{
+  "name": "galaxy-brain",
+  "private": true,
+  "bin": {
+    "dev": "./bin/dev.cjs"
+  },
+  "scripts": {
+    "dev": "http-server docs -p 8080 -o"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}
