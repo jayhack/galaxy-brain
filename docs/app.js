@@ -96,6 +96,7 @@ function parseHash() {
   const raw = (location.hash || "#/").slice(1);
   const parts = raw.split("/").filter(Boolean);
   if (parts.length === 0) return { name: "home" };
+  if (parts[0] === "about") return { name: "about" };
   if (parts[0] === "eval" && parts.length === 2) {
     return { name: "eval", evalSlug: parts[1] };
   }
@@ -131,6 +132,12 @@ function renderSidebar(route) {
     `<a href="#/" class="sidebar-link ${route.name === "home" ? "active" : ""}">
        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l9-9 9 9M5 10v10h4v-6h6v6h4V10"/></svg>
        <span>Overview</span>
+     </a>`
+  );
+  items.push(
+    `<a href="#/about" class="sidebar-link ${route.name === "about" ? "active" : ""}">
+       <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+       <span>About</span>
      </a>`
   );
 
@@ -251,6 +258,99 @@ function viewHome() {
   `;
 
   document.getElementById("hero-repo").href = repoUrls(data).repo;
+}
+
+function viewAbout() {
+  const data = state.data;
+  const urls = repoUrls(data);
+
+  const compLinks = [
+    {
+      href: "https://chat.lmsys.org/",
+      title: "LMSYS Chatbot Arena",
+      blurb:
+        "Large-scale pairwise human preferences over model outputs; Elo-style leaderboards from crowd votes. The canonical example of subjective eval at scale.",
+    },
+    {
+      href: "https://huggingface.co/spaces/lmsys/mt-bench",
+      title: "MT-Bench",
+      blurb:
+        "Multi-turn dialogue benchmark scored with strong models (and originally designed to align with human judgment). Good reference for structured-but-still-quality-focused evaluation.",
+    },
+    {
+      href: "https://tatsu-lab.github.io/alpaca_eval/",
+      title: "AlpacaEval",
+      blurb:
+        "Automatic pairwise comparisons (often via a strong judge model) against reference outputs; correlates with human preferences on instruction-following.",
+    },
+    {
+      href: "https://huggingface.co/spaces/allenai/WildBench",
+      title: "WildBench",
+      blurb:
+        "Tasks mined from real user–chatbot logs, with model-based pairwise scoring designed to track human Arena rankings.",
+    },
+    {
+      href: "https://crfm.stanford.edu/helm/",
+      title: "HELM (Holistic Evaluation of Language Models)",
+      blurb:
+        "Broad, scenario-based reporting across accuracy, calibration, robustness, fairness, toxicity, and efficiency—not purely “vibes,” but a major effort to make comparisons transparent and multi-dimensional.",
+    },
+    {
+      href: "https://www.swebench.com/",
+      title: "SWE-bench",
+      blurb:
+        "Real GitHub issues patched end-to-end; the flagship objective benchmark for coding agents (pass/fail on applied patches). Complements subjective build-quality reviews.",
+    },
+    {
+      href: "https://github.com/google-research/google-research/tree/master/instruction_following_eval",
+      title: "Google IFEval",
+      blurb:
+        "Verifiable instruction-following checks (counts, formatting, constraints)—useful contrast to open-ended “how good does this feel?” grading.",
+    },
+  ];
+
+  const listItems = compLinks
+    .map(
+      (c) => `
+      <li class="border border-base-300 rounded-xl p-4 bg-base-200/50">
+        <a href="${esc(c.href)}" class="link link-primary font-semibold" target="_blank" rel="noopener">${esc(c.title)}</a>
+        <p class="text-sm text-base-content/75 mt-2 mb-0">${esc(c.blurb)}</p>
+      </li>`
+    )
+    .join("");
+
+  state.view.innerHTML = `
+    <nav class="text-sm breadcrumbs mb-4">
+      <ul>
+        <li><a href="#/">Overview</a></li>
+        <li class="text-base-content/70">About</li>
+      </ul>
+    </nav>
+
+    <article class="prose prose-sm max-w-none">
+      <h1 class="text-3xl font-bold tracking-tight text-base-content">About galaxy-brain</h1>
+      <p class="text-base-content/80">
+        This repo is a <strong>personal</strong> set of evals: prompts and tasks I care about, know well, and can judge consistently.
+        The site is for <strong>comparing submissions side by side</strong> and <strong>tracking how outcomes change over time</strong> as models and harnesses improve.
+      </p>
+      <p class="text-base-content/80">
+        People can send <strong>pull requests</strong> with solutions; I run the evals myself (including open-ended or subjective parts) rather than outsourcing scoring to a crowd or an automated metric alone.
+        That keeps the bar aligned with what I actually want from agents—not only what is easy to grade automatically.
+      </p>
+
+      <h2 class="text-xl font-semibold text-base-content mt-10">Comparable efforts (larger or different in spirit)</h2>
+      <p class="text-base-content/80">
+        If you are looking for <em>large-scale subjective</em> or “quality in the wild” comparisons, these are well-known references. They differ from this project in scale and governance, but they answer a similar “which model feels better on hard tasks?” question.
+      </p>
+      <ul class="list-none pl-0 space-y-3 not-prose max-w-3xl">${listItems}</ul>
+
+      <h2 class="text-xl font-semibold text-base-content mt-10">Source</h2>
+      <p class="text-base-content/80">
+        <a href="${esc(urls.repo)}" class="link link-primary" target="_blank" rel="noopener">Repository on GitHub</a>
+        — eval prompts live next to submitted solutions; this site reads <code class="text-xs">docs/data.json</code> for the browser.
+      </p>
+    </article>
+  `;
 }
 
 function viewEval(route) {
@@ -589,6 +689,8 @@ function render() {
   switch (route.name) {
     case "home":
       return viewHome();
+    case "about":
+      return viewAbout();
     case "eval":
       return viewEval(route);
     case "solution":
