@@ -1,5 +1,15 @@
 /* small overrides on top of Tailwind + DaisyUI */
 
+.site-logo {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  object-fit: cover;
+  object-position: center;
+  flex-shrink: 0;
+  border: 1px solid oklch(var(--b3));
+}
+
 /* Sidebar open (mobile drawer): logo lives in the drawer only */
 #nav-drawer:checked ~ .drawer-content #navbar-brand {
   display: none;
