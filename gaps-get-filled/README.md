@@ -123,3 +123,5 @@ Current solutions:
   (xhigh). Project name: **Closing Bell**.
 - `[cursor-gpt-5-4/](./cursor-gpt-5-4)` — Cursor + GPT-5.4. Project name:
   **gpt-5-4-backtesting**.
+- `[cursor-composer-2/](./cursor-composer-2)` — Cursor + Composer 2. Project name:
+  **gapfill-sandbox**.
