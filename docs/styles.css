@@ -43,6 +43,13 @@ html {
   border: 1px solid oklch(var(--b3));
 }
 
+/* README / prompt markdown: code fences stand out from the page chrome */
+.markdown-target pre {
+  background: color-mix(in oklch, oklch(var(--p)) 18%, oklch(var(--b2)));
+  border: 1px solid color-mix(in oklch, oklch(var(--p)) 38%, oklch(var(--b3)));
+  box-shadow: 0 1px 0 oklch(var(--bc) / 0.04);
+}
+
 .prose code {
   background: oklch(var(--b2) / 0.6);
   padding: 0.1em 0.35em;
