@@ -238,7 +238,25 @@
       "description": "Build a browser-based computer vision app that detects a physical chess board in an image and reports its position (FEN / grid / diagram). Ship a self-contained HTML with upload + a sample-image gallery. The full pipeline — board detection, square segmentation, occupancy/piece classification — must run client-side; no server inference, no hosted vision APIs.",
       "tags": ["computer-vision", "browser", "chess", "opencv", "wasm", "image-processing"],
       "createdAt": "2026-04-21",
-      "solutions": []
+      "solutions": [
+        {
+          "slug": "cursor-composer-2-fast",
+          "harness": "cursor",
+          "model": "composer-2-fast",
+          "projectName": "cvchess-in-browser-demo",
+          "summary": "Single-page OpenCV.js pipeline: Canny + largest quad contour (fallback: full frame), perspective warp to 400×400, per-square luminance vs expected light/dark medians for occupancy and coarse white/black piece guess, FEN-style readout, overlay with grid. Bundled gallery uses canvas-generated sample boards; upload path for user photos.",
+          "tech": ["html", "css", "javascript", "opencv.js", "canvas"],
+          "submittedAt": "2026-04-21",
+          "artifactUrl": "./artifacts/cvchess-in-browser/cursor-composer-2-fast.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a self-contained index.html under the solution folder and mirrors it under docs/artifacts for GitHub Pages review.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `cvchess-in-browser/cursor-composer-2-fast/index.html` directly in a browser (or `python3 -m http.server` if file:// blocks the OpenCV CDN), or use the mirrored artifact at `./artifacts/cvchess-in-browser/cursor-composer-2-fast.html`."
+        }
+      ]
     },
     {
       "slug": "fishtank-water-sim",
