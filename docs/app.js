@@ -1,5 +1,7 @@
 "use strict";
 
+import { ui, statusBadgeClasses } from "./ui.js";
+
 /* ------------------------------------------------------------------ */
 /* state                                                               */
 /* ------------------------------------------------------------------ */
@@ -92,16 +94,8 @@ function siteArtifactUrl(artifactUrl) {
 }
 
 function statusBadge(status) {
-  const map = {
-    submitted: "badge-info",
-    passed: "badge-success",
-    failed: "badge-error",
-    in_progress: "badge-warning",
-    skipped: "badge-ghost",
-  };
-  const cls = map[status] || "badge-ghost";
   const label = status || "unknown";
-  return `<span class="badge ${cls} badge-sm whitespace-nowrap capitalize inline-flex items-center">${esc(label)}</span>`;
+  return `<span class="${statusBadgeClasses(status)}">${esc(label)}</span>`;
 }
 
 async function fetchMarkdown(url) {
@@ -224,8 +218,8 @@ function renderSidebar(route) {
 function solutionRowHtml(ev, sol) {
   const htmlOut = siteArtifactUrl(sol.artifactUrl);
   const htmlBtn = htmlOut
-    ? `<a href="${esc(htmlOut)}" target="_blank" rel="noopener" class="btn btn-xs btn-outline gap-1 h-7 min-h-7 px-2 shrink-0">
-         <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+    ? `<a href="${esc(htmlOut)}" target="_blank" rel="noopener" class="${ui.btnOutlineXs}">
+         <svg xmlns="http://www.w3.org/2000/svg" class="${ui.externalLinkIconXs}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
          HTML
        </a>`
     : "";
@@ -238,17 +232,17 @@ function solutionRowHtml(ev, sol) {
     .join(" · ");
   const firstTech = (sol.tech && sol.tech[0]) || "";
   const techBadge = firstTech
-    ? `<span class="badge badge-outline badge-sm font-mono shrink-0 max-w-[5.5rem] truncate" title="${esc(firstTech)}">${esc(firstTech)}</span>`
+    ? `<span class="${ui.badgeOutlineTech}" title="${esc(firstTech)}">${esc(firstTech)}</span>`
     : "";
   return `
-    <div class="flex flex-nowrap flex-row items-stretch w-full min-w-0 rounded-lg border border-base-300 bg-base-200 overflow-hidden hover:border-primary/30">
-      <a href="#/eval/${esc(ev.slug)}/${esc(sol.slug)}" class="group flex flex-1 min-w-0 flex-nowrap flex-row items-center gap-2 sm:gap-3 px-3 py-2 hover:bg-base-300/60">
+    <div class="${ui.solutionRowOuter}">
+      <a href="#/eval/${esc(ev.slug)}/${esc(sol.slug)}" class="${ui.solutionRowMain}">
         ${techBadge}
-        <span class="font-mono text-sm font-semibold text-base-content shrink-0 max-w-[40%] sm:max-w-none truncate">${esc(sol.slug)}</span>
-        <span class="text-[11px] sm:text-xs text-base-content/55 font-mono truncate shrink-0 max-w-[7.5rem] sm:max-w-[11rem]">${metaBits}</span>
-        <span class="text-xs text-base-content/65 truncate min-w-0 flex-1" title="${esc(sol.summary || "")}">${esc(sol.summary || "")}</span>
+        <span class="${ui.solutionRowSlug}">${esc(sol.slug)}</span>
+        <span class="${ui.metaMono}">${metaBits}</span>
+        <span class="${ui.summaryLine}" title="${esc(sol.summary || "")}">${esc(sol.summary || "")}</span>
       </a>
-      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0 border-l border-base-300/80 pl-2 pr-3 py-2">
+      <div class="${ui.solutionRowRail}">
         ${htmlBtn}
         ${statusBadge(sol.outcome?.status)}
       </div>
@@ -266,16 +260,16 @@ function viewHome() {
   const evalCards = data.evals
     .map((ev) => {
       const tags = (ev.tags || [])
-        .map((t) => `<span class="badge badge-ghost badge-sm">${esc(t)}</span>`)
+        .map((t) => `<span class="${ui.badgeGhostSm}">${esc(t)}</span>`)
         .join(" ");
       return `
-        <a href="#/eval/${esc(ev.slug)}" class="card bg-base-200 hover:bg-base-300 border border-base-300 hover:border-primary/40">
+        <a href="#/eval/${esc(ev.slug)}" class="${ui.cardHover}">
           <div class="card-body gap-3">
             <div class="flex items-start justify-between gap-3">
-              <h3 class="card-title text-lg font-semibold">${esc(ev.title)}</h3>
-              <span class="badge badge-primary badge-sm">${ev.solutions.length} solution${ev.solutions.length === 1 ? "" : "s"}</span>
+              <h3 class="${ui.cardTitleLg}">${esc(ev.title)}</h3>
+              <span class="${ui.badgePrimarySm}">${ev.solutions.length} solution${ev.solutions.length === 1 ? "" : "s"}</span>
             </div>
-            <p class="text-sm text-base-content/70">${esc(ev.tagline || ev.description || "")}</p>
+            <p class="text-sm ${ui.muted}">${esc(ev.tagline || ev.description || "")}</p>
             <div class="flex flex-wrap gap-1.5 mt-1">${tags}</div>
           </div>
         </a>`;
@@ -285,30 +279,30 @@ function viewHome() {
   updateHeaderBreadcrumbs("");
 
   state.view.innerHTML = `
-    <section class="hero bg-base-200 rounded-2xl border border-base-300 mb-10">
-      <div class="hero-content py-12 px-6 lg:px-12 text-left w-full">
+    <section class="${ui.heroHome}">
+      <div class="${ui.heroContent}">
         <div class="max-w-3xl">
-          <div class="flex items-center gap-2 mb-4">
-            <span class="badge badge-primary badge-outline">v0</span>
-            <span class="badge badge-ghost">${data.evals.length} eval${data.evals.length === 1 ? "" : "s"}</span>
-            <span class="badge badge-ghost">${totalSolutions} submission${totalSolutions === 1 ? "" : "s"}</span>
+          <div class="${ui.badgeRowHero}">
+            <span class="${ui.badgePrimaryOutline}">v0</span>
+            <span class="${ui.badgeGhost}">${data.evals.length} eval${data.evals.length === 1 ? "" : "s"}</span>
+            <span class="${ui.badgeGhost}">${totalSolutions} submission${totalSolutions === 1 ? "" : "s"}</span>
           </div>
-          <div class="flex flex-wrap items-center gap-3 md:gap-5 mb-1">
+          <div class="${ui.flexTitleRow}">
             <span
-              class="inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-2xl bg-gradient-to-br from-primary to-secondary text-4xl md:text-5xl leading-none select-none"
+              class="${ui.heroEmoji}"
               aria-hidden="true"
               >🧠</span
             >
-            <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-base-content min-w-0">
+            <h1 class="${ui.heroTitle}">
               galaxy-brain
             </h1>
           </div>
-          <p class="text-base-content/70 mt-3 text-lg">
+          <p class="${ui.muted} mt-3 text-lg">
             A collection of agent evals. Each eval is a prompt; each solution is one
             harness/model pair's attempt. Browse them below.
           </p>
-          <div class="mt-6 flex flex-wrap gap-2">
-            <a id="hero-repo" class="btn btn-ghost btn-sm gap-2" target="_blank" rel="noopener">
+          <div class="${ui.stackGapHero}">
+            <a id="hero-repo" class="${ui.btnGhostHero}" target="_blank" rel="noopener">
               ${githubLogoSvg()}
               <span>GitHub</span>
             </a>
@@ -318,11 +312,11 @@ function viewHome() {
     </section>
 
     <section>
-      <div class="flex items-baseline justify-between mb-4">
-        <h2 class="text-xl font-semibold">Evals</h2>
-        <span class="text-sm text-base-content/60">${passed}/${totalSolutions} passed</span>
+      <div class="${ui.sectionHeadBaseline}">
+        <h2 class="${ui.sectionTitle}">Evals</h2>
+        <span class="${ui.mutedSm}">${passed}/${totalSolutions} passed</span>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">${evalCards}</div>
+      <div class="${ui.gridEvals}">${evalCards}</div>
     </section>
   `;
 
@@ -381,7 +375,7 @@ function viewAbout() {
   const listItems = compLinks
     .map(
       (c) => `
-      <li class="border border-base-300 rounded-xl p-4 bg-base-200/50">
+      <li class="${ui.aboutResourceCard}">
         <a href="${esc(c.href)}" class="link link-primary font-semibold" target="_blank" rel="noopener">${esc(c.title)}</a>
         <p class="text-sm text-base-content/75 mt-2 mb-0">${esc(c.blurb)}</p>
       </li>`
@@ -389,32 +383,32 @@ function viewAbout() {
     .join("");
 
   state.view.innerHTML = `
-    <nav class="text-sm breadcrumbs mb-4">
+    <nav class="${ui.aboutCrumbs}">
       <ul>
         <li><a href="#/">Overview</a></li>
-        <li class="text-base-content/70">About</li>
+        <li class="${ui.crumbCurrent}">About</li>
       </ul>
     </nav>
 
     <article class="prose prose-sm max-w-none">
-      <h1 class="text-3xl font-bold tracking-tight text-base-content">About galaxy-brain</h1>
-      <p class="text-base-content/80">
+      <h1 class="${ui.proseAboutH1}">About galaxy-brain</h1>
+      <p class="${ui.muted80}">
         This repo is a <strong>personal</strong> set of evals: prompts and tasks I care about, know well, and can judge consistently.
         The site is for <strong>comparing submissions side by side</strong> and <strong>tracking how outcomes change over time</strong> as models and harnesses improve.
       </p>
-      <p class="text-base-content/80">
+      <p class="${ui.muted80}">
         People can send <strong>pull requests</strong> with solutions; I run the evals myself (including open-ended or subjective parts) rather than outsourcing scoring to a crowd or an automated metric alone.
         That keeps the bar aligned with what I actually want from agents—not only what is easy to grade automatically.
       </p>
 
-      <h2 class="text-xl font-semibold text-base-content mt-10">Comparable efforts (larger or different in spirit)</h2>
-      <p class="text-base-content/80">
+      <h2 class="${ui.proseAboutH2}">Comparable efforts (larger or different in spirit)</h2>
+      <p class="${ui.muted80}">
         If you are looking for <em>large-scale subjective</em> or “quality in the wild” comparisons, these are well-known references. They differ from this project in scale and governance, but they answer a similar “which model feels better on hard tasks?” question.
       </p>
       <ul class="list-none pl-0 space-y-3 not-prose max-w-3xl">${listItems}</ul>
 
-      <h2 class="text-xl font-semibold text-base-content mt-10">Source</h2>
-      <p class="text-base-content/80">
+      <h2 class="${ui.proseAboutH2}">Source</h2>
+      <p class="${ui.muted80}">
         <a href="${esc(urls.repo)}" class="link link-primary" target="_blank" rel="noopener">Repository on GitHub</a>
         — eval prompts live next to submitted solutions; this site reads <code class="text-xs">docs/data.json</code> for the browser.
       </p>
@@ -431,7 +425,7 @@ function viewEval(route) {
   const promptPath = `${ev.slug}/README.md`;
 
   const tags = (ev.tags || [])
-    .map((t) => `<span class="badge badge-ghost badge-sm">${esc(t)}</span>`)
+    .map((t) => `<span class="${ui.badgeGhostSm}">${esc(t)}</span>`)
     .join(" ");
 
   const solRows =
@@ -440,46 +434,46 @@ function viewEval(route) {
       : ev.solutions.map((s) => solutionRowHtml(ev, s)).join("");
 
   updateHeaderBreadcrumbs(`
-    <nav class="text-sm breadcrumbs breadcrumbs-header max-w-full min-w-0">
-      <ul class="flex-nowrap max-w-full">
-        <li class="min-w-0 shrink"><a href="#/">Overview</a></li>
-        <li class="text-base-content/70 min-w-0 truncate">${esc(ev.title)}</li>
+    <nav class="${ui.crumbsWrap}">
+      <ul class="${ui.crumbsUl}">
+        <li class="${ui.crumbLi}"><a href="#/">Overview</a></li>
+        <li class="${ui.crumbCurrentTrunc}">${esc(ev.title)}</li>
       </ul>
     </nav>
   `);
 
   state.view.innerHTML = `
-    <header class="mb-6">
-      <div class="flex items-center gap-2 mb-2 flex-wrap">
+    <header class="${ui.sectionSm}">
+      <div class="${ui.flexGapTag}">
         ${tags}
       </div>
-      <h1 class="text-3xl font-bold tracking-tight">${esc(ev.title)}</h1>
-      <p class="text-base-content/70 mt-2 max-w-3xl">${esc(ev.description || ev.tagline || "")}</p>
-      <div class="mt-4 flex flex-wrap gap-2">
-        <a class="btn btn-sm btn-primary" href="${esc(urls.tree(ev.slug))}" target="_blank" rel="noopener">View on GitHub</a>
-        <a class="btn btn-sm btn-ghost" href="${esc(urls.blob(promptPath))}" target="_blank" rel="noopener">Edit prompt</a>
+      <h1 class="${ui.pageTitle}">${esc(ev.title)}</h1>
+      <p class="${ui.muted} mt-2 max-w-3xl">${esc(ev.description || ev.tagline || "")}</p>
+      <div class="${ui.stackGapBtn}">
+        <a class="${ui.btnPrimarySm}" href="${esc(urls.tree(ev.slug))}" target="_blank" rel="noopener">View on GitHub</a>
+        <a class="${ui.btnGhostSm}" href="${esc(urls.blob(promptPath))}" target="_blank" rel="noopener">Edit prompt</a>
       </div>
     </header>
 
-    <section class="mb-10 w-full max-w-full min-w-0">
-      <div class="flex items-center justify-between mb-3 w-full">
-        <h2 class="text-xl font-semibold">Solutions</h2>
-        <span class="text-sm text-base-content/60">${ev.solutions.length} total</span>
+    <section class="${ui.sectionLg} w-full max-w-full min-w-0">
+      <div class="${ui.sectionHead}">
+        <h2 class="${ui.sectionTitle}">Solutions</h2>
+        <span class="${ui.mutedSm}">${ev.solutions.length} total</span>
       </div>
-      <div class="w-full flex flex-col gap-1.5">${solRows}</div>
+      <div class="${ui.listColTight}">${solRows}</div>
     </section>
 
     <section>
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-xl font-semibold">Prompt</h2>
+      <div class="${ui.sectionHeadRow}">
+        <h2 class="${ui.sectionTitle}">Prompt</h2>
         <span class="text-xs text-base-content/50 font-mono">${esc(promptPath)}</span>
       </div>
-      <div class="relative rounded-2xl border border-base-300 bg-base-200">
+      <div class="relative ${ui.roundedPanel}">
         <div class="absolute top-3 right-3 z-10">
           <button
             type="button"
             id="prompt-copy-btn"
-            class="btn btn-sm btn-primary gap-1.5 shadow-md min-h-9 h-9 px-3"
+            class="${ui.btnPrimarySmCopy}"
             disabled
             aria-label="Copy prompt markdown to clipboard"
           >
@@ -487,8 +481,8 @@ function viewEval(route) {
             <span class="prompt-copy-label font-semibold">Copy</span>
           </button>
         </div>
-        <article id="prompt-md" class="prose prose-sm max-w-none markdown-target min-h-[4rem] pt-12 px-4 pb-4 sm:pr-32">
-          <div class="flex items-center gap-2 text-base-content/60 text-sm">
+        <article id="prompt-md" class="${ui.prosePrompt}">
+          <div class="${ui.loadingRow}">
             <span class="loading loading-dots loading-sm"></span>
             loading prompt…
           </div>
@@ -502,7 +496,7 @@ function viewEval(route) {
     const copyBtn = document.getElementById("prompt-copy-btn");
     if (!target) return;
     if (md == null) {
-      target.innerHTML = `<p class="text-base-content/60">Couldn't load <code>${esc(promptPath)}</code>. <a class="link" target="_blank" rel="noopener" href="${esc(urls.blob(promptPath))}">Open on GitHub.</a></p>`;
+      target.innerHTML = `<p class="${ui.muted}">Couldn't load <code>${esc(promptPath)}</code>. <a class="link" target="_blank" rel="noopener" href="${esc(urls.blob(promptPath))}">Open on GitHub.</a></p>`;
       return;
     }
     target.innerHTML = renderMarkdown(md);
@@ -514,12 +508,12 @@ function viewEval(route) {
       if (!label) return;
       const prev = label.textContent;
       label.textContent = ok ? "Copied!" : "Copy failed";
-      copyBtn.classList.remove("btn-primary");
-      copyBtn.classList.add(ok ? "btn-success" : "btn-error");
+      copyBtn.classList.remove(ui.btnPrimary);
+      copyBtn.classList.add(ok ? ui.btnSuccess : ui.btnError);
       window.setTimeout(() => {
         label.textContent = prev;
-        copyBtn.classList.remove("btn-success", "btn-error");
-        copyBtn.classList.add("btn-primary");
+        copyBtn.classList.remove(ui.btnSuccess, ui.btnError);
+        copyBtn.classList.add(ui.btnPrimary);
       }, 2000);
     });
   });
@@ -543,7 +537,7 @@ function viewSolution(route) {
   ];
 
   const tech = (sol.tech || [])
-    .map((t) => `<span class="badge badge-outline badge-sm">${esc(t)}</span>`)
+    .map((t) => `<span class="${ui.badgeOutlineSm}">${esc(t)}</span>`)
     .join(" ");
 
   const oc = sol.outcome || {};
@@ -556,86 +550,86 @@ function viewSolution(route) {
       : otherSolutions.map((s) => solutionRowHtml(ev, s)).join("");
 
   updateHeaderBreadcrumbs(`
-    <nav class="text-sm breadcrumbs breadcrumbs-header max-w-full min-w-0">
-      <ul class="flex-nowrap max-w-full">
-        <li class="min-w-0 shrink"><a href="#/">Overview</a></li>
-        <li class="min-w-0 shrink"><a href="#/eval/${esc(ev.slug)}">${esc(ev.title)}</a></li>
-        <li class="text-base-content/70 font-mono min-w-0 truncate">${esc(sol.slug)}</li>
+    <nav class="${ui.crumbsWrap}">
+      <ul class="${ui.crumbsUl}">
+        <li class="${ui.crumbLi}"><a href="#/">Overview</a></li>
+        <li class="${ui.crumbLi}"><a href="#/eval/${esc(ev.slug)}">${esc(ev.title)}</a></li>
+        <li class="${ui.crumbMonoTrunc}">${esc(sol.slug)}</li>
       </ul>
     </nav>
   `);
 
   state.view.innerHTML = `
-    <header class="mb-8">
-      <div class="flex flex-wrap items-center gap-2 mb-2">
+    <header class="${ui.sectionMd}">
+      <div class="${ui.flexGapBadge}">
         ${statusBadge(oc.status)}
-        <span class="badge badge-ghost badge-sm">${esc(sol.harness)}</span>
-        <span class="badge badge-ghost badge-sm">${esc(sol.model)}</span>
+        <span class="${ui.badgeGhostSm}">${esc(sol.harness)}</span>
+        <span class="${ui.badgeGhostSm}">${esc(sol.model)}</span>
       </div>
-      <h1 class="text-3xl font-bold tracking-tight font-mono">${esc(sol.slug)}</h1>
-      ${sol.projectName ? `<p class="text-base-content/70 mt-1">project: <span class="font-mono">${esc(sol.projectName)}</span></p>` : ""}
-      <p class="text-base-content/80 mt-3 max-w-3xl">${esc(sol.summary || "")}</p>
-      <div class="mt-4 flex flex-wrap gap-2">
+      <h1 class="${ui.pageTitleMono}">${esc(sol.slug)}</h1>
+      ${sol.projectName ? `<p class="${ui.muted} mt-1">project: <span class="font-mono">${esc(sol.projectName)}</span></p>` : ""}
+      <p class="${ui.muted80} mt-3 max-w-3xl">${esc(sol.summary || "")}</p>
+      <div class="${ui.stackGapBtn}">
         ${
           deployedHtml
-            ? `<a class="btn btn-sm btn-primary" href="${esc(deployedHtml)}" target="_blank" rel="noopener">
-                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+            ? `<a class="${ui.btnPrimarySm}" href="${esc(deployedHtml)}" target="_blank" rel="noopener">
+                 <svg xmlns="http://www.w3.org/2000/svg" class="${ui.externalLinkIcon}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                  Open HTML output
                </a>`
             : ""
         }
-        <a class="btn btn-sm ${deployedHtml ? "btn-ghost" : "btn-primary"}" href="${esc(urls.tree(dirPath))}" target="_blank" rel="noopener">Source on GitHub</a>
-        <a class="btn btn-sm btn-ghost" href="${esc(urls.blob(`${innerProject}/README.md`))}" target="_blank" rel="noopener">Open README</a>
+        <a class="${deployedHtml ? ui.btnGhostSm : ui.btnPrimarySm}" href="${esc(urls.tree(dirPath))}" target="_blank" rel="noopener">Source on GitHub</a>
+        <a class="${ui.btnGhostSm}" href="${esc(urls.blob(`${innerProject}/README.md`))}" target="_blank" rel="noopener">Open README</a>
         ${
           sol.artifactUrl
-            ? `<a class="btn btn-sm btn-secondary" href="${esc(sol.artifactUrl)}" target="_blank" rel="noopener">Open artifact</a>`
+            ? `<a class="${ui.btnSecondarySm}" href="${esc(sol.artifactUrl)}" target="_blank" rel="noopener">Open artifact</a>`
             : ""
         }
       </div>
     </header>
 
-    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
-      <div class="card bg-base-200 border border-base-300 lg:col-span-2">
+    <section class="${ui.gridOutcome}">
+      <div class="${ui.card} lg:col-span-2">
         <div class="card-body">
-          <h2 class="card-title text-base">Outcome</h2>
-          <div class="grid grid-cols-2 gap-3 mt-1">
+          <h2 class="${ui.cardTitleSm}">Outcome</h2>
+          <div class="${ui.gridKv}">
             <div>
-              <div class="text-xs uppercase text-base-content/50 tracking-wider">status</div>
+              <div class="${ui.kvLabel}">status</div>
               <div class="mt-1">${statusBadge(oc.status)}</div>
             </div>
             <div>
-              <div class="text-xs uppercase text-base-content/50 tracking-wider">evaluated</div>
+              <div class="${ui.kvLabel}">evaluated</div>
               <div class="mt-1 text-sm">${esc(oc.evaluatedAt || "—")}</div>
             </div>
             <div>
-              <div class="text-xs uppercase text-base-content/50 tracking-wider">score</div>
+              <div class="${ui.kvLabel}">score</div>
               <div class="mt-1 text-sm">${oc.score == null ? "—" : esc(String(oc.score))}</div>
             </div>
             <div>
-              <div class="text-xs uppercase text-base-content/50 tracking-wider">harness/model</div>
+              <div class="${ui.kvLabel}">harness/model</div>
               <div class="mt-1 text-sm font-mono">${esc(sol.harness)} · ${esc(sol.model)}</div>
             </div>
           </div>
           ${
             oc.verdict
               ? `<div class="mt-4">
-                  <div class="text-xs uppercase text-base-content/50 tracking-wider mb-1">verdict</div>
-                  <p class="text-sm text-base-content/85">${esc(oc.verdict)}</p>
+                  <div class="${ui.kvLabel} mb-1">verdict</div>
+                  <p class="text-sm ${ui.muted85}">${esc(oc.verdict)}</p>
                 </div>`
               : ""
           }
         </div>
       </div>
 
-      <div class="card bg-base-200 border border-base-300">
+      <div class="${ui.card}">
         <div class="card-body">
-          <h2 class="card-title text-base">Stack</h2>
-          <div class="flex flex-wrap gap-1.5 mt-1">${tech || `<span class="text-base-content/50 text-sm">—</span>`}</div>
+          <h2 class="${ui.cardTitleSm}">Stack</h2>
+          <div class="flex flex-wrap gap-1.5 mt-1">${tech || `<span class="${ui.emptyDash}">—</span>`}</div>
           ${
             sol.notes
               ? `<div class="mt-4">
-                  <div class="text-xs uppercase text-base-content/50 tracking-wider mb-1">notes</div>
-                  <p class="text-sm text-base-content/80">${esc(sol.notes)}</p>
+                  <div class="${ui.kvLabel} mb-1">notes</div>
+                  <p class="text-sm ${ui.muted80}">${esc(sol.notes)}</p>
                 </div>`
               : ""
           }
@@ -643,25 +637,25 @@ function viewSolution(route) {
       </div>
     </section>
 
-    <section class="mb-10">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-xl font-semibold">README</h2>
+    <section class="${ui.sectionLg}">
+      <div class="${ui.sectionHeadRow}">
+        <h2 class="${ui.sectionTitle}">README</h2>
         <span id="readme-path" class="text-xs text-base-content/50 font-mono"></span>
       </div>
-      <article id="solution-md" class="prose prose-sm max-w-none bg-base-200 border border-base-300 rounded-2xl p-4 markdown-target">
-        <div class="flex items-center gap-2 text-base-content/60 text-sm">
+      <article id="solution-md" class="${ui.proseReadme}">
+        <div class="${ui.loadingRow}">
           <span class="loading loading-dots loading-sm"></span>
           loading README…
         </div>
       </article>
     </section>
 
-    <section class="mb-10 w-full max-w-full min-w-0">
-      <div class="flex items-center justify-between mb-3 w-full">
-        <h2 class="text-xl font-semibold">Other solutions for this eval</h2>
-        <span class="text-sm text-base-content/60">${otherSolutions.length} total</span>
+    <section class="${ui.sectionLg} w-full max-w-full min-w-0">
+      <div class="${ui.sectionHead}">
+        <h2 class="${ui.sectionTitle}">Other solutions for this eval</h2>
+        <span class="${ui.mutedSm}">${otherSolutions.length} total</span>
       </div>
-      <div class="w-full flex flex-col gap-1.5">${otherSolutionRows}</div>
+      <div class="${ui.listColTight}">${otherSolutionRows}</div>
     </section>
   `;
 
@@ -678,7 +672,7 @@ function viewSolution(route) {
     }
     const target = document.getElementById("solution-md");
     if (target) {
-      target.innerHTML = `<p class="text-base-content/60">No README found for this solution. <a class="link" target="_blank" rel="noopener" href="${esc(urls.tree(dirPath))}">Browse the directory.</a></p>`;
+      target.innerHTML = `<p class="${ui.muted}">No README found for this solution. <a class="link" target="_blank" rel="noopener" href="${esc(urls.tree(dirPath))}">Browse the directory.</a></p>`;
     }
   })();
 }
@@ -686,12 +680,12 @@ function viewSolution(route) {
 function view404(msg) {
   updateHeaderBreadcrumbs("");
   state.view.innerHTML = `
-    <div class="hero bg-base-200 rounded-2xl border border-base-300">
+    <div class="${ui.hero404}">
       <div class="hero-content text-center py-16">
         <div class="max-w-md">
-          <h1 class="text-3xl font-bold">Not found</h1>
-          <p class="text-base-content/70 mt-2">${esc(msg)}</p>
-          <a href="#/" class="btn btn-primary btn-sm mt-6">Back to overview</a>
+          <h1 class="${ui.pageTitle}">Not found</h1>
+          <p class="${ui.muted} mt-2">${esc(msg)}</p>
+          <a href="#/" class="${ui.btnPrimarySmMt}">Back to overview</a>
         </div>
       </div>
     </div>`;
@@ -708,7 +702,7 @@ function setupTheme() {
   document.documentElement.setAttribute("data-theme", initial);
 
   const groupHtml = (label, list) => `
-    <li class="menu-title pt-2"><span class="text-[10px] uppercase tracking-wider">${label}</span></li>
+    <li class="menu-title pt-2"><span class="${ui.themeGroupLabel}">${label}</span></li>
     ${list
       .map(
         (t) => `
