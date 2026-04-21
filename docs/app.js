@@ -450,7 +450,16 @@ function viewEval(route) {
       <h1 class="${ui.pageTitle}">${esc(ev.title)}</h1>
       <p class="${ui.muted} mt-2 max-w-3xl">${esc(ev.description || ev.tagline || "")}</p>
       <div class="${ui.stackGapBtn}">
-        <a class="${ui.btnPrimarySm}" href="${esc(urls.tree(ev.slug))}" target="_blank" rel="noopener">View on GitHub</a>
+        <a
+          class="${ui.btnPrimarySmGithub}"
+          href="${esc(urls.tree(ev.slug))}"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="View this eval's files on GitHub"
+        >
+          ${githubLogoSvg("w-4 h-4")}
+          View on Github
+        </a>
         <a class="${ui.btnGhostSm}" href="${esc(urls.blob(promptPath))}" target="_blank" rel="noopener">Edit prompt</a>
       </div>
     </header>
@@ -570,15 +579,24 @@ function viewSolution(route) {
       ${sol.projectName ? `<p class="${ui.muted} mt-1">project: <span class="font-mono">${esc(sol.projectName)}</span></p>` : ""}
       <p class="${ui.muted80} mt-3 max-w-3xl">${esc(sol.summary || "")}</p>
       <div class="${ui.stackGapBtn}">
+        <a
+          class="${ui.btnPrimarySmGithub}"
+          href="${esc(urls.tree(dirPath))}"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="View this solution's source files on GitHub"
+        >
+          ${githubLogoSvg("w-4 h-4")}
+          View on Github
+        </a>
         ${
           deployedHtml
-            ? `<a class="${ui.btnPrimarySm}" href="${esc(deployedHtml)}" target="_blank" rel="noopener">
-                 <svg xmlns="http://www.w3.org/2000/svg" class="${ui.externalLinkIcon}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+            ? `<a class="${ui.btnOutlinePrimarySm}" href="${esc(deployedHtml)}" target="_blank" rel="noopener noreferrer" aria-label="Open the playable HTML output in a new tab">
+                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                  Open HTML output
                </a>`
             : ""
         }
-        <a class="${deployedHtml ? ui.btnGhostSm : ui.btnPrimarySm}" href="${esc(urls.tree(dirPath))}" target="_blank" rel="noopener">Source on GitHub</a>
         <a class="${ui.btnGhostSm}" href="${esc(urls.blob(`${innerProject}/README.md`))}" target="_blank" rel="noopener">Open README</a>
         ${
           sol.artifactUrl

@@ -15,6 +15,10 @@ export const ui = {
     "btn btn-xs btn-outline gap-1 h-7 min-h-7 px-2 shrink-0",
   btnPrimarySmCopy:
     "btn btn-sm btn-primary gap-1.5 shadow-md min-h-9 h-9 px-3",
+  /** Primary icon + label (eval/solution “View on Github”). */
+  btnPrimarySmGithub: "btn btn-sm btn-primary gap-1.5 min-h-9 h-9",
+  /** Deployed HTML output (outline). */
+  btnOutlinePrimarySm: "btn btn-sm btn-outline btn-primary gap-1.5 min-h-9 h-9",
   btnGhostHero: "btn btn-ghost btn-sm gap-2",
   btnPrimarySmMt: "btn btn-primary btn-sm mt-6",
 

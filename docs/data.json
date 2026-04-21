@@ -232,6 +232,15 @@
       ]
     },
     {
+      "slug": "cvchess-in-browser",
+      "title": "cvchess-in-browser",
+      "tagline": "Extract a chess-board position from an oblique-angle photo — entirely in the browser — then explain and analyze the algorithm.",
+      "description": "Build a browser-based computer vision app that detects a physical chess board in an oblique-angle photo and reports its position (FEN / grid / diagram). The agent must assemble an evaluation dataset of at least 8 real-world chess-board images, iterate on a client-side pipeline against it, and ship a single HTML page with three tabs: a live Demo (upload + dataset gallery), a How-it-works explainer with graphics, and a How-well-it-works analysis of the algorithm's performance on the dataset. No server inference, no hosted vision APIs.",
+      "tags": ["computer-vision", "browser", "chess", "opencv", "wasm", "image-processing", "eval-loop"],
+      "createdAt": "2026-04-21",
+      "solutions": []
+    },
+    {
       "slug": "fishtank-water-sim",
       "title": "fishtank-water-sim",
       "tagline": "3D browser sim: pour water into a glass cube, slosh it with the mouse, orbit the camera, reset.",
