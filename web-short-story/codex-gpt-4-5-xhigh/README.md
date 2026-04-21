@@ -2,7 +2,7 @@
 
 Open the committed story artifact directly in a browser: [index.html](./index.html).
 
-Published mirror for the evals site: [docs artifact](../../docs/artifacts/web-short-story/codex-gpt-5.html).
+Published mirror for the evals site: [docs artifact](../../docs/artifacts/web-short-story/codex-gpt-4-5-xhigh.html).
 
 ## Run
 
