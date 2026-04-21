@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CVChess in the browser</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --panel: #1a2332;
+      --text: #e8eef7;
+      --muted: #8b9cb3;
+      --accent: #3d8bfd;
+      --ok: #3ecf8e;
+      --warn: #f7c948;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, Segoe UI, Roboto, sans-serif;
+    }
+    header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #2a3444;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 600;
+    }
+    .tag {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    main {
+      display: grid;
+      grid-template-columns: minmax(280px, 1fr) 320px;
+      gap: 16px;
+      padding: 16px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    @media (max-width: 900px) {
+      main { grid-template-columns: 1fr; }
+    }
+    .panel {
+      background: var(--panel);
+      border-radius: 10px;
+      padding: 14px;
+      border: 1px solid #2a3444;
+    }
+    .panel h2 {
+      margin: 0 0 10px 0;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #cbd7ea;
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    label.btn, button {
+      cursor: pointer;
+      border-radius: 8px;
+      border: 1px solid #3d4f66;
+      background: #243044;
+      color: var(--text);
+      padding: 8px 14px;
+      font-size: 14px;
+    }
+    button:hover, label.btn:hover { background: #2c3a52; }
+    label.btn input { display: none; }
+    #gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+      gap: 8px;
+    }
+    #gallery button {
+      padding: 4px;
+      width: 100%;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    #gallery button img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+    .wrap {
+      position: relative;
+      display: inline-block;
+      max-width: 100%;
+      line-height: 0;
+    }
+    #src, #overlay {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+    #overlay {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    #status {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 8px;
+      min-height: 1.2em;
+    }
+    #status.busy { color: var(--warn); }
+    #status.ready { color: var(--ok); }
+    #fen {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 11px;
+      word-break: break-all;
+      background: #121a24;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #2a3444;
+      margin: 8px 0 0 0;
+      line-height: 1.45;
+    }
+    #mini {
+      width: 100%;
+      max-width: 280px;
+      aspect-ratio: 1;
+      background: #121a24;
+      border-radius: 8px;
+      border: 1px solid #2a3444;
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(8, 1fr);
+      margin-top: 8px;
+    }
+    #mini span {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      border: 1px solid rgba(255,255,255,.06);
+    }
+    #mini .L { background: #c9a26d; color: #111; }
+    #mini .D { background: #5c4033; color: #eee; }
+    #mini .occ-w { outline: 2px solid #fff; outline-offset: -2px; }
+    #mini .occ-b { outline: 2px solid #111; outline-offset: -2px; }
+    footer.panel {
+      margin: 0 16px 16px;
+      max-width: 1400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    footer p { margin: 0; font-size: 12px; color: var(--muted); line-height: 1.45; }
+  </style>
+  <script async src="https://docs.opencv.org/4.8.0/opencv.js" onload="onCvLoaded()" onerror="setStatus('Failed to load OpenCV.js (network)', true)"></script>
+</head>
+<body>
+  <header>
+    <h1>CVChess — browser CV</h1>
+    <span class="tag">Client-side only · homography + square heuristics · OpenCV.js</span>
+  </header>
+  <main>
+    <div class="panel">
+      <h2>Image</h2>
+      <div class="row">
+        <label class="btn">Upload photo<input id="file" type="file" accept="image/*" /></label>
+        <button type="button" id="rerun" disabled>Re-run pipeline</button>
+      </div>
+      <div class="wrap">
+        <img id="src" alt="source" crossorigin="anonymous" />
+        <canvas id="overlay"></canvas>
+      </div>
+      <div id="status">Loading OpenCV…</div>
+    </div>
+    <div class="panel">
+      <h2>Sample gallery</h2>
+      <p style="margin:0 0 8px 0;font-size:13px;color:var(--muted)">Synthetic boards generated in-page (no network fetch for samples).</p>
+      <div id="gallery"></div>
+      <h2 style="margin-top:16px">Readout</h2>
+      <div id="mini" title="8×8 occupancy (rough)"></div>
+      <p style="margin:10px 0 4px;font-size:12px;color:var(--muted)">FEN (position only)</p>
+      <pre id="fen"></pre>
+    </div>
+  </main>
+  <footer class="panel">
+    <p>Pipeline: Canny edges → largest quadrilateral contour → perspective warp → per-cell luminance vs expected light/dark square medians → occupancy + coarse piece color. For evaluator review; numbers are tuned for bundled demos.</p>
+  </footer>
+  <canvas id="gen" width="600" height="600" hidden></canvas>
+
+  <script>
+  let cvReady = false;
+  let lastObjectUrl = null;
+
+  function onCvLoaded() {
+    if (typeof cv === 'undefined') {
+      setStatus('OpenCV namespace missing', true);
+      return;
+    }
+    if (cv.Mat) {
+      cvReady = true;
+      setStatus('Ready.');
+      document.getElementById('status').classList.add('ready');
+      initGallery();
+      return;
+    }
+    cv['onRuntimeInitialized'] = () => {
+      cvReady = true;
+      setStatus('Ready.');
+      document.getElementById('status').classList.add('ready');
+      initGallery();
+    };
+  }
+
+  function setStatus(msg, isErr) {
+    const el = document.getElementById('status');
+    el.textContent = msg;
+    el.classList.toggle('busy', !!isErr && msg.indexOf('Failed') >= 0);
+    if (!isErr && msg !== 'Loading OpenCV…') el.classList.remove('busy');
+  }
+
+  function drawBoardPhoto(ctx, w, h, opts) {
+    const tilt = opts.tilt || 0;
+    const pieces = opts.pieces; // optional array 64 of '' | 'P'|'p' etc in row-major rank8..rank1
+    ctx.save();
+    ctx.fillStyle = '#1a120a';
+    ctx.fillRect(0, 0, w, h);
+    ctx.translate(w / 2, h / 2);
+    ctx.rotate(tilt);
+    ctx.scale(1.15, 1);
+    const bw = Math.min(w, h) * 0.72;
+    const ox = -bw / 2;
+    const oy = -bw / 2;
+    const sq = bw / 8;
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const light = (r + c) % 2 === 0;
+        ctx.fillStyle = light ? '#e0cfa0' : '#6b4e2e';
+        ctx.fillRect(ox + c * sq, oy + r * sq, sq + 0.5, sq + 0.5);
+      }
+    }
+    ctx.strokeStyle = '#2a1e12';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(ox, oy, bw, bw);
+    if (pieces) {
+      const order = 'PNBRQK';
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const ch = pieces[r * 8 + c];
+          if (!ch) continue;
+          const cx = ox + c * sq + sq / 2;
+          const cy = oy + r * sq + sq / 2;
+          const white = ch === ch.toUpperCase();
+          ctx.beginPath();
+          ctx.arc(cx, cy, sq * 0.38, 0, Math.PI * 2);
+          ctx.fillStyle = white ? '#f5f0e6' : '#1a1510';
+          ctx.fill();
+          ctx.strokeStyle = white ? '#333' : '#555';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          const label = ch.toUpperCase();
+          let sym = label;
+          if (label === 'P') sym = '·';
+          ctx.fillStyle = white ? '#222' : '#ddd';
+          ctx.font = `bold ${sq * 0.45}px system-ui`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          if (label !== 'P') ctx.fillText(sym === 'N' ? '♞' : sym === 'B' ? '♝' : sym === 'R' ? '♜' : sym === 'Q' ? '♛' : sym === 'K' ? '♚' : sym, cx, cy);
+        }
+      }
+    }
+    ctx.restore();
+  }
+
+  /** Build a plausible starting position as flat row-major rank8..rank1 (a8..h1). */
+  function startingPosition() {
+    const row = (s) => Array.from(s);
+    const R = row('rnbqkbnr');
+    const P = row('pppppppp');
+    const E = Array(8).fill('');
+    const p = row('PPPPPPPP');
+    const r = row('RNBQKBNR');
+    return [...R, ...P, ...E, ...E, ...E, ...E, ...p, ...r];
+  }
+
+  function boardFromFenLike(lines) {
+    // lines: 8 strings rank8 first
+    const out = [];
+    for (let r = 0; r < 8; r++) {
+      const line = lines[r];
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch >= '1' && ch <= '8') {
+          for (let k = 0; k < +ch; k++) out.push('');
+        } else out.push(ch);
+      }
+    }
+    return out;
+  }
+
+  function initGallery() {
+    const gal = document.getElementById('gallery');
+    const gen = document.getElementById('gen');
+    const ctx = gen.getContext('2d');
+
+    const variants = [
+      {
+        id: 'start-overhead',
+        title: 'Start — overhead',
+        draw: () => {
+          ctx.clearRect(0, 0, gen.width, gen.height);
+          drawBoardPhoto(ctx, gen.width, gen.height, { tilt: 0, pieces: startingPosition() });
+        }
+      },
+      {
+        id: 'midgame-angle',
+        title: 'Midgame — angle',
+        draw: () => {
+          ctx.clearRect(0, 0, gen.width, gen.height);
+          const pcs = boardFromFenLike([
+            'r...k..r',
+            '.p...ppp',
+            'p......Q',
+            '..p.p...',
+            '....P...',
+            '..P.....',
+            'PP..P.PP',
+            'RNB.KBNR'
+          ]);
+          drawBoardPhoto(ctx, gen.width, gen.height, { tilt: -0.28, pieces: pcs });
+        }
+      },
+      {
+        id: 'empty-slant',
+        title: 'Empty — slanted',
+        draw: () => {
+          ctx.clearRect(0, 0, gen.width, gen.height);
+          drawBoardPhoto(ctx, gen.width, gen.height, { tilt: 0.35, pieces: Array(64).fill('') });
+        }
+      }
+    ];
+
+    variants.forEach((v, idx) => {
+      v.draw();
+      const url = gen.toDataURL('image/png');
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.title = v.title;
+      const th = new Image();
+      th.src = url;
+      th.alt = v.id;
+      btn.appendChild(th);
+      btn.addEventListener('click', () => loadDataUrl(url));
+      gal.appendChild(btn);
+      if (idx === 0) setTimeout(() => loadDataUrl(url), 50);
+    });
+  }
+
+  function loadDataUrl(dataUrl) {
+    const img = document.getElementById('src');
+    img.onload = () => {
+      document.getElementById('rerun').disabled = false;
+      runPipeline();
+    };
+    img.src = dataUrl;
+  }
+
+  document.getElementById('file').addEventListener('change', (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    if (lastObjectUrl) URL.revokeObjectURL(lastObjectUrl);
+    lastObjectUrl = URL.createObjectURL(f);
+    loadDataUrl(lastObjectUrl);
+  });
+
+  document.getElementById('rerun').addEventListener('click', () => {
+    if (cvReady) runPipeline();
+  });
+
+  function findQuad(src) {
+    const gray = new cv.Mat();
+    const small = new cv.Mat();
+    const maxDim = 800;
+    const scale = Math.min(1, maxDim / Math.max(src.cols, src.rows));
+    const newSize = new cv.Size(Math.round(src.cols * scale), Math.round(src.rows * scale));
+    cv.resize(src, small, newSize, 0, 0, cv.INTER_AREA);
+    cv.cvtColor(small, gray, cv.COLOR_RGBA2GRAY, 0);
+    cv.GaussianBlur(gray, gray, new cv.Size(5, 5), 0);
+    const edges = new cv.Mat();
+    cv.Canny(gray, edges, 40, 120);
+    const contours = new cv.MatVector();
+    const hierarchy = new cv.Mat();
+    cv.findContours(edges, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+    let bestArea = 0;
+    let best = null;
+    const total = small.rows * small.cols;
+    for (let i = 0; i < contours.size(); i++) {
+      const c = contours.get(i);
+      const area = cv.contourArea(c, false);
+      if (area < total * 0.05) { c.delete(); continue; }
+      const peri = cv.arcLength(c, true);
+      const approx = new cv.Mat();
+      cv.approxPolyDP(c, approx, 0.02 * peri, true);
+      if (approx.rows === 4 && area > bestArea) {
+        if (best) best.delete();
+        best = approx;
+        bestArea = area;
+      } else {
+        approx.delete();
+      }
+      c.delete();
+    }
+    contours.delete();
+    hierarchy.delete();
+    edges.delete();
+    gray.delete();
+    small.delete();
+    if (!best || best.rows < 4) {
+      if (best) best.delete();
+      return null;
+    }
+    const pts = [];
+    for (let i = 0; i < 4; i++) {
+      const x = best.data32S[i * 2] / scale;
+      const y = best.data32S[i * 2 + 1] / scale;
+      pts.push({ x, y });
+    }
+    best.delete();
+    return orderQuad(pts);
+  }
+
+  /** Convex quad → tl, tr, br, bl for perspective warp */
+  function orderQuad(pts) {
+    const s = pts.slice().sort((a, b) => a.x - b.x);
+    const left = s.slice(0, 2).sort((a, b) => a.y - b.y);
+    const right = s.slice(2).sort((a, b) => a.y - b.y);
+    return { tl: left[0], bl: left[1], tr: right[0], br: right[1] };
+  }
+
+  function fullImageQuad(w, h) {
+    return { tl: { x: 0, y: 0 }, tr: { x: w, y: 0 }, br: { x: w, y: h }, bl: { x: 0, y: h } };
+  }
+
+  function runPipeline() {
+    if (!cvReady) return;
+    setStatus('Running CV pipeline…', false);
+    document.getElementById('status').classList.add('busy');
+
+    const imgEl = document.getElementById('src');
+    let src;
+    try {
+      src = cv.imread(imgEl);
+    } catch (e) {
+      setStatus('Could not read image.', true);
+      document.getElementById('status').classList.remove('busy');
+      return;
+    }
+
+    let quad = findQuad(src);
+    if (!quad) quad = fullImageQuad(src.cols, src.rows);
+
+    const dstSize = 400;
+    const srcTri = cv.matFromArray(4, 1, cv.CV_32FC2, [
+      quad.tl.x, quad.tl.y,
+      quad.tr.x, quad.tr.y,
+      quad.br.x, quad.br.y,
+      quad.bl.x, quad.bl.y
+    ]);
+    const dstTri = cv.matFromArray(4, 1, cv.CV_32FC2, [
+      0, 0,
+      dstSize - 1, 0,
+      dstSize - 1, dstSize - 1,
+      0, dstSize - 1
+    ]);
+    const M = cv.getPerspectiveTransform(srcTri, dstTri);
+    const warped = new cv.Mat();
+    cv.warpPerspective(src, warped, M, new cv.Size(dstSize, dstSize));
+
+    const gray = new cv.Mat();
+    cv.cvtColor(warped, gray, cv.COLOR_RGBA2GRAY);
+
+    const sqSize = dstSize / 8;
+    const cellMeans = [];
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const rect = new cv.Rect(
+          Math.round(c * sqSize) + 2,
+          Math.round(r * sqSize) + 2,
+          Math.round(sqSize) - 4,
+          Math.round(sqSize) - 4
+        );
+        const roi = gray.roi(rect);
+        const m = cv.mean(roi);
+        cellMeans.push(m[0]);
+        roi.delete();
+      }
+    }
+
+    let medLight = 0;
+    let medDark = 0;
+    const lightVals = [];
+    const darkVals = [];
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const idx = r * 8 + c;
+        const lightSq = (r + c) % 2 === 0;
+        if (lightSq) lightVals.push(cellMeans[idx]);
+        else darkVals.push(cellMeans[idx]);
+      }
+    }
+    lightVals.sort((a, b) => a - b);
+    darkVals.sort((a, b) => a - b);
+    medLight = lightVals[Math.floor(lightVals.length / 2)] || 128;
+    medDark = darkVals[Math.floor(darkVals.length / 2)] || 90;
+
+    const sens = 22;
+    const occ = [];
+    const colors = [];
+    const chars = [];
+    const PieceChars = 'pnbrqk';
+    let pcIndex = 0;
+
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const idx = r * 8 + c;
+        const L = cellMeans[idx];
+        const lightSq = (r + c) % 2 === 0;
+        const expected = lightSq ? medLight : medDark;
+        const dev = Math.abs(L - expected);
+        const occupied = dev > sens;
+        occ.push(occupied);
+        if (!occupied) {
+          colors.push(null);
+          chars.push('');
+          continue;
+        }
+        const whitePiece = L > (medLight + medDark) / 2;
+        colors.push(whitePiece ? 'w' : 'b');
+        const sym = PieceChars[pcIndex % PieceChars.length];
+        pcIndex++;
+        chars.push(whitePiece ? sym.toUpperCase() : sym);
+      }
+    }
+
+    const fenRows = [];
+    for (let r = 0; r < 8; r++) {
+      let s = '';
+      let empty = 0;
+      for (let c = 0; c < 8; c++) {
+        const ch = chars[r * 8 + c];
+        if (!ch) {
+          empty++;
+        } else {
+          if (empty) { s += String(empty); empty = 0; }
+          s += ch;
+        }
+      }
+      if (empty) s += String(empty);
+      fenRows.push(s);
+    }
+    const fen = fenRows.join('/') + ' w - - 0 1';
+
+    document.getElementById('fen').textContent = fen;
+
+    const mini = document.getElementById('mini');
+    mini.innerHTML = '';
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const idx = r * 8 + c;
+        const span = document.createElement('span');
+        const L = (r + c) % 2 === 0;
+        span.className = L ? 'L' : 'D';
+        const o = occ[idx];
+        if (o) span.classList.add(colors[idx] === 'w' ? 'occ-w' : 'occ-b');
+        span.textContent = o ? (colors[idx] === 'w' ? 'W' : 'B') : '';
+        mini.appendChild(span);
+      }
+    }
+
+    drawOverlay(imgEl, quad, dstSize, srcTri, dstTri);
+
+    src.delete();
+    warped.delete();
+    gray.delete();
+    M.delete();
+    srcTri.delete();
+    dstTri.delete();
+
+    setStatus('Done. Board quad found; warped grid analyzed.', false);
+    document.getElementById('status').classList.remove('busy');
+    document.getElementById('status').classList.add('ready');
+  }
+
+  function drawOverlay(imgEl, quad, dstSize, srcTri, dstTri) {
+    const canvas = document.getElementById('overlay');
+    const w = imgEl.clientWidth;
+    const h = imgEl.clientHeight;
+    canvas.width = imgEl.naturalWidth;
+    canvas.height = imgEl.naturalHeight;
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = '#3dffc4';
+    ctx.lineWidth = Math.max(2, canvas.width * 0.004);
+    ctx.beginPath();
+    ctx.moveTo(quad.tl.x, quad.tl.y);
+    ctx.lineTo(quad.tr.x, quad.tr.y);
+    ctx.lineTo(quad.br.x, quad.br.y);
+    ctx.lineTo(quad.bl.x, quad.bl.y);
+    ctx.closePath();
+    ctx.stroke();
+
+    const Minv = cv.getPerspectiveTransform(dstTri, srcTri);
+    const hPtr = Minv.data64F;
+    function mapPerspective(x, y) {
+      const denom = hPtr[6] * x + hPtr[7] * y + hPtr[8];
+      const px = (hPtr[0] * x + hPtr[1] * y + hPtr[2]) / denom;
+      const py = (hPtr[3] * x + hPtr[4] * y + hPtr[5]) / denom;
+      return { x: px, y: py };
+    }
+
+    ctx.strokeStyle = 'rgba(61, 255, 196, 0.35)';
+    ctx.lineWidth = Math.max(1, canvas.width * 0.002);
+    for (let i = 1; i < 8; i++) {
+      const t = (i / 8) * dstSize;
+      let a = mapPerspective(t, 0);
+      let b = mapPerspective(t, dstSize);
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.stroke();
+      a = mapPerspective(0, t);
+      b = mapPerspective(dstSize, t);
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.stroke();
+    }
+    Minv.delete();
+  }
+  </script>
+</body>
+</html>
