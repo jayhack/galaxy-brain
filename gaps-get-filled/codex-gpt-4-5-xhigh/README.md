@@ -8,7 +8,7 @@ The required artifact lives here:
 
 - `results/runs/sp500_10y_strict/report.html`
 
-That file opens directly in a browser and makes the case from a committed backtest run. A mirrored copy for the repo results site lives under `docs/artifacts/gaps-get-filled/codex-gpt-5-4-xhigh.html`.
+That file opens directly in a browser and makes the case from a committed backtest run. A mirrored copy for the repo results site lives under `docs/artifacts/gaps-get-filled/codex-gpt-4-5-xhigh.html`.
 
 ## What This Submission Tries To Prove
 

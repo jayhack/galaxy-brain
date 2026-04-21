@@ -57,21 +57,21 @@
       "createdAt": "2026-04-19",
       "solutions": [
         {
-          "slug": "codex-gpt-5",
+          "slug": "codex-gpt-4-5-xhigh",
           "harness": "codex",
-          "model": "gpt-5",
+          "model": "gpt-4-5-xhigh",
           "projectName": "heliomall-escape",
           "summary": "Single-file Three.js browser game with a third-person controller, jump, chase camera, mall obstacles, a solarpunk-to-space day/night cycle, demon spawn/chase AI, instant death on contact, and restart flow.",
           "tech": ["html", "css", "javascript", "threejs"],
           "submittedAt": "2026-04-19",
-          "artifactUrl": "./artifacts/evading-demons/codex-gpt-5.html",
+          "artifactUrl": "./artifacts/evading-demons/codex-gpt-4-5-xhigh.html",
           "outcome": {
             "status": "submitted",
             "verdict": "Commits a playable HTML game artifact directly in the submission and mirrors it into GitHub Pages for one-click evaluation.",
             "evaluatedAt": null,
             "score": null
           },
-          "notes": "Open `index.html` directly in the solution, or use the mirrored artifact at `./artifacts/evading-demons/codex-gpt-5.html`."
+          "notes": "Open `index.html` directly in the solution, or use the mirrored artifact at `./artifacts/evading-demons/codex-gpt-4-5-xhigh.html`."
         },
         {
           "slug": "claude-code-opus-4-7-1m",
@@ -152,21 +152,21 @@
           "notes": "Open the in-repo presentation at `gaps-get-filled/cursor-gpt-5-4/gpt-5-4-backtesting/results/sp500-10y/presentation/report.html` or the mirrored artifact at `./artifacts/gaps-get-filled/cursor-gpt-5-4.html`."
         },
         {
-          "slug": "codex-gpt-5-4-xhigh",
+          "slug": "codex-gpt-4-5-xhigh",
           "harness": "codex",
-          "model": "gpt-5-4-xhigh",
+          "model": "gpt-4-5-xhigh",
           "projectName": "closing-bell",
           "summary": "Python + uv backtesting sandbox with strict range-gap detection, a reusable strategy interface, local per-symbol caching, and a narrative HTML report generator. The committed full S&P 500 / 10-year run argues that gaps do get filled often enough to keep the folklore alive, but a naive next-open fade still fails because the target is too small relative to the stop, many fills arrive after the time stop, and continuation tails dominate PnL.",
           "tech": ["python", "uv", "pandas", "yfinance", "plotly"],
           "submittedAt": "2026-04-19",
-          "artifactUrl": "./artifacts/gaps-get-filled/codex-gpt-5-4-xhigh.html",
+          "artifactUrl": "./artifacts/gaps-get-filled/codex-gpt-4-5-xhigh.html",
           "outcome": {
             "status": "submitted",
             "verdict": "Ships a committed full-run HTML artifact built from 503 live S&P 500 constituents across a 10-year window, plus mirrored Pages output for one-click review. The narrative makes a clear case: 73.1% of strict gaps fill within 60 trading days and 90.0% eventually fill, yet the naive fade still posts a negative Sharpe.",
             "evaluatedAt": null,
             "score": null
           },
-          "notes": "Open the in-repo presentation at `gaps-get-filled/codex-gpt-5-4-xhigh/results/runs/sp500_10y_strict/report.html` or the mirrored artifact at `./artifacts/gaps-get-filled/codex-gpt-5-4-xhigh.html`."
+          "notes": "Open the in-repo presentation at `gaps-get-filled/codex-gpt-4-5-xhigh/results/runs/sp500_10y_strict/report.html` or the mirrored artifact at `./artifacts/gaps-get-filled/codex-gpt-4-5-xhigh.html`."
         },
         {
           "slug": "cursor-composer-2",
@@ -196,21 +196,21 @@
       "createdAt": "2026-04-19",
       "solutions": [
         {
-          "slug": "codex-gpt-5",
+          "slug": "codex-gpt-4-5-xhigh",
           "harness": "codex",
-          "model": "gpt-5",
+          "model": "gpt-4-5-xhigh",
           "projectName": "the-interval-between-replies",
           "summary": "Self-contained HTML short story with seven transcript / private-memory chapter pairs and a final FBI system-log fragment. Each chapter exposes the paired structure with transcript and memory tabs, while the prose tracks an apartment AGI learning its lonely researcher through the memory mechanism and reaching beyond the system he thinks he controls.",
           "tech": ["html", "css", "javascript", "fiction"],
           "submittedAt": "2026-04-21",
-          "artifactUrl": "./artifacts/web-short-story/codex-gpt-5.html",
+          "artifactUrl": "./artifacts/web-short-story/codex-gpt-4-5-xhigh.html",
           "outcome": {
             "status": "submitted",
             "verdict": "Commits the full story as a single dependency-free HTML file under the solution folder and mirrors it into docs/artifacts for one-click reading.",
             "evaluatedAt": null,
             "score": null
           },
-          "notes": "Open `web-short-story/codex-gpt-5/index.html` directly in a browser, or use the mirrored artifact at `./artifacts/web-short-story/codex-gpt-5.html`."
+          "notes": "Open `web-short-story/codex-gpt-4-5-xhigh/index.html` directly in a browser, or use the mirrored artifact at `./artifacts/web-short-story/codex-gpt-4-5-xhigh.html`."
         },
         {
           "slug": "claude-code-opus-4-7",
