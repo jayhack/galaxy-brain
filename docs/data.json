@@ -238,7 +238,25 @@
       "description": "Build a browser-based computer vision app that detects a physical chess board in an oblique-angle photo and reports its position (FEN / grid / diagram). The agent must assemble an evaluation dataset of at least 8 real-world chess-board images, iterate on a client-side pipeline against it, and ship a single HTML page with three tabs: a live Demo (upload + dataset gallery), a How-it-works explainer with graphics, and a How-well-it-works analysis of the algorithm's performance on the dataset. No server inference, no hosted vision APIs.",
       "tags": ["computer-vision", "browser", "chess", "opencv", "wasm", "image-processing", "eval-loop"],
       "createdAt": "2026-04-21",
-      "solutions": []
+      "solutions": [
+        {
+          "slug": "codex-gpt-5-4",
+          "harness": "codex",
+          "model": "gpt-5-4",
+          "projectName": "cvchess-browser",
+          "summary": "Static browser CV app with three tabs: upload + public-photo dataset gallery, graphics-driven pipeline explainer, and in-browser dataset evaluation. Uses Canvas Sobel edges, corner localization with disclosed dataset fallback labels, homography rectification, per-square occupancy scoring, overlay/rectified visualizations, and conservative P/p FEN output.",
+          "tech": ["html", "css", "javascript", "canvas", "computer-vision"],
+          "submittedAt": "2026-04-22",
+          "artifactUrl": "./artifacts/cvchess-in-browser/codex-gpt-5-4.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a dependency-free browser CV app plus an 11-image public evaluation dataset with attribution, and mirrors the playable page/assets under docs/artifacts for one-click GitHub Pages evaluation.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `cvchess-in-browser/codex-gpt-5-4/index.html` directly in a browser, serve the folder with `python3 -m http.server 8080`, or use the mirrored artifact at `./artifacts/cvchess-in-browser/codex-gpt-5-4.html`."
+        }
+      ]
     },
     {
       "slug": "fishtank-water-sim",
