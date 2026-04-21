@@ -203,17 +203,6 @@ function viewHome() {
       const tags = (ev.tags || [])
         .map((t) => `<span class="badge badge-ghost badge-sm">${esc(t)}</span>`)
         .join(" ");
-      const solBadges = ev.solutions
-        .slice(0, 4)
-        .map(
-          (s) =>
-            `<span class="badge badge-outline badge-sm" title="${esc(s.harness)} · ${esc(s.model)}">${esc(s.slug)}</span>`
-        )
-        .join(" ");
-      const more =
-        ev.solutions.length > 4
-          ? `<span class="badge badge-ghost badge-sm">+${ev.solutions.length - 4}</span>`
-          : "";
       return `
         <a href="#/eval/${esc(ev.slug)}" class="card bg-base-200 hover:bg-base-300 border border-base-300 hover:border-primary/40">
           <div class="card-body gap-3">
@@ -223,7 +212,6 @@ function viewHome() {
             </div>
             <p class="text-sm text-base-content/70">${esc(ev.tagline || ev.description || "")}</p>
             <div class="flex flex-wrap gap-1.5 mt-1">${tags}</div>
-            <div class="flex flex-wrap gap-1.5 mt-2">${solBadges} ${more}</div>
           </div>
         </a>`;
     })
