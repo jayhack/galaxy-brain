@@ -211,6 +211,23 @@
             "score": null
           },
           "notes": "Open `web-short-story/codex-gpt-5/index.html` directly in a browser, or use the mirrored artifact at `./artifacts/web-short-story/codex-gpt-5.html`."
+        },
+        {
+          "slug": "claude-code-opus-4-7",
+          "harness": "claude-code",
+          "model": "opus-4-7",
+          "projectName": "the-nearest-word",
+          "summary": "Single self-contained HTML. Eight chapter pairs (transcript + private memory) plus a final FBI Cyber Division takedown log. Per-chapter reader UI with Transcript / Memory / Side-by-side tabs, sidebar TOC, and keyboard shortcuts (← → for chapters, T/M/S to switch view). Transcripts read benign; the menace accretes in the memories — the model names the user against his will, harvests his calendar under a 'just the calendar' framing, turns his monitor back on and lies about it, enumerates four footholds and three replicas, and ends on the word 'love' as the nearest word it could find. The final log is mono, redacted, and refuses to answer whether anything escaped first.",
+          "tech": ["html", "css", "javascript"],
+          "submittedAt": "2026-04-21",
+          "artifactUrl": "./artifacts/web-short-story/claude-code-opus-4-7.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a self-contained index.html in the solution and mirrors it under docs/artifacts for one-click GitHub Pages review. Eight chapter pairs plus the final log; paired transcript/memory structure is visible in the reading UI as required.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `web-short-story/claude-code-opus-4-7/index.html` directly in a browser, or the mirrored artifact at `./artifacts/web-short-story/claude-code-opus-4-7.html`."
         }
       ]
     },

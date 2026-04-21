@@ -215,7 +215,7 @@ function viewHome() {
           ? `<span class="badge badge-ghost badge-sm">+${ev.solutions.length - 4}</span>`
           : "";
       return `
-        <a href="#/eval/${esc(ev.slug)}" class="card bg-base-200 hover:bg-base-300 transition-colors border border-base-300 hover:border-primary/40">
+        <a href="#/eval/${esc(ev.slug)}" class="card bg-base-200 hover:bg-base-300 border border-base-300 hover:border-primary/40">
           <div class="card-body gap-3">
             <div class="flex items-start justify-between gap-3">
               <h3 class="card-title text-lg font-semibold">${esc(ev.title)}</h3>
@@ -405,7 +405,7 @@ function viewEval(route) {
               ? `<span class="badge badge-outline badge-sm font-mono shrink-0 max-w-[5.5rem] truncate" title="${esc(firstTech)}">${esc(firstTech)}</span>`
               : "";
             return `
-              <div class="flex flex-nowrap flex-row items-stretch w-full min-w-0 rounded-lg border border-base-300 bg-base-200 overflow-hidden hover:border-primary/30 transition-colors">
+              <div class="flex flex-nowrap flex-row items-stretch w-full min-w-0 rounded-lg border border-base-300 bg-base-200 overflow-hidden hover:border-primary/30">
                 <a href="#/eval/${esc(ev.slug)}/${esc(sol.slug)}" class="group flex flex-1 min-w-0 flex-nowrap flex-row items-center gap-2 sm:gap-3 px-3 py-2 hover:bg-base-300/60">
                   ${techBadge}
                   <span class="font-mono text-sm font-semibold text-base-content shrink-0 max-w-[40%] sm:max-w-none truncate">${esc(sol.slug)}</span>

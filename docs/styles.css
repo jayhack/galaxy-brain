@@ -1,5 +1,14 @@
 /* small overrides on top of Tailwind + DaisyUI */
 
+/* No timed fades on interactive chrome: hover, focus, borders, and theme switches snap immediately.
+   (Keyframe animations such as DaisyUI loading indicators are unchanged.) */
+*,
+*::before,
+*::after {
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+}
+
 /* Sidebar open (mobile drawer): logo lives in the drawer only */
 #nav-drawer:checked ~ .drawer-content #navbar-brand {
   display: none;
