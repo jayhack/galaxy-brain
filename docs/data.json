@@ -232,6 +232,15 @@
       ]
     },
     {
+      "slug": "cvchess-in-browser",
+      "title": "cvchess-in-browser",
+      "tagline": "Extract a chess board position from a photo — entirely in the browser.",
+      "description": "Build a browser-based computer vision app that detects a physical chess board in an image and reports its position (FEN / grid / diagram). Ship a self-contained HTML with upload + a sample-image gallery. The full pipeline — board detection, square segmentation, occupancy/piece classification — must run client-side; no server inference, no hosted vision APIs.",
+      "tags": ["computer-vision", "browser", "chess", "opencv", "wasm", "image-processing"],
+      "createdAt": "2026-04-21",
+      "solutions": []
+    },
+    {
       "slug": "fishtank-water-sim",
       "title": "fishtank-water-sim",
       "tagline": "3D browser sim: pour water into a glass cube, slosh it with the mouse, orbit the camera, reset.",
