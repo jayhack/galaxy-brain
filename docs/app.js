@@ -220,6 +220,41 @@ function renderSidebar(route) {
 /* views                                                               */
 /* ------------------------------------------------------------------ */
 
+/** One solution row: same markup on the eval “Solutions” list and solution-page “Other solutions”. */
+function solutionRowHtml(ev, sol) {
+  const htmlOut = siteArtifactUrl(sol.artifactUrl);
+  const htmlBtn = htmlOut
+    ? `<a href="${esc(htmlOut)}" target="_blank" rel="noopener" class="btn btn-xs btn-outline gap-1 h-7 min-h-7 px-2 shrink-0">
+         <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+         HTML
+       </a>`
+    : "";
+  const metaBits = [
+    esc(sol.harness),
+    esc(sol.model),
+    sol.projectName ? `project ${esc(sol.projectName)}` : "",
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  const firstTech = (sol.tech && sol.tech[0]) || "";
+  const techBadge = firstTech
+    ? `<span class="badge badge-outline badge-sm font-mono shrink-0 max-w-[5.5rem] truncate" title="${esc(firstTech)}">${esc(firstTech)}</span>`
+    : "";
+  return `
+    <div class="flex flex-nowrap flex-row items-stretch w-full min-w-0 rounded-lg border border-base-300 bg-base-200 overflow-hidden hover:border-primary/30">
+      <a href="#/eval/${esc(ev.slug)}/${esc(sol.slug)}" class="group flex flex-1 min-w-0 flex-nowrap flex-row items-center gap-2 sm:gap-3 px-3 py-2 hover:bg-base-300/60">
+        ${techBadge}
+        <span class="font-mono text-sm font-semibold text-base-content shrink-0 max-w-[40%] sm:max-w-none truncate">${esc(sol.slug)}</span>
+        <span class="text-[11px] sm:text-xs text-base-content/55 font-mono truncate shrink-0 max-w-[7.5rem] sm:max-w-[11rem]">${metaBits}</span>
+        <span class="text-xs text-base-content/65 truncate min-w-0 flex-1" title="${esc(sol.summary || "")}">${esc(sol.summary || "")}</span>
+      </a>
+      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0 border-l border-base-300/80 pl-2 pr-3 py-2">
+        ${htmlBtn}
+        ${statusBadge(sol.outcome?.status)}
+      </div>
+    </div>`;
+}
+
 function viewHome() {
   const data = state.data;
   const totalSolutions = data.evals.reduce((n, e) => n + e.solutions.length, 0);
@@ -402,41 +437,7 @@ function viewEval(route) {
   const solRows =
     ev.solutions.length === 0
       ? `<div class="alert">No solutions submitted yet.</div>`
-      : ev.solutions
-          .map((sol) => {
-            const htmlOut = siteArtifactUrl(sol.artifactUrl);
-            const htmlBtn = htmlOut
-              ? `<a href="${esc(htmlOut)}" target="_blank" rel="noopener" class="btn btn-xs btn-outline gap-1 h-7 min-h-7 px-2 shrink-0">
-                   <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                   HTML
-                 </a>`
-              : "";
-            const metaBits = [
-              esc(sol.harness),
-              esc(sol.model),
-              sol.projectName ? `project ${esc(sol.projectName)}` : "",
-            ]
-              .filter(Boolean)
-              .join(" · ");
-            const firstTech = (sol.tech && sol.tech[0]) || "";
-            const techBadge = firstTech
-              ? `<span class="badge badge-outline badge-sm font-mono shrink-0 max-w-[5.5rem] truncate" title="${esc(firstTech)}">${esc(firstTech)}</span>`
-              : "";
-            return `
-              <div class="flex flex-nowrap flex-row items-stretch w-full min-w-0 rounded-lg border border-base-300 bg-base-200 overflow-hidden hover:border-primary/30">
-                <a href="#/eval/${esc(ev.slug)}/${esc(sol.slug)}" class="group flex flex-1 min-w-0 flex-nowrap flex-row items-center gap-2 sm:gap-3 px-3 py-2 hover:bg-base-300/60">
-                  ${techBadge}
-                  <span class="font-mono text-sm font-semibold text-base-content shrink-0 max-w-[40%] sm:max-w-none truncate">${esc(sol.slug)}</span>
-                  <span class="text-[11px] sm:text-xs text-base-content/55 font-mono truncate shrink-0 max-w-[7.5rem] sm:max-w-[11rem]">${metaBits}</span>
-                  <span class="text-xs text-base-content/65 truncate min-w-0 flex-1" title="${esc(sol.summary || "")}">${esc(sol.summary || "")}</span>
-                </a>
-                <div class="flex items-center gap-1.5 sm:gap-2 shrink-0 border-l border-base-300/80 pl-2 pr-3 py-2">
-                  ${htmlBtn}
-                  ${statusBadge(sol.outcome?.status)}
-                </div>
-              </div>`;
-          })
-          .join("");
+      : ev.solutions.map((s) => solutionRowHtml(ev, s)).join("");
 
   updateHeaderBreadcrumbs(`
     <nav class="text-sm breadcrumbs breadcrumbs-header max-w-full min-w-0">
@@ -548,6 +549,12 @@ function viewSolution(route) {
   const oc = sol.outcome || {};
   const deployedHtml = siteArtifactUrl(sol.artifactUrl);
 
+  const otherSolutions = ev.solutions.filter((s) => s.slug !== sol.slug);
+  const otherSolutionRows =
+    otherSolutions.length === 0
+      ? `<div class="alert">No other solutions for this eval.</div>`
+      : otherSolutions.map((s) => solutionRowHtml(ev, s)).join("");
+
   updateHeaderBreadcrumbs(`
     <nav class="text-sm breadcrumbs breadcrumbs-header max-w-full min-w-0">
       <ul class="flex-nowrap max-w-full">
@@ -649,20 +656,12 @@ function viewSolution(route) {
       </article>
     </section>
 
-    <section>
-      <h2 class="text-xl font-semibold mb-3">Other solutions for this eval</h2>
-      <div class="flex flex-wrap gap-2">
-        ${
-          ev.solutions
-            .filter((s) => s.slug !== sol.slug)
-            .map(
-              (s) =>
-                `<a href="#/eval/${esc(ev.slug)}/${esc(s.slug)}" class="badge badge-lg badge-outline hover:badge-primary">${esc(s.slug)}</a>`
-            )
-            .join(" ") ||
-          `<span class="text-base-content/50 text-sm">none yet</span>`
-        }
+    <section class="mb-10 w-full max-w-full min-w-0">
+      <div class="flex items-center justify-between mb-3 w-full">
+        <h2 class="text-xl font-semibold">Other solutions for this eval</h2>
+        <span class="text-sm text-base-content/60">${otherSolutions.length} total</span>
       </div>
+      <div class="w-full flex flex-col gap-1.5">${otherSolutionRows}</div>
     </section>
   `;
 
