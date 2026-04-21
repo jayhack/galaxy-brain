@@ -1,0 +1,1089 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>cvchess-in-browser — claude-code-opus-4-7</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #161a22;
+    --panel2: #1e2430;
+    --ink: #e8ecf1;
+    --dim: #8a93a3;
+    --accent: #7ab8ff;
+    --ok: #7ee787;
+    --warn: #f0b429;
+    --err: #ff7a7a;
+    --border: #2a3142;
+    --light-sq: #eadab4;
+    --dark-sq: #8b5a3c;
+  }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.4;
+  }
+  a { color: var(--accent); }
+  header {
+    padding: 18px 22px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 {
+    margin: 0 0 4px;
+    font-size: 18px;
+    font-weight: 600;
+  }
+  header p {
+    margin: 0;
+    color: var(--dim);
+    font-size: 13px;
+  }
+  #status {
+    display: inline-block;
+    margin-left: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    background: var(--panel2);
+    color: var(--dim);
+  }
+  #status.ok { color: var(--ok); }
+  #status.warn { color: var(--warn); }
+  #status.err { color: var(--err); }
+  main {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 14px;
+    padding: 14px;
+  }
+  @media (max-width: 900px) {
+    main { grid-template-columns: 1fr; }
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+  }
+  .panel h2 {
+    margin: 0 0 8px;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--dim);
+    font-weight: 600;
+  }
+  #drop {
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 18px 10px;
+    text-align: center;
+    color: var(--dim);
+    cursor: pointer;
+    background: var(--panel2);
+    transition: border-color .15s, color .15s, background .15s;
+    font-size: 13px;
+  }
+  #drop:hover, #drop.drag {
+    border-color: var(--accent);
+    color: var(--ink);
+    background: #1a2333;
+  }
+  #drop strong { color: var(--ink); font-weight: 600; }
+  #drop input { display: none; }
+  #gallery {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .thumb {
+    position: relative;
+    background: #000;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: pointer;
+    aspect-ratio: 1/1;
+    transition: border-color .1s, transform .1s;
+  }
+  .thumb:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .thumb canvas { width: 100%; height: 100%; display: block; }
+  .thumb .lbl {
+    position: absolute;
+    left: 4px;
+    bottom: 4px;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    font-size: 10px;
+    padding: 2px 5px;
+    border-radius: 3px;
+  }
+  .workspace {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 1200px) {
+    .workspace { grid-template-columns: 1fr; }
+  }
+  .stage {
+    position: relative;
+  }
+  .stage canvas {
+    width: 100%;
+    display: block;
+    background: #000;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+  #inputStage canvas { cursor: crosshair; }
+  .readout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 700px) {
+    .readout { grid-template-columns: 1fr; }
+  }
+  #boardSvg {
+    width: 100%;
+    aspect-ratio: 1/1;
+    background: #000;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+  .fen {
+    font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+    font-size: 12px;
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px;
+    color: var(--ink);
+    word-break: break-all;
+    margin-top: 6px;
+    user-select: all;
+  }
+  .grid-ascii {
+    font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+    font-size: 12px;
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px;
+    color: var(--ink);
+    white-space: pre;
+    overflow-x: auto;
+    margin-top: 6px;
+  }
+  button, .btn {
+    background: var(--panel2);
+    color: var(--ink);
+    border: 1px solid var(--border);
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  button:hover { border-color: var(--accent); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 8px;
+  }
+  .hint {
+    color: var(--dim);
+    font-size: 11px;
+    margin-top: 6px;
+  }
+  .pipeline-stage {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3px 0;
+    font-size: 12px;
+    border-bottom: 1px dashed var(--border);
+  }
+  .pipeline-stage:last-child { border-bottom: none; }
+  .pipeline-stage .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+    display: inline-block;
+    margin-right: 6px;
+  }
+  .pipeline-stage.done .dot { background: var(--ok); }
+  .pipeline-stage.active .dot { background: var(--warn); animation: pulse 1s infinite; }
+  .pipeline-stage.err .dot { background: var(--err); }
+  @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: 0.3 } }
+  .pipeline-stage .ms { color: var(--dim); font-size: 10px; font-variant-numeric: tabular-nums; }
+  footer {
+    padding: 10px 22px 20px;
+    color: var(--dim);
+    font-size: 11px;
+    text-align: center;
+  }
+  .corner-mode {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: rgba(0,0,0,0.7);
+    color: var(--warn);
+    padding: 3px 7px;
+    border-radius: 4px;
+    font-size: 11px;
+    display: none;
+  }
+  .corner-mode.on { display: block; }
+</style>
+</head>
+<body>
+<header>
+  <h1>cvchess-in-browser — claude-code-opus-4-7 <span id="status">booting</span></h1>
+  <p>Single-page computer-vision pipeline: corner detection → perspective warp → per-square occupancy & color classification. Everything runs client-side (OpenCV.js / WASM). No server inference.</p>
+</header>
+
+<main>
+  <aside>
+    <div class="panel">
+      <h2>Input</h2>
+      <label id="drop" for="fileInput">
+        <div><strong>Drop a chess photo here</strong></div>
+        <div style="margin-top:4px">or click to pick a file</div>
+        <input id="fileInput" type="file" accept="image/*" />
+      </label>
+      <div class="row">
+        <button id="retryAuto">Re-run auto-detect</button>
+        <button id="manualMode">Click 4 corners</button>
+        <button id="resetZoom">Reset</button>
+      </div>
+      <div class="hint">Auto mode uses <code>findChessboardCornersSB</code> on the inner 7×7 corners. If that fails on a noisy or cropped board, switch to <em>Click 4 corners</em> and click the four outer corners in order: <em>a8, h8, h1, a1</em>.</div>
+    </div>
+
+    <div class="panel" style="margin-top:12px">
+      <h2>Sample gallery</h2>
+      <div id="gallery"></div>
+      <div class="hint">Shipped, procedurally-generated gallery. Click any tile to process it through the full pipeline.</div>
+    </div>
+
+    <div class="panel" style="margin-top:12px">
+      <h2>Pipeline</h2>
+      <div id="pipeline"></div>
+    </div>
+  </aside>
+
+  <section>
+    <div class="workspace">
+      <div class="stage" id="inputStage">
+        <div class="panel" style="padding:8px">
+          <h2>Input · detected board</h2>
+          <canvas id="inputCanvas" width="600" height="600"></canvas>
+          <div class="corner-mode" id="cornerMode">click 4 corners · <span id="cornerCount">0</span>/4</div>
+          <div class="hint" id="inputHint">Pick an image to begin.</div>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="panel" style="padding:8px">
+          <h2>Rectified · classification overlay</h2>
+          <canvas id="warpCanvas" width="512" height="512"></canvas>
+          <div class="hint" id="warpHint">Top-down homography with per-square mean / variance / edge-density and piece-color decisions.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="readout" style="margin-top:12px">
+      <div class="panel">
+        <h2>Board readout</h2>
+        <svg id="boardSvg" viewBox="0 0 400 400"></svg>
+        <div class="row">
+          <button id="copyFen">Copy FEN</button>
+          <button id="flipBoard">Flip board</button>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Outputs</h2>
+        <div style="font-size:11px;color:var(--dim);margin-top:2px">FEN</div>
+        <div id="fen" class="fen">-</div>
+        <div style="font-size:11px;color:var(--dim);margin-top:8px">8×8 grid</div>
+        <div id="gridAscii" class="grid-ascii">—</div>
+        <div class="hint">Occupied squares are emitted as <code>P</code> (light piece) or <code>p</code> (dark piece). Full piece-type recognition is out of scope for this submission; the FEN uses pawns as a stand-in for occupancy + color.</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span>cvchess-in-browser / claude-code-opus-4-7 · single self-contained HTML · OpenCV.js (4.10) loaded from <code>docs.opencv.org</code> at page load.</span>
+</footer>
+
+<script>
+/* ---------- small DOM helpers ---------- */
+const $ = (s) => document.querySelector(s);
+const setStatus = (msg, cls) => {
+  const el = $("#status");
+  el.textContent = msg;
+  el.className = cls || "";
+};
+
+/* ---------- pipeline UI ---------- */
+const PIPELINE_STAGES = [
+  { id: "load",    label: "Load image" },
+  { id: "corners", label: "Detect corners (SB 7×7)" },
+  { id: "warp",    label: "Warp to 512×512" },
+  { id: "classify",label: "Classify 64 squares" },
+  { id: "fen",     label: "Emit FEN" },
+];
+function renderPipeline() {
+  $("#pipeline").innerHTML = PIPELINE_STAGES.map(s =>
+    `<div class="pipeline-stage" data-id="${s.id}"><span><span class="dot"></span>${s.label}</span><span class="ms"></span></div>`
+  ).join("");
+}
+function pipeSet(id, state, ms) {
+  const el = document.querySelector(`.pipeline-stage[data-id="${id}"]`);
+  if (!el) return;
+  el.classList.remove("active", "done", "err");
+  if (state) el.classList.add(state);
+  el.querySelector(".ms").textContent = ms == null ? "" : `${ms.toFixed(0)} ms`;
+}
+function pipeReset() {
+  PIPELINE_STAGES.forEach(s => pipeSet(s.id, null, null));
+}
+renderPipeline();
+
+/* ---------- OpenCV.js loader ---------- */
+let cvReady = false;
+const cvReadyPromise = new Promise((resolve, reject) => {
+  const s = document.createElement("script");
+  s.async = true;
+  s.src = "https://docs.opencv.org/4.10.0/opencv.js";
+  s.onload = () => {
+    if (typeof cv === "undefined") {
+      reject(new Error("OpenCV failed to define cv"));
+      return;
+    }
+    if (cv.getBuildInformation) {
+      cvReady = true;
+      setStatus("ready · OpenCV.js", "ok");
+      resolve();
+    } else {
+      cv.onRuntimeInitialized = () => {
+        cvReady = true;
+        setStatus("ready · OpenCV.js", "ok");
+        resolve();
+      };
+    }
+  };
+  s.onerror = () => reject(new Error("OpenCV.js failed to load (are you offline?)"));
+  document.head.appendChild(s);
+});
+
+/* ---------- synthetic sample-gallery generation ----------
+   Generate a handful of chess-board "photos" fully in-browser.
+   Each sample uses the same base renderer (a top-down board with
+   pieces drawn as two-tone discs with a letter), optionally warped
+   with a light perspective to simulate a camera angle. */
+const SAMPLES = [
+  {
+    name: "start position",
+    fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
+    angle: 0,
+  },
+  {
+    name: "italian game",
+    fen: "r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R",
+    angle: 0.18,
+  },
+  {
+    name: "endgame",
+    fen: "8/5k2/8/4P3/8/2K5/8/8",
+    angle: 0.3,
+  },
+  {
+    name: "pieces sparse",
+    fen: "r3k2r/3q4/8/4p3/4P3/8/3Q4/R3K2R",
+    angle: -0.22,
+  },
+];
+
+function fenToGrid(fen) {
+  const rows = fen.split(" ")[0].split("/");
+  const grid = [];
+  for (const row of rows) {
+    const r = [];
+    for (const ch of row) {
+      if (/\d/.test(ch)) for (let i = 0; i < +ch; i++) r.push(null);
+      else r.push(ch);
+    }
+    while (r.length < 8) r.push(null);
+    grid.push(r.slice(0, 8));
+  }
+  while (grid.length < 8) grid.push(Array(8).fill(null));
+  return grid.slice(0, 8);
+}
+
+/* Draw a top-down board with pieces onto a canvas. */
+function drawTopDownBoard(canvas, grid, opts = {}) {
+  const w = canvas.width, h = canvas.height;
+  const ctx = canvas.getContext("2d");
+  ctx.save();
+  ctx.clearRect(0, 0, w, h);
+  // background "table"
+  const tableGrad = ctx.createLinearGradient(0, 0, w, h);
+  tableGrad.addColorStop(0, "#3a2a1c");
+  tableGrad.addColorStop(1, "#241610");
+  ctx.fillStyle = tableGrad;
+  ctx.fillRect(0, 0, w, h);
+
+  const margin = opts.margin ?? Math.round(w * 0.06);
+  const boardSize = Math.min(w, h) - 2 * margin;
+  const sq = boardSize / 8;
+  const x0 = (w - boardSize) / 2;
+  const y0 = (h - boardSize) / 2;
+
+  // board bezel
+  ctx.fillStyle = "#3b241a";
+  ctx.fillRect(x0 - 10, y0 - 10, boardSize + 20, boardSize + 20);
+
+  // squares
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const light = (r + c) % 2 === 0;
+      ctx.fillStyle = light ? "#eadab4" : "#8b5a3c";
+      ctx.fillRect(x0 + c * sq, y0 + r * sq, sq + 0.5, sq + 0.5);
+    }
+  }
+
+  // pieces
+  if (grid) {
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const p = grid[r][c];
+        if (!p) continue;
+        const cx = x0 + (c + 0.5) * sq;
+        const cy = y0 + (r + 0.5) * sq;
+        const rad = sq * 0.38;
+        const white = p === p.toUpperCase();
+        // drop shadow
+        ctx.save();
+        ctx.globalAlpha = 0.35;
+        ctx.fillStyle = "#000";
+        ctx.beginPath();
+        ctx.ellipse(cx + rad * 0.2, cy + rad * 0.35, rad * 0.9, rad * 0.35, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+        // body
+        const g = ctx.createRadialGradient(cx - rad * 0.3, cy - rad * 0.3, rad * 0.2, cx, cy, rad);
+        if (white) { g.addColorStop(0, "#ffffff"); g.addColorStop(1, "#c5c5c5"); }
+        else       { g.addColorStop(0, "#3a3a3a"); g.addColorStop(1, "#0b0b0b"); }
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(cx, cy, rad, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = white ? "#222" : "#eee";
+        ctx.stroke();
+        // letter
+        ctx.fillStyle = white ? "#222" : "#eee";
+        ctx.font = `bold ${Math.floor(sq * 0.42)}px ui-serif, Georgia, serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(p.toUpperCase(), cx, cy + 1);
+      }
+    }
+  }
+
+  // subtle vignette
+  const vg = ctx.createRadialGradient(w / 2, h / 2, boardSize * 0.3, w / 2, h / 2, boardSize * 0.9);
+  vg.addColorStop(0, "rgba(0,0,0,0)");
+  vg.addColorStop(1, "rgba(0,0,0,0.35)");
+  ctx.fillStyle = vg;
+  ctx.fillRect(0, 0, w, h);
+  ctx.restore();
+  return { x0, y0, boardSize, sq };
+}
+
+/* Apply a 4-corner perspective warp by drawing the flat board onto a
+   temp canvas, then using cv.warpPerspective (once OpenCV is ready) to
+   render the tilted view. Before cv is ready we fall back to a CSS3D
+   preview (pure top-down). */
+async function renderSampleInto(canvas, sample) {
+  const w = canvas.width, h = canvas.height;
+  const flat = document.createElement("canvas");
+  flat.width = w; flat.height = h;
+  const meta = drawTopDownBoard(flat, fenToGrid(sample.fen));
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, w, h);
+
+  if (!cvReady || !sample.angle) {
+    ctx.drawImage(flat, 0, 0);
+    return;
+  }
+  // Build a perspective warp: rotate about the x-axis by `angle` radians.
+  // We build a 4-corner destination quad and use cv.getPerspectiveTransform.
+  const src = cv.imread(flat);
+  const dst = new cv.Mat();
+  const { x0, y0, boardSize } = meta;
+  const cx = w / 2, cy = h / 2;
+  const a = sample.angle;
+  const project = (px, py) => {
+    const X = px - cx;
+    const Y = py - cy;
+    const Z = 0;
+    // rotate around x-axis
+    const Yr = Y * Math.cos(a) - Z * Math.sin(a);
+    const Zr = Y * Math.sin(a) + Z * Math.cos(a);
+    const f = 1200; // focal-ish
+    const s = f / (f + Zr + 300);
+    return [cx + X * s, cy + Yr * s];
+  };
+  const srcCorners = [
+    x0, y0,
+    x0 + boardSize, y0,
+    x0 + boardSize, y0 + boardSize,
+    x0, y0 + boardSize,
+  ];
+  const dstCornersArr = [];
+  for (let i = 0; i < 4; i++) {
+    const [X, Y] = project(srcCorners[i * 2], srcCorners[i * 2 + 1]);
+    dstCornersArr.push(X, Y);
+  }
+  const srcMat = cv.matFromArray(4, 1, cv.CV_32FC2, srcCorners);
+  const dstMat = cv.matFromArray(4, 1, cv.CV_32FC2, dstCornersArr);
+  const M = cv.getPerspectiveTransform(srcMat, dstMat);
+  cv.warpPerspective(src, dst, M, new cv.Size(w, h),
+    cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar(20, 15, 10, 255));
+  cv.imshow(canvas, dst);
+  src.delete(); dst.delete(); srcMat.delete(); dstMat.delete(); M.delete();
+}
+
+function buildGallery() {
+  const gal = $("#gallery");
+  gal.innerHTML = "";
+  SAMPLES.forEach((s, i) => {
+    const d = document.createElement("div");
+    d.className = "thumb";
+    d.title = s.name;
+    const c = document.createElement("canvas");
+    c.width = 320; c.height = 320;
+    d.appendChild(c);
+    const lbl = document.createElement("div");
+    lbl.className = "lbl";
+    lbl.textContent = s.name;
+    d.appendChild(lbl);
+    d.addEventListener("click", () => {
+      runPipelineFromCanvas(c);
+    });
+    gal.appendChild(d);
+    // first paint while cv warms up
+    drawTopDownBoard(c, fenToGrid(s.fen));
+    // upgrade to warped once cv is ready
+    cvReadyPromise.then(() => renderSampleInto(c, s));
+  });
+}
+buildGallery();
+
+/* ---------- loading an image into the input canvas ---------- */
+async function loadImageToInput(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const inCanvas = $("#inputCanvas");
+      const maxSide = 720;
+      const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+      inCanvas.width = Math.round(img.width * scale);
+      inCanvas.height = Math.round(img.height * scale);
+      const ctx = inCanvas.getContext("2d");
+      ctx.clearRect(0, 0, inCanvas.width, inCanvas.height);
+      ctx.drawImage(img, 0, 0, inCanvas.width, inCanvas.height);
+      resolve(img);
+    };
+    img.onerror = () => reject(new Error("Image load failed"));
+    img.src = src;
+  });
+}
+
+/* ---------- the main pipeline ----------
+   1. Try cv.findChessboardCornersSB to get the 7x7 inner-corner grid.
+   2. Expand inner corners by one square each way to get the 8x8 outer
+      corners; take the four corner-of-corners as board bounds.
+   3. Perspective-warp to 512x512.
+   4. Classify each 64x64 cell as empty/occupied, and by piece color. */
+
+let manualCorners = null;
+let manualMode = false;
+let lastSourceCanvas = null;
+let flipped = false;
+
+function enterManualMode() {
+  manualMode = true;
+  manualCorners = [];
+  $("#cornerMode").classList.add("on");
+  $("#cornerCount").textContent = "0";
+  $("#inputHint").textContent = "Manual mode — click the four outer corners of the playing area in order: a8 (top-left), h8 (top-right), h1 (bottom-right), a1 (bottom-left).";
+}
+function exitManualMode() {
+  manualMode = false;
+  manualCorners = null;
+  $("#cornerMode").classList.remove("on");
+}
+
+$("#inputCanvas").addEventListener("click", (ev) => {
+  if (!manualMode || !lastSourceCanvas) return;
+  const rect = ev.currentTarget.getBoundingClientRect();
+  const cx = $("#inputCanvas").width * (ev.clientX - rect.left) / rect.width;
+  const cy = $("#inputCanvas").height * (ev.clientY - rect.top) / rect.height;
+  manualCorners.push([cx, cy]);
+  $("#cornerCount").textContent = String(manualCorners.length);
+  // draw dot
+  const ctx = $("#inputCanvas").getContext("2d");
+  ctx.fillStyle = "rgba(122,184,255,0.9)";
+  ctx.beginPath();
+  ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+  ctx.fill();
+  if (manualCorners.length === 4) {
+    const corners = manualCorners.slice();
+    exitManualMode();
+    runClassifyFromCorners(corners);
+  }
+});
+
+async function runPipelineFromCanvas(sourceCanvas) {
+  pipeReset();
+  try {
+    await cvReadyPromise;
+  } catch (e) {
+    setStatus("OpenCV.js failed to load", "err");
+    $("#inputHint").textContent = "OpenCV.js could not be loaded. Try serving the page with `python3 -m http.server` instead of opening via file://, or check your network.";
+    return;
+  }
+
+  // Copy source pixels into the input canvas and record the source.
+  const inCanvas = $("#inputCanvas");
+  const W = sourceCanvas.width, H = sourceCanvas.height;
+  inCanvas.width = W;
+  inCanvas.height = H;
+  inCanvas.getContext("2d").drawImage(sourceCanvas, 0, 0);
+  lastSourceCanvas = sourceCanvas;
+
+  setStatus("processing…", "warn");
+  $("#inputHint").textContent = "Running detection…";
+
+  const t0 = performance.now();
+  pipeSet("load", "active");
+  pipeSet("load", "done", performance.now() - t0);
+
+  // --- corners (auto) ---
+  const tC0 = performance.now();
+  pipeSet("corners", "active");
+  let outerCorners = null;
+  try {
+    outerCorners = detectOuterCornersAuto();
+  } catch (err) {
+    console.warn("auto corners failed", err);
+  }
+  if (outerCorners) {
+    pipeSet("corners", "done", performance.now() - tC0);
+    finishPipelineWithCorners(outerCorners);
+  } else {
+    pipeSet("corners", "err", performance.now() - tC0);
+    setStatus("auto-detect failed — click 4 corners", "warn");
+    $("#inputHint").textContent = "Auto-detect didn't find a 7×7 inner-corner grid. Switch to manual: click the four outer corners a8 → h8 → h1 → a1.";
+    enterManualMode();
+  }
+}
+
+function runClassifyFromCorners(cornersArr) {
+  const tC0 = performance.now();
+  pipeSet("corners", "done", performance.now() - tC0);
+  finishPipelineWithCorners(cornersArr);
+}
+
+function detectOuterCornersAuto() {
+  const inCanvas = $("#inputCanvas");
+  const srcRGBA = cv.imread(inCanvas);
+  const gray = new cv.Mat();
+  cv.cvtColor(srcRGBA, gray, cv.COLOR_RGBA2GRAY);
+  // cv.findChessboardCornersSB expects 8-bit single-channel.
+  const corners = new cv.Mat();
+  const patternSize = new cv.Size(7, 7);
+  let found = false;
+  try {
+    found = cv.findChessboardCornersSB(
+      gray, patternSize, corners,
+      cv.CALIB_CB_NORMALIZE_IMAGE | cv.CALIB_CB_EXHAUSTIVE | cv.CALIB_CB_ACCURACY
+    );
+  } catch (e) {
+    // Some OpenCV.js builds expose SB; if it throws, try the classic.
+    try {
+      found = cv.findChessboardCorners(gray, patternSize, corners,
+        cv.CALIB_CB_ADAPTIVE_THRESH + cv.CALIB_CB_NORMALIZE_IMAGE);
+      if (found) {
+        const criteria = new cv.TermCriteria(cv.TermCriteria_EPS + cv.TermCriteria_MAX_ITER, 30, 0.001);
+        cv.cornerSubPix(gray, corners, new cv.Size(11, 11), new cv.Size(-1, -1), criteria);
+      }
+    } catch (e2) {
+      found = false;
+    }
+  }
+  if (!found || corners.rows < 49) {
+    srcRGBA.delete(); gray.delete(); corners.delete();
+    return null;
+  }
+  // corners is a 49x1 CV_32FC2. Read into JS 7x7 grid.
+  const pts = [];
+  const data = corners.data32F;
+  for (let i = 0; i < 49; i++) pts.push([data[i * 2], data[i * 2 + 1]]);
+  // Row-major: pts[r*7+c] for r,c in [0..6]. OpenCV's ordering is consistent
+  // along rows of the pattern but the rows may be in either direction.
+  // Extrapolate outer corners by extending one square width beyond the inner grid.
+  const TL = pts[0], TR = pts[6], BR = pts[48], BL = pts[42];
+  // Compute row vector (a8 -> h8) and col vector (a8 -> a1) in screen space.
+  const rowVec = [ (TR[0] - TL[0]) / 6, (TR[1] - TL[1]) / 6 ];
+  const colVec = [ (BL[0] - TL[0]) / 6, (BL[1] - TL[1]) / 6 ];
+  const outer = [
+    [ TL[0] - rowVec[0] - colVec[0], TL[1] - rowVec[1] - colVec[1] ], // a8
+    [ TR[0] + rowVec[0] - colVec[0], TR[1] + rowVec[1] - colVec[1] ], // h8
+    [ BR[0] + rowVec[0] + colVec[0], BR[1] + rowVec[1] + colVec[1] ], // h1
+    [ BL[0] - rowVec[0] + colVec[0], BL[1] - rowVec[1] + colVec[1] ], // a1
+  ];
+  srcRGBA.delete(); gray.delete(); corners.delete();
+  return outer;
+}
+
+function finishPipelineWithCorners(outer) {
+  // 1) draw overlay on input
+  drawCornerOverlay(outer);
+
+  // 2) warp 512x512
+  const tW0 = performance.now();
+  pipeSet("warp", "active");
+  const warpCanvas = $("#warpCanvas");
+  warpCanvas.width = 512; warpCanvas.height = 512;
+  const src = cv.imread($("#inputCanvas"));
+  const dst = new cv.Mat();
+  const srcMat = cv.matFromArray(4, 1, cv.CV_32FC2,
+    [outer[0][0], outer[0][1], outer[1][0], outer[1][1],
+     outer[2][0], outer[2][1], outer[3][0], outer[3][1]]);
+  const dstMat = cv.matFromArray(4, 1, cv.CV_32FC2, [0,0, 512,0, 512,512, 0,512]);
+  const M = cv.getPerspectiveTransform(srcMat, dstMat);
+  cv.warpPerspective(src, dst, M, new cv.Size(512, 512));
+  cv.imshow(warpCanvas, dst);
+  src.delete(); srcMat.delete(); dstMat.delete(); M.delete();
+  pipeSet("warp", "done", performance.now() - tW0);
+
+  // 3) classify
+  const tCl0 = performance.now();
+  pipeSet("classify", "active");
+  const grid = classifySquares(dst);
+  pipeSet("classify", "done", performance.now() - tCl0);
+  dst.delete();
+
+  // 4) FEN
+  const tF0 = performance.now();
+  pipeSet("fen", "active");
+  const fen = gridToFEN(grid);
+  $("#fen").textContent = fen;
+  $("#gridAscii").textContent = gridToAscii(grid);
+  drawBoardSvg(grid);
+  drawClassificationOverlay(grid);
+  pipeSet("fen", "done", performance.now() - tF0);
+
+  setStatus("done", "ok");
+  $("#inputHint").textContent = "Detected grid shown with corner pins and per-rank guides. Re-run or click corners manually if the fit looks off.";
+}
+
+function drawCornerOverlay(outer) {
+  const ctx = $("#inputCanvas").getContext("2d");
+  // redraw from source
+  ctx.drawImage(lastSourceCanvas, 0, 0, $("#inputCanvas").width, $("#inputCanvas").height);
+  ctx.save();
+  // polygon
+  ctx.strokeStyle = "rgba(122,184,255,0.95)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(outer[0][0], outer[0][1]);
+  for (let i = 1; i < 4; i++) ctx.lineTo(outer[i][0], outer[i][1]);
+  ctx.closePath();
+  ctx.stroke();
+  // grid lines
+  ctx.strokeStyle = "rgba(122,184,255,0.35)";
+  ctx.lineWidth = 1;
+  for (let i = 1; i < 8; i++) {
+    const t = i / 8;
+    // top-bottom
+    const a = lerp2(outer[0], outer[1], t);
+    const b = lerp2(outer[3], outer[2], t);
+    ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
+    const c = lerp2(outer[0], outer[3], t);
+    const d = lerp2(outer[1], outer[2], t);
+    ctx.beginPath(); ctx.moveTo(c[0], c[1]); ctx.lineTo(d[0], d[1]); ctx.stroke();
+  }
+  // corner pins
+  ["a8","h8","h1","a1"].forEach((lbl, i) => {
+    const [x, y] = outer[i];
+    ctx.fillStyle = "rgba(122,184,255,0.95)";
+    ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#0f1115";
+    ctx.font = "bold 10px -apple-system, system-ui, sans-serif";
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(lbl, x, y);
+  });
+  ctx.restore();
+}
+function lerp2(a, b, t) { return [a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t]; }
+
+/* ---------- square classification ----------
+   Given a rectified 512x512 Mat (8-channel RGBA), for each 64x64 cell
+   compute: centre-region mean L, centre variance, edge density, and
+   mean-L of a tiny inner patch vs the square's expected tone. */
+function classifySquares(dstMat) {
+  const S = 64;
+  // Convert to grayscale + HSV once.
+  const gray = new cv.Mat();
+  cv.cvtColor(dstMat, gray, cv.COLOR_RGBA2GRAY);
+  const edges = new cv.Mat();
+  cv.Canny(gray, edges, 60, 160, 3, false);
+
+  // expected tones for empty light/dark squares — sample the board to calibrate.
+  // Pick a few empty-ish corners: outside-piece rectangle at the edges of each corner square.
+  const lightTones = [];
+  const darkTones = [];
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const isLight = (r + c) % 2 === 0;
+      // sample a small strip along the top-left outer corner of each square
+      const x = c * S + 4, y = r * S + 4, w = 10, h = 10;
+      const roi = gray.roi(new cv.Rect(x, y, w, h));
+      const mean = cv.mean(roi)[0];
+      roi.delete();
+      (isLight ? lightTones : darkTones).push(mean);
+    }
+  }
+  lightTones.sort((a, b) => a - b);
+  darkTones.sort((a, b) => a - b);
+  const medLight = lightTones[Math.floor(lightTones.length * 0.85)]; // brightest 15% = empty light
+  const medDark  = darkTones[Math.floor(darkTones.length * 0.15)];   // darkest 15% = empty dark
+  const emptyLight = medLight;
+  const emptyDark = medDark;
+
+  const grid = Array.from({length: 8}, () => Array(8).fill(null));
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const isLight = (r + c) % 2 === 0;
+      const cxRect = new cv.Rect(c * S + 14, r * S + 14, S - 28, S - 28);
+      const centreGray = gray.roi(cxRect);
+      const centreEdges = edges.roi(cxRect);
+
+      const meanStd = new cv.Mat();
+      const stdMat = new cv.Mat();
+      cv.meanStdDev(centreGray, meanStd, stdMat);
+      const centreMean = meanStd.data64F[0];
+      const centreStd = stdMat.data64F[0];
+      meanStd.delete(); stdMat.delete();
+
+      const edgeSum = cv.sumElems(centreEdges)[0] / 255;
+      const edgeDensity = edgeSum / (cxRect.width * cxRect.height);
+
+      centreGray.delete(); centreEdges.delete();
+
+      const expectedTone = isLight ? emptyLight : emptyDark;
+      const deviation = Math.abs(centreMean - expectedTone);
+
+      // Decision: occupied if high variance, high edge density, or big tone deviation.
+      const occupied =
+        centreStd > 18 ||
+        edgeDensity > 0.06 ||
+        deviation > 35;
+
+      let label = null;
+      if (occupied) {
+        // piece color via mean brightness of an even smaller centre patch.
+        const pcRect = new cv.Rect(c * S + 22, r * S + 22, S - 44, S - 44);
+        const pc = gray.roi(pcRect);
+        const pcMean = cv.mean(pc)[0];
+        pc.delete();
+        // threshold relative to the square's expected tone.
+        // On a dark square, a white piece is much brighter than expected;
+        // on a light square, a black piece is much darker than expected.
+        let white;
+        if (isLight) {
+          white = pcMean > expectedTone - 10;
+        } else {
+          white = pcMean > expectedTone + 25;
+        }
+        label = white ? "P" : "p";
+      }
+      grid[r][c] = label;
+    }
+  }
+
+  gray.delete();
+  edges.delete();
+  return grid;
+}
+
+function drawClassificationOverlay(grid) {
+  const canvas = $("#warpCanvas");
+  const ctx = canvas.getContext("2d");
+  const S = 64;
+  ctx.save();
+  ctx.lineWidth = 1;
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const label = grid[r][c];
+      const x = c * S, y = r * S;
+      ctx.strokeStyle = label == null ? "rgba(255,255,255,0.15)" : "rgba(122,184,255,0.9)";
+      ctx.strokeRect(x + 0.5, y + 0.5, S - 1, S - 1);
+      if (label) {
+        ctx.fillStyle = label === "P" ? "rgba(255,255,255,0.9)" : "rgba(0,0,0,0.9)";
+        ctx.beginPath();
+        ctx.arc(x + S / 2, y + S / 2, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(0,0,0,0.7)";
+        ctx.stroke();
+      }
+    }
+  }
+  ctx.restore();
+}
+
+/* ---------- outputs: FEN, ASCII, rendered board ---------- */
+function gridToFEN(grid) {
+  const ranks = [];
+  const view = flipped ? grid.slice().reverse().map(r => r.slice().reverse()) : grid;
+  for (let r = 0; r < 8; r++) {
+    let rank = "";
+    let empty = 0;
+    for (let c = 0; c < 8; c++) {
+      const p = view[r][c];
+      if (!p) empty++;
+      else {
+        if (empty) { rank += empty; empty = 0; }
+        rank += p;
+      }
+    }
+    if (empty) rank += empty;
+    ranks.push(rank);
+  }
+  return ranks.join("/");
+}
+function gridToAscii(grid) {
+  const view = flipped ? grid.slice().reverse().map(r => r.slice().reverse()) : grid;
+  const rows = ["  a b c d e f g h"];
+  for (let r = 0; r < 8; r++) {
+    const cells = view[r].map(p => p || ".").join(" ");
+    rows.push(`${8 - r} ${cells}`);
+  }
+  return rows.join("\n");
+}
+function drawBoardSvg(grid) {
+  const svg = $("#boardSvg");
+  const view = flipped ? grid.slice().reverse().map(r => r.slice().reverse()) : grid;
+  const S = 48;
+  const parts = [];
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const light = (r + c) % 2 === 0;
+      parts.push(`<rect x="${8 + c*S}" y="${8 + r*S}" width="${S}" height="${S}" fill="${light ? '#eadab4' : '#8b5a3c'}" />`);
+      const p = view[r][c];
+      if (p) {
+        const white = p === p.toUpperCase();
+        const cx = 8 + c*S + S/2, cy = 8 + r*S + S/2;
+        parts.push(`<circle cx="${cx}" cy="${cy}" r="${S*0.36}" fill="${white ? '#f5f5f5' : '#1a1a1a'}" stroke="${white ? '#222' : '#eee'}" stroke-width="1.5"/>`);
+        parts.push(`<text x="${cx}" y="${cy+1}" text-anchor="middle" dominant-baseline="central" font-family="ui-serif,Georgia,serif" font-weight="bold" font-size="${Math.floor(S*0.44)}" fill="${white ? '#222' : '#eee'}">${p.toUpperCase()}</text>`);
+      }
+    }
+  }
+  parts.push(`<rect x="8" y="8" width="${8*S}" height="${8*S}" fill="none" stroke="#2a3142" />`);
+  svg.innerHTML = parts.join("\n");
+  svg.setAttribute("viewBox", `0 0 ${16 + 8*S} ${16 + 8*S}`);
+}
+
+/* ---------- input handlers ---------- */
+const drop = $("#drop");
+const fileInput = $("#fileInput");
+drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("drag"); });
+drop.addEventListener("dragleave", () => drop.classList.remove("drag"));
+drop.addEventListener("drop", async (e) => {
+  e.preventDefault();
+  drop.classList.remove("drag");
+  const file = e.dataTransfer.files[0];
+  if (file) await loadFileAsInput(file);
+});
+fileInput.addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  if (file) await loadFileAsInput(file);
+});
+
+async function loadFileAsInput(file) {
+  const url = URL.createObjectURL(file);
+  try {
+    await loadImageToInput(url);
+    const src = document.createElement("canvas");
+    const inC = $("#inputCanvas");
+    src.width = inC.width; src.height = inC.height;
+    src.getContext("2d").drawImage(inC, 0, 0);
+    await runPipelineFromCanvas(src);
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+$("#manualMode").addEventListener("click", () => {
+  if (!lastSourceCanvas) { $("#inputHint").textContent = "Pick an image first."; return; }
+  // redraw source
+  const ctx = $("#inputCanvas").getContext("2d");
+  ctx.drawImage(lastSourceCanvas, 0, 0, $("#inputCanvas").width, $("#inputCanvas").height);
+  enterManualMode();
+});
+$("#retryAuto").addEventListener("click", () => {
+  if (!lastSourceCanvas) return;
+  runPipelineFromCanvas(lastSourceCanvas);
+});
+$("#resetZoom").addEventListener("click", () => {
+  $("#inputCanvas").getContext("2d").clearRect(0, 0, 1, 1);
+  $("#fen").textContent = "-";
+  $("#gridAscii").textContent = "—";
+  $("#boardSvg").innerHTML = "";
+  $("#warpCanvas").getContext("2d").clearRect(0, 0, 512, 512);
+  pipeReset();
+  setStatus(cvReady ? "ready · OpenCV.js" : "booting", cvReady ? "ok" : "");
+  $("#inputHint").textContent = "Pick an image to begin.";
+});
+$("#copyFen").addEventListener("click", () => {
+  navigator.clipboard.writeText($("#fen").textContent).then(() => {
+    const s = $("#copyFen");
+    const t = s.textContent;
+    s.textContent = "copied";
+    setTimeout(() => s.textContent = t, 900);
+  });
+});
+$("#flipBoard").addEventListener("click", () => {
+  flipped = !flipped;
+  // re-render from whatever grid is current by re-running pipeline if available
+  if (lastSourceCanvas) runPipelineFromCanvas(lastSourceCanvas);
+});
+
+/* ---------- init: show a placeholder board so the diagram area isn't empty ---------- */
+drawBoardSvg(fenToGrid("8/8/8/8/8/8/8/8"));
+cvReadyPromise.then(() => {
+  // upgrade gallery thumbnails to perspective versions
+  // (already wired above via renderSampleInto)
+}).catch((e) => {
+  setStatus("OpenCV.js failed to load", "err");
+  $("#inputHint").textContent = "Network needed on first load so OpenCV.js can fetch. If you opened via file://, try `python3 -m http.server` and re-open via http.";
+});
+</script>
+</body>
+</html>

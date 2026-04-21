@@ -238,7 +238,25 @@
       "description": "Build a browser-based computer vision app that detects a physical chess board in an image and reports its position (FEN / grid / diagram). Ship a self-contained HTML with upload + a sample-image gallery. The full pipeline — board detection, square segmentation, occupancy/piece classification — must run client-side; no server inference, no hosted vision APIs.",
       "tags": ["computer-vision", "browser", "chess", "opencv", "wasm", "image-processing"],
       "createdAt": "2026-04-21",
-      "solutions": []
+      "solutions": [
+        {
+          "slug": "claude-code-opus-4-7",
+          "harness": "claude-code",
+          "model": "opus-4-7",
+          "projectName": "cvchess-in-browser",
+          "summary": "Single-file HTML pipeline using OpenCV.js (WASM) loaded from a CDN: findChessboardCornersSB → inner-to-outer-corner extrapolation → getPerspectiveTransform + warpPerspective to a 512×512 rectified board → per-square occupancy scored on centre variance, Canny edge density, and tone deviation vs a calibrated expected-square tone → piece-colour (light vs dark) from an inner-patch brightness comparison. Ships a procedurally-generated gallery of four boards (start position, Italian game, endgame, sparse mid-game) rendered client-side with a perspective warp at load time; also supports file upload and drag-and-drop, plus a 4-click manual-corner fallback when auto-detect fails. Outputs FEN, an 8×8 ASCII grid, and a rendered SVG diagram, with per-stage pipeline timings.",
+          "tech": ["html", "javascript", "opencv-js", "wasm", "canvas", "svg"],
+          "submittedAt": "2026-04-21",
+          "artifactUrl": "./artifacts/cvchess-in-browser/claude-code-opus-4-7.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a self-contained index.html with an in-browser OpenCV.js pipeline, a shipped procedural gallery, upload + manual-corner fallback, and FEN/grid/SVG outputs; mirrored under docs/artifacts for GitHub Pages review.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `cvchess-in-browser/claude-code-opus-4-7/index.html` directly in a browser, or the mirrored artifact at `./artifacts/cvchess-in-browser/claude-code-opus-4-7.html`. OpenCV.js (4.10) is fetched from docs.opencv.org on first load; no server inference and no API keys."
+        }
+      ]
     },
     {
       "slug": "fishtank-water-sim",
