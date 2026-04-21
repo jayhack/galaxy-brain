@@ -34,6 +34,36 @@ function esc(s) {
     .replace(/'/g, "&#39;");
 }
 
+/** Two overlapping squares (clipboard), for copy actions. */
+function copyIconSvg(className = "w-4 h-4") {
+  return `<svg xmlns="http://www.w3.org/2000/svg" class="${esc(className)} shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>`;
+}
+
+async function copyTextToClipboard(text) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch (_) {
+    /* fall through */
+  }
+  try {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    const ok = document.execCommand("copy");
+    document.body.removeChild(ta);
+    return ok;
+  } catch (_) {
+    return false;
+  }
+}
+
 /** GitHub Octicon-style mark (filled), for buttons and links. */
 function githubLogoSvg(className = "w-4 h-4") {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="${esc(className)} fill-current shrink-0" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2.16c-3.2.7-3.88-1.36-3.88-1.36-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.69 1.24 3.34.95.1-.74.4-1.24.72-1.53-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.15 1.18a10.9 10.9 0 0 1 5.74 0c2.19-1.49 3.15-1.18 3.15-1.18.62 1.58.23 2.75.11 3.04.74.81 1.18 1.84 1.18 3.1 0 4.43-2.7 5.41-5.27 5.69.41.36.78 1.06.78 2.14v3.18c0 .31.21.68.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>`;
@@ -203,17 +233,6 @@ function viewHome() {
       const tags = (ev.tags || [])
         .map((t) => `<span class="badge badge-ghost badge-sm">${esc(t)}</span>`)
         .join(" ");
-      const solBadges = ev.solutions
-        .slice(0, 4)
-        .map(
-          (s) =>
-            `<span class="badge badge-outline badge-sm" title="${esc(s.harness)} · ${esc(s.model)}">${esc(s.slug)}</span>`
-        )
-        .join(" ");
-      const more =
-        ev.solutions.length > 4
-          ? `<span class="badge badge-ghost badge-sm">+${ev.solutions.length - 4}</span>`
-          : "";
       return `
         <a href="#/eval/${esc(ev.slug)}" class="card bg-base-200 hover:bg-base-300 border border-base-300 hover:border-primary/40">
           <div class="card-body gap-3">
@@ -223,7 +242,6 @@ function viewHome() {
             </div>
             <p class="text-sm text-base-content/70">${esc(ev.tagline || ev.description || "")}</p>
             <div class="flex flex-wrap gap-1.5 mt-1">${tags}</div>
-            <div class="flex flex-wrap gap-1.5 mt-2">${solBadges} ${more}</div>
           </div>
         </a>`;
     })
@@ -455,23 +473,54 @@ function viewEval(route) {
         <h2 class="text-xl font-semibold">Prompt</h2>
         <span class="text-xs text-base-content/50 font-mono">${esc(promptPath)}</span>
       </div>
-      <article id="prompt-md" class="prose prose-sm max-w-none bg-base-200 border border-base-300 rounded-2xl p-4 markdown-target">
-        <div class="flex items-center gap-2 text-base-content/60 text-sm">
-          <span class="loading loading-dots loading-sm"></span>
-          loading prompt…
+      <div class="relative rounded-2xl border border-base-300 bg-base-200">
+        <div class="absolute top-3 right-3 z-10">
+          <button
+            type="button"
+            id="prompt-copy-btn"
+            class="btn btn-sm btn-primary gap-1.5 shadow-md min-h-9 h-9 px-3"
+            disabled
+            aria-label="Copy prompt markdown to clipboard"
+          >
+            ${copyIconSvg("w-4 h-4")}
+            <span class="prompt-copy-label font-semibold">Copy</span>
+          </button>
         </div>
-      </article>
+        <article id="prompt-md" class="prose prose-sm max-w-none markdown-target min-h-[4rem] pt-12 px-4 pb-4 sm:pr-32">
+          <div class="flex items-center gap-2 text-base-content/60 text-sm">
+            <span class="loading loading-dots loading-sm"></span>
+            loading prompt…
+          </div>
+        </article>
+      </div>
     </section>
   `;
 
   fetchMarkdown(urls.raw(promptPath)).then((md) => {
     const target = document.getElementById("prompt-md");
+    const copyBtn = document.getElementById("prompt-copy-btn");
     if (!target) return;
     if (md == null) {
       target.innerHTML = `<p class="text-base-content/60">Couldn't load <code>${esc(promptPath)}</code>. <a class="link" target="_blank" rel="noopener" href="${esc(urls.blob(promptPath))}">Open on GitHub.</a></p>`;
       return;
     }
     target.innerHTML = renderMarkdown(md);
+    if (!copyBtn) return;
+    copyBtn.disabled = false;
+    copyBtn.addEventListener("click", async () => {
+      const ok = await copyTextToClipboard(md);
+      const label = copyBtn.querySelector(".prompt-copy-label");
+      if (!label) return;
+      const prev = label.textContent;
+      label.textContent = ok ? "Copied!" : "Copy failed";
+      copyBtn.classList.remove("btn-primary");
+      copyBtn.classList.add(ok ? "btn-success" : "btn-error");
+      window.setTimeout(() => {
+        label.textContent = prev;
+        copyBtn.classList.remove("btn-success", "btn-error");
+        copyBtn.classList.add("btn-primary");
+      }, 2000);
+    });
   });
 }
 

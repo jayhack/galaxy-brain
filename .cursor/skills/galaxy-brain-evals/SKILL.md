@@ -52,7 +52,7 @@ After installing, **restart Cursor** (or reload the window) so the skill is pick
 
 1. Create `<eval-name>/` at the repo root (kebab-case slug, matches what you will put in `docs/data.json`).
 2. Add `<eval-name>/README.md` with a clear structure (see below).
-3. Add an entry for the eval in `docs/data.json` so it appears on the GitHub Pages results site (`evals` array: `slug`, `title`, `tagline`, `description`, `tags`, `createdAt`, `solutions` — often `[]` at first).
+3. Add an entry for the eval in `docs/data.json` so it appears on the GitHub Pages results site (`evals` array: `slug`, `title`, `tagline`, `description`, `tags`, `createdAt`, `solutions` — often `[]` at first). Use **`tags` only for the eval itself** (topic keywords like `browser`, `threejs`). Do not list solution folder names or harness/model identifiers there; those belong on each object under `solutions` (`slug`, `harness`, `model`).
 4. Push to `main` (new evals do not have to go through a PR in this repo’s workflow).
 
 Cross-check the canonical overview in the root **`README.md`** (“Layout”, “Contributing”, “HTML artifacts”).
