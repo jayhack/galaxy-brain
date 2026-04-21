@@ -39,6 +39,11 @@ export const ui = {
   badgeOutlineSm: "badge badge-outline badge-sm",
   badgeOutlineTech:
     "badge badge-outline badge-sm font-mono shrink-0 max-w-[5.5rem] truncate",
+  /** Solution header: harness logo + short slug. */
+  badgeGhostSmHarness:
+    "badge badge-ghost badge-sm gap-1.5 pl-1.5 pr-2 py-1 h-auto min-h-0",
+  harnessBadgeIconWrap: "inline-flex text-base-content/80",
+  harnessBadgeShort: "font-mono lowercase",
   /** Use after `badge <variant>` (single `badge` word only once). */
   badgeSizeSm: "badge-sm",
 
