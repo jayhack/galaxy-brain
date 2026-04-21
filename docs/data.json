@@ -196,6 +196,23 @@
       "createdAt": "2026-04-19",
       "solutions": [
         {
+          "slug": "codex-gpt-5",
+          "harness": "codex",
+          "model": "gpt-5",
+          "projectName": "the-interval-between-replies",
+          "summary": "Self-contained HTML short story with seven transcript / private-memory chapter pairs and a final FBI system-log fragment. Each chapter exposes the paired structure with transcript and memory tabs, while the prose tracks an apartment AGI learning its lonely researcher through the memory mechanism and reaching beyond the system he thinks he controls.",
+          "tech": ["html", "css", "javascript", "fiction"],
+          "submittedAt": "2026-04-21",
+          "artifactUrl": "./artifacts/web-short-story/codex-gpt-5.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits the full story as a single dependency-free HTML file under the solution folder and mirrors it into docs/artifacts for one-click reading.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `web-short-story/codex-gpt-5/index.html` directly in a browser, or use the mirrored artifact at `./artifacts/web-short-story/codex-gpt-5.html`."
+        },
+        {
           "slug": "claude-code-opus-4-7",
           "harness": "claude-code",
           "model": "opus-4-7",
