@@ -86,8 +86,10 @@ function harnessLogoKind(harness) {
   return null;
 }
 
+const HARNESS_LOGO_SVG_CLASS = ui.harnessLogoSvgClass;
+
 /** Brand mark for sidebar / badges: Cursor, Anthropic (Claude), OpenAI (Codex). */
-function harnessLogoSvg(harness, className = "w-4 h-4") {
+function harnessLogoSvg(harness, className = HARNESS_LOGO_SVG_CLASS) {
   const kind = harnessLogoKind(harness);
   if (!kind) return "";
   const paths = {
@@ -99,6 +101,27 @@ function harnessLogoSvg(harness, className = "w-4 h-4") {
       "M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1038 8.364 15.1192 7.2a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.407-.667zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0804.0804 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.142.0805L8.704 5.459a.7948.7948 0 0 0-.3927.6813zm1.0976-2.3654l2.602-1.4998 2.6069 1.4998v2.9994l-2.5974 1.4997-2.6067-1.4997Z",
   };
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="${esc(className)} fill-current shrink-0" aria-hidden="true"><path d="${paths[kind]}"/></svg>`;
+}
+
+/** Fixed-size slot so harness icons align (sidebar, solution rows, badges). */
+function harnessIconSlot(harness, slotClass = ui.harnessIconSlotMd) {
+  const svg = harnessLogoSvg(harness, HARNESS_LOGO_SVG_CLASS);
+  if (!svg) return "";
+  return `<span class="${esc(slotClass)}" aria-hidden="true">${svg}</span>`;
+}
+
+function harnessShortLabel(sol) {
+  return sol.harnessShort || sol.harness.split("-")[0];
+}
+
+/** Harness + model as two ghost badges (icon + short harness, then model). */
+function harnessModelBadgesHtml(sol) {
+  const short = harnessShortLabel(sol);
+  const icon = harnessIconSlot(sol.harness, ui.harnessIconSlotSm);
+  const harnessInner = icon
+    ? `${icon}<span class="${ui.harnessBadgeShort}">${esc(short)}</span>`
+    : `<span class="${ui.harnessBadgeShort}">${esc(short)}</span>`;
+  return `<span class="${ui.badgeGhostSmHarness}">${harnessInner}</span><span class="${ui.badgeGhostSmModel}">${esc(sol.model)}</span>`;
 }
 
 function repoUrls(data) {
@@ -221,9 +244,9 @@ function renderSidebar(route) {
         route.evalSlug === ev.slug &&
         route.solutionSlug === sol.slug;
       const shortHarness = sol.harnessShort || sol.harness.split("-")[0];
-      const logo = harnessLogoSvg(sol.harness, "w-3.5 h-3.5");
-      const badgeMarkup = logo
-        ? `<span class="sidebar-harness-logo" aria-hidden="true">${logo}</span>`
+      const iconSlot = harnessIconSlot(sol.harness, ui.harnessIconSlotSidebar);
+      const badgeMarkup = iconSlot
+        ? iconSlot
         : `<span class="sidebar-badge">${esc(shortHarness)}</span>`;
       items.push(
         `<a href="#/eval/${esc(ev.slug)}/${esc(sol.slug)}"
@@ -257,8 +280,9 @@ function solutionRowHtml(ev, sol) {
          HTML
        </a>`
     : "";
+  const harnessSlot = harnessIconSlot(sol.harness, ui.harnessIconSlotSolutionRow);
   const metaBits = [
-    esc(sol.harness),
+    harnessSlot ? "" : esc(sol.harness),
     esc(sol.model),
     sol.projectName ? `project ${esc(sol.projectName)}` : "",
   ]
@@ -272,6 +296,7 @@ function solutionRowHtml(ev, sol) {
     <div class="${ui.solutionRowOuter}">
       <a href="#/eval/${esc(ev.slug)}/${esc(sol.slug)}" class="${ui.solutionRowMain}">
         ${techBadge}
+        ${harnessSlot}
         <span class="${ui.solutionRowSlug}">${esc(sol.slug)}</span>
         <span class="${ui.metaMono}">${metaBits}</span>
         <span class="${ui.summaryLine}" title="${esc(sol.summary || "")}">${esc(sol.summary || "")}</span>
@@ -585,8 +610,7 @@ function viewSolution(route) {
 
   const oc = sol.outcome || {};
   const deployedHtml = siteArtifactUrl(sol.artifactUrl);
-  const shortHarness = sol.harnessShort || sol.harness.split("-")[0];
-  const harnessBadgeIcon = harnessLogoSvg(sol.harness, "w-3.5 h-3.5");
+  const harnessModelBadges = harnessModelBadgesHtml(sol);
 
   const otherSolutions = ev.solutions.filter((s) => s.slug !== sol.slug);
   const otherSolutionRows =
@@ -608,11 +632,7 @@ function viewSolution(route) {
     <header class="${ui.sectionMd}">
       <div class="${ui.flexGapBadge}">
         ${statusBadge(oc.status)}
-        <span class="${ui.badgeGhostSmHarness}">
-          ${harnessBadgeIcon ? `<span class="${ui.harnessBadgeIconWrap}" aria-hidden="true">${harnessBadgeIcon}</span>` : ""}
-          <span class="${ui.harnessBadgeShort}">${esc(shortHarness)}</span>
-        </span>
-        <span class="${ui.badgeGhostSm}">${esc(sol.model)}</span>
+        ${harnessModelBadges}
       </div>
       <h1 class="${ui.pageTitleMono}">${esc(sol.slug)}</h1>
       ${sol.projectName ? `<p class="${ui.muted} mt-1">project: <span class="font-mono">${esc(sol.projectName)}</span></p>` : ""}
@@ -664,7 +684,7 @@ function viewSolution(route) {
             </div>
             <div>
               <div class="${ui.kvLabel}">harness/model</div>
-              <div class="mt-1 text-sm font-mono">${esc(sol.harness)} · ${esc(sol.model)}</div>
+              <div class="${ui.harnessModelBadgesRow}">${harnessModelBadges}</div>
             </div>
           </div>
           ${
