@@ -15,6 +15,8 @@ const state = {
     dark: ["night", "dracula", "synthwave", "business"],
   },
   markdownCache: new Map(),
+  /** True after `viewHome` registered delegated click handler for tag filter. */
+  homeTagFilterClickBound: false,
 };
 
 /* ------------------------------------------------------------------ */
@@ -123,6 +125,13 @@ function renderMarkdown(md) {
   return DOMPurify.sanitize(html, { ADD_ATTR: ["target", "rel"] });
 }
 
+/** Build overview hash from selected eval tags (`#/`, `#/tag/a+b`). */
+function homeHashFromTags(tags) {
+  const uniq = [...new Set(tags)].filter(Boolean).sort((a, b) => a.localeCompare(b));
+  if (uniq.length === 0) return "#/";
+  return `#/tag/${uniq.map((t) => encodeURIComponent(t)).join("+")}`;
+}
+
 /* ------------------------------------------------------------------ */
 /* router                                                              */
 /* ------------------------------------------------------------------ */
@@ -136,7 +145,20 @@ function parseHash() {
   }
   const raw = (location.hash || "#/").slice(1);
   const parts = raw.split("/").filter(Boolean);
-  if (parts.length === 0) return { name: "home" };
+  if (parts.length === 0) return { name: "home", selectedTags: [] };
+  if (parts[0] === "tag" && parts.length >= 2) {
+    const selectedTags = parts[1]
+      .split("+")
+      .map((s) => {
+        try {
+          return decodeURIComponent(s);
+        } catch {
+          return s;
+        }
+      })
+      .filter(Boolean);
+    return { name: "home", selectedTags };
+  }
   if (parts[0] === "about") return { name: "about" };
   if (parts[0] === "eval" && parts.length === 2) {
     return { name: "eval", evalSlug: parts[1] };
@@ -144,7 +166,7 @@ function parseHash() {
   if (parts[0] === "eval" && parts.length >= 3) {
     return { name: "solution", evalSlug: parts[1], solutionSlug: parts[2] };
   }
-  return { name: "home" };
+  return { name: "home", selectedTags: [] };
 }
 
 function navigate(hash) {
@@ -220,15 +242,61 @@ function renderSidebar(route) {
 /* views                                                               */
 /* ------------------------------------------------------------------ */
 
-function viewHome() {
+function viewHome(route) {
   const data = state.data;
+  const selectedTags = route.selectedTags || [];
+  const selectedSet = new Set(selectedTags);
+
   const totalSolutions = data.evals.reduce((n, e) => n + e.solutions.length, 0);
   const passed = data.evals.reduce(
     (n, e) => n + e.solutions.filter((s) => s.outcome?.status === "passed").length,
     0
   );
 
-  const evalCards = data.evals
+  const allTagSet = new Set();
+  for (const ev of data.evals) {
+    for (const t of ev.tags || []) allTagSet.add(t);
+  }
+  const allTagsSorted = [...allTagSet].sort((a, b) => a.localeCompare(b));
+
+  const evalMatches = (ev) => {
+    if (selectedSet.size === 0) return true;
+    const evTags = new Set(ev.tags || []);
+    for (const t of selectedSet) {
+      if (evTags.has(t)) return true;
+    }
+    return false;
+  };
+  const filteredEvals = data.evals.filter(evalMatches);
+
+  const tagFilterBar =
+    allTagsSorted.length === 0
+      ? ""
+      : `<div id="eval-tag-filter" class="mb-4 rounded-xl border border-base-300 bg-base-200/80 p-3 sm:p-4" role="group" aria-label="Filter evals by tag">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+            <span class="text-sm font-medium text-base-content/80">Filter by tag</span>
+            <span class="text-xs text-base-content/50">Showing evals that match <strong>any</strong> selected tag.</span>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            ${allTagsSorted
+              .map((t) => {
+                const on = selectedSet.has(t);
+                return `<button type="button" data-tag-toggle="${esc(t)}" class="btn btn-sm min-h-8 h-8 px-3 font-normal normal-case ${
+                  on ? "btn-primary" : "btn-ghost border border-base-300 hover:border-primary/40"
+                }">${esc(t)}</button>`;
+              })
+              .join("")}
+          </div>
+          ${
+            selectedSet.size
+              ? `<div class="mt-3 flex flex-wrap items-center gap-2">
+                   <button type="button" data-tag-clear class="btn btn-xs btn-ghost">Clear all filters</button>
+                 </div>`
+              : ""
+          }
+        </div>`;
+
+  const evalCards = filteredEvals
     .map((ev) => {
       const tags = (ev.tags || [])
         .map((t) => `<span class="badge badge-ghost badge-sm">${esc(t)}</span>`)
@@ -246,6 +314,18 @@ function viewHome() {
         </a>`;
     })
     .join("");
+
+  const emptyFilterMsg =
+    selectedSet.size > 0 && filteredEvals.length === 0
+      ? `<div class="alert alert-warning mb-4" role="status">
+           <span>No eval matches these tags. Try fewer tags or <button type="button" data-tag-clear class="link link-primary font-semibold">clear filters</button>.</span>
+         </div>`
+      : "";
+
+  const evalSubline =
+    selectedSet.size > 0
+      ? ` · ${filteredEvals.length}/${data.evals.length} eval${data.evals.length === 1 ? "" : "s"} shown`
+      : "";
 
   updateHeaderBreadcrumbs("");
 
@@ -283,15 +363,40 @@ function viewHome() {
     </section>
 
     <section>
-      <div class="flex items-baseline justify-between mb-4">
+      <div class="flex items-baseline justify-between mb-4 gap-3 flex-wrap">
         <h2 class="text-xl font-semibold">Evals</h2>
-        <span class="text-sm text-base-content/60">${passed}/${totalSolutions} passed</span>
+        <span class="text-sm text-base-content/60">${passed}/${totalSolutions} passed${evalSubline}</span>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">${evalCards}</div>
+      ${tagFilterBar}
+      ${emptyFilterMsg}
+      <div id="eval-card-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">${evalCards}</div>
     </section>
   `;
 
   document.getElementById("hero-repo").href = repoUrls(data).repo;
+
+  if (!state.homeTagFilterClickBound) {
+    state.homeTagFilterClickBound = true;
+    state.view.addEventListener("click", (e) => {
+      const filterRoot = e.target.closest("#eval-tag-filter");
+      const inEmpty = e.target.closest(".alert-warning");
+      if (!filterRoot && !inEmpty) return;
+      if (e.target.closest("[data-tag-clear]")) {
+        navigate("#/");
+        return;
+      }
+      const btn = e.target.closest("[data-tag-toggle]");
+      if (!btn || !filterRoot?.contains(btn)) return;
+      const tag = btn.getAttribute("data-tag-toggle");
+      if (tag == null) return;
+      const r = parseHash();
+      if (r.name !== "home" || !Array.isArray(r.selectedTags)) return;
+      const nextSet = new Set(r.selectedTags || []);
+      if (nextSet.has(tag)) nextSet.delete(tag);
+      else nextSet.add(tag);
+      navigate(homeHashFromTags([...nextSet]));
+    });
+  }
 }
 
 function viewAbout() {
@@ -754,7 +859,7 @@ function render() {
   renderSidebar(route);
   switch (route.name) {
     case "home":
-      return viewHome();
+      return viewHome(route);
     case "about":
       return viewAbout();
     case "eval":
