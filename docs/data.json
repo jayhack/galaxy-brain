@@ -237,6 +237,23 @@
             "score": null
           },
           "notes": "Open `fishtank-water-sim/cursor-gpt-5-4-xhigh/index.html` directly in a browser, or the mirrored artifact at `./artifacts/fishtank-water-sim/cursor-gpt-5-4-xhigh.html`."
+        },
+        {
+          "slug": "claude-code-opus-4-7",
+          "harness": "claude-code",
+          "model": "opus-4-7",
+          "projectName": "fishtank-water-sim-claude-code",
+          "summary": "Single self-contained HTML Three.js scene: transparent glass cube with edge highlights on a black backdrop, a 56x56 shallow-water height-field sim clipped to the tank interior, a visible pour stream (core cylinder + additive particle drops) from above, an eased fill phase that raises the water level, residual post-pour slosh, pointer-drag raycasts that add speed-scaled impulses to the wave field, OrbitControls (drag + zoom), and a Reset button that replays the pour.",
+          "tech": ["html", "javascript", "threejs", "webgl"],
+          "submittedAt": "2026-04-21",
+          "artifactUrl": "./artifacts/fishtank-water-sim/claude-code-opus-4-7.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a self-contained index.html under the solution folder and mirrors it under docs/artifacts for GitHub Pages review.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `fishtank-water-sim/claude-code-opus-4-7/index.html` directly in a browser, or the mirrored artifact at `./artifacts/fishtank-water-sim/claude-code-opus-4-7.html`."
         }
       ]
     }
