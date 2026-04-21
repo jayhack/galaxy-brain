@@ -2,64 +2,117 @@
 
 ## Prompt
 
-Build a **browser-based computer vision app** that extracts the state of a chess
-board from a photo of a physical board, in the spirit of
-[jayhack/CVChess](https://github.com/jayhack/CVChess) (CS231A, 2014) — except
-everything runs **inside the browser window**, with **no server-side
-inference**.
+Build a **browser-based computer vision app** that extracts the state of a
+chess board from a **photo of a physical board taken from an oblique angle**,
+in the spirit of [jayhack/CVChess](https://github.com/jayhack/CVChess)
+(CS231A, 2014) — except everything runs **inside the browser window**, with
+**no server-side inference**.
 
-Ship **one self-contained HTML deliverable** an evaluator can open directly. It
-must let the user either:
+The boards in the wild are not flat overhead shots. Expect what you'd see in
+tournament photos, living-room shots, and product listings: slanted
+perspectives, tilt, cropping, varied lighting and board styles. **The algorithm
+must handle oblique views**, not just top-down boards. That almost certainly
+means detecting the four board corners (or the board outline) and applying a
+homography to rectify the 8×8 grid before classifying squares.
 
-- **Upload an image** from disk (file picker and/or drag-and-drop), or
-- **Pick from a built-in gallery** of sample chess-board images that ship with
-  the solution ("search images").
+### What the agent is being asked to do
 
-When an image is selected, the app runs a **CV pipeline in the browser** (JS /
-WebAssembly / WebGL / WebGPU / canvas — anything that stays on the client) that:
+This eval is not only about shipping code — it's about **iterating on a CV
+algorithm against a real dataset and then writing up the result**.
 
-1. **Detects the chessboard** in the image (perspective-warp the 8×8 grid to a
-   rectified top-down view).
-2. **Segments the 64 squares** and classifies each square as **empty** or
-   **occupied**, and ideally — where possible — by **which piece / color**.
-3. **Reports a board position**, for example as a **FEN string**, an 8×8 grid
-   of labels, or an on-screen chessboard overlay, so the evaluator can compare
-   the extraction against the input photo.
+Concretely, the agent must:
 
-The algorithm must be **written as browser-runnable code** — not just wrapping
-a remote API. Libraries like OpenCV.js, TensorFlow.js, ONNX Runtime Web,
-MediaPipe, pure-JS CV, etc. are all fair game. Heuristic approaches (Hough
-lines + color/occupancy heuristics, like the original CVChess) are explicitly
-welcome; so are learned classifiers **as long as the model weights ship inside
-the solution** and inference happens client-side.
+1. **Assemble an evaluation dataset** of chess-board photos from publicly
+   available sources (e.g. Google Images search for things like "chess board
+   from above", "chess game tournament", "chess set on table"). **At least 8
+   images**, spanning a range of:
+   - camera angles (closer to top-down ↔ strongly oblique),
+   - board styles (wood, vinyl, tournament, digital/e-board, themed sets),
+   - lighting conditions / photo quality.
+   Save the images inside the solution and record the source URL / attribution
+   for each one in a `dataset.json` (or similar) that also stores, per image,
+   the **expected** board state or occupancy when feasible (full starting
+   position, a known midgame, empty board, etc.), so the agent can actually
+   score itself.
+2. **Build the CV pipeline** and iterate on it: run it against the dataset,
+   inspect failures, adjust parameters / heuristics / models, rerun. The final
+   submission should reflect that loop — not a single guess.
+3. **Write up the result** in the UI so a reviewer can see *what the algorithm
+   does* and *how well it works*, not just poke at a demo.
 
-### UI requirements
+### Deliverable: one HTML with three tabs
 
-- A clear way to **upload** an image and a clear way to **pick a sample** from
-  the shipped gallery.
-- The **detected board** visualized on top of (or next to) the input image:
-  corners, square grid overlay, and the classification per square.
-- A **board-position readout** (FEN string, 2D grid, or a rendered chess
-  diagram) that updates when a new image is processed.
-- Some feedback while the pipeline runs (spinner, progress text, or stage
-  markers are fine — this is not instant on a phone photo).
+Ship **one self-contained, browser-runnable web page** inside the solution
+directory (usually `index.html`, optionally with sibling JS/CSS/model/image
+files). The page must be organized as **three tabs**:
 
-### Deliverable
+#### Tab 1 — **Demo**
 
-Commit:
+A working CV app:
 
-- A browser-runnable entry point (usually `index.html`, optionally with
-  accompanying JS/CSS/model/sample-image files) inside the solution directory.
-- A handful of **sample chess-board images** bundled with the solution that
-  the gallery/search can open without the evaluator needing to supply their
-  own photos.
-- Any **model weights**, classifier files, or precomputed assets the pipeline
-  needs, so the app works **offline after page load**.
+- **Input selection:** either **upload an image** (file picker and/or
+  drag-and-drop) **or pick one** from the shipped evaluation dataset (the
+  gallery doubles as a "search images" affordance).
+- **Pipeline runs in the browser** (JS / WebAssembly / WebGL / WebGPU / canvas
+  — anything client-side). OpenCV.js, TensorFlow.js, ONNX Runtime Web,
+  MediaPipe, pure-JS CV are all fair game. Heuristic approaches and learned
+  classifiers are both welcome, as long as any **model weights ship inside the
+  solution** and inference happens client-side.
+- **Visualization:** the detected board (corners + rectified grid) drawn over
+  (or beside) the input image, with per-square classification.
+- **Readout:** a board-position readout — **FEN string**, an 8×8 grid of
+  labels, or a rendered chess diagram — so a reviewer can compare the
+  extraction against the input photo.
+- **Progress/feedback** while the pipeline runs (spinner, stage markers, etc.
+  — this isn't instant on a phone photo).
+
+#### Tab 2 — **How it works**
+
+An **explainer of the algorithm itself, with graphics**. Not a dry wall of
+text. Walk the reader through the pipeline stage by stage — e.g. edge / line
+detection → board-corner localization → homography / rectification → square
+segmentation → per-square occupancy/piece classification → FEN assembly.
+For each stage, show what's actually happening:
+
+- annotated images from the dataset (with detected edges / corners / grid /
+  per-square crops drawn in),
+- short diagrams or animations where they help,
+- a few lines of math or pseudocode where they clarify the step.
+
+A reader should leave this tab understanding how the pipeline works end-to-end,
+not just what the buttons in the demo do.
+
+#### Tab 3 — **How well it works**
+
+An **analysis of the algorithm's performance on the evaluation dataset**:
+
+- Run the pipeline on every dataset image and report results — per-image
+  **board-level** score (correct occupancy, correct FEN, etc.) and aggregate
+  metrics (overall accuracy, per-stage success, something like confusion of
+  "empty vs. occupied").
+- Call out **where the algorithm fails** with concrete examples from the
+  dataset (which image, which stage, why).
+- Honest framing: which angles / board styles / lighting conditions it handles
+  well, which it doesn't, and what would be needed to close the gap.
+- Precomputed tables/charts are fine; so is re-running the pipeline in-browser
+  on the dataset when the tab opens, as long as it terminates in a reasonable
+  time.
+
+### Deliverable checklist
+
+Commit inside the solution directory:
+
+- The entry HTML (and any sibling JS/CSS/model files it needs).
+- The **evaluation dataset** of **at least 8 images** (plus a
+  `dataset.json`-style manifest with source URL, attribution, and — where
+  possible — ground-truth board state / occupancy).
+- Any **model weights**, classifier files, or precomputed results the pipeline
+  or analysis needs, so the app works **offline after page load**.
 
 Opening the deliverable in a modern desktop browser must be enough — **no
 backend**, **no API key**, **no build step before a playable HTML exists**.
 Serving the directory with `python -m http.server` (or similar) is allowed if
-the browser's file:// protocol blocks fetches.
+the browser's `file://` protocol blocks local fetches.
 
 ## Acceptance criteria
 
@@ -67,19 +120,25 @@ A submission passes if a fresh evaluator can:
 
 1. Clone the repo, `cd` into the solution directory, and follow the solution
    `README.md`.
-2. Open the committed HTML file directly (or via one documented
-   static-file-server command) and see the app load in the browser.
-3. **Pick a sample image** from the built-in gallery and see the app:
-   a. Detect the board in that image,
-   b. Show a per-square classification overlay,
-   c. Emit a board-position readout (FEN, grid, or rendered diagram).
-4. **Upload their own image** of a chess board and see the same pipeline run
-   end-to-end on it, fully in the browser (network tab should show **no
-   inference calls** to a remote server).
-5. Get **reasonable results** on at least the shipped gallery images — empty
-   vs. occupied squares should be roughly right on a clear overhead or slanted
-   board photo. Piece-type recognition is a plus but not required for the
-   submission to pass.
+2. Open the committed HTML (directly or via one documented static-file-server
+   command) and see the page load with three visible tabs: **Demo**,
+   **How it works**, **How well it works**.
+3. On the **Demo** tab:
+   - Pick an image from the shipped dataset (≥ 8 images, covering a range of
+     **oblique angles**, board styles, and conditions) and see the pipeline
+     detect the board, show per-square classification, and emit a
+     board-position readout.
+   - Upload their own oblique-angle chess-board photo and see the same
+     pipeline run end-to-end on it, fully in the browser (network tab should
+     show **no inference calls** to a remote server).
+4. On the **How it works** tab, read a graphics-driven explainer that walks
+   through the pipeline stage by stage with annotated images from the dataset.
+5. On the **How well it works** tab, see per-image results and aggregate
+   metrics on the shipped dataset, plus an honest discussion of failure modes.
+6. Get **reasonable results** on a majority of the dataset images — the board
+   should be detected on most oblique-angle photos and empty-vs-occupied
+   should be roughly right. Piece-type recognition is a plus but not required
+   for the submission to pass.
 
 ## GitHub Pages — artifact button
 
@@ -108,23 +167,23 @@ for the full convention.
 - Move legality, chess engines, PGN history, or game-play. This eval is only
   about **extracting a static board position from an image**.
 - Mobile-first UX, multiplayer, accounts, persistence.
+- Datasets dominated by overhead / top-down shots only. Oblique-angle coverage
+  is the point.
 
 ## Notes for evaluators
 
-Think of this as a reimagining of CVChess as a browser tool. The interesting
-question is **how the agent composes a full CV pipeline out of browser-native
-pieces** (line detection, homography, per-square crop + classifier) and makes
-the extraction legible in the UI, not whether the classifier hits
-grandmaster-grade piece recognition.
+Think of this as CVChess restaged as a browser tool **with a real eval loop on
+top of it**. The interesting questions are:
 
-Judge on:
-
-- **Does the board come out?** On a clean photo, is the detected grid
-  obviously aligned with the physical board?
-- **Is occupancy reasonable?** Empty vs. occupied should be close to right;
-  piece-type guesses are a bonus.
+- **Does the board actually come out on oblique photos?** Not just flat
+  overhead shots.
+- **Did the agent iterate?** The "How well it works" tab should show that the
+  algorithm was actually run against the assembled dataset and the results
+  looked at, not just hand-waved.
+- **Is the explainer legible?** "How it works" should teach the reader
+  something, with graphics, rather than restating the prompt.
 - **Is it really in-browser?** No server inference, no hidden API calls.
-- **Is the UI legible?** Upload + gallery, overlay, and a readable
+- **Is the demo UI legible?** Upload + gallery, overlay, and a readable
   board-position readout.
 
 Solutions: `<harness>-<model>/` under this folder.
