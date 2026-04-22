@@ -39,11 +39,19 @@ export const ui = {
   badgeOutlineSm: "badge badge-outline badge-sm",
   badgeOutlineTech:
     "badge badge-outline badge-sm font-mono shrink-0 max-w-[5.5rem] truncate",
-  /** Solution header: harness logo + short slug. */
+  /** Solution header / outcome: harness badge (icon + short harness). */
   badgeGhostSmHarness:
-    "badge badge-ghost badge-sm gap-1.5 pl-1.5 pr-2 py-1 h-auto min-h-0",
-  harnessBadgeIconWrap: "inline-flex text-base-content/80",
+    "badge badge-ghost badge-sm gap-1 pl-1.5 pr-2 py-0.5 h-auto min-h-0 inline-flex items-center",
   harnessBadgeShort: "font-mono lowercase",
+  /** Model-only ghost badge (pairs with badgeGhostSmHarness). */
+  badgeGhostSmModel: "badge badge-ghost badge-sm font-mono",
+  /** Shared SVG size inside fixed harness icon slots (Simple Icons paths). */
+  harnessLogoSvgClass: "w-3.5 h-3.5",
+  harnessIconSlotMd: "harness-icon-slot harness-icon-slot--md",
+  harnessIconSlotSm: "harness-icon-slot harness-icon-slot--sm",
+  harnessIconSlotSidebar: "harness-icon-slot harness-icon-slot--md sidebar-harness-icon-slot",
+  harnessIconSlotSolutionRow: "harness-icon-slot harness-icon-slot--md solution-row-harness-icon",
+  harnessModelBadgesRow: "mt-1 flex flex-wrap items-center gap-1.5",
   /** Use after `badge <variant>` (single `badge` word only once). */
   badgeSizeSm: "badge-sm",
 

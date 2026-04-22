@@ -90,12 +90,11 @@ html {
 
 .sidebar-link > svg,
 .sidebar-link > .sidebar-badge,
-.sidebar-link > .sidebar-harness-logo {
+.sidebar-link > .sidebar-harness-icon-slot {
   flex: 0 0 auto;
 }
 
-.sidebar-link > .sidebar-slug,
-.sidebar-link > span:not(.sidebar-badge) {
+.sidebar-link > .sidebar-slug {
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
@@ -126,23 +125,39 @@ html {
   color: oklch(var(--p));
 }
 
-.sidebar-harness-logo {
+/* Harness logos: fixed box so labels align; sidebar shows icon only (no pill). */
+.harness-icon-slot {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.5rem;
-  height: 1.5rem;
   flex-shrink: 0;
-  border-radius: 0.375rem;
-  border: 1px solid oklch(var(--bc) / 0.22);
-  background: oklch(var(--b1));
   color: oklch(var(--bc) / 0.72);
 }
 
-.sidebar-link.active .sidebar-harness-logo {
-  border-color: oklch(var(--p) / 0.45);
-  background: oklch(var(--b2));
+.harness-icon-slot--sm {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.harness-icon-slot--md {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.sidebar-harness-icon-slot {
+  color: oklch(var(--bc) / 0.68);
+}
+
+.sidebar-link.active .sidebar-harness-icon-slot {
   color: oklch(var(--p));
+}
+
+.solution-row-harness-icon {
+  color: oklch(var(--bc) / 0.55);
+}
+
+.group:hover .solution-row-harness-icon {
+  color: oklch(var(--bc) / 0.75);
 }
 
 .sidebar-link:hover {
