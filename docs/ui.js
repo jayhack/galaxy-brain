@@ -17,6 +17,8 @@ export const ui = {
     "btn btn-sm btn-primary gap-1.5 shadow-md min-h-9 h-9 px-3",
   /** Primary icon + label (eval/solution “View on Github”). */
   btnPrimarySmGithub: "btn btn-sm btn-primary gap-1.5 min-h-9 h-9",
+  /** “View on Github” when another control (e.g. Open artifact) is the row primary. */
+  btnOutlineSmGithub: "btn btn-sm btn-outline gap-1.5 min-h-9 h-9",
   /** Deployed HTML output (outline). */
   btnOutlinePrimarySm: "btn btn-sm btn-outline btn-primary gap-1.5 min-h-9 h-9",
   btnGhostHero: "btn btn-ghost btn-sm gap-2",

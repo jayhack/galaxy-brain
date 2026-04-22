@@ -716,6 +716,8 @@ function viewSolution(route) {
   const oc = sol.outcome || {};
   const deployedHtml = siteArtifactUrl(sol.artifactUrl);
   const harnessModelBadges = harnessModelBadgesHtml(sol);
+  const hasArtifact = Boolean(sol.artifactUrl);
+  const githubBtnClass = hasArtifact ? ui.btnOutlineSmGithub : ui.btnPrimarySmGithub;
 
   const otherSolutions = ev.solutions.filter((s) => s.slug !== sol.slug);
   const otherSolutionRows =
@@ -743,8 +745,13 @@ function viewSolution(route) {
       ${sol.projectName ? `<p class="${ui.muted} mt-1">project: <span class="font-mono">${esc(sol.projectName)}</span></p>` : ""}
       <p class="${ui.muted80} mt-3 max-w-3xl">${esc(sol.summary || "")}</p>
       <div class="${ui.stackGapBtn}">
+        ${
+          hasArtifact
+            ? `<a class="${ui.btnPrimarySm} min-h-9 h-9" href="${esc(sol.artifactUrl)}" target="_blank" rel="noopener">Open artifact</a>`
+            : ""
+        }
         <a
-          class="${ui.btnPrimarySmGithub}"
+          class="${githubBtnClass}"
           href="${esc(urls.tree(dirPath))}"
           target="_blank"
           rel="noopener noreferrer"
@@ -762,11 +769,6 @@ function viewSolution(route) {
             : ""
         }
         <a class="${ui.btnGhostSm}" href="${esc(urls.blob(`${innerProject}/README.md`))}" target="_blank" rel="noopener">Open README</a>
-        ${
-          sol.artifactUrl
-            ? `<a class="${ui.btnSecondarySm}" href="${esc(sol.artifactUrl)}" target="_blank" rel="noopener">Open artifact</a>`
-            : ""
-        }
       </div>
     </header>
 
