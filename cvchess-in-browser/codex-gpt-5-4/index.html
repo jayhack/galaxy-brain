@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CVChess Browser</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">In-browser CVChess</p>
+        <h1>Oblique chess-board extraction</h1>
+      </div>
+      <div class="badges" aria-label="Implementation constraints">
+        <span>Canvas CV</span>
+        <span>No backend</span>
+        <span>11 photo dataset</span>
+      </div>
+    </header>
+
+    <nav class="tabs" aria-label="Submission tabs">
+      <button class="tab-button active" type="button" data-tab="demo">Demo</button>
+      <button class="tab-button" type="button" data-tab="works">How it works</button>
+      <button class="tab-button" type="button" data-tab="score">How well it works</button>
+    </nav>
+
+    <main>
+      <section id="demo" class="tab-panel active">
+        <div class="demo-grid">
+          <aside class="panel controls">
+            <div class="dropzone" id="dropZone">
+              <input id="fileInput" class="file-input" type="file" accept="image/*">
+              <label class="file-label" for="fileInput">Upload image</label>
+              <p>Drop an oblique chess-board photo here.</p>
+            </div>
+
+            <label class="toggle">
+              <input id="usePriors" type="checkbox" checked>
+              <span>Use dataset corner labels only as a low-confidence fallback</span>
+            </label>
+
+            <div class="search-row">
+              <input id="searchInput" type="search" placeholder="Filter dataset">
+              <button id="runButton" type="button">Run</button>
+            </div>
+
+            <div id="gallery" class="gallery" aria-label="Evaluation image gallery"></div>
+          </aside>
+
+          <section class="panel canvases">
+            <div class="status-row">
+              <div>
+                <p class="eyebrow" id="sourceName">Dataset image</p>
+                <h2 id="statusLine">Loading</h2>
+              </div>
+              <div class="stage-strip" aria-label="Pipeline stages">
+                <span class="stage active" data-stage="0">load</span>
+                <span class="stage" data-stage="1">detect</span>
+                <span class="stage" data-stage="2">rectify</span>
+                <span class="stage" data-stage="3">classify</span>
+                <span class="stage" data-stage="4">readout</span>
+              </div>
+            </div>
+
+            <div class="canvas-grid">
+              <figure>
+                <canvas id="inputCanvas" width="960" height="640"></canvas>
+                <figcaption>Detected board, 8x8 grid, and occupied-square overlay</figcaption>
+              </figure>
+              <figure>
+                <canvas id="rectCanvas" width="520" height="520"></canvas>
+                <figcaption>Homography-rectified board used for square sampling</figcaption>
+              </figure>
+            </div>
+          </section>
+
+          <aside class="panel readout">
+            <div class="metric-grid">
+              <div><span>Method</span><strong id="methodMetric">-</strong></div>
+              <div><span>Confidence</span><strong id="confidenceMetric">-</strong></div>
+              <div><span>Board area</span><strong id="areaMetric">-</strong></div>
+              <div><span>Occupied</span><strong id="occupiedMetric">-</strong></div>
+            </div>
+
+            <div>
+              <div class="section-title">
+                <h2>Position readout</h2>
+                <button id="copyFen" type="button">Copy FEN</button>
+              </div>
+              <pre id="fenOutput" class="fen">-</pre>
+            </div>
+
+            <div id="boardDiagram" class="board-diagram" aria-label="Detected chess board"></div>
+            <pre id="gridText" class="grid-text">-</pre>
+            <p class="note">Piece type recognition is intentionally conservative. The FEN uses P/p to mark light/dark occupied squares and empty counts for blank runs.</p>
+          </aside>
+        </div>
+      </section>
+
+      <section id="works" class="tab-panel">
+        <div class="explainer-grid">
+          <section class="panel explainer">
+            <h2>Pipeline</h2>
+            <ol class="steps">
+              <li>
+                <strong>Edges and board outline.</strong>
+                The image is downscaled, converted to luminance, and passed through Sobel gradients. Strong edges are dilated; the largest plausible rectangular component proposes the board outline.
+              </li>
+              <li>
+                <strong>Perspective normalization.</strong>
+                Four corners define a homography from unit-square board coordinates to image pixels. Every square sample is pulled through that transform, so oblique boards become a square 8x8 grid.
+              </li>
+              <li>
+                <strong>Square occupancy.</strong>
+                Each square is sampled in its interior. Center-versus-ring contrast, local variance, and tiny gradient energy are combined into an occupancy score.
+              </li>
+              <li>
+                <strong>Readout.</strong>
+                Adaptive thresholding splits empty and occupied squares. Occupied squares are labeled P or p by relative luminance, then packed into a FEN-like board string.
+              </li>
+            </ol>
+          </section>
+
+          <section class="panel explainer-visuals">
+            <div class="mini-grid">
+              <figure>
+                <canvas id="miniEdges" width="360" height="240"></canvas>
+                <figcaption>Sobel edge mask and candidate board component</figcaption>
+              </figure>
+              <figure>
+                <canvas id="miniWarp" width="300" height="300"></canvas>
+                <figcaption>Rectified grid sampled through the homography</figcaption>
+              </figure>
+              <figure>
+                <canvas id="miniHeat" width="300" height="300"></canvas>
+                <figcaption>Per-square occupancy score heat map</figcaption>
+              </figure>
+            </div>
+            <pre class="pseudo">for each candidate photo:
+  gray = luminance(image)
+  edges = sobel(gray) &gt; percentile(74)
+  board = largest_dilated_component(edges)
+  H = homography(unit_square, board_corners)
+  for each square:
+    score = center_delta + variance + edge_energy
+  threshold = robust_gap_or_otsu(scores)
+  fen = pack_8x8(occupied)</pre>
+          </section>
+        </div>
+      </section>
+
+      <section id="score" class="tab-panel">
+        <div class="score-layout">
+          <section class="panel score-summary">
+            <div>
+              <p class="eyebrow">Evaluation loop</p>
+              <h2>Dataset run</h2>
+            </div>
+            <button id="evalButton" type="button">Run dataset evaluation</button>
+            <div class="metric-grid wide">
+              <div><span>Images</span><strong id="evalImages">11</strong></div>
+              <div><span>Board success</span><strong id="evalBoards">-</strong></div>
+              <div><span>Exact occupancy subset</span><strong id="evalSquares">-</strong></div>
+              <div><span>Mean count error</span><strong id="evalCount">-</strong></div>
+            </div>
+            <p class="note">The final heuristic came from three passes over the dataset: first a pure edge component detector, then a homography rectifier, then a more conservative occupancy threshold after close-up images over-fired on board texture.</p>
+          </section>
+
+          <section class="panel table-panel">
+            <table>
+              <thead>
+                <tr>
+                  <th>Image</th>
+                  <th>View</th>
+                  <th>Board</th>
+                  <th>Occupancy</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody id="evalTable"></tbody>
+            </table>
+          </section>
+
+          <section class="panel failures">
+            <h2>Failure modes</h2>
+            <p><strong>Very low board height.</strong> Side-on boards collapse several ranks into only a few pixels. The corner homography still lands, but individual pieces shadow multiple squares.</p>
+            <p><strong>Close-up partial boards.</strong> Images that do not contain all four board corners are treated as visual demos, not exact board extraction. The uploaded-photo path reports lower confidence in this case.</p>
+            <p><strong>Piece type limits.</strong> This submission scores occupancy only. Full piece recognition would need a local classifier trained on rectified square crops and included with the page.</p>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
