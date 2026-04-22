@@ -203,7 +203,7 @@ html {
 }
 
 .markdown-target :is(ul, ol) {
-  padding-left: 1.15em;
+  padding-left: 1.45em;
   margin-top: 0.45em;
   margin-bottom: 0.45em;
 }

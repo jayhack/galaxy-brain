@@ -7,14 +7,12 @@ export const ui = {
   btnPrimarySm: "btn btn-sm btn-primary",
   btnGhostSm: "btn btn-sm btn-ghost",
   btnSecondarySm: "btn btn-sm btn-secondary",
-  /** Primary; copy handler toggles to success/error — keep in sync with btnPrimarySm */
-  btnPrimary: "btn btn-primary",
-  btnSuccess: "btn-success",
-  btnError: "btn-error",
+  copyFeedbackSuccess: "text-success",
+  copyFeedbackError: "text-error",
   btnOutlineXs:
     "btn btn-xs btn-outline gap-1 h-7 min-h-7 px-2 shrink-0",
-  btnPrimarySmCopy:
-    "btn btn-sm btn-primary gap-1.5 shadow-md min-h-9 h-9 px-3",
+  btnGhostXsCopy:
+    "btn btn-xs btn-ghost gap-1 h-7 min-h-7 px-2 text-base-content/70 hover:text-base-content",
   /** Primary icon + label (eval/solution “View on Github”). */
   btnPrimarySmGithub: "btn btn-sm btn-primary gap-1.5 min-h-9 h-9",
   /** “View on Github” when another control (e.g. Open artifact) is the row primary. */
@@ -117,7 +115,7 @@ export const ui = {
 
   /* Prompt / README markdown containers */
   prosePrompt:
-    "prose prose-sm max-w-none markdown-target min-h-[4rem] pt-12 px-4 pb-4 sm:pr-32",
+    "prose prose-sm max-w-none markdown-target min-h-[4rem] p-4",
   proseReadme:
     "prose prose-sm max-w-none bg-base-200 border border-base-300 rounded-2xl p-4 markdown-target",
 
