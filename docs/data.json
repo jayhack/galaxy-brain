@@ -360,6 +360,23 @@
             "score": null
           },
           "notes": "Open `life-sim/claude-code-opus-4-7/index.html` directly, or use the mirrored artifact at `./artifacts/life-sim/claude-code-opus-4-7.html`."
+        },
+        {
+          "slug": "codex-gpt-5-4",
+          "harness": "codex",
+          "model": "gpt-5-4",
+          "projectName": "speciation-isle",
+          "summary": "Single-file Three.js artificial-life island with seeded terrain/resources, three interacting ecological roles, local sensing and decision rules, predation, grazing, scavenging, inherited mutable genomes, visible body-trait changes, day/night behavior shifts, organism inspection, and live population/trait/event charts.",
+          "tech": ["html", "css", "javascript", "threejs", "webgl", "artificial-life"],
+          "submittedAt": "2026-04-22",
+          "artifactUrl": "./artifacts/life-sim/codex-gpt-5-4.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a browser-playable HTML simulation directly in the solution folder and mirrors it under docs/artifacts for one-click GitHub Pages evaluation.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `life-sim/codex-gpt-5-4/index.html` directly in a browser, serve the folder with `python3 -m http.server 8080` if local module loading is blocked, or use the mirrored artifact at `./artifacts/life-sim/codex-gpt-5-4.html`."
         }
       ]
     }
