@@ -21,7 +21,6 @@ export const ui = {
   btnOutlineSmGithub: "btn btn-sm btn-outline gap-1.5 min-h-9 h-9",
   /** Deployed HTML output (outline). */
   btnOutlinePrimarySm: "btn btn-sm btn-outline btn-primary gap-1.5 min-h-9 h-9",
-  btnGhostHero: "btn btn-ghost btn-sm gap-2",
   btnPrimarySmMt: "btn btn-primary btn-sm mt-6",
 
   /* Cards & panels */
@@ -35,6 +34,8 @@ export const ui = {
 
   /* Badges */
   badgeGhostSm: "badge badge-ghost badge-sm",
+  badgeEvalTagSm:
+    "badge badge-sm border border-base-content/20 bg-base-100 text-base-content/80 font-normal",
   badgePrimarySm: "badge badge-primary badge-sm",
   badgePrimaryOutline: "badge badge-primary badge-outline",
   badgeGhost: "badge badge-ghost",
@@ -61,7 +62,7 @@ export const ui = {
   pageTitle: "text-3xl font-bold tracking-tight",
   pageTitleMono: "text-3xl font-bold tracking-tight font-mono",
   sectionTitle: "text-xl font-semibold",
-  heroTitle: "text-4xl md:text-5xl font-bold tracking-tight text-base-content min-w-0",
+  heroTitle: "text-2xl sm:text-4xl font-bold tracking-tight text-base-content min-w-0",
   proseAboutH1: "text-3xl font-bold tracking-tight text-base-content",
   proseAboutH2: "text-xl font-semibold text-base-content mt-10",
   kvLabel: "text-xs uppercase text-base-content/50 tracking-wider",
@@ -84,7 +85,6 @@ export const ui = {
   sectionHeadRow: "flex items-center justify-between mb-3",
   sectionHeadBaseline: "flex items-baseline justify-between mb-4",
   stackGapBtn: "mt-4 flex flex-wrap gap-2",
-  stackGapHero: "mt-6 flex flex-wrap gap-2",
   flexGapBadge: "flex flex-wrap items-center gap-2 mb-2",
   flexGapTag: "flex items-center gap-2 mb-2 flex-wrap",
   solutionRowOuter:
@@ -102,16 +102,16 @@ export const ui = {
 
   /* Hero & marketing */
   heroHome:
-    "hero bg-base-200 rounded-2xl border border-base-300 mb-10",
+    "bg-base-200 rounded-xl border border-base-300 mb-8",
   hero404: "hero bg-base-200 rounded-2xl border border-base-300",
-  heroContent: "hero-content py-12 px-6 lg:px-12 text-left w-full",
+  heroContent: "p-6 sm:p-8 text-left w-full",
   heroEmoji:
     "inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-2xl bg-gradient-to-br from-primary to-secondary text-4xl md:text-5xl leading-none select-none",
   /** Home hero: logo column stretches to text stack height; square via aspect-ratio. */
   heroBrandGrid:
-    "grid grid-cols-[auto_minmax(0,1fr)] gap-4 md:gap-5 items-stretch max-w-3xl",
+    "grid grid-cols-[auto_minmax(0,1fr)] gap-4 md:gap-5 items-center max-w-4xl",
   heroEmojiLockup:
-    "aspect-square h-full w-auto max-w-full shrink-0 flex items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-secondary text-[clamp(2rem,5vw,3.75rem)] leading-none select-none",
+    "w-16 h-16 sm:w-20 sm:h-20 shrink-0 flex items-center justify-center rounded-xl bg-gradient-to-br from-primary to-secondary text-4xl sm:text-5xl leading-none select-none",
   badgeRowHero: "flex items-center gap-2 mb-4",
   flexTitleRow: "flex flex-wrap items-center gap-3 md:gap-5 mb-1",
 

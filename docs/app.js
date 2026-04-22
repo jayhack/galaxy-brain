@@ -335,12 +335,6 @@ function viewHome(route) {
   const selectedTags = route.selectedTags || [];
   const selectedSet = new Set(selectedTags);
 
-  const totalSolutions = data.evals.reduce((n, e) => n + e.solutions.length, 0);
-  const passed = data.evals.reduce(
-    (n, e) => n + e.solutions.filter((s) => s.outcome?.status === "passed").length,
-    0
-  );
-
   const allTagSet = new Set();
   for (const ev of data.evals) {
     for (const t of ev.tags || []) allTagSet.add(t);
@@ -360,7 +354,7 @@ function viewHome(route) {
   const tagFilterBar =
     allTagsSorted.length === 0
       ? ""
-      : `<div id="eval-tag-filter" class="mb-4 rounded-xl border border-base-300 bg-base-200/80 p-3 sm:p-4" role="group" aria-label="Filter evals by tag">
+      : `<div id="eval-tag-filter" class="mb-5" role="group" aria-label="Filter evals by tag">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
             <span class="text-sm font-medium text-base-content/80">Filter by tag</span>
             <span class="text-xs text-base-content/50">Showing evals that match <strong>any</strong> selected tag.</span>
@@ -369,8 +363,10 @@ function viewHome(route) {
             ${allTagsSorted
               .map((t) => {
                 const on = selectedSet.has(t);
-                return `<button type="button" data-tag-toggle="${esc(t)}" class="btn btn-sm min-h-8 h-8 px-3 font-normal normal-case ${
-                  on ? "btn-primary" : "btn-ghost border border-base-300 hover:border-primary/40"
+                return `<button type="button" data-tag-toggle="${esc(t)}" class="inline-flex h-8 min-h-8 items-center justify-center rounded-md border px-3 text-sm font-normal leading-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+                  on
+                    ? "border-primary bg-primary text-primary-content"
+                    : "border-base-300 bg-base-200 text-base-content/85 hover:border-primary/50 hover:bg-base-300"
                 }">${esc(t)}</button>`;
               })
               .join("")}
@@ -387,7 +383,7 @@ function viewHome(route) {
   const evalCards = filteredEvals
     .map((ev) => {
       const tags = (ev.tags || [])
-        .map((t) => `<span class="${ui.badgeGhostSm}">${esc(t)}</span>`)
+        .map((t) => `<span class="${ui.badgeEvalTagSm}">${esc(t)}</span>`)
         .join(" ");
       return `
         <a href="#/eval/${esc(ev.slug)}" class="${ui.cardHover}">
@@ -410,10 +406,10 @@ function viewHome(route) {
          </div>`
       : "";
 
-  const evalSubline =
+  const evalSummary =
     selectedSet.size > 0
-      ? ` · ${filteredEvals.length}/${data.evals.length} eval${data.evals.length === 1 ? "" : "s"} shown`
-      : "";
+      ? `${filteredEvals.length}/${data.evals.length} eval${data.evals.length === 1 ? "" : "s"} shown`
+      : `${data.evals.length} eval${data.evals.length === 1 ? "" : "s"}`;
 
   updateHeaderBreadcrumbs("");
 
@@ -425,17 +421,11 @@ function viewHome(route) {
             <span class="${ui.heroEmojiLockup}" aria-hidden="true">🧠</span>
             <div class="min-w-0 flex flex-col gap-2">
               <h1 class="${ui.heroTitle}">galaxy-brain</h1>
-              <p class="${ui.muted} text-lg leading-snug">
+              <p class="${ui.muted} text-base sm:text-lg leading-snug">
                 A collection of agent evals. Each eval is a prompt; each solution is one
                 harness/model pair's attempt. Browse them below.
               </p>
             </div>
-          </div>
-          <div class="${ui.stackGapHero}">
-            <a id="hero-repo" class="${ui.btnGhostHero}" target="_blank" rel="noopener">
-              ${githubLogoSvg()}
-              <span>GitHub</span>
-            </a>
           </div>
         </div>
       </div>
@@ -444,15 +434,13 @@ function viewHome(route) {
     <section>
       <div class="${ui.sectionHeadBaseline}">
         <h2 class="${ui.sectionTitle}">Evals</h2>
-        <span class="${ui.mutedSm}">${passed}/${totalSolutions} passed${evalSubline}</span>
+        <span class="${ui.mutedSm}">${evalSummary}</span>
       </div>
       ${tagFilterBar}
       ${emptyFilterMsg}
       <div class="${ui.gridEvals}">${evalCards}</div>
     </section>
   `;
-
-  document.getElementById("hero-repo").href = repoUrls(data).repo;
 
   if (!state.homeTagFilterClickBound) {
     state.homeTagFilterClickBound = true;
@@ -952,7 +940,6 @@ async function main() {
   }
 
   const urls = repoUrls(state.data);
-  document.getElementById("repo-link").href = urls.repo;
   document.getElementById("footer-repo-link").href = urls.repo;
 
   render();
