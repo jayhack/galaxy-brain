@@ -1,0 +1,332 @@
+[
+  {
+    "id": "starting-wood-oblique",
+    "file": "dataset/starting-wood-oblique.jpg",
+    "source": "synthetic (rendered by tools/gen_dataset.py)",
+    "attribution": "oblique-gambit synthetic dataset, CC0",
+    "style": "wood",
+    "camera": {
+      "pitch": 55,
+      "yaw": -12,
+      "roll": 0,
+      "scale": 1.35
+    },
+    "board_corners_px": [
+      {
+        "x": 294.6,
+        "y": 204.8
+      },
+      {
+        "x": 1065.4,
+        "y": 237.6
+      },
+      {
+        "x": 837.5,
+        "y": 590.2
+      },
+      {
+        "x": 332.1,
+        "y": 603.8
+      }
+    ],
+    "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
+    "note": "Wooden board, starting position, oblique from behind white."
+  },
+  {
+    "id": "starting-tournament-tilt",
+    "file": "dataset/starting-tournament-tilt.jpg",
+    "source": "synthetic (rendered by tools/gen_dataset.py)",
+    "attribution": "oblique-gambit synthetic dataset, CC0",
+    "style": "tournament",
+    "camera": {
+      "pitch": 42,
+      "yaw": 18,
+      "roll": -3,
+      "scale": 1.3
+    },
+    "board_corners_px": [
+      {
+        "x": 248.7,
+        "y": 226.9
+      },
+      {
+        "x": 919.7,
+        "y": 139.8
+      },
+      {
+        "x": 969.9,
+        "y": 638.1
+      },
+      {
+        "x": 470.7,
+        "y": 637.8
+      }
+    ],
+    "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
+    "note": "Tournament green/cream, oblique with slight roll."
+  },
+  {
+    "id": "midgame-blue",
+    "file": "dataset/midgame-blue.jpg",
+    "source": "synthetic (rendered by tools/gen_dataset.py)",
+    "attribution": "oblique-gambit synthetic dataset, CC0",
+    "style": "blue-white",
+    "camera": {
+      "pitch": 50,
+      "yaw": -8,
+      "roll": 2,
+      "scale": 1.3
+    },
+    "board_corners_px": [
+      {
+        "x": 303.7,
+        "y": 187.0
+      },
+      {
+        "x": 1039.4,
+        "y": 234.3
+      },
+      {
+        "x": 849.0,
+        "y": 613.5
+      },
+      {
+        "x": 351.4,
+        "y": 605.8
+      }
+    ],
+    "fen": "r1bq1rk1/pp2bppp/2n1pn2/2pp4/3P4/2PBPN2/PP3PPP/RNBQ1RK1",
+    "note": "Blue/white club board mid-game, strong oblique."
+  },
+  {
+    "id": "endgame-vinyl",
+    "file": "dataset/endgame-vinyl.jpg",
+    "source": "synthetic (rendered by tools/gen_dataset.py)",
+    "attribution": "oblique-gambit synthetic dataset, CC0",
+    "style": "vinyl",
+    "camera": {
+      "pitch": 60,
+      "yaw": 5,
+      "roll": 1,
+      "scale": 1.35
+    },
+    "board_corners_px": [
+      {
+        "x": 221.9,
+        "y": 246.0
+      },
+      {
+        "x": 1028.8,
+        "y": 247.6
+      },
+      {
+        "x": 913.3,
+        "y": 583.4
+      },
+      {
+        "x": 410.0,
+        "y": 569.8
+      }
+    ],
+    "fen": "8/5k2/8/4P3/8/3K4/8/8",
+    "note": "Vinyl roll-up, near-empty endgame, near-oblique."
+  },
+  {
+    "id": "kiwipete-themed",
+    "file": "dataset/kiwipete-themed.jpg",
+    "source": "synthetic (rendered by tools/gen_dataset.py)",
+    "attribution": "oblique-gambit synthetic dataset, CC0",
+    "style": "themed",
+    "camera": {
+      "pitch": 45,
+      "yaw": -22,
+      "roll": -2,
+      "scale": 1.3
+    },
+    "board_corners_px": [
+      {
+        "x": 359.1,
+        "y": 170.4
+      },
+      {
+        "x": 1017.0,
+        "y": 208.2
+      },
+      {
+        "x": 802.2,
+        "y": 611.5
+      },
+      {
+        "x": 314.4,
+        "y": 658.9
+      }
+    ],
+    "fen": "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R",
+    "note": "Red-themed board, heavy position, oblique-left."
+  },
+  {
+    "id": "promo-wood-hiangle",
+    "file": "dataset/promo-wood-hiangle.jpg",
+    "source": "synthetic (rendered by tools/gen_dataset.py)",
+    "attribution": "oblique-gambit synthetic dataset, CC0",
+    "style": "wood",
+    "camera": {
+      "pitch": 30,
+      "yaw": 25,
+      "roll": 4,
+      "scale": 1.25
+    },
+    "board_corners_px": [
+      {
+        "x": 334.0,
+        "y": 176.7
+      },
+      {
+        "x": 917.9,
+        "y": 149.3
+      },
+      {
+        "x": 941.4,
+        "y": 719.2
+      },
+      {
+        "x": 461.9,
+        "y": 642.7
+      }
+    ],
+    "fen": "r3k2r/p1p2ppp/2n2n2/8/8/2N2N2/P1P2PPP/R3K2R",
+    "note": "Wood board, closer to top-down, oblique-right."
+  },
+  {
+    "id": "sparse-tournament",
+    "file": "dataset/sparse-tournament.jpg",
+    "source": "synthetic (rendered by tools/gen_dataset.py)",
+    "attribution": "oblique-gambit synthetic dataset, CC0",
+    "style": "tournament",
+    "camera": {
+      "pitch": 58,
+      "yaw": -3,
+      "roll": -1,
+      "scale": 1.35
+    },
+    "board_corners_px": [
+      {
+        "x": 244.3,
+        "y": 239.2
+      },
+      {
+        "x": 1049.3,
+        "y": 233.0
+      },
+      {
+        "x": 881.1,
+        "y": 578.4
+      },
+      {
+        "x": 375.3,
+        "y": 590.4
+      }
+    ],
+    "fen": "4k3/8/2n5/8/3P4/8/5B2/4K3",
+    "note": "Tournament board, very sparse position, low camera."
+  },
+  {
+    "id": "kings-only-blue-extreme",
+    "file": "dataset/kings-only-blue-extreme.jpg",
+    "source": "synthetic (rendered by tools/gen_dataset.py)",
+    "attribution": "oblique-gambit synthetic dataset, CC0",
+    "style": "blue-white",
+    "camera": {
+      "pitch": 68,
+      "yaw": 20,
+      "roll": 3,
+      "scale": 1.25
+    },
+    "board_corners_px": [
+      {
+        "x": 229.9,
+        "y": 304.0
+      },
+      {
+        "x": 905.1,
+        "y": 308.8
+      },
+      {
+        "x": 954.2,
+        "y": 561.9
+      },
+      {
+        "x": 498.3,
+        "y": 525.5
+      }
+    ],
+    "fen": "4k3/8/8/8/8/8/8/4K3",
+    "note": "Extreme oblique, only two kings \u2014 stress test."
+  },
+  {
+    "id": "starting-wood-low",
+    "file": "dataset/starting-wood-low.jpg",
+    "source": "synthetic (rendered by tools/gen_dataset.py)",
+    "attribution": "oblique-gambit synthetic dataset, CC0",
+    "style": "wood",
+    "camera": {
+      "pitch": 66,
+      "yaw": 0,
+      "roll": 0,
+      "scale": 1.15
+    },
+    "board_corners_px": [
+      {
+        "x": 304.6,
+        "y": 313.6
+      },
+      {
+        "x": 975.4,
+        "y": 313.6
+      },
+      {
+        "x": 859.0,
+        "y": 539.1
+      },
+      {
+        "x": 421.0,
+        "y": 539.1
+      }
+    ],
+    "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
+    "note": "Very low-angle wood, near-flat grazing view."
+  },
+  {
+    "id": "empty-tournament",
+    "file": "dataset/empty-tournament.jpg",
+    "source": "synthetic (rendered by tools/gen_dataset.py)",
+    "attribution": "oblique-gambit synthetic dataset, CC0",
+    "style": "tournament",
+    "camera": {
+      "pitch": 50,
+      "yaw": 0,
+      "roll": 0,
+      "scale": 1.35
+    },
+    "board_corners_px": [
+      {
+        "x": 247.9,
+        "y": 197.9
+      },
+      {
+        "x": 1032.1,
+        "y": 197.9
+      },
+      {
+        "x": 897.7,
+        "y": 615.7
+      },
+      {
+        "x": 382.3,
+        "y": 615.7
+      }
+    ],
+    "fen": "8/8/8/8/8/8/8/8",
+    "note": "Empty tournament board \u2014 occupancy sanity check."
+  }
+]

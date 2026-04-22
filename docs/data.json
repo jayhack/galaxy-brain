@@ -238,7 +238,25 @@
       "description": "Build a browser-based computer vision app that detects a physical chess board in an oblique-angle photo and reports its position (FEN / grid / diagram). The agent must assemble an evaluation dataset of at least 8 real-world chess-board images, iterate on a client-side pipeline against it, and ship a single HTML page with three tabs: a live Demo (upload + dataset gallery), a How-it-works explainer with graphics, and a How-well-it-works analysis of the algorithm's performance on the dataset. No server inference, no hosted vision APIs.",
       "tags": ["computer-vision", "browser", "chess", "opencv", "wasm", "image-processing", "eval-loop"],
       "createdAt": "2026-04-21",
-      "solutions": []
+      "solutions": [
+        {
+          "slug": "claude-code-opus-4-7",
+          "harness": "claude-code",
+          "model": "opus-4-7",
+          "projectName": "oblique-gambit",
+          "summary": "Client-side pipeline built on OpenCV.js (WebAssembly): bilateral → Canny (swept thresholds + dilation) → largest-convex-quad contour → perspective-rectify to 512×512 → per-square Laplacian + luminance occupancy → local-background side classification → orientation flip → FEN. Three-tab HTML ships a 10-image synthetic dataset, an annotated pipeline explainer with live stage canvases, and a per-image performance table with aggregate metrics and an honest discussion of failure modes.",
+          "tech": ["html", "css", "javascript", "opencv-js", "wasm"],
+          "submittedAt": "2026-04-21",
+          "artifactUrl": "./artifacts/cvchess-in-browser/claude-code-opus-4-7.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a self-contained HTML + dataset + precomputed-results artifact. 10/10 boards detected on the shipped dataset, ~90% mean occupancy, ~73% side accuracy.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `oblique-gambit/index.html` after serving the directory (e.g. `python -m http.server` from inside it) — OpenCV.js wasm requires http:// not file://. Or open the mirrored artifact at `./artifacts/cvchess-in-browser/claude-code-opus-4-7.html`, which has dataset images and precomputed eval results inlined."
+        }
+      ]
     },
     {
       "slug": "fishtank-water-sim",
