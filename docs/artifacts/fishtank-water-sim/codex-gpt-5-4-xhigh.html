@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Obsidian Aquarium</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #000000;
+        --panel: rgba(6, 13, 22, 0.7);
+        --panel-border: rgba(147, 197, 253, 0.22);
+        --text: #eff8ff;
+        --muted: #9cb8ca;
+        --accent: #6ee7ff;
+        --accent-strong: #38bdf8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Avenir Next", "Trebuchet MS", sans-serif;
+      }
+
+      body {
+        position: relative;
+      }
+
+      #stage {
+        position: fixed;
+        inset: 0;
+        cursor: grab;
+      }
+
+      #stage.dragging {
+        cursor: grabbing;
+      }
+
+      .hud {
+        position: fixed;
+        top: 18px;
+        left: 18px;
+        z-index: 10;
+        width: min(380px, calc(100vw - 36px));
+        padding: 16px 18px 14px;
+        border: 1px solid var(--panel-border);
+        border-radius: 18px;
+        background:
+          linear-gradient(180deg, rgba(14, 28, 43, 0.82), rgba(3, 7, 13, 0.76)),
+          var(--panel);
+        backdrop-filter: blur(14px);
+        box-shadow:
+          0 16px 40px rgba(0, 0, 0, 0.45),
+          inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0 0 10px;
+        color: var(--accent);
+        font-size: 12px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      .eyebrow::before {
+        content: "";
+        width: 26px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--accent));
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(28px, 4vw, 38px);
+        line-height: 0.95;
+        letter-spacing: 0.02em;
+      }
+
+      .tagline {
+        margin: 10px 0 14px;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.45;
+      }
+
+      .hud-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin: 14px 0 0;
+      }
+
+      .metric {
+        padding: 10px 12px;
+        border-radius: 14px;
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        background: rgba(4, 11, 18, 0.52);
+      }
+
+      .metric-label {
+        margin: 0 0 4px;
+        color: #8fb2c7;
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .metric-value {
+        margin: 0;
+        font-size: 14px;
+        color: #f8fdff;
+      }
+
+      .controls {
+        margin-top: 14px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+      }
+
+      button {
+        appearance: none;
+        border: 0;
+        border-radius: 999px;
+        padding: 11px 18px;
+        font: inherit;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        color: #04111d;
+        background: linear-gradient(135deg, #b8f7ff, #38bdf8);
+        box-shadow:
+          0 8px 30px rgba(56, 189, 248, 0.28),
+          inset 0 1px 0 rgba(255, 255, 255, 0.45);
+        cursor: pointer;
+      }
+
+      button:hover {
+        filter: brightness(1.04);
+      }
+
+      button:active {
+        transform: translateY(1px);
+      }
+
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(110, 231, 255, 0.2);
+        background: rgba(2, 11, 18, 0.58);
+        color: #d8fbff;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .status-pill::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: radial-gradient(circle at 30% 30%, #ffffff, #67e8f9 55%, #0284c7);
+        box-shadow: 0 0 12px rgba(103, 232, 249, 0.8);
+      }
+
+      .error {
+        position: fixed;
+        inset: auto 18px 18px;
+        z-index: 12;
+        max-width: 420px;
+        padding: 14px 16px;
+        border-radius: 14px;
+        border: 1px solid rgba(248, 113, 113, 0.35);
+        background: rgba(33, 9, 14, 0.86);
+        color: #fee2e2;
+        line-height: 1.45;
+      }
+
+      @media (max-width: 760px) {
+        .hud {
+          top: 12px;
+          left: 12px;
+          width: calc(100vw - 24px);
+        }
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  </head>
+  <body>
+    <div id="stage" aria-label="3D fish tank simulation"></div>
+    <section class="hud">
+      <div class="eyebrow">Reactive water study</div>
+      <h1>Obsidian Aquarium</h1>
+      <p class="tagline">
+        Water starts above the tank, pours in, settles into a sloshing volume,
+        and reacts when you move the mouse through the scene.
+      </p>
+      <div class="hud-grid">
+        <article class="metric">
+          <p class="metric-label">Water input</p>
+          <p class="metric-value">Overhead pour with settling waves</p>
+        </article>
+        <article class="metric">
+          <p class="metric-label">Interaction</p>
+          <p class="metric-value">Mouse impulse plus orbit camera</p>
+        </article>
+      </div>
+      <div class="controls">
+        <button id="resetButton" type="button">Reset</button>
+        <span id="statusPill" class="status-pill">Pouring</span>
+      </div>
+    </section>
+
+    <script>
+      (() => {
+        function showError(message) {
+          const error = document.createElement("div");
+          error.className = "error";
+          error.textContent = message;
+          document.body.appendChild(error);
+        }
+
+        if (!window.THREE) {
+          showError(
+            "Three.js failed to load from the CDN. Reload with network access to view the simulation."
+          );
+          return;
+        }
+
+        const stage = document.getElementById("stage");
+        const resetButton = document.getElementById("resetButton");
+        const statusPill = document.getElementById("statusPill");
+
+        let renderer;
+        try {
+          renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            powerPreference: "high-performance",
+          });
+        } catch (error) {
+          console.error(error);
+          showError(
+            "WebGL could not be initialized in this browser session. Try a normal desktop browser tab with hardware acceleration enabled."
+          );
+          return;
+        }
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.outputColorSpace = THREE.SRGBColorSpace;
+        renderer.setClearColor(0x000000, 1);
+        stage.appendChild(renderer.domElement);
+
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.Fog(0x000000, 8, 16);
+
+        const camera = new THREE.PerspectiveCamera(
+          42,
+          window.innerWidth / window.innerHeight,
+          0.1,
+          100
+        );
+
+        const clock = new THREE.Clock();
+        const raycaster = new THREE.Raycaster();
+        const pointerNdc = new THREE.Vector2();
+        const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+        const scratchHit = new THREE.Vector3();
+
+        const orbit = {
+          target: new THREE.Vector3(0, 0.02, 0),
+          theta: 0.72,
+          phi: 1.18,
+          distance: 5.15,
+          desiredTheta: 0.72,
+          desiredPhi: 1.18,
+          desiredDistance: 5.15,
+          dragging: false,
+          lastX: Number.NaN,
+          lastY: Number.NaN,
+        };
+
+        const TANK_SIZE = 2;
+        const INNER_SIZE = 1.82;
+        const INNER_HALF = INNER_SIZE * 0.5;
+        const WATER_BOTTOM = -0.93;
+        const WATER_MIN_DEPTH = 0.08;
+        const WATER_TARGET_DEPTH = 1.28;
+        const WATER_TOP_LIMIT = 0.82;
+        const GRID = 28;
+        const RIPPLE_COUNT = GRID * GRID;
+
+        const rippleHeight = new Float32Array(RIPPLE_COUNT);
+        const rippleVelocity = new Float32Array(RIPPLE_COUNT);
+        const nextVelocity = new Float32Array(RIPPLE_COUNT);
+
+        const bubbleCount = 28;
+        const bubbleSeeds = Array.from({ length: bubbleCount }, (_, index) => ({
+          x: THREE.MathUtils.lerp(-0.72, 0.72, ((index * 53) % 97) / 96),
+          z: THREE.MathUtils.lerp(-0.72, 0.72, ((index * 29) % 89) / 88),
+          y: WATER_BOTTOM + 0.15 + (((index * 17) % 41) / 41) * 0.9,
+          size: 0.022 + (((index * 13) % 17) / 17) * 0.016,
+          speed: 0.16 + (((index * 19) % 23) / 23) * 0.24,
+        }));
+
+        const simulation = {
+          elapsed: 0,
+          baseDepth: WATER_MIN_DEPTH,
+          globalSlosh: new THREE.Vector2(0, 0),
+          globalVelocity: new THREE.Vector2(0, 0),
+        };
+
+        const waterGroup = new THREE.Group();
+        scene.add(waterGroup);
+
+        scene.add(new THREE.AmbientLight(0x7aa9ff, 0.58));
+
+        const keyLight = new THREE.DirectionalLight(0xeafcff, 1.85);
+        keyLight.position.set(3.2, 4.6, 3.5);
+        scene.add(keyLight);
+
+        const fillLight = new THREE.PointLight(0x5ce1ff, 1.25, 15, 2);
+        fillLight.position.set(-3.4, 1.4, -2.6);
+        scene.add(fillLight);
+
+        const rimLight = new THREE.PointLight(0x8b5cf6, 0.55, 16, 2);
+        rimLight.position.set(0.4, 3.5, -5.4);
+        scene.add(rimLight);
+
+        const pedestal = new THREE.Mesh(
+          new THREE.CylinderGeometry(1.34, 1.52, 0.16, 48),
+          new THREE.MeshStandardMaterial({
+            color: 0x070c12,
+            emissive: 0x09111a,
+            roughness: 0.8,
+            metalness: 0.15,
+          })
+        );
+        pedestal.position.y = -1.18;
+        scene.add(pedestal);
+
+        const halo = new THREE.Mesh(
+          new THREE.RingGeometry(1.02, 1.56, 64),
+          new THREE.MeshBasicMaterial({
+            color: 0x10324a,
+            transparent: true,
+            opacity: 0.14,
+            side: THREE.DoubleSide,
+          })
+        );
+        halo.rotation.x = -Math.PI * 0.5;
+        halo.position.y = -1.09;
+        scene.add(halo);
+
+        const tankGroup = new THREE.Group();
+        scene.add(tankGroup);
+
+        const tankGeometry = new THREE.BoxGeometry(TANK_SIZE, TANK_SIZE, TANK_SIZE);
+        const glassMaterial = new THREE.MeshPhysicalMaterial({
+          color: 0xd6f3ff,
+          transmission: 0.92,
+          thickness: 0.16,
+          roughness: 0.04,
+          metalness: 0,
+          ior: 1.13,
+          transparent: true,
+          opacity: 0.16,
+          reflectivity: 0.3,
+          clearcoat: 1,
+          clearcoatRoughness: 0.12,
+          side: THREE.DoubleSide,
+        });
+        glassMaterial.depthWrite = false;
+        const glassTank = new THREE.Mesh(tankGeometry, glassMaterial);
+        tankGroup.add(glassTank);
+
+        const edgeMaterial = new THREE.LineBasicMaterial({
+          color: 0xdaf6ff,
+          transparent: true,
+          opacity: 0.86,
+        });
+        const edges = new THREE.LineSegments(
+          new THREE.EdgesGeometry(tankGeometry),
+          edgeMaterial
+        );
+        tankGroup.add(edges);
+
+        const innerFrame = new THREE.LineSegments(
+          new THREE.EdgesGeometry(new THREE.BoxGeometry(1.94, 1.94, 1.94)),
+          new THREE.LineBasicMaterial({
+            color: 0x67e8f9,
+            transparent: true,
+            opacity: 0.24,
+          })
+        );
+        tankGroup.add(innerFrame);
+
+        const spoutGroup = new THREE.Group();
+        tankGroup.add(spoutGroup);
+        spoutGroup.position.set(0.25, 1.54, -0.16);
+        spoutGroup.rotation.z = 0.38;
+
+        const spoutMaterial = new THREE.MeshStandardMaterial({
+          color: 0x9fb1c1,
+          emissive: 0x0c1720,
+          roughness: 0.32,
+          metalness: 0.62,
+        });
+        const spoutBody = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.08, 0.08, 0.34, 22),
+          spoutMaterial
+        );
+        spoutBody.position.set(0, 0, 0);
+        spoutGroup.add(spoutBody);
+
+        const spoutRim = new THREE.Mesh(
+          new THREE.TorusGeometry(0.08, 0.015, 12, 24),
+          new THREE.MeshBasicMaterial({
+            color: 0xbbeeff,
+            transparent: true,
+            opacity: 0.75,
+          })
+        );
+        spoutRim.rotation.x = Math.PI * 0.5;
+        spoutRim.position.y = -0.17;
+        spoutGroup.add(spoutRim);
+
+        const streamMaterial = new THREE.MeshPhongMaterial({
+          color: 0x67ddff,
+          emissive: 0x0b3142,
+          transparent: true,
+          opacity: 0.82,
+          shininess: 110,
+          specular: 0xffffff,
+          side: THREE.DoubleSide,
+        });
+        const streamMesh = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.05, 0.08, 1, 18, 1, true),
+          streamMaterial
+        );
+        tankGroup.add(streamMesh);
+
+        const impactRingMaterial = new THREE.MeshBasicMaterial({
+          color: 0x99f6ff,
+          transparent: true,
+          opacity: 0.44,
+          side: THREE.DoubleSide,
+        });
+        const impactRing = new THREE.Mesh(
+          new THREE.TorusGeometry(0.15, 0.012, 12, 40),
+          impactRingMaterial
+        );
+        impactRing.rotation.x = Math.PI * 0.5;
+        waterGroup.add(impactRing);
+
+        const bodyGeometry = new THREE.BufferGeometry();
+        bodyGeometry.setAttribute(
+          "position",
+          new THREE.BufferAttribute(new Float32Array(30 * 3), 3)
+        );
+        const bodyMaterial = new THREE.MeshPhongMaterial({
+          color: 0x53d4ff,
+          emissive: 0x0b2740,
+          transparent: true,
+          opacity: 0.7,
+          shininess: 120,
+          specular: 0xf7ffff,
+          side: THREE.DoubleSide,
+        });
+        const waterBody = new THREE.Mesh(bodyGeometry, bodyMaterial);
+        waterBody.renderOrder = 3;
+        waterBody.material.depthWrite = false;
+        waterGroup.add(waterBody);
+
+        const surfaceGeometry = new THREE.PlaneGeometry(
+          INNER_SIZE,
+          INNER_SIZE,
+          GRID - 1,
+          GRID - 1
+        );
+        surfaceGeometry.rotateX(-Math.PI * 0.5);
+        const surfacePosition = surfaceGeometry.attributes.position;
+        const baseSurfaceX = new Float32Array(surfacePosition.count);
+        const baseSurfaceZ = new Float32Array(surfacePosition.count);
+        for (let i = 0; i < surfacePosition.count; i += 1) {
+          baseSurfaceX[i] = surfacePosition.getX(i);
+          baseSurfaceZ[i] = surfacePosition.getZ(i);
+        }
+
+        const surfaceMaterial = new THREE.MeshPhongMaterial({
+          color: 0x95f0ff,
+          emissive: 0x0d3951,
+          transparent: true,
+          opacity: 0.9,
+          shininess: 160,
+          specular: 0xffffff,
+          side: THREE.DoubleSide,
+        });
+        const waterSurface = new THREE.Mesh(surfaceGeometry, surfaceMaterial);
+        waterSurface.renderOrder = 4;
+        waterSurface.material.depthWrite = false;
+        waterGroup.add(waterSurface);
+
+        const foamLine = new THREE.Line(
+          new THREE.BufferGeometry(),
+          new THREE.LineBasicMaterial({
+            color: 0xe0fbff,
+            transparent: true,
+            opacity: 0.5,
+          })
+        );
+        foamLine.renderOrder = 6;
+        waterGroup.add(foamLine);
+
+        const waterline = new THREE.Line(
+          new THREE.BufferGeometry(),
+          new THREE.LineBasicMaterial({
+            color: 0xbaf7ff,
+            transparent: true,
+            opacity: 0.74,
+          })
+        );
+        waterline.renderOrder = 7;
+        waterGroup.add(waterline);
+
+        const waterRimGeometry = new THREE.BufferGeometry();
+        waterRimGeometry.setAttribute(
+          "position",
+          new THREE.BufferAttribute(new Float32Array(24 * 3), 3)
+        );
+        const waterRim = new THREE.Mesh(
+          waterRimGeometry,
+          new THREE.MeshBasicMaterial({
+            color: 0xbff7ff,
+            transparent: true,
+            opacity: 0.7,
+            side: THREE.DoubleSide,
+            depthWrite: false,
+          })
+        );
+        waterRim.renderOrder = 8;
+        waterGroup.add(waterRim);
+
+        const waterTubeMaterial = new THREE.MeshBasicMaterial({
+          color: 0xe8fdff,
+          transparent: true,
+          opacity: 0.82,
+          depthWrite: false,
+        });
+        const waterlineTubes = Array.from({ length: 4 }, () => {
+          const tube = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.012, 0.012, 1, 12),
+            waterTubeMaterial
+          );
+          tube.renderOrder = 9;
+          waterGroup.add(tube);
+          return tube;
+        });
+        const cylinderUp = new THREE.Vector3(0, 1, 0);
+
+        const bubbleGeometry = new THREE.BufferGeometry();
+        bubbleGeometry.setAttribute(
+          "position",
+          new THREE.BufferAttribute(new Float32Array(bubbleCount * 3), 3)
+        );
+        const bubbleMaterial = new THREE.PointsMaterial({
+          color: 0xe9fdff,
+          transparent: true,
+          opacity: 0.56,
+          size: 0.05,
+          sizeAttenuation: true,
+          depthWrite: false,
+        });
+        const bubbles = new THREE.Points(bubbleGeometry, bubbleMaterial);
+        bubbles.renderOrder = 2;
+        waterGroup.add(bubbles);
+
+        function easeOutCubic(value) {
+          const t = THREE.MathUtils.clamp(value, 0, 1);
+          return 1 - Math.pow(1 - t, 3);
+        }
+
+        function setTriangle(array, offset, a, b, c) {
+          array.set(a, offset);
+          array.set(b, offset + 3);
+          array.set(c, offset + 6);
+          return offset + 9;
+        }
+
+        function addGlobalImpulse(dx, dy, strength) {
+          simulation.globalVelocity.x += dx * 0.0007 * strength;
+          simulation.globalVelocity.y += dy * 0.0007 * strength;
+        }
+
+        function worldToWaterPoint(clientX, clientY) {
+          const rect = renderer.domElement.getBoundingClientRect();
+          pointerNdc.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+          pointerNdc.y = -(((clientY - rect.top) / rect.height) * 2 - 1);
+          raycaster.setFromCamera(pointerNdc, camera);
+          plane.constant = -getAverageSurfaceY();
+          if (!raycaster.ray.intersectPlane(plane, scratchHit)) {
+            return { x: 0, z: 0 };
+          }
+          return {
+            x: THREE.MathUtils.clamp(scratchHit.x, -INNER_HALF * 0.98, INNER_HALF * 0.98),
+            z: THREE.MathUtils.clamp(scratchHit.z, -INNER_HALF * 0.98, INNER_HALF * 0.98),
+          };
+        }
+
+        function addLocalRipple(centerX, centerZ, amount, radius) {
+          const radiusSq = radius * radius;
+          for (let z = 0; z < GRID; z += 1) {
+            for (let x = 0; x < GRID; x += 1) {
+              const index = z * GRID + x;
+              const px = THREE.MathUtils.lerp(-INNER_HALF, INNER_HALF, x / (GRID - 1));
+              const pz = THREE.MathUtils.lerp(-INNER_HALF, INNER_HALF, z / (GRID - 1));
+              const dx = px - centerX;
+              const dz = pz - centerZ;
+              const distSq = dx * dx + dz * dz;
+              if (distSq > radiusSq * 4) {
+                continue;
+              }
+              const falloff = Math.exp(-distSq / radiusSq);
+              rippleVelocity[index] += amount * 10 * falloff;
+              rippleHeight[index] += amount * 0.35 * falloff;
+            }
+          }
+        }
+
+        function getAverageSurfaceY() {
+          return WATER_BOTTOM + simulation.baseDepth;
+        }
+
+        function getSurfaceTilt(x, z) {
+          const nx = x / INNER_HALF;
+          const nz = z / INNER_HALF;
+          return (nx * simulation.globalSlosh.x + nz * simulation.globalSlosh.y) * 0.18;
+        }
+
+        function getCornerY(xSign, zSign) {
+          const top = getAverageSurfaceY() + getSurfaceTilt(xSign * INNER_HALF, zSign * INNER_HALF);
+          return THREE.MathUtils.clamp(top, WATER_BOTTOM + 0.05, WATER_TOP_LIMIT);
+        }
+
+        function updateWaterBodyGeometry() {
+          const positions = bodyGeometry.attributes.position.array;
+          const blf = [-INNER_HALF, WATER_BOTTOM, -INNER_HALF];
+          const brf = [INNER_HALF, WATER_BOTTOM, -INNER_HALF];
+          const brr = [INNER_HALF, WATER_BOTTOM, INNER_HALF];
+          const blr = [-INNER_HALF, WATER_BOTTOM, INNER_HALF];
+          const tlf = [-INNER_HALF, getCornerY(-1, -1), -INNER_HALF];
+          const trf = [INNER_HALF, getCornerY(1, -1), -INNER_HALF];
+          const trr = [INNER_HALF, getCornerY(1, 1), INNER_HALF];
+          const tlr = [-INNER_HALF, getCornerY(-1, 1), INNER_HALF];
+
+          let offset = 0;
+          offset = setTriangle(positions, offset, blf, brr, brf);
+          offset = setTriangle(positions, offset, blf, blr, brr);
+          offset = setTriangle(positions, offset, blf, brf, trf);
+          offset = setTriangle(positions, offset, blf, trf, tlf);
+          offset = setTriangle(positions, offset, brf, brr, trr);
+          offset = setTriangle(positions, offset, brf, trr, trf);
+          offset = setTriangle(positions, offset, brr, blr, tlr);
+          offset = setTriangle(positions, offset, brr, tlr, trr);
+          offset = setTriangle(positions, offset, blr, blf, tlf);
+          offset = setTriangle(positions, offset, blr, tlf, tlr);
+
+          bodyGeometry.attributes.position.needsUpdate = true;
+          bodyGeometry.computeVertexNormals();
+        }
+
+        function updateSurfaceGeometry() {
+          const pourStrength = Math.max(0, 1 - Math.abs(simulation.elapsed - 3.1) / 4.5);
+          for (let i = 0; i < surfacePosition.count; i += 1) {
+            const x = baseSurfaceX[i];
+            const z = baseSurfaceZ[i];
+            const ripple = rippleHeight[i];
+            const edgeFade =
+              1 -
+              Math.max(Math.abs(x) / INNER_HALF, Math.abs(z) / INNER_HALF) * 0.18;
+            const y =
+              getAverageSurfaceY() +
+              getSurfaceTilt(x, z) +
+              ripple * edgeFade +
+              Math.sin(simulation.elapsed * 1.35 + x * 1.8 - z * 1.2) * 0.004 * pourStrength;
+            surfacePosition.setY(i, THREE.MathUtils.clamp(y, WATER_BOTTOM + 0.05, WATER_TOP_LIMIT));
+          }
+          surfacePosition.needsUpdate = true;
+          surfaceGeometry.computeVertexNormals();
+        }
+
+        function updateFoamLine() {
+          const linePoints = [];
+          const surfaceY = getAverageSurfaceY();
+          const amplitude = 0.02 + simulation.globalSlosh.length() * 0.08;
+          const samples = 48;
+          for (let i = 0; i <= samples; i += 1) {
+            const t = i / samples;
+            const x = THREE.MathUtils.lerp(-INNER_HALF * 0.92, INNER_HALF * 0.92, t);
+            const z =
+              Math.sin(t * Math.PI * 2 + simulation.elapsed * 0.8) * 0.05 +
+              Math.sin(t * Math.PI * 6 - simulation.elapsed * 1.6) * 0.02;
+            linePoints.push(
+              new THREE.Vector3(
+                x,
+                surfaceY + getSurfaceTilt(x, z) + Math.sin(t * Math.PI * 8 + simulation.elapsed * 3) * amplitude * 0.25,
+                z
+              )
+            );
+          }
+          foamLine.geometry.setFromPoints(linePoints);
+        }
+
+        function updateWaterline() {
+          const points = [];
+          const samples = 22;
+          const pushPoint = (x, z, offset) => {
+            points.push(
+              new THREE.Vector3(
+                x,
+                getAverageSurfaceY() +
+                  getSurfaceTilt(x, z) +
+                  Math.sin(simulation.elapsed * 2.2 + offset) * 0.01,
+                z
+              )
+            );
+          };
+
+          for (let i = 0; i <= samples; i += 1) {
+            const t = i / samples;
+            pushPoint(THREE.MathUtils.lerp(-INNER_HALF, INNER_HALF, t), -INNER_HALF, t * 4);
+          }
+          for (let i = 1; i <= samples; i += 1) {
+            const t = i / samples;
+            pushPoint(INNER_HALF, THREE.MathUtils.lerp(-INNER_HALF, INNER_HALF, t), 5 + t * 4);
+          }
+          for (let i = 1; i <= samples; i += 1) {
+            const t = i / samples;
+            pushPoint(THREE.MathUtils.lerp(INNER_HALF, -INNER_HALF, t), INNER_HALF, 10 + t * 4);
+          }
+          for (let i = 1; i <= samples; i += 1) {
+            const t = i / samples;
+            pushPoint(-INNER_HALF, THREE.MathUtils.lerp(INNER_HALF, -INNER_HALF, t), 15 + t * 4);
+          }
+          waterline.geometry.setFromPoints(points);
+          waterline.material.opacity = 0.5 + simulation.globalSlosh.length() * 0.16;
+        }
+
+        function updateWaterRim() {
+          const positions = waterRimGeometry.attributes.position.array;
+          const inset = 0.035;
+          const setPoint = (x, z) => [x, getAverageSurfaceY() + getSurfaceTilt(x, z) + 0.006, z];
+          const addQuad = (offset, a, b, c, d) => {
+            offset = setTriangle(positions, offset, a, b, c);
+            return setTriangle(positions, offset, a, c, d);
+          };
+
+          let offset = 0;
+          offset = addQuad(
+            offset,
+            setPoint(-INNER_HALF, -INNER_HALF),
+            setPoint(INNER_HALF, -INNER_HALF),
+            setPoint(INNER_HALF, -INNER_HALF + inset),
+            setPoint(-INNER_HALF, -INNER_HALF + inset)
+          );
+          offset = addQuad(
+            offset,
+            setPoint(INNER_HALF, -INNER_HALF),
+            setPoint(INNER_HALF, INNER_HALF),
+            setPoint(INNER_HALF - inset, INNER_HALF),
+            setPoint(INNER_HALF - inset, -INNER_HALF)
+          );
+          offset = addQuad(
+            offset,
+            setPoint(INNER_HALF, INNER_HALF),
+            setPoint(-INNER_HALF, INNER_HALF),
+            setPoint(-INNER_HALF, INNER_HALF - inset),
+            setPoint(INNER_HALF, INNER_HALF - inset)
+          );
+          addQuad(
+            offset,
+            setPoint(-INNER_HALF, INNER_HALF),
+            setPoint(-INNER_HALF, -INNER_HALF),
+            setPoint(-INNER_HALF + inset, -INNER_HALF),
+            setPoint(-INNER_HALF + inset, INNER_HALF)
+          );
+
+          waterRimGeometry.attributes.position.needsUpdate = true;
+        }
+
+        function placeTube(mesh, start, end) {
+          const direction = end.clone().sub(start);
+          const length = direction.length();
+          mesh.position.copy(start).add(end).multiplyScalar(0.5);
+          mesh.scale.set(1, length, 1);
+          mesh.quaternion.setFromUnitVectors(cylinderUp, direction.normalize());
+        }
+
+        function updateWaterlineTubes() {
+          const corners = [
+            new THREE.Vector3(-INNER_HALF, getCornerY(-1, -1) + 0.012, -INNER_HALF),
+            new THREE.Vector3(INNER_HALF, getCornerY(1, -1) + 0.012, -INNER_HALF),
+            new THREE.Vector3(INNER_HALF, getCornerY(1, 1) + 0.012, INNER_HALF),
+            new THREE.Vector3(-INNER_HALF, getCornerY(-1, 1) + 0.012, INNER_HALF),
+          ];
+          placeTube(waterlineTubes[0], corners[0], corners[1]);
+          placeTube(waterlineTubes[1], corners[1], corners[2]);
+          placeTube(waterlineTubes[2], corners[2], corners[3]);
+          placeTube(waterlineTubes[3], corners[3], corners[0]);
+          waterTubeMaterial.opacity = 0.72 + Math.min(0.16, simulation.globalSlosh.length() * 0.08);
+        }
+
+        function updateBubbles(dt) {
+          const positions = bubbleGeometry.attributes.position.array;
+          const surfaceY = getAverageSurfaceY();
+          const activation = easeOutCubic(
+            THREE.MathUtils.clamp((simulation.baseDepth - WATER_MIN_DEPTH) / WATER_TARGET_DEPTH, 0, 1)
+          );
+          for (let i = 0; i < bubbleCount; i += 1) {
+            const seed = bubbleSeeds[i];
+            seed.y += seed.speed * dt * (0.6 + activation * 0.8);
+            const cap =
+              surfaceY +
+              getSurfaceTilt(seed.x, seed.z) -
+              0.05 +
+              Math.sin(simulation.elapsed * 2 + i) * 0.02;
+            if (seed.y > cap) {
+              seed.y = WATER_BOTTOM + 0.06 + ((i * 7) % 19) * 0.035;
+              seed.x = THREE.MathUtils.clamp(
+                seed.x + Math.sin(simulation.elapsed * 0.6 + i) * 0.18,
+                -INNER_HALF * 0.82,
+                INNER_HALF * 0.82
+              );
+              seed.z = THREE.MathUtils.clamp(
+                seed.z + Math.cos(simulation.elapsed * 0.5 + i) * 0.18,
+                -INNER_HALF * 0.82,
+                INNER_HALF * 0.82
+              );
+            }
+            positions[i * 3] = seed.x;
+            positions[i * 3 + 1] = seed.y;
+            positions[i * 3 + 2] = seed.z;
+          }
+          bubbleGeometry.attributes.position.needsUpdate = true;
+          bubbleMaterial.opacity = 0.18 + activation * 0.48;
+          bubbleMaterial.size = 0.04 + activation * 0.02;
+        }
+
+        function updateRipples(dt) {
+          const spring = 18;
+          const damping = 1.75;
+          for (let z = 0; z < GRID; z += 1) {
+            for (let x = 0; x < GRID; x += 1) {
+              const index = z * GRID + x;
+              const left = x > 0 ? rippleHeight[index - 1] : rippleHeight[index] * 0.82;
+              const right =
+                x < GRID - 1 ? rippleHeight[index + 1] : rippleHeight[index] * 0.82;
+              const down =
+                z > 0 ? rippleHeight[index - GRID] : rippleHeight[index] * 0.82;
+              const up =
+                z < GRID - 1
+                  ? rippleHeight[index + GRID]
+                  : rippleHeight[index] * 0.82;
+              const laplacian = (left + right + down + up) * 0.25 - rippleHeight[index];
+              nextVelocity[index] =
+                rippleVelocity[index] +
+                (laplacian * spring - rippleVelocity[index] * damping) * dt;
+            }
+          }
+
+          let mean = 0;
+          for (let i = 0; i < RIPPLE_COUNT; i += 1) {
+            rippleVelocity[i] = nextVelocity[i];
+            rippleHeight[i] += rippleVelocity[i] * dt;
+            rippleHeight[i] = THREE.MathUtils.clamp(rippleHeight[i], -0.14, 0.14);
+            mean += rippleHeight[i];
+          }
+
+          mean /= RIPPLE_COUNT;
+          for (let i = 0; i < RIPPLE_COUNT; i += 1) {
+            rippleHeight[i] -= mean;
+          }
+        }
+
+        function updatePour(dt) {
+          const pourDuration = 5.4;
+          const fadeDuration = 1.3;
+          const t = simulation.elapsed;
+          const fillProgress = easeOutCubic(Math.min(t / pourDuration, 1));
+          simulation.baseDepth = WATER_MIN_DEPTH + fillProgress * WATER_TARGET_DEPTH;
+
+          const pouring = t < pourDuration + fadeDuration;
+          const streamOpacity =
+            t < pourDuration
+              ? 0.82
+              : THREE.MathUtils.clamp(1 - (t - pourDuration) / fadeDuration, 0, 1) * 0.82;
+
+          if (pouring) {
+            const topY = 1.42;
+            const bottomY = getAverageSurfaceY() + 0.12;
+            const length = Math.max(0.28, topY - bottomY);
+            const sway = Math.sin(t * 3.8) * 0.035;
+            streamMesh.visible = streamOpacity > 0.01;
+            streamMesh.scale.set(1 + Math.sin(t * 16) * 0.05, length, 1 + Math.cos(t * 18) * 0.04);
+            streamMesh.position.set(0.18 + sway, (topY + bottomY) * 0.5, -0.1);
+            streamMaterial.opacity = streamOpacity;
+
+            const impactX = 0.18 + sway * 0.8;
+            const impactZ = -0.1;
+            addLocalRipple(
+              impactX,
+              impactZ,
+              -0.012 - Math.sin(t * 24) * 0.002,
+              0.19 + Math.sin(t * 4.5) * 0.02
+            );
+            addGlobalImpulse(Math.sin(t * 1.5) * 2.2, Math.cos(t * 1.2) * 1.6, 0.6 * dt * 60);
+
+            impactRing.visible = true;
+            impactRing.position.set(impactX, getAverageSurfaceY() + getSurfaceTilt(impactX, impactZ), impactZ);
+            const ringPulse = 1 + Math.sin(t * 11) * 0.12;
+            impactRing.scale.setScalar(ringPulse);
+            impactRingMaterial.opacity = 0.22 + Math.sin(t * 10) * 0.08;
+
+            statusPill.textContent = t < pourDuration ? "Pouring" : "Settling";
+          } else {
+            streamMesh.visible = false;
+            impactRing.visible = false;
+            statusPill.textContent = "Interactive slosh";
+          }
+        }
+
+        function updateGlobalSlosh(dt) {
+          simulation.globalVelocity.x += -simulation.globalSlosh.x * 2.8 * dt;
+          simulation.globalVelocity.y += -simulation.globalSlosh.y * 2.6 * dt;
+          simulation.globalVelocity.multiplyScalar(Math.exp(-1.25 * dt));
+          simulation.globalSlosh.addScaledVector(simulation.globalVelocity, dt);
+          simulation.globalSlosh.clampLength(0, 1.65);
+        }
+
+        function updateCamera(dt) {
+          orbit.theta += (orbit.desiredTheta - orbit.theta) * Math.min(1, dt * 8);
+          orbit.phi += (orbit.desiredPhi - orbit.phi) * Math.min(1, dt * 8);
+          orbit.distance +=
+            (orbit.desiredDistance - orbit.distance) * Math.min(1, dt * 8);
+
+          const sinPhi = Math.sin(orbit.phi);
+          camera.position.set(
+            orbit.target.x + orbit.distance * sinPhi * Math.sin(orbit.theta),
+            orbit.target.y + orbit.distance * Math.cos(orbit.phi),
+            orbit.target.z + orbit.distance * sinPhi * Math.cos(orbit.theta)
+          );
+          camera.lookAt(orbit.target);
+        }
+
+        function animate() {
+          requestAnimationFrame(animate);
+          const dt = Math.min(clock.getDelta(), 1 / 30);
+          simulation.elapsed += dt;
+
+          updatePour(dt);
+          updateGlobalSlosh(dt);
+          updateRipples(dt);
+          updateWaterBodyGeometry();
+          updateSurfaceGeometry();
+          updateFoamLine();
+          updateWaterline();
+          updateWaterRim();
+          updateWaterlineTubes();
+          updateBubbles(dt);
+          updateCamera(dt);
+
+          const glowPulse = 0.05 + Math.sin(simulation.elapsed * 1.1) * 0.015;
+          halo.material.opacity = glowPulse;
+          pedestal.rotation.y += dt * 0.08;
+
+          renderer.render(scene, camera);
+        }
+
+        function resetSimulation() {
+          simulation.elapsed = 0;
+          simulation.baseDepth = WATER_MIN_DEPTH;
+          simulation.globalSlosh.set(0, 0);
+          simulation.globalVelocity.set(0, 0);
+          rippleHeight.fill(0);
+          rippleVelocity.fill(0);
+          nextVelocity.fill(0);
+
+          for (let i = 0; i < bubbleCount; i += 1) {
+            const seed = bubbleSeeds[i];
+            seed.y = WATER_BOTTOM + 0.08 + (((i * 11) % 23) / 23) * 0.7;
+          }
+
+          statusPill.textContent = "Pouring";
+          addGlobalImpulse(10, -8, 0.12);
+        }
+
+        function handlePointerMove(event) {
+          if (!Number.isFinite(orbit.lastX) || !Number.isFinite(orbit.lastY)) {
+            orbit.lastX = event.clientX;
+            orbit.lastY = event.clientY;
+            return;
+          }
+
+          const dx = event.clientX - orbit.lastX;
+          const dy = event.clientY - orbit.lastY;
+          orbit.lastX = event.clientX;
+          orbit.lastY = event.clientY;
+
+          if (Math.abs(dx) + Math.abs(dy) < 0.01) {
+            return;
+          }
+
+          const pointerPoint = worldToWaterPoint(event.clientX, event.clientY);
+          const speed = Math.min(1.2, Math.hypot(dx, dy) / 26);
+          addGlobalImpulse(dx, dy, orbit.dragging ? 1.7 : 0.95);
+          addLocalRipple(
+            pointerPoint.x,
+            pointerPoint.z,
+            (dy <= 0 ? 0.012 : -0.012) * speed,
+            orbit.dragging ? 0.22 : 0.16
+          );
+
+          if (orbit.dragging) {
+            orbit.desiredTheta -= dx * 0.0064;
+            orbit.desiredPhi = THREE.MathUtils.clamp(
+              orbit.desiredPhi + dy * 0.0044,
+              0.52,
+              1.4
+            );
+          }
+        }
+
+        stage.addEventListener("pointerdown", (event) => {
+          orbit.dragging = true;
+          orbit.lastX = event.clientX;
+          orbit.lastY = event.clientY;
+          stage.classList.add("dragging");
+          stage.setPointerCapture(event.pointerId);
+        });
+
+        stage.addEventListener("pointermove", handlePointerMove);
+
+        stage.addEventListener("pointerup", (event) => {
+          orbit.dragging = false;
+          stage.classList.remove("dragging");
+          orbit.lastX = Number.NaN;
+          orbit.lastY = Number.NaN;
+          if (stage.hasPointerCapture(event.pointerId)) {
+            stage.releasePointerCapture(event.pointerId);
+          }
+        });
+
+        stage.addEventListener("pointerleave", () => {
+          orbit.dragging = false;
+          orbit.lastX = Number.NaN;
+          orbit.lastY = Number.NaN;
+          stage.classList.remove("dragging");
+        });
+
+        stage.addEventListener(
+          "wheel",
+          (event) => {
+            event.preventDefault();
+            orbit.desiredDistance = THREE.MathUtils.clamp(
+              orbit.desiredDistance + event.deltaY * 0.0024,
+              2.8,
+              7
+            );
+          },
+          { passive: false }
+        );
+
+        resetButton.addEventListener("click", resetSimulation);
+        window.addEventListener("keydown", (event) => {
+          if (event.key === "r" || event.key === "R") {
+            resetSimulation();
+          }
+        });
+
+        window.addEventListener("resize", () => {
+          camera.aspect = window.innerWidth / window.innerHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(window.innerWidth, window.innerHeight);
+          renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        });
+
+        updateCamera(1);
+        resetSimulation();
+        animate();
+      })();
+    </script>
+  </body>
+</html>

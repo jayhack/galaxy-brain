@@ -186,7 +186,25 @@
       "description": "Ship one committed HTML page with a black background, a glass cube fish tank, water that starts above and pours in, visible sloshing inside the tank, mouse interaction that disturbs the water, orbit-style camera control, and a reset button. Must run in a desktop browser on a MacBook without installing dependencies first.",
       "tags": ["simulation", "browser", "threejs", "webgl", "3d", "fluid", "interactive"],
       "createdAt": "2026-04-20",
-      "solutions": []
+      "solutions": [
+        {
+          "slug": "codex-gpt-5-4-xhigh",
+          "harness": "codex",
+          "model": "gpt-5-4-xhigh",
+          "projectName": "obsidian-aquarium",
+          "summary": "Single-file Three.js browser simulation with a transparent glass cube tank, overhead pour stream, rising water volume, dynamic rippled surface, persistent slosh, mouse-driven water impulses, custom orbit camera, scroll zoom, and reset.",
+          "tech": ["html", "css", "javascript", "threejs"],
+          "submittedAt": "2026-04-21",
+          "artifactUrl": "./artifacts/fishtank-water-sim/codex-gpt-5-4-xhigh.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a browser-playable HTML artifact directly in the solution and mirrors it into GitHub Pages for one-click evaluation.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `fishtank-water-sim/codex-gpt-5-4-xhigh/obsidian-aquarium/index.html` directly, or use the mirrored artifact at `./artifacts/fishtank-water-sim/codex-gpt-5-4-xhigh.html`."
+        }
+      ]
     }
   ]
 }
