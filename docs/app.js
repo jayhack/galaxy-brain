@@ -166,9 +166,19 @@ async function fetchMarkdown(url) {
   }
 }
 
+function normalizeMarkdownForMarked(md) {
+  // Marked's GFM parser treats two-space sublists under ordered items as a new
+  // top-level list. Normalize that common README style before rendering.
+  return String(md ?? "").replace(
+    /(^\d{1,9}[.)]\s+[^\n]*(?:\n|$))((?: {2}[-+*]\s+[^\n]*(?:\n|$))+)/gm,
+    (_match, listItem, nestedList) =>
+      `${listItem}${nestedList.replace(/^ {2}([-+*]\s+)/gm, "   $1")}`
+  );
+}
+
 function renderMarkdown(md) {
   marked.setOptions({ gfm: true, breaks: false, mangle: false, headerIds: true });
-  const html = marked.parse(md);
+  const html = marked.parse(normalizeMarkdownForMarked(md));
   return DOMPurify.sanitize(html, { ADD_ATTR: ["target", "rel"] });
 }
 
@@ -621,16 +631,16 @@ function viewEval(route) {
         <span class="text-xs text-base-content/50 font-mono">${esc(promptPath)}</span>
       </div>
       <div class="relative ${ui.roundedPanel}">
-        <div class="absolute top-3 right-3 z-10">
+        <div class="absolute top-2 right-2 z-10">
           <button
             type="button"
             id="prompt-copy-btn"
-            class="${ui.btnPrimarySmCopy}"
+            class="${ui.btnGhostXsCopy}"
             disabled
             aria-label="Copy prompt markdown to clipboard"
           >
-            ${copyIconSvg("w-4 h-4")}
-            <span class="prompt-copy-label font-semibold">Copy</span>
+            ${copyIconSvg("w-3.5 h-3.5")}
+            <span class="prompt-copy-label">copy</span>
           </button>
         </div>
         <article id="prompt-md" class="${ui.prosePrompt}">
@@ -659,13 +669,12 @@ function viewEval(route) {
       const label = copyBtn.querySelector(".prompt-copy-label");
       if (!label) return;
       const prev = label.textContent;
-      label.textContent = ok ? "Copied!" : "Copy failed";
-      copyBtn.classList.remove(ui.btnPrimary);
-      copyBtn.classList.add(ok ? ui.btnSuccess : ui.btnError);
+      label.textContent = ok ? "copied" : "failed";
+      copyBtn.classList.remove(ui.copyFeedbackSuccess, ui.copyFeedbackError);
+      copyBtn.classList.add(ok ? ui.copyFeedbackSuccess : ui.copyFeedbackError);
       window.setTimeout(() => {
         label.textContent = prev;
-        copyBtn.classList.remove(ui.btnSuccess, ui.btnError);
-        copyBtn.classList.add(ui.btnPrimary);
+        copyBtn.classList.remove(ui.copyFeedbackSuccess, ui.copyFeedbackError);
       }, 2000);
     });
   });
