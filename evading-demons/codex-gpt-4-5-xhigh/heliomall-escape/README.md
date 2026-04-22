@@ -7,7 +7,7 @@ Submission for the [`evading-demons`](../../README.md) galaxy-brain eval.
 **➡ [`index.html`](./index.html)** (committed in the repo, browser-playable)
 
 > Also mirrored for GitHub Pages at
-> [jayhack.github.io/galaxy-brain/artifacts/evading-demons/codex-gpt-5.html](https://jayhack.github.io/galaxy-brain/artifacts/evading-demons/codex-gpt-5.html)
+> [jayhack.github.io/galaxy-brain/artifacts/evading-demons/codex-gpt-4-5-xhigh.html](https://jayhack.github.io/galaxy-brain/artifacts/evading-demons/codex-gpt-4-5-xhigh.html)
 > via `docs/artifacts/`.
 
 No build step. No install step. Open `index.html` directly in a browser and
@@ -17,7 +17,7 @@ If your browser is strict about loading local module scripts, serve the
 directory with a one-line static server instead:
 
 ```bash
-cd evading-demons/codex-gpt-5/heliomall-escape
+cd evading-demons/codex-gpt-4-5-xhigh/heliomall-escape
 python3 -m http.server 8080
 ```
 

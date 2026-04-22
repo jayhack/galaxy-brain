@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fish tank — pour &amp; slosh (GPT-5.4)</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      font-family: system-ui, Segoe UI, Roboto, sans-serif;
+    }
+    #hud {
+      position: fixed;
+      left: 12px;
+      top: 12px;
+      z-index: 10;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    #hud button {
+      background: #1a1a1a;
+      color: #e8e8e8;
+      border: 1px solid #444;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    #hud button:hover { background: #2a2a2a; }
+    #hint {
+      color: #888;
+      font-size: 12px;
+      max-width: 340px;
+      line-height: 1.35;
+    }
+  </style>
+</head>
+<body>
+  <div id="hud">
+    <button type="button" id="resetBtn">Reset</button>
+    <span id="hint">Drag = orbit · Scroll = zoom · Move mouse over the tank to ripple the surface</span>
+  </div>
+
+  <script type="module">
+    import * as THREE from "https://esm.sh/three@0.170.0";
+    import { OrbitControls } from "https://esm.sh/three@0.170.0/examples/jsm/controls/OrbitControls.js";
+
+    const TANK_SIZE = 2;
+    const TANK_HALF = TANK_SIZE * 0.5;
+    const GRID = 44;
+    const CELL = TANK_SIZE / (GRID - 1);
+
+    const WAVE_C2 = 3.35 * 3.35;
+    const DAMP_PER_S = 0.78;
+    const POUR_SEC = 4.0;
+    const TARGET_FILL = 0.76;
+    const H_CLAMP = 0.26;
+
+    let scene, camera, renderer, controls;
+    let waterMesh, pourGroup;
+    let heightField, velField;
+    const clock = new THREE.Clock();
+
+    let simClock = 0;
+
+    const raycaster = new THREE.Raycaster();
+    const ndc = new THREE.Vector2();
+    const waterPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+    const planeHit = new THREE.Vector3();
+
+    let dragVX = 0;
+    let dragVY = 0;
+    let lastClient = { x: 0, y: 0 };
+
+    function cellIndex(i, j) {
+      return i + j * GRID;
+    }
+
+    function resetSimulation() {
+      simClock = 0;
+      dragVX = 0;
+      dragVY = 0;
+      for (let i = 0; i < GRID * GRID; i++) {
+        heightField[i] = 0;
+        velField[i] = 0;
+      }
+    }
+
+    function initFields() {
+      const n = GRID * GRID;
+      heightField = new Float32Array(n);
+      velField = new Float32Array(n);
+      resetSimulation();
+    }
+
+    function buildWaterSurface() {
+      const geom = new THREE.PlaneGeometry(TANK_SIZE, TANK_SIZE, GRID - 1, GRID - 1);
+      geom.rotateX(-Math.PI / 2);
+      const pos = geom.attributes.position;
+      for (let j = 0; j < GRID; j++) {
+        for (let i = 0; i < GRID; i++) {
+          const ix = cellIndex(i, j);
+          pos.setXYZ(ix, -TANK_HALF + i * CELL, 0, -TANK_HALF + j * CELL);
+        }
+      }
+
+      const mat = new THREE.MeshPhysicalMaterial({
+        color: 0x1aa6c4,
+        metalness: 0.05,
+        roughness: 0.12,
+        transmission: 0.55,
+        thickness: 0.4,
+        ior: 1.33,
+        clearcoat: 0.38,
+        clearcoatRoughness: 0.12,
+        envMapIntensity: 0.9,
+        side: THREE.DoubleSide,
+      });
+
+      const mesh = new THREE.Mesh(geom, mat);
+      mesh.renderOrder = 1;
+      return mesh;
+    }
+
+    function buildTankGlass() {
+      const root = new THREE.Group();
+      const outer = new THREE.BoxGeometry(TANK_SIZE + 0.02, TANK_SIZE + 0.02, TANK_SIZE + 0.02);
+
+      const glass = new THREE.MeshPhysicalMaterial({
+        color: 0xffffff,
+        metalness: 0,
+        roughness: 0.04,
+        transmission: 0.97,
+        thickness: 0.1,
+        ior: 1.52,
+        transparent: true,
+        opacity: 0.12,
+        depthWrite: false,
+        side: THREE.DoubleSide,
+      });
+
+      const shell = new THREE.Mesh(outer, glass);
+      shell.renderOrder = 2;
+      root.add(shell);
+
+      root.add(
+        new THREE.LineSegments(
+          new THREE.EdgesGeometry(outer),
+          new THREE.LineBasicMaterial({ color: 0xc8dcfc, transparent: true, opacity: 0.92 })
+        )
+      );
+
+      const stand = new THREE.Mesh(
+        new THREE.PlaneGeometry(TANK_SIZE + 0.4, TANK_SIZE + 0.4),
+        new THREE.MeshStandardMaterial({ color: 0x0a0a0a, roughness: 0.94, metalness: 0.1 })
+      );
+      stand.geometry.rotateX(-Math.PI / 2);
+      stand.position.y = -TANK_HALF - 0.018;
+      root.add(stand);
+
+      return root;
+    }
+
+    function buildPourVfx() {
+      const g = new THREE.Group();
+      const curve = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(0, TANK_HALF + 0.92, 0),
+        new THREE.Vector3(0.05, TANK_HALF + 0.5, -0.02),
+        new THREE.Vector3(0, TANK_HALF + 0.1, 0.01),
+      ]);
+      const tube = new THREE.Mesh(
+        new THREE.TubeGeometry(curve, 22, 0.08, 10, false),
+        new THREE.MeshPhysicalMaterial({
+          color: 0x6ae8ff,
+          transmission: 0.6,
+          roughness: 0.08,
+          thickness: 0.32,
+          transparent: true,
+          opacity: 0.95,
+          depthWrite: false,
+        })
+      );
+      g.add(tube);
+
+      const dropCount = 220;
+      const buf = new Float32Array(dropCount * 3);
+      const dropGeom = new THREE.BufferGeometry();
+      dropGeom.setAttribute('position', new THREE.BufferAttribute(buf, 3));
+      const drops = new THREE.Points(
+        dropGeom,
+        new THREE.PointsMaterial({
+          color: 0xcffbff,
+          size: 0.04,
+          transparent: true,
+          opacity: 0.9,
+          depthWrite: false,
+          sizeAttenuation: true,
+        })
+      );
+      g.add(drops);
+
+      const funnel = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.14, 0.09, 0.22, 16, 1, true),
+        new THREE.MeshPhysicalMaterial({
+          color: 0x8899aa,
+          metalness: 0.65,
+          roughness: 0.35,
+          side: THREE.DoubleSide,
+        })
+      );
+      funnel.position.set(0, TANK_HALF + 1.12, 0);
+      g.add(funnel);
+
+      return { group: g, positions: buf, dropPoints: drops, tube };
+    }
+
+    function updatePourVfx(strength) {
+      if (!pourGroup) return;
+      const { positions, dropPoints, tube } = pourGroup.userData;
+      const n = positions.length / 3;
+      const top = TANK_HALF + 1.02;
+      const mouth = TANK_HALF + 0.035;
+      for (let i = 0; i < n; i++) {
+        const t = (i / n + simClock * 2.2) % 1;
+        const sw = Math.sin(i * 8.8 + simClock * 10.5) * 0.055;
+        positions[i * 3] = sw;
+        positions[i * 3 + 1] = THREE.MathUtils.lerp(mouth, top, t);
+        positions[i * 3 + 2] = Math.cos(i * 3.1 + simClock * 4.8) * 0.048;
+      }
+      dropPoints.geometry.attributes.position.needsUpdate = true;
+      pourGroup.visible = strength > 0.05;
+      if (tube.material) {
+        tube.material.opacity = Math.min(1, strength * 1.3);
+      }
+    }
+
+    function waveIntegrate(dt, pour) {
+      const invCell2 = 1 / (CELL * CELL);
+
+      for (let j = 1; j < GRID - 1; j++) {
+        for (let i = 1; i < GRID - 1; i++) {
+          const k = cellIndex(i, j);
+          const lap =
+            heightField[cellIndex(i + 1, j)] +
+            heightField[cellIndex(i - 1, j)] +
+            heightField[cellIndex(i, j + 1)] +
+            heightField[cellIndex(i, j - 1)] -
+            4 * heightField[k];
+
+          velField[k] += WAVE_C2 * lap * invCell2 * dt;
+          velField[k] *= Math.exp(-DAMP_PER_S * dt);
+
+          const wx = -TANK_HALF + i * CELL;
+          const wz = -TANK_HALF + j * CELL;
+          const inflow =
+            pour * 0.013 * Math.exp(-(wx * wx + wz * wz) * 4.0) * dt * 54;
+          velField[k] += inflow;
+
+          heightField[k] += velField[k] * dt;
+          heightField[k] = THREE.MathUtils.clamp(heightField[k], -H_CLAMP, H_CLAMP);
+        }
+      }
+
+      for (let j = 0; j < GRID; j++) {
+        for (let i = 0; i < GRID; i++) {
+          if (i > 0 && i < GRID - 1 && j > 0 && j < GRID - 1) continue;
+          const k = cellIndex(i, j);
+          const ii = i === 0 ? 1 : i === GRID - 1 ? GRID - 2 : i;
+          const jj = j === 0 ? 1 : j === GRID - 1 ? GRID - 2 : j;
+          const kin = cellIndex(ii, jj);
+          heightField[k] = heightField[kin] * 0.87;
+          velField[k] = velField[kin] * 0.22;
+        }
+      }
+    }
+
+    function pointerRipple(dt) {
+      const sp = Math.hypot(dragVX, dragVY);
+      if (sp < 0.14) {
+        dragVX *= 0.86;
+        dragVY *= 0.86;
+        return;
+      }
+
+      ndc.x = (lastClient.x / window.innerWidth) * 2 - 1;
+      ndc.y = -(lastClient.y / window.innerHeight) * 2 + 1;
+      raycaster.setFromCamera(ndc, camera);
+
+      const baseY = waterMesh.userData.baseY ?? 0;
+      waterPlane.constant = -baseY;
+      if (!raycaster.ray.intersectPlane(waterPlane, planeHit)) return;
+      if (
+        planeHit.x < -TANK_HALF + 0.025 ||
+        planeHit.x > TANK_HALF - 0.025 ||
+        planeHit.z < -TANK_HALF + 0.025 ||
+        planeHit.z > TANK_HALF - 0.025
+      ) {
+        dragVX *= 0.88;
+        dragVY *= 0.88;
+        return;
+      }
+
+      const gi = Math.round((planeHit.x + TANK_HALF) / CELL);
+      const gj = Math.round((planeHit.z + TANK_HALF) / CELL);
+      const impulse =
+        sp *
+        0.00011 *
+        (1 + camera.position.length() * 0.055) *
+        Math.min(1, dt * 60);
+
+      const r = 4;
+      for (let dj = -r; dj <= r; dj++) {
+        for (let di = -r; di <= r; di++) {
+          const ci = gi + di;
+          const cj = gj + dj;
+          if (ci < 1 || ci >= GRID - 1 || cj < 1 || cj >= GRID - 1) continue;
+          const d = Math.hypot(di, dj) + 0.35;
+          const kk = cellIndex(ci, cj);
+          velField[kk] += (impulse / d) * (0.9 + ((ci ^ cj) & 5) * 0.015);
+        }
+      }
+
+      dragVX *= 0.64;
+      dragVY *= 0.64;
+    }
+
+    function pourKick() {
+      const cx = Math.floor(GRID / 2);
+      const cz = Math.floor(GRID / 2);
+      const radius = 6;
+      const fade = Math.max(0, 1 - simClock / POUR_SEC);
+      const mag = 0.075 * fade;
+      for (let j = cz - radius; j <= cz + radius; j++) {
+        for (let i = cx - radius; i <= cx + radius; i++) {
+          if (i < 1 || i >= GRID - 1 || j < 1 || j >= GRID - 1) continue;
+          const d = Math.hypot(i - cx, j - cz);
+          if (d > radius) continue;
+          const k = cellIndex(i, j);
+          velField[k] += mag * (1 - d / radius) * 0.038;
+        }
+      }
+    }
+
+    function onPointerMove(e) {
+      dragVX += e.movementX;
+      dragVY += e.movementY;
+      lastClient.x = e.clientX;
+      lastClient.y = e.clientY;
+    }
+
+    function onResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    function init() {
+      initFields();
+
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x000000);
+
+      camera = new THREE.PerspectiveCamera(47, window.innerWidth / window.innerHeight, 0.07, 100);
+      camera.position.set(3.4, 2.4, 4.35);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.0;
+      document.body.appendChild(renderer.domElement);
+
+      controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.065;
+      controls.minDistance = 2.2;
+      controls.maxDistance = 13;
+      controls.maxPolarAngle = Math.PI * 0.49;
+      controls.target.set(0, 0.12, 0);
+
+      const pmrem = new THREE.PMREMGenerator(renderer);
+      const envDummy = new THREE.Scene();
+      envDummy.background = new THREE.Color(0x10141c);
+      const envMap = pmrem.fromScene(envDummy).texture;
+      scene.environment = envMap;
+      pmrem.dispose();
+
+      scene.add(new THREE.AmbientLight(0x3a4a60, 0.52));
+      const sun = new THREE.DirectionalLight(0xffffff, 1.05);
+      sun.position.set(5.5, 8.5, 3.8);
+      scene.add(sun);
+      const fill = new THREE.DirectionalLight(0x9bb4dd, 0.38);
+      fill.position.set(-5.5, 2, -6);
+      scene.add(fill);
+
+      scene.add(buildTankGlass());
+
+      waterMesh = buildWaterSurface();
+      scene.add(waterMesh);
+
+      const vfx = buildPourVfx();
+      pourGroup = vfx.group;
+      pourGroup.userData = {
+        positions: vfx.positions,
+        dropPoints: vfx.dropPoints,
+        tube: vfx.tube,
+      };
+      scene.add(pourGroup);
+
+      window.addEventListener('resize', onResize);
+      window.addEventListener('pointermove', onPointerMove);
+      document.getElementById('resetBtn').addEventListener('click', resetSimulation);
+
+      lastClient.x = window.innerWidth * 0.5;
+      lastClient.y = window.innerHeight * 0.42;
+    }
+
+    function tick() {
+      requestAnimationFrame(tick);
+      const dt = Math.min(clock.getDelta(), 0.052);
+      simClock += dt;
+
+      const u = Math.min(1, simClock / POUR_SEC);
+      const smooth = u * u * (3 - 2 * u);
+      const fillLevel = smooth * TARGET_FILL;
+      const pourAmt = Math.max(0, 1 - u / 0.88);
+
+      if (u < 1) pourKick();
+
+      const baseY = -TANK_HALF + 0.035 + fillLevel * (TANK_SIZE - 0.1);
+      waterMesh.userData.baseY = baseY;
+
+      waveIntegrate(dt, pourAmt * (u < 0.96 ? 1 : 0));
+      pointerRipple(dt);
+
+      const pos = waterMesh.geometry.attributes.position;
+      for (let j = 0; j < GRID; j++) {
+        for (let i = 0; i < GRID; i++) {
+          const k = cellIndex(i, j);
+          pos.setY(k, heightField[k]);
+        }
+      }
+      pos.needsUpdate = true;
+      waterMesh.geometry.computeVertexNormals();
+      waterMesh.position.y = baseY;
+
+      updatePourVfx(pourAmt);
+
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    init();
+    tick();
+  </script>
+</body>
+</html>

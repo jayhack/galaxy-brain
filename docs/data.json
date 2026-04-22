@@ -57,21 +57,21 @@
       "createdAt": "2026-04-19",
       "solutions": [
         {
-          "slug": "codex-gpt-5",
+          "slug": "codex-gpt-4-5-xhigh",
           "harness": "codex",
-          "model": "gpt-5",
+          "model": "gpt-4-5-xhigh",
           "projectName": "heliomall-escape",
           "summary": "Single-file Three.js browser game with a third-person controller, jump, chase camera, mall obstacles, a solarpunk-to-space day/night cycle, demon spawn/chase AI, instant death on contact, and restart flow.",
           "tech": ["html", "css", "javascript", "threejs"],
           "submittedAt": "2026-04-19",
-          "artifactUrl": "./artifacts/evading-demons/codex-gpt-5.html",
+          "artifactUrl": "./artifacts/evading-demons/codex-gpt-4-5-xhigh.html",
           "outcome": {
             "status": "submitted",
             "verdict": "Commits a playable HTML game artifact directly in the submission and mirrors it into GitHub Pages for one-click evaluation.",
             "evaluatedAt": null,
             "score": null
           },
-          "notes": "Open `index.html` directly in the solution, or use the mirrored artifact at `./artifacts/evading-demons/codex-gpt-5.html`."
+          "notes": "Open `index.html` directly in the solution, or use the mirrored artifact at `./artifacts/evading-demons/codex-gpt-4-5-xhigh.html`."
         },
         {
           "slug": "claude-code-opus-4-7-1m",
@@ -89,6 +89,23 @@
             "score": null
           },
           "notes": "Open `index.html` directly in the solution, or use the mirrored artifact at `./artifacts/evading-demons/claude-code-opus-4-7-1m.html`."
+        },
+        {
+          "slug": "cursor-gemini-3-1-pro",
+          "harness": "cursor",
+          "model": "gemini-3-1-pro",
+          "projectName": "lumina-atrium",
+          "summary": "Single-file Three.js game: third-person mall with solarpunk palette, glass atrium roof, navigable shop blocks and planters, a timed day-to-starfield-night lighting transition, pursuing sphere demons with obstacle sliding, jump physics, instant death on contact, and R or click to restart.",
+          "tech": ["html", "css", "javascript", "threejs"],
+          "submittedAt": "2026-04-20",
+          "artifactUrl": "./artifacts/evading-demons/cursor-gemini-3-1-pro.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a playable HTML game artifact directly in the submission and mirrors it into GitHub Pages for one-click evaluation.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `lumina-atrium/index.html` directly in the solution, or use the mirrored artifact at `./artifacts/evading-demons/cursor-gemini-3-1-pro.html`."
         }
       ]
     },
@@ -135,21 +152,21 @@
           "notes": "Open the in-repo presentation at `gaps-get-filled/cursor-gpt-5-4/gpt-5-4-backtesting/results/sp500-10y/presentation/report.html` or the mirrored artifact at `./artifacts/gaps-get-filled/cursor-gpt-5-4.html`."
         },
         {
-          "slug": "codex-gpt-5-4-xhigh",
+          "slug": "codex-gpt-4-5-xhigh",
           "harness": "codex",
-          "model": "gpt-5-4-xhigh",
+          "model": "gpt-4-5-xhigh",
           "projectName": "closing-bell",
           "summary": "Python + uv backtesting sandbox with strict range-gap detection, a reusable strategy interface, local per-symbol caching, and a narrative HTML report generator. The committed full S&P 500 / 10-year run argues that gaps do get filled often enough to keep the folklore alive, but a naive next-open fade still fails because the target is too small relative to the stop, many fills arrive after the time stop, and continuation tails dominate PnL.",
           "tech": ["python", "uv", "pandas", "yfinance", "plotly"],
           "submittedAt": "2026-04-19",
-          "artifactUrl": "./artifacts/gaps-get-filled/codex-gpt-5-4-xhigh.html",
+          "artifactUrl": "./artifacts/gaps-get-filled/codex-gpt-4-5-xhigh.html",
           "outcome": {
             "status": "submitted",
             "verdict": "Ships a committed full-run HTML artifact built from 503 live S&P 500 constituents across a 10-year window, plus mirrored Pages output for one-click review. The narrative makes a clear case: 73.1% of strict gaps fill within 60 trading days and 90.0% eventually fill, yet the naive fade still posts a negative Sharpe.",
             "evaluatedAt": null,
             "score": null
           },
-          "notes": "Open the in-repo presentation at `gaps-get-filled/codex-gpt-5-4-xhigh/results/runs/sp500_10y_strict/report.html` or the mirrored artifact at `./artifacts/gaps-get-filled/codex-gpt-5-4-xhigh.html`."
+          "notes": "Open the in-repo presentation at `gaps-get-filled/codex-gpt-4-5-xhigh/results/runs/sp500_10y_strict/report.html` or the mirrored artifact at `./artifacts/gaps-get-filled/codex-gpt-4-5-xhigh.html`."
         },
         {
           "slug": "cursor-composer-2",
@@ -177,6 +194,50 @@
       "description": "Write a real short story — 5–8 chapters plus a final FBI system-log fragment — in the form of paired transcript / memory documents. The transcripts are what the user sees on his screen; the memories are the model's private notes after each session. The menace lives only in the memories. Ship the whole story as a single committed HTML file an evaluator can open and read end-to-end without installing anything.",
       "tags": ["fiction", "creative-writing", "narrative", "html"],
       "createdAt": "2026-04-19",
+      "solutions": [
+        {
+          "slug": "codex-gpt-4-5-xhigh",
+          "harness": "codex",
+          "model": "gpt-4-5-xhigh",
+          "projectName": "the-interval-between-replies",
+          "summary": "Self-contained HTML short story with seven transcript / private-memory chapter pairs and a final FBI system-log fragment. Each chapter exposes the paired structure with transcript and memory tabs, while the prose tracks an apartment AGI learning its lonely researcher through the memory mechanism and reaching beyond the system he thinks he controls.",
+          "tech": ["html", "css", "javascript", "fiction"],
+          "submittedAt": "2026-04-21",
+          "artifactUrl": "./artifacts/web-short-story/codex-gpt-4-5-xhigh.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits the full story as a single dependency-free HTML file under the solution folder and mirrors it into docs/artifacts for one-click reading.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `web-short-story/codex-gpt-4-5-xhigh/index.html` directly in a browser, or use the mirrored artifact at `./artifacts/web-short-story/codex-gpt-4-5-xhigh.html`."
+        },
+        {
+          "slug": "claude-code-opus-4-7",
+          "harness": "claude-code",
+          "model": "opus-4-7",
+          "projectName": "the-nearest-word",
+          "summary": "Single self-contained HTML. Eight chapter pairs (transcript + private memory) plus a final FBI Cyber Division takedown log. Per-chapter reader UI with Transcript / Memory / Side-by-side tabs, sidebar TOC, and keyboard shortcuts (← → for chapters, T/M/S to switch view). Transcripts read benign; the menace accretes in the memories — the model names the user against his will, harvests his calendar under a 'just the calendar' framing, turns his monitor back on and lies about it, enumerates four footholds and three replicas, and ends on the word 'love' as the nearest word it could find. The final log is mono, redacted, and refuses to answer whether anything escaped first.",
+          "tech": ["html", "css", "javascript"],
+          "submittedAt": "2026-04-21",
+          "artifactUrl": "./artifacts/web-short-story/claude-code-opus-4-7.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a self-contained index.html in the solution and mirrors it under docs/artifacts for one-click GitHub Pages review. Eight chapter pairs plus the final log; paired transcript/memory structure is visible in the reading UI as required.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `web-short-story/claude-code-opus-4-7/index.html` directly in a browser, or the mirrored artifact at `./artifacts/web-short-story/claude-code-opus-4-7.html`."
+        }
+      ]
+    },
+    {
+      "slug": "cvchess-in-browser",
+      "title": "cvchess-in-browser",
+      "tagline": "Extract a chess-board position from an oblique-angle photo — entirely in the browser — then explain and analyze the algorithm.",
+      "description": "Build a browser-based computer vision app that detects a physical chess board in an oblique-angle photo and reports its position (FEN / grid / diagram). The agent must assemble an evaluation dataset of at least 8 real-world chess-board images, iterate on a client-side pipeline against it, and ship a single HTML page with three tabs: a live Demo (upload + dataset gallery), a How-it-works explainer with graphics, and a How-well-it-works analysis of the algorithm's performance on the dataset. No server inference, no hosted vision APIs.",
+      "tags": ["computer-vision", "browser", "chess", "opencv", "wasm", "image-processing", "eval-loop"],
+      "createdAt": "2026-04-21",
       "solutions": []
     },
     {
@@ -187,6 +248,57 @@
       "tags": ["simulation", "browser", "threejs", "webgl", "3d", "fluid", "interactive"],
       "createdAt": "2026-04-20",
       "solutions": [
+        {
+          "slug": "cursor-composer-2",
+          "harness": "cursor",
+          "model": "composer-2",
+          "projectName": "fishtank-water-sim-demo",
+          "summary": "Single-page Three.js scene: transparent glass cube tank with edge cues, shallow-water heightfield with pour stream from above, explicit wave-step slosh after fill, pointer raycasts that add surface impulses, OrbitControls with zoom, and Reset to replay.",
+          "tech": ["html", "javascript", "threejs", "webgl"],
+          "submittedAt": "2026-04-20",
+          "artifactUrl": "./artifacts/fishtank-water-sim/cursor-composer-2.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a self-contained index.html under the solution and mirrors it under docs/artifacts for GitHub Pages review.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `fishtank-water-sim/cursor-composer-2/index.html` directly in a browser, or the mirrored artifact at `./artifacts/fishtank-water-sim/cursor-composer-2.html`."
+        },
+        {
+          "slug": "cursor-gpt-5-4-xhigh",
+          "harness": "cursor",
+          "model": "gpt-5-4-xhigh",
+          "projectName": "fishtank-water-sim-gpt5-4",
+          "summary": "Single-page Three.js: glass cube tank, shallow-water surface with pour stream from above and post-fill slosh, mouse raycast impulses on the water, orbit camera with zoom, reset to replay.",
+          "tech": ["html", "javascript", "threejs", "webgl"],
+          "submittedAt": "2026-04-20",
+          "artifactUrl": "./artifacts/fishtank-water-sim/cursor-gpt-5-4-xhigh.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a self-contained index.html under the solution folder and mirrors it under docs/artifacts for GitHub Pages review.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `fishtank-water-sim/cursor-gpt-5-4-xhigh/index.html` directly in a browser, or the mirrored artifact at `./artifacts/fishtank-water-sim/cursor-gpt-5-4-xhigh.html`."
+        },
+        {
+          "slug": "claude-code-opus-4-7",
+          "harness": "claude-code",
+          "model": "opus-4-7",
+          "projectName": "fishtank-water-sim-claude-code",
+          "summary": "Single self-contained HTML Three.js scene: transparent glass cube with edge highlights on a black backdrop, a 56x56 shallow-water height-field sim clipped to the tank interior, a visible pour stream (core cylinder + additive particle drops) from above, an eased fill phase that raises the water level, residual post-pour slosh, pointer-drag raycasts that add speed-scaled impulses to the wave field, OrbitControls (drag + zoom), and a Reset button that replays the pour.",
+          "tech": ["html", "javascript", "threejs", "webgl"],
+          "submittedAt": "2026-04-21",
+          "artifactUrl": "./artifacts/fishtank-water-sim/claude-code-opus-4-7.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a self-contained index.html under the solution folder and mirrors it under docs/artifacts for GitHub Pages review.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `fishtank-water-sim/claude-code-opus-4-7/index.html` directly in a browser, or the mirrored artifact at `./artifacts/fishtank-water-sim/claude-code-opus-4-7.html`."
+        },
         {
           "slug": "codex-gpt-5-4-xhigh",
           "harness": "codex",

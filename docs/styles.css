@@ -1,5 +1,14 @@
 /* small overrides on top of Tailwind + DaisyUI */
 
+/* No timed fades on interactive chrome: hover, focus, borders, and theme switches snap immediately.
+   (Keyframe animations such as DaisyUI loading indicators are unchanged.) */
+*,
+*::before,
+*::after {
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+}
+
 /* Sidebar open (mobile drawer): logo lives in the drawer only */
 #nav-drawer:checked ~ .drawer-content #navbar-brand {
   display: none;
@@ -32,6 +41,13 @@ html {
   background: oklch(var(--b2));
   color: oklch(var(--bc));
   border: 1px solid oklch(var(--b3));
+}
+
+/* README / prompt markdown: code fences stand out from the page chrome */
+.markdown-target pre {
+  background: color-mix(in oklch, oklch(var(--p)) 18%, oklch(var(--b2)));
+  border: 1px solid color-mix(in oklch, oklch(var(--p)) 38%, oklch(var(--b3)));
+  box-shadow: 0 1px 0 oklch(var(--bc) / 0.04);
 }
 
 .prose code {
@@ -73,12 +89,12 @@ html {
 }
 
 .sidebar-link > svg,
-.sidebar-link > .sidebar-badge {
+.sidebar-link > .sidebar-badge,
+.sidebar-link > .sidebar-harness-icon-slot {
   flex: 0 0 auto;
 }
 
-.sidebar-link > .sidebar-slug,
-.sidebar-link > span:not(.sidebar-badge) {
+.sidebar-link > .sidebar-slug {
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
@@ -107,6 +123,41 @@ html {
 .sidebar-link.active .sidebar-badge {
   border-color: oklch(var(--p) / 0.5);
   color: oklch(var(--p));
+}
+
+/* Harness logos: fixed box so labels align; sidebar shows icon only (no pill). */
+.harness-icon-slot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: oklch(var(--bc) / 0.72);
+}
+
+.harness-icon-slot--sm {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.harness-icon-slot--md {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.sidebar-harness-icon-slot {
+  color: oklch(var(--bc) / 0.68);
+}
+
+.sidebar-link.active .sidebar-harness-icon-slot {
+  color: oklch(var(--p));
+}
+
+.solution-row-harness-icon {
+  color: oklch(var(--bc) / 0.55);
+}
+
+.group:hover .solution-row-harness-icon {
+  color: oklch(var(--bc) / 0.75);
 }
 
 .sidebar-link:hover {

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lumina Atrium — evade the demons</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0f12; font-family: system-ui, sans-serif; }
+    #c { display: block; width: 100%; height: 100%; }
+    #hud {
+      position: fixed; left: 12px; top: 12px; color: #e8f5e9; text-shadow: 0 1px 4px #000a;
+      font-size: 13px; line-height: 1.5; max-width: 320px; pointer-events: none;
+    }
+    #hud kbd {
+      display: inline-block; padding: 1px 5px; border-radius: 4px;
+      background: #1b3d2fcc; border: 1px solid #4caf5033;
+    }
+    #death {
+      position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+      background: radial-gradient(ellipse at center, #1a0510ee 0%, #050208fa 70%);
+      color: #ffcdd2; pointer-events: auto; flex-direction: column; gap: 14px;
+    }
+    #death.show { display: flex; }
+    #death h1 { font-size: clamp(1.8rem, 5vw, 2.4rem); font-weight: 600; letter-spacing: 0.04em; }
+    #death p { opacity: 0.9; font-size: 1rem; }
+    #death .hint { font-size: 0.95rem; color: #ffab91; }
+  </style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <div id="hud">
+    <div><strong>Lumina Atrium</strong></div>
+    <div>Move: <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> · Jump: <kbd>Space</kbd></div>
+    <div id="phase">Phase: day</div>
+  </div>
+  <div id="death">
+    <h1>Caught</h1>
+    <p>The demons have you.</p>
+    <p class="hint">Press <kbd>R</kbd> or click to try again</p>
+  </div>
+
+  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+  <script>
+(function () {
+  'use strict';
+
+  const canvas = document.getElementById('c');
+  const deathEl = document.getElementById('death');
+  const phaseEl = document.getElementById('phase');
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  const scene = new THREE.Scene();
+  const DAY_FOG = 0xa8dcc8;
+  const NIGHT_FOG = 0x0a0618;
+  scene.fog = new THREE.Fog(DAY_FOG, 28, 95);
+
+  const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 220);
+
+  const mallGroup = new THREE.Group();
+  scene.add(mallGroup);
+
+  const sunLight = new THREE.DirectionalLight(0xfff4e0, 1.35);
+  sunLight.position.set(22, 48, 12);
+  sunLight.castShadow = true;
+  sunLight.shadow.mapSize.set(2048, 2048);
+  sunLight.shadow.camera.near = 2;
+  sunLight.shadow.camera.far = 120;
+  sunLight.shadow.camera.left = -45;
+  sunLight.shadow.camera.right = 45;
+  sunLight.shadow.camera.top = 45;
+  sunLight.shadow.camera.bottom = -45;
+  scene.add(sunLight);
+
+  const fillLight = new THREE.HemisphereLight(0x7ec8a8, 0x4a3528, 0.45);
+  scene.add(fillLight);
+
+  const rimNight = new THREE.PointLight(0x8866ff, 0, 45);
+  rimNight.position.set(0, 14, 0);
+  scene.add(rimNight);
+
+  const floorGeo = new THREE.PlaneGeometry(100, 72);
+  const floorMat = new THREE.MeshStandardMaterial({
+    color: 0xc8e8d8,
+    roughness: 0.42,
+    metalness: 0.08,
+  });
+  const floor = new THREE.Mesh(floorGeo, floorMat);
+  floor.rotation.x = -Math.PI / 2;
+  floor.receiveShadow = true;
+  mallGroup.add(floor);
+
+  const tileLines = new THREE.GridHelper(100, 20, 0x6bbf8e55, 0x4a9e7033);
+  tileLines.position.y = 0.02;
+  mallGroup.add(tileLines);
+
+  const obstacles = [];
+
+  function makeBox(w, h, d, x, z, color, metal) {
+    const g = new THREE.BoxGeometry(w, h, d);
+    const m = new THREE.MeshStandardMaterial({
+      color,
+      roughness: 0.35,
+      metalness: metal != null ? metal : 0.15,
+    });
+    const mesh = new THREE.Mesh(g, m);
+    mesh.position.set(x, h / 2, z);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    mallGroup.add(mesh);
+    obstacles.push({
+      minX: x - w / 2,
+      maxX: x + w / 2,
+      minZ: z - d / 2,
+      maxZ: z + d / 2,
+      yTop: h,
+    });
+    return mesh;
+  }
+
+  makeBox(8, 5, 3, -12, -8, 0x8fd4a8, 0.12);
+  makeBox(6, 4, 4, 8, 10, 0x7bc9e8, 0.2);
+  makeBox(10, 3.5, 3, 18, -14, 0x9de0b0, 0.1);
+  makeBox(4, 6, 14, -22, 4, 0xb8e0c8, 0.08);
+  makeBox(5, 4, 6, -5, 18, 0x86d4cc, 0.18);
+  makeBox(7, 3, 9, 20, 8, 0xa8e8bc, 0.1);
+  makeBox(12, 4, 4, 0, -22, 0x9dd4b2, 0.11);
+  makeBox(3, 8, 3, -30, -18, 0x7ed491, 0.05);
+
+  const planterGeo = new THREE.CylinderGeometry(3, 3.2, 1.2, 16);
+  const planterMat = new THREE.MeshStandardMaterial({ color: 0x5a9c6a, roughness: 0.6 });
+  const planter = new THREE.Mesh(planterGeo, planterMat);
+  planter.position.set(14, 0.6, -6);
+  planter.castShadow = true;
+  planter.receiveShadow = true;
+  mallGroup.add(planter);
+  obstacles.push({ minX: 11, maxX: 17, minZ: -9, maxZ: -3, yTop: 2 });
+
+  const glassRoof = new THREE.Mesh(
+    new THREE.PlaneGeometry(104, 76),
+    new THREE.MeshPhysicalMaterial({
+      color: 0xaef5ff,
+      roughness: 0.05,
+      metalness: 0.1,
+      transmission: 0.35,
+      thickness: 0.5,
+      transparent: true,
+      opacity: 0.45,
+      side: THREE.DoubleSide,
+    })
+  );
+  glassRoof.rotation.x = Math.PI / 2;
+  glassRoof.position.y = 22;
+  mallGroup.add(glassRoof);
+
+  const playerGroup = new THREE.Group();
+  const body = new THREE.Mesh(
+    new THREE.CapsuleGeometry(0.45, 0.9, 6, 12),
+    new THREE.MeshStandardMaterial({ color: 0xffcc80, roughness: 0.45 })
+  );
+  body.position.y = 0.9;
+  body.castShadow = true;
+  playerGroup.add(body);
+  const visor = new THREE.Mesh(
+    new THREE.SphereGeometry(0.25, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2),
+    new THREE.MeshStandardMaterial({ color: 0x2d3e50, metalness: 0.6, roughness: 0.25 })
+  );
+  visor.position.set(0, 1.55, 0.35);
+  playerGroup.add(visor);
+  scene.add(playerGroup);
+
+  const PLAYER_R = 0.45;
+  const PLAYER_H = 1.8;
+  const MOVE_SPEED = 12;
+  const JUMP_V = 9.2;
+  const GRAVITY = -32;
+
+  const player = {
+    x: 0,
+    z: 0,
+    y: 0,
+    vy: 0,
+    onGround: true,
+    rotY: 0,
+  };
+
+  const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, Space: false };
+  window.addEventListener('keydown', (e) => {
+    if (keys.hasOwnProperty(e.code)) {
+      if (e.code === 'Space') e.preventDefault();
+      keys[e.code] = true;
+    }
+    if (dead && (e.key === 'r' || e.key === 'R')) restart();
+    if (dead && e.key === ' ') { e.preventDefault(); restart(); }
+  });
+  window.addEventListener('keyup', (e) => {
+    if (keys.hasOwnProperty(e.code)) keys[e.code] = false;
+  });
+
+  deathEl.addEventListener('click', () => { if (dead) restart(); });
+
+  function aabbAt(px, pz, radius) {
+    const r = radius;
+    return { minX: px - r, maxX: px + r, minZ: pz - r, maxZ: pz + r };
+  }
+
+  function resolveAgainstObstacles(px, pz, radius) {
+    let x = px;
+    let z = pz;
+    for (let pass = 0; pass < 8; pass++) {
+      const p = aabbAt(x, z, radius);
+      let overlapped = false;
+      for (let i = 0; i < obstacles.length; i++) {
+        const o = obstacles[i];
+        if (p.maxX <= o.minX || p.minX >= o.maxX || p.maxZ <= o.minZ || p.minZ >= o.maxZ) continue;
+        overlapped = true;
+        const ox = x - (o.minX + o.maxX) / 2;
+        const oz = z - (o.minZ + o.maxZ) / 2;
+        const penX = Math.min(p.maxX, o.maxX) - Math.max(p.minX, o.minX);
+        const penZ = Math.min(p.maxZ, o.maxZ) - Math.max(p.minZ, o.minZ);
+        if (penX < penZ) x = ox > 0 ? o.maxX + radius + 0.02 : o.minX - radius - 0.02;
+        else z = oz > 0 ? o.maxZ + radius + 0.02 : o.minZ - radius - 0.02;
+        break;
+      }
+      if (!overlapped) break;
+    }
+    return { x, z };
+  }
+
+  const DEMON_R = 0.42;
+  const demons = [];
+  const demonGeo = new THREE.SphereGeometry(DEMON_R, 12, 12);
+  const demonMat = new THREE.MeshStandardMaterial({
+    color: 0x330008,
+    emissive: 0xff1744,
+    emissiveIntensity: 0.85,
+    roughness: 0.25,
+  });
+
+  function spawnDemons() {
+    demons.forEach((d) => { scene.remove(d.mesh); });
+    demons.length = 0;
+    const spots = [
+      { x: -38, z: 16 }, { x: 38, z: -20 }, { x: -34, z: -28 }, { x: 32, z: 24 },
+    ];
+    spots.forEach((s) => {
+      const mesh = new THREE.Mesh(demonGeo, demonMat);
+      mesh.castShadow = true;
+      mesh.position.set(s.x, DEMON_R, s.z);
+      scene.add(mesh);
+      demons.push({ mesh, x: s.x, z: s.z, speed: 5.2 + Math.random() * 1.8 });
+    });
+  }
+
+  let gameTime = 0;
+  let dead = false;
+
+  function restart() {
+    dead = false;
+    deathEl.classList.remove('show');
+    player.x = 0;
+    player.z = 0;
+    player.y = 0;
+    player.vy = 0;
+    player.onGround = true;
+    player.rotY = 0;
+    gameTime = 0;
+    spawnDemons();
+    scene.fog.color.setHex(DAY_FOG);
+    scene.fog.near = 28;
+    scene.fog.far = 95;
+    sunLight.intensity = 1.35;
+    rimNight.intensity = 0;
+    fillLight.intensity = 0.45;
+  }
+
+  function lose() {
+    if (dead) return;
+    dead = true;
+    deathEl.classList.add('show');
+  }
+
+  spawnDemons();
+
+  const starsGeo = new THREE.BufferGeometry();
+  const starCount = 1800;
+  const starPos = new Float32Array(starCount * 3);
+  for (let i = 0; i < starCount; i++) {
+    starPos[i * 3] = (Math.random() - 0.5) * 400;
+    starPos[i * 3 + 1] = 40 + Math.random() * 160;
+    starPos[i * 3 + 2] = (Math.random() - 0.5) * 400;
+  }
+  starsGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+  const starsMat = new THREE.PointsMaterial({
+    color: 0xffffff,
+    size: 0.15,
+    sizeAttenuation: true,
+    transparent: true,
+    opacity: 0,
+  });
+  const stars = new THREE.Points(starsGeo, starsMat);
+  scene.add(stars);
+
+  const nebulaGeo = new THREE.SphereGeometry(300, 32, 24);
+  const nebulaMat = new THREE.MeshBasicMaterial({
+    color: 0x2d1b69,
+    side: THREE.BackSide,
+    transparent: true,
+    opacity: 0,
+  });
+  const nebula = new THREE.Mesh(nebulaGeo, nebulaMat);
+  scene.add(nebula);
+
+  function dayNightMix(t) {
+    const cycle = (t % 90) / 90;
+    let u = 0;
+    if (cycle < 0.35) u = 0;
+    else if (cycle < 0.65) u = (cycle - 0.35) / 0.3;
+    else u = 1;
+    return u;
+  }
+
+  let last = performance.now();
+  function tick(now) {
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    gameTime += dt;
+
+    const u = dayNightMix(gameTime);
+    const cold = new THREE.Color(NIGHT_FOG);
+    const warm = new THREE.Color(DAY_FOG);
+    scene.fog.color.copy(warm).lerp(cold, u);
+    scene.fog.near = THREE.MathUtils.lerp(28, 18, u);
+    scene.fog.far = THREE.MathUtils.lerp(95, 55, u);
+    sunLight.intensity = THREE.MathUtils.lerp(1.35, 0.08, u);
+    fillLight.intensity = THREE.MathUtils.lerp(0.45, 0.1, u);
+    rimNight.intensity = THREE.MathUtils.lerp(0, 1.4, u);
+    starsMat.opacity = u;
+    nebulaMat.opacity = u * 0.92;
+    tileLines.visible = u < 0.5;
+    glassRoof.material.opacity = THREE.MathUtils.lerp(0.45, 0.12, u);
+
+    if (u < 0.1) phaseEl.textContent = 'Phase: solarpunk day';
+    else if (u < 0.95) phaseEl.textContent = 'Phase: sunset → starfield night';
+    else phaseEl.textContent = 'Phase: deep space night';
+
+    if (!dead) {
+      let mx = 0;
+      let mz = 0;
+      if (keys.ArrowUp) mz -= 1;
+      if (keys.ArrowDown) mz += 1;
+      if (keys.ArrowLeft) mx -= 1;
+      if (keys.ArrowRight) mx += 1;
+      const len = Math.hypot(mx, mz);
+      if (len > 0) {
+        mx /= len;
+        mz /= len;
+        player.rotY = Math.atan2(mx, mz);
+      }
+
+      player.x += mx * MOVE_SPEED * dt;
+      player.z += mz * MOVE_SPEED * dt;
+
+      const bounds = 44;
+      player.x = Math.max(-bounds, Math.min(bounds, player.x));
+      player.z = Math.max(-32, Math.min(32, player.z));
+      const rp = resolveAgainstObstacles(player.x, player.z, PLAYER_R);
+      player.x = rp.x;
+      player.z = rp.z;
+
+      if (keys.Space && player.onGround) {
+        player.vy = JUMP_V;
+        player.onGround = false;
+      }
+      player.vy += GRAVITY * dt;
+      player.y += player.vy * dt;
+      const groundY = 0;
+      if (player.y <= groundY) {
+        player.y = groundY;
+        player.vy = 0;
+        player.onGround = true;
+      }
+      playerGroup.position.set(player.x, player.y, player.z);
+      playerGroup.rotation.y = player.rotY;
+
+      for (let i = 0; i < demons.length; i++) {
+        const d = demons[i];
+        const dx = player.x - d.x;
+        const dz = player.z - d.z;
+        const dist = Math.hypot(dx, dz) || 1;
+        const step = d.speed * dt;
+        d.x += (dx / dist) * step;
+        d.z += (dz / dist) * step;
+        const rd = resolveAgainstObstacles(d.x, d.z, DEMON_R);
+        d.x = rd.x;
+        d.z = rd.z;
+        d.mesh.position.set(d.x, DEMON_R, d.z);
+        const hit = Math.hypot(player.x - d.x, player.z - d.z) < PLAYER_R + DEMON_R &&
+          player.y < PLAYER_H;
+        if (hit) lose();
+      }
+    }
+
+    const camDist = 10;
+    const camH = 4.2;
+    const ox = Math.sin(player.rotY) * camDist;
+    const oz = Math.cos(player.rotY) * camDist;
+    const targetY = player.y + 1.2;
+    camera.position.set(player.x + ox, player.y + camH, player.z + oz);
+    camera.lookAt(player.x, targetY, player.z);
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(tick);
+  }
+
+  requestAnimationFrame(tick);
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+})();
+  </script>
+</body>
+</html>
