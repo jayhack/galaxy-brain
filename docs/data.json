@@ -343,7 +343,25 @@
       "description": "Build a browser-viewable 3D island simulation with randomly generated initial circumstances, multiple interacting species, heritable traits, mutation-driven reproduction, visible body-type changes, fast enough evolution to show interesting dynamics in about 10 minutes, a speed slider, day/night effects, and charts or traces that make the evolutionary algorithm inspectable.",
       "tags": ["simulation", "browser", "threejs", "webgl", "3d", "artificial-life", "evolution", "agents"],
       "createdAt": "2026-04-22",
-      "solutions": []
+      "solutions": [
+        {
+          "slug": "codex-gpt-5-4",
+          "harness": "codex",
+          "model": "gpt-5-4",
+          "projectName": "speciation-isle",
+          "summary": "Single-file Three.js artificial-life island with seeded terrain/resources, three interacting ecological roles, local sensing and decision rules, predation, grazing, scavenging, inherited mutable genomes, visible body-trait changes, day/night behavior shifts, organism inspection, and live population/trait/event charts.",
+          "tech": ["html", "css", "javascript", "threejs", "webgl", "artificial-life"],
+          "submittedAt": "2026-04-22",
+          "artifactUrl": "./artifacts/life-sim/codex-gpt-5-4.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a browser-playable HTML simulation directly in the solution folder and mirrors it under docs/artifacts for one-click GitHub Pages evaluation.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `life-sim/codex-gpt-5-4/index.html` directly in a browser, serve the folder with `python3 -m http.server 8080` if local module loading is blocked, or use the mirrored artifact at `./artifacts/life-sim/codex-gpt-5-4.html`."
+        }
+      ]
     }
   ]
 }
