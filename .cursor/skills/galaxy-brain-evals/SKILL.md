@@ -88,7 +88,7 @@ The root **`README.md`** section **“HTML artifacts (GitHub Pages)”** has the
 
 Solutions go under `<eval-name>/<harness>-<model>/`, lowercase, hyphen-separated. Examples: `cursor-opus-4-7-high`, `claude-code-sonnet-4-5`, `codex-gpt-5-high`. Strip redundant vendor prefixes when the harness already implies them.
 
-When opening a **pull request** for a submission, use the PR title **`sub(<eval-name>): <model>`** (kebab-case eval folder name, then the same model label as in `docs/data.json`, e.g. `sub(web-short-story): gpt-4-5-xhigh`).
+When opening a **pull request** for a submission, use the PR title **`sub(<eval-name>): {model}`** (kebab-case eval folder name, then the same model label as in `docs/data.json`, e.g. `sub(web-short-story): gpt-4-5-xhigh`).
 
 Submitters add **only** their solution tree; they should not rewrite the eval prompt or other people’s solutions.
 
