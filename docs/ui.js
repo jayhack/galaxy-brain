@@ -94,7 +94,7 @@ export const ui = {
   solutionRowRail:
     "flex items-center gap-1.5 sm:gap-2 shrink-0 border-l border-base-300/80 pl-2 pr-3 py-2",
   listColTight: "w-full flex flex-col gap-1.5",
-  gridEvals: "grid grid-cols-1 md:grid-cols-2 gap-4",
+  gridEvals: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4",
   gridOutcome: "grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10",
   gridKv: "grid grid-cols-2 gap-3 mt-1",
 
