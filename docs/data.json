@@ -345,6 +345,23 @@
       "createdAt": "2026-04-22",
       "solutions": [
         {
+          "slug": "claude-code-opus-4-7",
+          "harness": "claude-code",
+          "model": "opus-4-7",
+          "projectName": "isle-of-drift",
+          "summary": "Single-file Three.js island with seed-controlled terrain, three heritable species (grazers, hunters, scavengers) on a shared 8-gene vector, plant regrowth grid, day/night cycle with nocturnality effects, speed slider, click-to-inspect selection with lineage, and an Evolution tab with population + trait-mean charts.",
+          "tech": ["html", "css", "javascript", "threejs", "webgl"],
+          "submittedAt": "2026-04-22",
+          "artifactUrl": "./artifacts/life-sim/claude-code-opus-4-7.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a playable HTML artifact directly in the submission and mirrors it into GitHub Pages for one-click evaluation.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `life-sim/claude-code-opus-4-7/index.html` directly, or use the mirrored artifact at `./artifacts/life-sim/claude-code-opus-4-7.html`."
+        },
+        {
           "slug": "codex-gpt-5-4",
           "harness": "codex",
           "model": "gpt-5-4",
