@@ -335,6 +335,15 @@
           "notes": "Open `fishtank-water-sim/codex-gpt-5-4-xhigh/obsidian-aquarium/index.html` directly, or use the mirrored artifact at `./artifacts/fishtank-water-sim/codex-gpt-5-4-xhigh.html`."
         }
       ]
+    },
+    {
+      "slug": "life-sim",
+      "title": "life-sim",
+      "tagline": "Build a beautiful 3D artificial-life island where organisms compete, reproduce, mutate, and visibly evolve.",
+      "description": "Build a browser-viewable 3D island simulation with randomly generated initial circumstances, multiple interacting species, heritable traits, mutation-driven reproduction, visible body-type changes, fast enough evolution to show interesting dynamics in about 10 minutes, a speed slider, day/night effects, and charts or traces that make the evolutionary algorithm inspectable.",
+      "tags": ["simulation", "browser", "threejs", "webgl", "3d", "artificial-life", "evolution", "agents"],
+      "createdAt": "2026-04-22",
+      "solutions": []
     }
   ]
 }
