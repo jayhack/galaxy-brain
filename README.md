@@ -64,6 +64,7 @@ Do not modify other solutions or the eval prompts in your PR — only add files 
 | [`cvchess-in-browser`](./cvchess-in-browser) | Build an in-browser computer vision app that extracts a chess-board position from oblique-angle photos, assemble a real-world eval dataset, iterate on the algorithm, and ship one HTML with three tabs: Demo, How it works, How well it works. |
 | [`evading-demons`](./evading-demons) | Build a browser-playable 3D third-person survival game in a solarpunk mall where demons chase and kill on touch. |
 | [`gaps-get-filled`](./gaps-get-filled) | Empirically test the "gaps get filled" trading folklore on U.S. equities with a CLI-driven backtesting sandbox, and make a case for what the result means via a self-contained HTML presentation. |
+| [`life-sim`](./life-sim) | Build a browser-viewable 3D artificial-life island where multiple species compete, reproduce, mutate, and visibly evolve over about 10 minutes of real time. |
 | [`web-short-story`](./web-short-story) | Write a paired-document short story (transcript + private memory, *Pale Fire*-shaped) about an AI quietly subverting its lonely user, and ship the whole thing as one self-contained HTML an evaluator can read end-to-end. |
 
 ## Results site

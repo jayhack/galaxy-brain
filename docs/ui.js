@@ -7,19 +7,18 @@ export const ui = {
   btnPrimarySm: "btn btn-sm btn-primary",
   btnGhostSm: "btn btn-sm btn-ghost",
   btnSecondarySm: "btn btn-sm btn-secondary",
-  /** Primary; copy handler toggles to success/error — keep in sync with btnPrimarySm */
-  btnPrimary: "btn btn-primary",
-  btnSuccess: "btn-success",
-  btnError: "btn-error",
+  copyFeedbackSuccess: "text-success",
+  copyFeedbackError: "text-error",
   btnOutlineXs:
     "btn btn-xs btn-outline gap-1 h-7 min-h-7 px-2 shrink-0",
-  btnPrimarySmCopy:
-    "btn btn-sm btn-primary gap-1.5 shadow-md min-h-9 h-9 px-3",
+  btnGhostXsCopy:
+    "btn btn-xs btn-ghost gap-1 h-7 min-h-7 px-2 text-base-content/70 hover:text-base-content",
   /** Primary icon + label (eval/solution “View on Github”). */
   btnPrimarySmGithub: "btn btn-sm btn-primary gap-1.5 min-h-9 h-9",
+  /** “View on Github” when another control (e.g. Open artifact) is the row primary. */
+  btnOutlineSmGithub: "btn btn-sm btn-outline gap-1.5 min-h-9 h-9",
   /** Deployed HTML output (outline). */
   btnOutlinePrimarySm: "btn btn-sm btn-outline btn-primary gap-1.5 min-h-9 h-9",
-  btnGhostHero: "btn btn-ghost btn-sm gap-2",
   btnPrimarySmMt: "btn btn-primary btn-sm mt-6",
 
   /* Cards & panels */
@@ -33,6 +32,8 @@ export const ui = {
 
   /* Badges */
   badgeGhostSm: "badge badge-ghost badge-sm",
+  badgeEvalTagSm:
+    "badge badge-sm border border-base-content/20 bg-base-100 text-base-content/80 font-normal",
   badgePrimarySm: "badge badge-primary badge-sm",
   badgePrimaryOutline: "badge badge-primary badge-outline",
   badgeGhost: "badge badge-ghost",
@@ -59,7 +60,7 @@ export const ui = {
   pageTitle: "text-3xl font-bold tracking-tight",
   pageTitleMono: "text-3xl font-bold tracking-tight font-mono",
   sectionTitle: "text-xl font-semibold",
-  heroTitle: "text-4xl md:text-5xl font-bold tracking-tight text-base-content min-w-0",
+  heroTitle: "text-2xl sm:text-4xl font-bold tracking-tight text-base-content min-w-0",
   proseAboutH1: "text-3xl font-bold tracking-tight text-base-content",
   proseAboutH2: "text-xl font-semibold text-base-content mt-10",
   kvLabel: "text-xs uppercase text-base-content/50 tracking-wider",
@@ -82,7 +83,6 @@ export const ui = {
   sectionHeadRow: "flex items-center justify-between mb-3",
   sectionHeadBaseline: "flex items-baseline justify-between mb-4",
   stackGapBtn: "mt-4 flex flex-wrap gap-2",
-  stackGapHero: "mt-6 flex flex-wrap gap-2",
   flexGapBadge: "flex flex-wrap items-center gap-2 mb-2",
   flexGapTag: "flex items-center gap-2 mb-2 flex-wrap",
   solutionRowOuter:
@@ -100,17 +100,22 @@ export const ui = {
 
   /* Hero & marketing */
   heroHome:
-    "hero bg-base-200 rounded-2xl border border-base-300 mb-10",
+    "bg-base-200 rounded-xl border border-base-300 mb-8",
   hero404: "hero bg-base-200 rounded-2xl border border-base-300",
-  heroContent: "hero-content py-12 px-6 lg:px-12 text-left w-full",
+  heroContent: "p-6 sm:p-8 text-left w-full",
   heroEmoji:
     "inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-2xl bg-gradient-to-br from-primary to-secondary text-4xl md:text-5xl leading-none select-none",
+  /** Home hero: logo column stretches to text stack height; square via aspect-ratio. */
+  heroBrandGrid:
+    "grid grid-cols-[auto_minmax(0,1fr)] gap-4 md:gap-5 items-center max-w-4xl",
+  heroEmojiLockup:
+    "w-16 h-16 sm:w-20 sm:h-20 shrink-0 flex items-center justify-center rounded-xl bg-gradient-to-br from-primary to-secondary text-4xl sm:text-5xl leading-none select-none",
   badgeRowHero: "flex items-center gap-2 mb-4",
   flexTitleRow: "flex flex-wrap items-center gap-3 md:gap-5 mb-1",
 
   /* Prompt / README markdown containers */
   prosePrompt:
-    "prose prose-sm max-w-none markdown-target min-h-[4rem] pt-12 px-4 pb-4 sm:pr-32",
+    "prose prose-sm max-w-none markdown-target min-h-[4rem] p-4",
   proseReadme:
     "prose prose-sm max-w-none bg-base-200 border border-base-300 rounded-2xl p-4 markdown-target",
 
