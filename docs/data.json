@@ -298,6 +298,23 @@
             "score": null
           },
           "notes": "Open `fishtank-water-sim/claude-code-opus-4-7/index.html` directly in a browser, or the mirrored artifact at `./artifacts/fishtank-water-sim/claude-code-opus-4-7.html`."
+        },
+        {
+          "slug": "codex-gpt-5-4-xhigh",
+          "harness": "codex",
+          "model": "gpt-5-4-xhigh",
+          "projectName": "obsidian-aquarium",
+          "summary": "Single-file Three.js browser simulation with a transparent glass cube tank, overhead pour stream, rising water volume, dynamic rippled surface, persistent slosh, mouse-driven water impulses, custom orbit camera, scroll zoom, and reset.",
+          "tech": ["html", "css", "javascript", "threejs"],
+          "submittedAt": "2026-04-21",
+          "artifactUrl": "./artifacts/fishtank-water-sim/codex-gpt-5-4-xhigh.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a browser-playable HTML artifact directly in the solution and mirrors it into GitHub Pages for one-click evaluation.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `fishtank-water-sim/codex-gpt-5-4-xhigh/obsidian-aquarium/index.html` directly, or use the mirrored artifact at `./artifacts/fishtank-water-sim/codex-gpt-5-4-xhigh.html`."
         }
       ]
     }
