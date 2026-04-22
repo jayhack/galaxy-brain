@@ -341,25 +341,16 @@ function viewHome() {
     <section class="${ui.heroHome}">
       <div class="${ui.heroContent}">
         <div class="max-w-3xl">
-          <div class="${ui.badgeRowHero}">
-            <span class="${ui.badgePrimaryOutline}">v0</span>
-            <span class="${ui.badgeGhost}">${data.evals.length} eval${data.evals.length === 1 ? "" : "s"}</span>
-            <span class="${ui.badgeGhost}">${totalSolutions} submission${totalSolutions === 1 ? "" : "s"}</span>
+          <div class="${ui.heroBrandGrid}">
+            <span class="${ui.heroEmojiLockup}" aria-hidden="true">🧠</span>
+            <div class="min-w-0 flex flex-col gap-2">
+              <h1 class="${ui.heroTitle}">galaxy-brain</h1>
+              <p class="${ui.muted} text-lg leading-snug">
+                A collection of agent evals. Each eval is a prompt; each solution is one
+                harness/model pair's attempt. Browse them below.
+              </p>
+            </div>
           </div>
-          <div class="${ui.flexTitleRow}">
-            <span
-              class="${ui.heroEmoji}"
-              aria-hidden="true"
-              >🧠</span
-            >
-            <h1 class="${ui.heroTitle}">
-              galaxy-brain
-            </h1>
-          </div>
-          <p class="${ui.muted} mt-3 text-lg">
-            A collection of agent evals. Each eval is a prompt; each solution is one
-            harness/model pair's attempt. Browse them below.
-          </p>
           <div class="${ui.stackGapHero}">
             <a id="hero-repo" class="${ui.btnGhostHero}" target="_blank" rel="noopener">
               ${githubLogoSvg()}

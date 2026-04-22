@@ -105,6 +105,11 @@ export const ui = {
   heroContent: "hero-content py-12 px-6 lg:px-12 text-left w-full",
   heroEmoji:
     "inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-2xl bg-gradient-to-br from-primary to-secondary text-4xl md:text-5xl leading-none select-none",
+  /** Home hero: logo column stretches to text stack height; square via aspect-ratio. */
+  heroBrandGrid:
+    "grid grid-cols-[auto_minmax(0,1fr)] gap-4 md:gap-5 items-stretch max-w-3xl",
+  heroEmojiLockup:
+    "aspect-square h-full w-auto max-w-full shrink-0 flex items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-secondary text-[clamp(2rem,5vw,3.75rem)] leading-none select-none",
   badgeRowHero: "flex items-center gap-2 mb-4",
   flexTitleRow: "flex flex-wrap items-center gap-3 md:gap-5 mb-1",
 
