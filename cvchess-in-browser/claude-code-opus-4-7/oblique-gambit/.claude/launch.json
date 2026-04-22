@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "oblique-gambit",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["--yes", "live-server", ".", "--port=8123", "--no-browser", "--wait=200"],
+      "port": 8123
+    }
+  ]
+}
