@@ -71,7 +71,7 @@ self-contained.
 
 Current solutions:
 
-- `[codex-gpt-5/](./codex-gpt-5)` — Codex + GPT-5. Project name:
+- `[codex-gpt-4-5-xhigh/](./codex-gpt-4-5-xhigh)` — Codex + GPT-4.5 (xhigh). Project name:
   **heliomall-escape**.
 - `[claude-code-opus-4-7-1m/](./claude-code-opus-4-7-1m)` — Claude Code +
   Opus 4.7 (1M context). Project name: **verdant-bazaar**.

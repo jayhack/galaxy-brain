@@ -1,4 +1,4 @@
-# codex-gpt-5
+# codex-gpt-4-5-xhigh
 
 Solution wrapper for the [`evading-demons`](../README.md) eval.
 
