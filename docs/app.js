@@ -137,6 +137,40 @@ function repoUrls(data) {
   };
 }
 
+/** PR title pattern for solution submissions (see root README). */
+function submissionPrTitlePattern(evalSlug) {
+  return `sub(${evalSlug}): {model}`;
+}
+
+/** GitHub code search scoped to open PRs whose titles match this eval's `sub(<slug>):` prefix. */
+function githubOpenSubmissionPrSearchUrl(owner, name, evalSlug) {
+  const q = `repo:${owner}/${name} is:pr is:open sub(${evalSlug}):`;
+  return `https://github.com/search?q=${encodeURIComponent(q)}&type=issues`;
+}
+
+function prTitleMatchesEvalSubmission(title, evalSlug) {
+  const t = String(title ?? "").toLowerCase();
+  const needle = `sub(${String(evalSlug).toLowerCase()}):`;
+  return t.includes(needle);
+}
+
+/**
+ * Lists open PRs whose titles contain `sub(<evalSlug>):` via the public GitHub API (CORS allows browser GETs).
+ * Unauthenticated: low rate limit; failures are surfaced to the UI only.
+ */
+async function fetchOpenSubmissionPullRequests(owner, name, evalSlug) {
+  const url = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(name)}/pulls?state=open&per_page=50`;
+  const res = await fetch(url);
+  if (!res.ok) {
+    const err = new Error(`GitHub API ${res.status}`);
+    err.status = res.status;
+    throw err;
+  }
+  /** @type {Array<{ number: number, title: string, html_url: string }>} */
+  const all = await res.json();
+  return all.filter((pr) => prTitleMatchesEvalSubmission(pr.title, evalSlug));
+}
+
 /** Resolve `artifactUrl` from data.json (e.g. `./artifacts/<eval>/<harness-model>.html`) to an absolute URL on this GitHub Pages site. */
 function siteArtifactUrl(artifactUrl) {
   if (!artifactUrl) return null;
@@ -482,6 +516,12 @@ function viewEval(route) {
 
   const urls = repoUrls(data);
   const promptPath = `${ev.slug}/README.md`;
+  const submissionPrSearchHref = githubOpenSubmissionPrSearchUrl(
+    data.repo.owner,
+    data.repo.name,
+    ev.slug
+  );
+  const prTitleExample = submissionPrTitlePattern(ev.slug);
 
   const tags = (ev.tags || [])
     .map((t) => `<span class="${ui.badgeGhostSm}">${esc(t)}</span>`)
@@ -522,6 +562,38 @@ function viewEval(route) {
         <a class="${ui.btnGhostSm}" href="${esc(urls.blob(promptPath))}" target="_blank" rel="noopener">Edit prompt</a>
       </div>
     </header>
+
+    <section class="${ui.sectionLg} w-full max-w-full min-w-0">
+      <div class="${ui.sectionHead}">
+        <h2 class="${ui.sectionTitle}">Submit a solution</h2>
+      </div>
+      <div class="${ui.roundedPanel} p-4 space-y-3">
+        <p class="${ui.muted} text-sm leading-relaxed">
+          Open a pull request against <code class="text-xs">main</code> that only adds files under
+          <code class="text-xs">${esc(ev.slug)}/&lt;harness&gt;-&lt;model&gt;/</code>. Use the PR title
+          <code class="text-xs font-semibold">${esc(prTitleExample)}</code>
+          — replace <code class="text-xs">{model}</code> with the same model label you use in
+          <code class="text-xs">docs/data.json</code> for that solution (for example
+          <code class="text-xs">sub(${esc(ev.slug)}): claude-opus-4-7-high</code>).
+        </p>
+        <div class="flex flex-wrap gap-2 items-center">
+          <a
+            class="${ui.btnOutlinePrimarySm}"
+            href="${esc(submissionPrSearchHref)}"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Search GitHub for open pull requests with this eval submission title prefix"
+          >
+            ${githubLogoSvg("w-4 h-4")}
+            Open submission PRs on GitHub
+          </a>
+        </div>
+        <div id="submission-prs-list" class="${ui.loadingRow}" aria-live="polite">
+          <span class="loading loading-dots loading-sm"></span>
+          Checking GitHub for open submission PRs…
+        </div>
+      </div>
+    </section>
 
     <section class="${ui.sectionLg} w-full max-w-full min-w-0">
       <div class="${ui.sectionHead}">
@@ -585,6 +657,38 @@ function viewEval(route) {
       }, 2000);
     });
   });
+
+  (async () => {
+    const el = document.getElementById("submission-prs-list");
+    if (!el) return;
+    try {
+      const prs = await fetchOpenSubmissionPullRequests(data.repo.owner, data.repo.name, ev.slug);
+      if (prs.length === 0) {
+        el.className = "text-sm text-base-content/70";
+        el.innerHTML =
+          "No open PRs matched this title pattern yet. When someone opens one, it can appear here after refresh.";
+        return;
+      }
+      el.className = "text-sm";
+      const items = prs
+        .map(
+          (pr) => `
+        <li class="flex flex-wrap items-baseline gap-x-2 gap-y-1 py-1 border-b border-base-300/60 last:border-0">
+          <a class="link link-primary font-medium shrink-0" href="${esc(pr.html_url)}" target="_blank" rel="noopener noreferrer">#${esc(String(pr.number))}</a>
+          <span class="text-base-content/80 min-w-0">${esc(pr.title)}</span>
+        </li>`
+        )
+        .join("");
+      el.innerHTML = `<p class="${ui.muted} mb-2">Open pull requests whose titles include <code class="text-xs">sub(${esc(ev.slug)}):</code> (first page of results from the API):</p><ul class="list-none pl-0 max-w-3xl">${items}</ul>`;
+    } catch (e) {
+      el.className = "text-sm text-base-content/70";
+      const hint =
+        e && e.status === 403
+          ? " GitHub may be rate-limiting unauthenticated API access from your network."
+          : "";
+      el.innerHTML = `Could not load the PR list (${esc(e.message || "error")}).${hint} Use <strong>Open submission PRs on GitHub</strong> above.`;
+    }
+  })();
 }
 
 function viewSolution(route) {

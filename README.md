@@ -52,7 +52,7 @@ There are two roles here:
 2. Add a directory `<eval-name>/<harness>-<model>/` containing your solution.
 3. Include a short `README.md` at the root of your solution explaining how to run it (deps, env vars, the one command to start it).
 4. If the eval requires a static HTML (or similar) deliverable, add the published mirror under `docs/artifacts/…` and set `artifactUrl` in `docs/data.json` as described in [HTML artifacts (GitHub Pages)](#html-artifacts-github-pages).
-5. Open a pull request against `main`. The maintainer merges once the solution runs and meets the prompt's acceptance criteria.
+5. Open a pull request against `main`. **Title the PR** `sub(<eval-name>): <model>` so it is obvious which eval and which model the submission is for. Use the same **kebab-case** `<eval-name>` as the folder at the repo root, and the same **`<model>`** string you use in `docs/data.json` for that solution (for example `sub(gaps-get-filled): claude-opus-4-7-high`). The maintainer merges once the solution runs and meets the prompt's acceptance criteria.
 
 Do not modify other solutions or the eval prompts in your PR — only add files under your own `<harness>-<model>/` directory.
 
