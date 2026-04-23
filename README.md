@@ -85,6 +85,20 @@ Without installing repo dependencies, you can run the same stack in one shot (do
 
 `npx --yes live-server docs --port=8080`
 
+### Browser automation (Playwright + MCP)
+
+This repo includes [`@playwright/test`](https://playwright.dev/docs/intro) and pins [`@playwright/mcp`](https://playwright.dev/docs/getting-started-mcp) so you can drive the static site in a real browser (navigation, clicks, screenshots) from Cursor or from CI.
+
+**Smoke test (starts `live-server` automatically):**
+
+1. Install dependencies: `npm install`
+2. Install browsers once: `npx playwright install chromium`
+3. Run: `npm run test:e2e`
+
+**Playwright MCP in Cursor:** project config lives at [`.cursor/mcp.json`](./.cursor/mcp.json). Reload Cursor (or toggle the server in **Settings → MCP**) so the **playwright** server appears under available tools. Use `--headless` there for environments without a display; drop that flag locally if you want a visible browser window.
+
+Cloud agents and headless sandboxes may still lack MCP attached to the chat session; the `npm run test:e2e` path works anywhere Playwright can run.
+
 ### HTML artifacts (GitHub Pages)
 
 Many evals ask for a **browsable deliverable** (often a single `.html` file). To link that output directly from the site (`https://jayhack.github.io/<repo>/`) without asking visitors to hunt through GitHub:
