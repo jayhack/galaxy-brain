@@ -1,0 +1,2201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Trophic Drift Atoll - 3D Life Simulation</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23050d10'/%3E%3Cpath d='M12 39c7-18 24-27 39-12-8 1-12 6-14 16-9-3-16-2-25-4z' fill='%235fc779'/%3E%3Cpath d='M7 42c14 9 37 10 50 0' stroke='%236db7ff' stroke-width='5' fill='none'/%3E%3Ccircle cx='45' cy='19' r='6' fill='%23ffd166'/%3E%3C/svg%3E" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f5f7ef;
+      --muted: rgba(245, 247, 239, 0.72);
+      --quiet: rgba(245, 247, 239, 0.5);
+      --panel: rgba(5, 11, 13, 0.82);
+      --panel-strong: rgba(7, 14, 16, 0.94);
+      --line: rgba(255, 255, 255, 0.14);
+      --leaf: #6fe28a;
+      --hunter: #ff735d;
+      --shore: #67cfff;
+      --sun: #ffd166;
+      --violet: #b69cff;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #071013;
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    button,
+    input {
+      font: inherit;
+      color: inherit;
+    }
+
+    #viewport {
+      position: fixed;
+      inset: 0;
+    }
+
+    canvas.webgl {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .topbar {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      z-index: 8;
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: linear-gradient(180deg, rgba(8, 17, 19, 0.93), rgba(8, 17, 19, 0.68));
+      backdrop-filter: blur(16px);
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.24);
+    }
+
+    .brand {
+      min-width: 185px;
+      display: grid;
+      gap: 1px;
+    }
+
+    .brand strong {
+      font-size: 14px;
+      line-height: 1.1;
+      font-weight: 790;
+    }
+
+    .brand span {
+      color: var(--quiet);
+      font-size: 11px;
+      line-height: 1.25;
+    }
+
+    .metrics {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+
+    .metric {
+      min-width: 76px;
+      display: grid;
+      gap: 1px;
+      padding: 6px 8px;
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      border-radius: 7px;
+      background: rgba(255, 255, 255, 0.055);
+    }
+
+    .metric span,
+    .speed label,
+    .speed output,
+    .seed label {
+      color: var(--quiet);
+      font-size: 10px;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+
+    .metric strong {
+      font-size: 13px;
+      line-height: 1.15;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .tools {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .seed,
+    .speed {
+      display: grid;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 8px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.055);
+    }
+
+    .seed {
+      grid-template-columns: auto 120px;
+    }
+
+    .seed input {
+      width: 120px;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      font-size: 12px;
+      min-width: 0;
+    }
+
+    .speed {
+      width: 210px;
+      grid-template-columns: 44px 1fr 42px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--sun);
+    }
+
+    .button {
+      height: 34px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 7px;
+      background: rgba(255, 255, 255, 0.085);
+      padding: 0 10px;
+      font-size: 12px;
+      font-weight: 760;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: background 140ms ease, border-color 140ms ease, transform 140ms ease;
+    }
+
+    .button:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.28);
+    }
+
+    .button:active { transform: translateY(1px); }
+
+    .left-rail {
+      position: fixed;
+      top: 84px;
+      left: 12px;
+      z-index: 7;
+      width: 280px;
+      display: grid;
+      gap: 10px;
+      pointer-events: auto;
+    }
+
+    .panel,
+    .right-dock {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      backdrop-filter: blur(16px);
+      overflow: hidden;
+      box-shadow: 0 18px 58px rgba(0, 0, 0, 0.24);
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 10px 11px 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .panel-title {
+      color: rgba(245, 247, 239, 0.9);
+      font-size: 12px;
+      font-weight: 790;
+      text-transform: uppercase;
+    }
+
+    .species-list {
+      display: grid;
+      gap: 7px;
+      padding: 10px;
+    }
+
+    .species-row {
+      display: grid;
+      grid-template-columns: 11px 1fr auto;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 7px;
+      background: rgba(255, 255, 255, 0.045);
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 16px currentColor;
+    }
+
+    .species-name {
+      min-width: 0;
+      font-size: 12px;
+      line-height: 1.12;
+      font-weight: 760;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .species-role {
+      display: block;
+      margin-top: 2px;
+      color: var(--quiet);
+      font-size: 10px;
+      font-weight: 520;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .species-count {
+      min-width: 28px;
+      text-align: right;
+      font-size: 13px;
+      font-weight: 790;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .selected {
+      padding: 10px;
+      display: grid;
+      gap: 9px;
+    }
+
+    .selected h2 {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.2;
+    }
+
+    .subtext {
+      color: var(--quiet);
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    .pill {
+      width: fit-content;
+      max-width: 100%;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 7px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.075);
+      color: var(--muted);
+      font-size: 11px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .bars {
+      display: grid;
+      gap: 6px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 72px 1fr 38px;
+      align-items: center;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .bar {
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+      overflow: hidden;
+    }
+
+    .bar i {
+      display: block;
+      width: 0%;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--shore), var(--sun));
+    }
+
+    .right-dock {
+      position: fixed;
+      top: 84px;
+      right: 12px;
+      bottom: 12px;
+      z-index: 7;
+      width: min(430px, calc(100vw - 324px));
+      display: grid;
+      grid-template-rows: auto 1fr;
+      background: var(--panel-strong);
+      pointer-events: auto;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+      padding: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .tab {
+      height: 34px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 7px;
+      background: rgba(255, 255, 255, 0.075);
+      font-size: 12px;
+      font-weight: 760;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: rgba(255, 209, 102, 0.18);
+      border-color: rgba(255, 209, 102, 0.5);
+    }
+
+    .tab-content {
+      overflow: auto;
+      padding: 12px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+    }
+
+    .tab-page {
+      display: none;
+    }
+
+    .tab-page.active {
+      display: grid;
+      gap: 12px;
+    }
+
+    .tile-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .tile,
+    .chart,
+    .explain,
+    .event {
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.045);
+    }
+
+    .tile {
+      padding: 9px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .tile span,
+    .chart header,
+    .event small,
+    .trait span {
+      color: var(--quiet);
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+
+    .tile strong {
+      font-size: 15px;
+      line-height: 1.2;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .chart {
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .chart header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-weight: 700;
+    }
+
+    .chart canvas {
+      width: 100%;
+      height: 142px;
+      display: block;
+      border-radius: 6px;
+      background: rgba(0, 0, 0, 0.19);
+    }
+
+    .trait-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .trait {
+      min-width: 0;
+      padding: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 7px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .trait span {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .trait strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 13px;
+      line-height: 1.15;
+    }
+
+    .event-log {
+      max-height: 220px;
+      overflow: auto;
+      display: grid;
+      gap: 6px;
+      padding-right: 2px;
+    }
+
+    .event {
+      padding: 7px 8px;
+      display: grid;
+      gap: 3px;
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    .event strong {
+      color: var(--ink);
+      font-size: 12px;
+      line-height: 1.2;
+    }
+
+    .explain {
+      padding: 11px;
+      display: grid;
+      gap: 7px;
+    }
+
+    .explain h3 {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.2;
+    }
+
+    .explain p,
+    .explain li {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .explain ul {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .hint {
+      position: fixed;
+      left: 50%;
+      bottom: 14px;
+      z-index: 5;
+      transform: translateX(-50%);
+      padding: 7px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      background: rgba(5, 11, 13, 0.58);
+      backdrop-filter: blur(10px);
+      color: rgba(245, 247, 239, 0.72);
+      font-size: 11px;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 980px) {
+      .topbar {
+        align-items: stretch;
+        flex-wrap: wrap;
+      }
+
+      .brand {
+        min-width: 150px;
+      }
+
+      .metrics {
+        order: 3;
+        flex-basis: 100%;
+      }
+
+      .left-rail {
+        top: 128px;
+        width: 245px;
+      }
+
+      .right-dock {
+        left: 268px;
+        width: auto;
+        top: 128px;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .topbar {
+        left: 8px;
+        right: 8px;
+        top: 8px;
+      }
+
+      .tools {
+        width: 100%;
+        flex-wrap: wrap;
+      }
+
+      .seed,
+      .speed {
+        flex: 1;
+        min-width: 170px;
+      }
+
+      .left-rail {
+        left: 8px;
+        top: 254px;
+        width: 215px;
+      }
+
+      .left-rail .panel:nth-child(2) {
+        display: none;
+      }
+
+      .right-dock {
+        left: 8px;
+        right: 8px;
+        top: auto;
+        bottom: 8px;
+        height: 38vh;
+        width: auto;
+      }
+
+      .hint {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="viewport"></div>
+
+  <header class="topbar" aria-label="Simulation controls">
+    <div class="brand">
+      <strong>Trophic Drift Atoll</strong>
+      <span>Seeded artificial-life island with evolving body plans</span>
+    </div>
+    <div class="metrics">
+      <div class="metric"><span>Sim time</span><strong id="timeMetric">0:00</strong></div>
+      <div class="metric"><span>Daylight</span><strong id="lightMetric">Dawn</strong></div>
+      <div class="metric"><span>Population</span><strong id="popMetric">0</strong></div>
+      <div class="metric"><span>Births</span><strong id="birthMetric">0</strong></div>
+      <div class="metric"><span>Extinctions</span><strong id="extMetric">0</strong></div>
+    </div>
+    <div class="tools">
+      <div class="seed">
+        <label for="seedInput">Seed</label>
+        <input id="seedInput" spellcheck="false" autocomplete="off" />
+      </div>
+      <button class="button" id="resetBtn" type="button">Reset</button>
+      <button class="button" id="newBtn" type="button">New island</button>
+      <div class="speed">
+        <label for="speedSlider">Speed</label>
+        <input id="speedSlider" type="range" min="0" max="5" step="0.1" value="3.2" />
+        <output id="speedOut">2.3x</output>
+      </div>
+    </div>
+  </header>
+
+  <aside class="left-rail" aria-label="Species and organism inspector">
+    <section class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Ecology</div>
+        <span class="pill" id="healthPill">stable</span>
+      </div>
+      <div class="species-list" id="speciesList"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Selected organism</div>
+        <span class="pill" id="selectedPill">none</span>
+      </div>
+      <div class="selected" id="selectedPanel">
+        <h2>Click a creature</h2>
+        <div class="subtext">Selection shows inherited genes, age, health, energy, current intent, and lineage.</div>
+      </div>
+    </section>
+  </aside>
+
+  <aside class="right-dock" aria-label="Simulation panels">
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-tab="sim" type="button">Simulation</button>
+      <button class="tab" data-tab="evo" type="button">Evolution</button>
+      <button class="tab" data-tab="how" type="button">How it works</button>
+    </div>
+    <div class="tab-content">
+      <section class="tab-page active" id="tab-sim">
+        <div class="tile-grid">
+          <div class="tile"><span>Meadow biomass</span><strong id="meadowTile">0%</strong></div>
+          <div class="tile"><span>Shore algae</span><strong id="algaeTile">0%</strong></div>
+          <div class="tile"><span>Carrion packets</span><strong id="carrionTile">0</strong></div>
+          <div class="tile"><span>Oldest lineage</span><strong id="lineageTile">G0</strong></div>
+        </div>
+        <div class="chart">
+          <header><span>Population history</span><span id="historySpan">live</span></header>
+          <canvas id="popChart"></canvas>
+          <div class="legend" id="popLegend"></div>
+        </div>
+        <div class="event-log" id="eventLog"></div>
+      </section>
+
+      <section class="tab-page" id="tab-evo">
+        <div class="chart">
+          <header><span>Average trait drift</span><span>size, speed, sensor</span></header>
+          <canvas id="traitChart"></canvas>
+        </div>
+        <div class="trait-grid" id="traitGrid"></div>
+        <div class="explain">
+          <h3>Selection evidence</h3>
+          <p id="selectionText">The chart and event log update from live organisms. Birth events record crossover and mutation; deaths remove failed variants from the gene pool.</p>
+        </div>
+      </section>
+
+      <section class="tab-page" id="tab-how">
+        <div class="explain">
+          <h3>World</h3>
+          <p>The island is rebuilt from the visible seed. Terrain height, fertility, meadow regrowth, shoreline algae, and founder genomes all come from deterministic noise plus a seeded random stream.</p>
+        </div>
+        <div class="explain">
+          <h3>Local decisions</h3>
+          <ul>
+            <li>Valehoppers graze rich cells, seek mates when fed, and flee nearby Riftstalkers.</li>
+            <li>Riftstalkers sense prey, stalk most strongly at night, and rest in daylight unless hungry.</li>
+            <li>Tidegliders patrol shoreline algae and carrion while leaving nutrient wakes that improve regrowth.</li>
+          </ul>
+        </div>
+        <div class="explain">
+          <h3>Genes and mutation</h3>
+          <p>Each organism carries size, speed, sensor range, efficiency, fertility, armor, aggression, shore affinity, nocturnal bias, camouflage, metabolism, and hue. Offspring use crossover from nearby mature parents plus mutation, so body size, limbs, fins, crests, antennae, color, speed, and survival change together.</p>
+        </div>
+        <div class="explain">
+          <h3>Day-night effect</h3>
+          <p>Light, sky color, and water color cycle continuously. Night improves Riftstalker sensing and movement but makes prey less visible; daylight improves meadow regrowth and makes nocturnal hunters less efficient.</p>
+        </div>
+        <div class="explain">
+          <h3>Performance shortcuts</h3>
+          <p>The simulation caps populations, renders resources with instancing, redraws charts periodically, and samples local cells instead of solving global optimal paths. The ecology remains agent-driven, but the frame loop stays usable on a laptop.</p>
+        </div>
+      </section>
+    </div>
+  </aside>
+
+  <div class="hint">Drag to orbit, scroll to zoom, click creatures to inspect, accelerate time to watch evolution.</div>
+
+  <script type="module">
+    import * as THREE from "three";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+    const TAU = Math.PI * 2;
+    const WORLD_SIZE = 76;
+    const GRID = 58;
+    const CELL = WORLD_SIZE / (GRID - 1);
+    const SEA_LEVEL = 0;
+    const MAX_ORGANISMS = 230;
+    const DAY_LENGTH = 190;
+    const HISTORY_STEP = 5;
+
+    const speciesDefs = {
+      vale: {
+        name: "Valehoppers",
+        singular: "Valehopper",
+        role: "Meadow grazers",
+        color: "#6fe28a",
+        baseHue: 0.31,
+        founders: 38,
+        maxPop: 105,
+        birthEnergy: 78,
+        matureAge: 18,
+        lifespan: 250,
+        baseSpeed: 4.2,
+        baseSensor: 9.0,
+        diet: "meadow"
+      },
+      rift: {
+        name: "Riftstalkers",
+        singular: "Riftstalker",
+        role: "Nocturnal predators",
+        color: "#ff735d",
+        baseHue: 0.03,
+        founders: 10,
+        maxPop: 52,
+        birthEnergy: 105,
+        matureAge: 28,
+        lifespan: 310,
+        baseSpeed: 5.2,
+        baseSensor: 12.0,
+        diet: "prey"
+      },
+      tide: {
+        name: "Tidegliders",
+        singular: "Tideglider",
+        role: "Shore scavengers",
+        color: "#67cfff",
+        baseHue: 0.54,
+        founders: 30,
+        maxPop: 82,
+        birthEnergy: 76,
+        matureAge: 20,
+        lifespan: 270,
+        baseSpeed: 4.6,
+        baseSensor: 10.5,
+        diet: "shore"
+      }
+    };
+
+    const traitKeys = ["size", "speed", "sensor", "efficiency", "fertility", "armor", "aggression", "shore", "nocturnal", "camouflage", "metabolism", "hue"];
+    const els = {
+      viewport: document.getElementById("viewport"),
+      timeMetric: document.getElementById("timeMetric"),
+      lightMetric: document.getElementById("lightMetric"),
+      popMetric: document.getElementById("popMetric"),
+      birthMetric: document.getElementById("birthMetric"),
+      extMetric: document.getElementById("extMetric"),
+      healthPill: document.getElementById("healthPill"),
+      seedInput: document.getElementById("seedInput"),
+      resetBtn: document.getElementById("resetBtn"),
+      newBtn: document.getElementById("newBtn"),
+      speedSlider: document.getElementById("speedSlider"),
+      speedOut: document.getElementById("speedOut"),
+      speciesList: document.getElementById("speciesList"),
+      selectedPanel: document.getElementById("selectedPanel"),
+      selectedPill: document.getElementById("selectedPill"),
+      meadowTile: document.getElementById("meadowTile"),
+      algaeTile: document.getElementById("algaeTile"),
+      carrionTile: document.getElementById("carrionTile"),
+      lineageTile: document.getElementById("lineageTile"),
+      popChart: document.getElementById("popChart"),
+      traitChart: document.getElementById("traitChart"),
+      popLegend: document.getElementById("popLegend"),
+      eventLog: document.getElementById("eventLog"),
+      historySpan: document.getElementById("historySpan"),
+      traitGrid: document.getElementById("traitGrid"),
+      selectionText: document.getElementById("selectionText")
+    };
+
+    let renderer;
+    let scene;
+    let camera;
+    let controls;
+    let raycaster;
+    let pointer;
+    let terrainMesh;
+    let waterMesh;
+    let sunLight;
+    let moonLight;
+    let hemiLight;
+    let worldGroup;
+    let resourceGroup;
+    let organismGroup;
+    let selectionRing;
+    let resourceMeshes = {};
+    let state;
+    let lastFrame = performance.now();
+    let resourceRefresh = 0;
+    let uiRefresh = 0;
+
+    const shared = {};
+
+    function clamp(v, min = 0, max = 1) {
+      return Math.max(min, Math.min(max, v));
+    }
+
+    function lerp(a, b, t) {
+      return a + (b - a) * t;
+    }
+
+    function smooth(t) {
+      return t * t * (3 - 2 * t);
+    }
+
+    function hashString(str) {
+      let h = 2166136261 >>> 0;
+      for (let i = 0; i < str.length; i += 1) {
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
+      return h >>> 0;
+    }
+
+    function mulberry32(seed) {
+      let a = seed >>> 0;
+      return function rand() {
+        a += 0x6D2B79F5;
+        let t = a;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
+    function rand2(ix, iz, seed) {
+      let n = Math.imul(ix, 374761393) ^ Math.imul(iz, 668265263) ^ Math.imul(seed, 2246822519);
+      n = Math.imul(n ^ (n >>> 13), 1274126177);
+      return ((n ^ (n >>> 16)) >>> 0) / 4294967296;
+    }
+
+    function noise2(x, z, seed) {
+      const ix = Math.floor(x);
+      const iz = Math.floor(z);
+      const fx = smooth(x - ix);
+      const fz = smooth(z - iz);
+      const a = rand2(ix, iz, seed);
+      const b = rand2(ix + 1, iz, seed);
+      const c = rand2(ix, iz + 1, seed);
+      const d = rand2(ix + 1, iz + 1, seed);
+      return lerp(lerp(a, b, fx), lerp(c, d, fx), fz);
+    }
+
+    function fbm(x, z, seed) {
+      let value = 0;
+      let amp = 0.56;
+      let freq = 1;
+      let total = 0;
+      for (let i = 0; i < 5; i += 1) {
+        value += noise2(x * freq, z * freq, seed + i * 97) * amp;
+        total += amp;
+        amp *= 0.5;
+        freq *= 2.05;
+      }
+      return value / total;
+    }
+
+    function randomSeed() {
+      return `atoll-${Math.random().toString(36).slice(2, 8)}`;
+    }
+
+    function fmtTime(seconds) {
+      const m = Math.floor(seconds / 60);
+      const s = Math.floor(seconds % 60);
+      return `${m}:${String(s).padStart(2, "0")}`;
+    }
+
+    function pct(v) {
+      return `${Math.round(clamp(v) * 100)}%`;
+    }
+
+    function dist2(a, b) {
+      const dx = a.x - b.x;
+      const dz = a.z - b.z;
+      return dx * dx + dz * dz;
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[ch]));
+    }
+
+    function initThree() {
+      renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.domElement.className = "webgl";
+      els.viewport.appendChild(renderer.domElement);
+
+      scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x0b1720, 0.014);
+
+      camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 340);
+      camera.position.set(45, 36, 48);
+
+      controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.06;
+      controls.maxPolarAngle = Math.PI * 0.49;
+      controls.minDistance = 16;
+      controls.maxDistance = 122;
+      controls.target.set(0, 1.5, 0);
+
+      raycaster = new THREE.Raycaster();
+      pointer = new THREE.Vector2();
+
+      hemiLight = new THREE.HemisphereLight(0xaed9ff, 0x20351f, 1.0);
+      scene.add(hemiLight);
+      sunLight = new THREE.DirectionalLight(0xffe1a0, 2.4);
+      sunLight.position.set(30, 58, 20);
+      sunLight.castShadow = true;
+      sunLight.shadow.mapSize.set(1024, 1024);
+      sunLight.shadow.camera.near = 1;
+      sunLight.shadow.camera.far = 130;
+      sunLight.shadow.camera.left = -52;
+      sunLight.shadow.camera.right = 52;
+      sunLight.shadow.camera.top = 52;
+      sunLight.shadow.camera.bottom = -52;
+      scene.add(sunLight);
+      moonLight = new THREE.DirectionalLight(0x91b7ff, 0.15);
+      moonLight.position.set(-28, 38, -38);
+      scene.add(moonLight);
+
+      worldGroup = new THREE.Group();
+      resourceGroup = new THREE.Group();
+      organismGroup = new THREE.Group();
+      scene.add(worldGroup, resourceGroup, organismGroup);
+
+      selectionRing = new THREE.Mesh(
+        new THREE.RingGeometry(0.78, 0.94, 40),
+        new THREE.MeshBasicMaterial({ color: 0xffd166, transparent: true, opacity: 0.95, side: THREE.DoubleSide })
+      );
+      selectionRing.rotation.x = -Math.PI / 2;
+      selectionRing.visible = false;
+      scene.add(selectionRing);
+
+      shared.grazerBody = new THREE.SphereGeometry(0.56, 16, 12);
+      shared.predBody = new THREE.ConeGeometry(0.48, 1.4, 7);
+      shared.tideBody = new THREE.SphereGeometry(0.56, 16, 8);
+      shared.eye = new THREE.SphereGeometry(0.08, 8, 6);
+      shared.leg = new THREE.CylinderGeometry(0.035, 0.04, 0.68, 6);
+      shared.antenna = new THREE.CylinderGeometry(0.022, 0.018, 0.82, 5);
+      shared.fin = new THREE.ConeGeometry(0.17, 0.5, 5);
+      shared.crest = new THREE.ConeGeometry(0.12, 0.42, 6);
+      shared.eyeMat = new THREE.MeshStandardMaterial({ color: 0xf9f4dc, roughness: 0.35 });
+      shared.darkMat = new THREE.MeshStandardMaterial({ color: 0x172022, roughness: 0.8 });
+
+      window.addEventListener("resize", onResize);
+      renderer.domElement.addEventListener("pointerdown", onPointerDown);
+      document.querySelectorAll(".tab").forEach((button) => {
+        button.addEventListener("click", () => setTab(button.dataset.tab));
+      });
+      els.resetBtn.addEventListener("click", () => reset(els.seedInput.value.trim() || randomSeed()));
+      els.newBtn.addEventListener("click", () => reset(randomSeed()));
+      els.speedSlider.addEventListener("input", updateSpeedLabel);
+      updateSpeedLabel();
+    }
+
+    function setTab(name) {
+      document.querySelectorAll(".tab").forEach((button) => button.classList.toggle("active", button.dataset.tab === name));
+      document.querySelectorAll(".tab-page").forEach((page) => page.classList.toggle("active", page.id === `tab-${name}`));
+      drawCharts();
+    }
+
+    function updateSpeedLabel() {
+      const speed = getSpeed();
+      els.speedOut.textContent = speed === 0 ? "0x" : `${speed.toFixed(speed < 1 ? 2 : 1)}x`;
+    }
+
+    function getSpeed() {
+      const raw = Number(els.speedSlider.value);
+      if (raw <= 0.05) return 0;
+      return Math.pow(2, raw - 2);
+    }
+
+    function onResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      drawCharts();
+    }
+
+    function clearGroup(group) {
+      while (group.children.length) {
+        const obj = group.children.pop();
+        obj.traverse((child) => {
+          if (child.geometry && !Object.values(shared).includes(child.geometry)) child.geometry.dispose();
+          if (child.material && !Object.values(shared).includes(child.material)) {
+            if (Array.isArray(child.material)) child.material.forEach((mat) => mat.dispose());
+            else child.material.dispose();
+          }
+        });
+      }
+    }
+
+    function reset(seed) {
+      clearGroup(worldGroup);
+      clearGroup(resourceGroup);
+      clearGroup(organismGroup);
+      resourceMeshes = {};
+      selectionRing.visible = false;
+
+      const seedText = seed || randomSeed();
+      els.seedInput.value = seedText;
+      const seedHash = hashString(seedText);
+      state = {
+        seed: seedText,
+        seedHash,
+        rng: mulberry32(seedHash),
+        time: 0,
+        nextId: 1,
+        births: 0,
+        deaths: 0,
+        extinctions: 0,
+        extinctionMarked: new Set(),
+        cells: [],
+        landCells: [],
+        shoreCells: [],
+        organisms: [],
+        carcasses: [],
+        selectedId: null,
+        history: [],
+        traitHistory: [],
+        events: []
+      };
+
+      makeWorld();
+      seedResources();
+      seedOrganisms();
+      addEvent("Run started", `Seed ${seedText}. Terrain, resources, and founders are reproducible from this value.`);
+      sampleHistory(true);
+      refreshResources(true);
+      refreshUi(true);
+    }
+
+    function makeWorld() {
+      const positions = [];
+      const colors = [];
+      const indices = [];
+      state.cells = [];
+      state.landCells = [];
+      state.shoreCells = [];
+
+      for (let z = 0; z < GRID; z += 1) {
+        for (let x = 0; x < GRID; x += 1) {
+          const wx = (x / (GRID - 1) - 0.5) * WORLD_SIZE;
+          const wz = (z / (GRID - 1) - 0.5) * WORLD_SIZE;
+          const nx = wx / (WORLD_SIZE * 0.48);
+          const nz = wz / (WORLD_SIZE * 0.43);
+          const oval = Math.sqrt(nx * nx + nz * nz);
+          const basin = fbm(wx * 0.035 + 9, wz * 0.035 - 7, state.seedHash + 11);
+          const ridge = fbm(wx * 0.072 - 4, wz * 0.072 + 2, state.seedHash + 53);
+          const coast = oval + (basin - 0.5) * 0.22;
+          const mask = clamp(1.14 - coast, 0, 1);
+          const height = Math.pow(mask, 1.52) * (2.3 + ridge * 2.15) - 0.32 + (basin - 0.5) * 0.22;
+          const shore = clamp(1 - Math.abs(height - 0.08) * 7.5, 0, 1);
+          const fertility = clamp(Math.pow(mask, 0.85) * (0.34 + basin * 0.78) * (1 - shore * 0.25));
+          const moisture = clamp(shore * 0.55 + (1 - Math.abs(ridge - 0.52) * 1.8) * 0.35 + basin * 0.18);
+          const cell = {
+            i: x,
+            j: z,
+            x: wx,
+            z: wz,
+            y: height,
+            land: height > SEA_LEVEL + 0.02,
+            shore,
+            fertility,
+            moisture,
+            meadow: 0,
+            algae: 0,
+            bloom: 0,
+            nutrient: 0
+          };
+          const idx = state.cells.length;
+          state.cells.push(cell);
+          if (cell.land) state.landCells.push(idx);
+          if (cell.land && shore > 0.22) state.shoreCells.push(idx);
+
+          positions.push(wx, Math.max(height, -0.12), wz);
+          const color = terrainColor(cell);
+          colors.push(color.r, color.g, color.b);
+        }
+      }
+
+      for (let z = 0; z < GRID - 1; z += 1) {
+        for (let x = 0; x < GRID - 1; x += 1) {
+          const a = z * GRID + x;
+          const b = a + 1;
+          const c = a + GRID;
+          const d = c + 1;
+          indices.push(a, c, b, b, c, d);
+        }
+      }
+
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+      geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+      geometry.setIndex(indices);
+      geometry.computeVertexNormals();
+      const material = new THREE.MeshStandardMaterial({
+        vertexColors: true,
+        roughness: 0.92,
+        metalness: 0.02,
+        flatShading: false
+      });
+      terrainMesh = new THREE.Mesh(geometry, material);
+      terrainMesh.receiveShadow = true;
+      terrainMesh.castShadow = false;
+      worldGroup.add(terrainMesh);
+
+      const waterGeo = new THREE.PlaneGeometry(WORLD_SIZE * 2.2, WORLD_SIZE * 2.2, 80, 80);
+      const waterMat = new THREE.MeshStandardMaterial({
+        color: 0x1c7596,
+        transparent: true,
+        opacity: 0.62,
+        roughness: 0.42,
+        metalness: 0.05
+      });
+      waterMesh = new THREE.Mesh(waterGeo, waterMat);
+      waterMesh.rotation.x = -Math.PI / 2;
+      waterMesh.position.y = SEA_LEVEL - 0.06;
+      waterMesh.receiveShadow = true;
+      worldGroup.add(waterMesh);
+
+      addStoneRings();
+    }
+
+    function terrainColor(cell) {
+      const low = new THREE.Color(0x276b58);
+      const high = new THREE.Color(0x89a852);
+      const beach = new THREE.Color(0xcbbf84);
+      const rock = new THREE.Color(0x5f6e6a);
+      const water = new THREE.Color(0x123d54);
+      let color = low.clone().lerp(high, cell.fertility * 0.8 + cell.moisture * 0.18);
+      color.lerp(beach, cell.shore * 0.55);
+      color.lerp(rock, clamp((cell.y - 2.8) / 2.8) * 0.42);
+      if (!cell.land) color.copy(water).lerp(beach, clamp(cell.y + 0.16, 0, 1) * 0.35);
+      return color;
+    }
+
+    function addStoneRings() {
+      const mat = new THREE.MeshStandardMaterial({ color: 0x65736d, roughness: 0.88 });
+      for (let i = 0; i < 36; i += 1) {
+        const cell = state.cells[state.landCells[Math.floor(state.rng() * state.landCells.length)]];
+        if (!cell || cell.y < 1.25 || state.rng() < 0.5) continue;
+        const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(0.35 + state.rng() * 0.7, 0), mat);
+        rock.position.set(cell.x + (state.rng() - 0.5) * 0.6, cell.y + 0.25, cell.z + (state.rng() - 0.5) * 0.6);
+        rock.rotation.set(state.rng() * Math.PI, state.rng() * Math.PI, state.rng() * Math.PI);
+        rock.scale.y = 0.6 + state.rng() * 1.2;
+        rock.castShadow = true;
+        rock.receiveShadow = true;
+        worldGroup.add(rock);
+      }
+    }
+
+    function seedResources() {
+      for (const idx of state.landCells) {
+        const cell = state.cells[idx];
+        const r = state.rng();
+        cell.meadow = clamp(cell.fertility * (0.35 + r * 0.8) + cell.moisture * 0.18 - cell.shore * 0.18);
+        cell.bloom = clamp(cell.fertility * cell.moisture * (0.3 + state.rng() * 0.7));
+        cell.algae = clamp(cell.shore * (0.35 + state.rng() * 0.78));
+        cell.nutrient = state.rng() * 0.1;
+      }
+    }
+
+    function seedOrganisms() {
+      for (const key of Object.keys(speciesDefs)) {
+        const def = speciesDefs[key];
+        let created = 0;
+        let attempts = 0;
+        while (created < def.founders && attempts < def.founders * 30) {
+          attempts += 1;
+          const cell = key === "tide"
+            ? state.cells[state.shoreCells[Math.floor(state.rng() * state.shoreCells.length)]]
+            : state.cells[state.landCells[Math.floor(state.rng() * state.landCells.length)]];
+          if (!cell) continue;
+          const genome = randomGenome(key);
+          const org = createOrganism(key, genome, {
+            x: cell.x + (state.rng() - 0.5) * CELL,
+            z: cell.z + (state.rng() - 0.5) * CELL
+          }, 0, null, true);
+          if (org) created += 1;
+        }
+      }
+    }
+
+    function randomGenome(species) {
+      const def = speciesDefs[species];
+      const g = {};
+      for (const key of traitKeys) g[key] = clamp(0.36 + state.rng() * 0.38 + (state.rng() - 0.5) * 0.16);
+      if (species === "rift") {
+        g.aggression = clamp(0.55 + state.rng() * 0.34);
+        g.nocturnal = clamp(0.62 + state.rng() * 0.28);
+        g.armor = clamp(0.24 + state.rng() * 0.38);
+      }
+      if (species === "tide") {
+        g.shore = clamp(0.68 + state.rng() * 0.26);
+        g.efficiency = clamp(0.48 + state.rng() * 0.32);
+      }
+      if (species === "vale") {
+        g.fertility = clamp(0.48 + state.rng() * 0.33);
+        g.camouflage = clamp(0.44 + state.rng() * 0.34);
+      }
+      g.hue = clamp(def.baseHue + (state.rng() - 0.5) * 0.08);
+      return g;
+    }
+
+    function createOrganism(species, genome, pos, generation = 0, parents = null, founder = false) {
+      if (state.organisms.length >= MAX_ORGANISMS) return null;
+      const count = countSpecies(species);
+      if (count >= speciesDefs[species].maxPop && !founder) return null;
+      const cell = cellAt(pos.x, pos.z);
+      if (!cell || !cell.land) return null;
+
+      const org = {
+        id: state.nextId++,
+        species,
+        genome,
+        generation,
+        parents,
+        x: pos.x,
+        z: pos.z,
+        y: cell.y,
+        vx: (state.rng() - 0.5) * 0.5,
+        vz: (state.rng() - 0.5) * 0.5,
+        energy: founder ? 58 + state.rng() * 30 : 42,
+        health: 1,
+        age: founder ? state.rng() * 36 : 0,
+        cooldown: founder ? state.rng() * 18 : 18,
+        state: "orienting",
+        target: null,
+        mesh: null,
+        lastMateId: null,
+        flashed: 0
+      };
+      org.mesh = createOrganismMesh(org);
+      organismGroup.add(org.mesh);
+      state.organisms.push(org);
+      updateOrganismMesh(org, 0);
+      return org;
+    }
+
+    function createOrganismMesh(org) {
+      const def = speciesDefs[org.species];
+      const color = new THREE.Color().setHSL(org.genome.hue, 0.58 + org.genome.camouflage * 0.2, 0.43 + org.genome.efficiency * 0.16);
+      if (org.species === "rift") color.setHSL(org.genome.hue, 0.72, 0.47);
+      if (org.species === "tide") color.setHSL(org.genome.hue, 0.68, 0.54);
+
+      const mat = new THREE.MeshStandardMaterial({
+        color,
+        roughness: 0.62,
+        metalness: org.species === "tide" ? 0.08 : 0.02,
+        emissive: org.species === "rift" ? new THREE.Color(0x1b0200) : new THREE.Color(0x000000),
+        emissiveIntensity: org.species === "rift" ? 0.25 : 0
+      });
+      const accent = new THREE.MeshStandardMaterial({
+        color: new THREE.Color().setHSL(clamp(org.genome.hue + 0.07), 0.7, 0.62),
+        roughness: 0.5
+      });
+      const group = new THREE.Group();
+      group.userData.orgId = org.id;
+
+      if (org.species === "vale") buildValeBody(group, org, mat, accent);
+      if (org.species === "rift") buildRiftBody(group, org, mat, accent);
+      if (org.species === "tide") buildTideBody(group, org, mat, accent);
+      group.traverse((child) => {
+        child.userData.orgId = org.id;
+        if (child.isMesh) {
+          child.castShadow = true;
+          child.receiveShadow = true;
+        }
+      });
+      return group;
+    }
+
+    function buildValeBody(group, org, mat, accent) {
+      const size = 0.75 + org.genome.size * 0.82;
+      const body = new THREE.Mesh(shared.grazerBody, mat);
+      body.scale.set(size * 0.86, size * 0.46, size * 1.12);
+      body.position.y = size * 0.44;
+      group.add(body);
+
+      const shell = new THREE.Mesh(shared.grazerBody, accent);
+      shell.scale.set(size * (0.56 + org.genome.armor * 0.35), size * 0.18, size * 0.65);
+      shell.position.set(0, size * 0.78, -size * 0.08);
+      group.add(shell);
+
+      const legLen = 0.34 + org.genome.speed * 0.42;
+      for (const sx of [-1, 1]) {
+        for (const sz of [-0.62, 0, 0.62]) {
+          const leg = new THREE.Mesh(shared.leg, mat);
+          leg.scale.set(0.75, legLen, 0.75);
+          leg.position.set(sx * size * 0.43, legLen * 0.22, sz * size * 0.72);
+          leg.rotation.z = sx * 0.5;
+          group.add(leg);
+        }
+      }
+
+      for (const sx of [-1, 1]) {
+        const ant = new THREE.Mesh(shared.antenna, accent);
+        ant.scale.y = 0.85 + org.genome.sensor * 0.6;
+        ant.position.set(sx * size * 0.22, size * 0.84, size * 0.75);
+        ant.rotation.set(0.72, 0, sx * 0.32);
+        group.add(ant);
+      }
+    }
+
+    function buildRiftBody(group, org, mat, accent) {
+      const size = 0.78 + org.genome.size * 0.72;
+      const body = new THREE.Mesh(shared.predBody, mat);
+      body.scale.set(size * 0.74, size * 0.86, size * 1.35);
+      body.rotation.x = Math.PI / 2;
+      body.position.y = size * 0.52;
+      group.add(body);
+
+      const crestCount = 2 + Math.round(org.genome.aggression * 3);
+      for (let i = 0; i < crestCount; i += 1) {
+        const crest = new THREE.Mesh(shared.crest, accent);
+        crest.scale.set(0.9 + org.genome.armor * 0.8, 0.8 + org.genome.aggression * 0.7, 0.9);
+        crest.position.set(0, size * 0.86, -size * 0.52 + i * size * 0.34);
+        crest.rotation.x = -0.55;
+        group.add(crest);
+      }
+
+      for (const sx of [-1, 1]) {
+        for (const sz of [-0.45, 0.35]) {
+          const leg = new THREE.Mesh(shared.leg, mat);
+          leg.scale.set(0.92, 0.62 + org.genome.speed * 0.56, 0.92);
+          leg.position.set(sx * size * 0.44, size * 0.18, sz * size);
+          leg.rotation.z = sx * 0.74;
+          group.add(leg);
+        }
+      }
+
+      const eyeL = new THREE.Mesh(shared.eye, shared.eyeMat);
+      const eyeR = new THREE.Mesh(shared.eye, shared.eyeMat);
+      eyeL.position.set(-size * 0.19, size * 0.63, size * 0.78);
+      eyeR.position.set(size * 0.19, size * 0.63, size * 0.78);
+      group.add(eyeL, eyeR);
+    }
+
+    function buildTideBody(group, org, mat, accent) {
+      const size = 0.72 + org.genome.size * 0.68;
+      const body = new THREE.Mesh(shared.tideBody, mat);
+      body.scale.set(size * 1.05, size * 0.24, size * 0.72);
+      body.position.y = size * 0.34;
+      group.add(body);
+
+      for (const sx of [-1, 1]) {
+        const fin = new THREE.Mesh(shared.fin, accent);
+        fin.scale.set(0.75 + org.genome.shore * 0.6, 0.9 + org.genome.speed * 0.44, 0.62);
+        fin.position.set(sx * size * 0.77, size * 0.34, -size * 0.03);
+        fin.rotation.z = sx * -Math.PI / 2;
+        fin.rotation.y = sx * 0.32;
+        group.add(fin);
+      }
+
+      const bill = new THREE.Mesh(shared.antenna, accent);
+      bill.scale.set(1.4, 0.62 + org.genome.sensor * 0.6, 1.4);
+      bill.position.set(0, size * 0.34, size * 0.7);
+      bill.rotation.x = Math.PI / 2;
+      group.add(bill);
+    }
+
+    function updateOrganismMesh(org, dt) {
+      const cell = cellAt(org.x, org.z);
+      if (!cell) return;
+      org.y = lerp(org.y, Math.max(cell.y, SEA_LEVEL + 0.02), 0.28);
+      org.mesh.position.set(org.x, org.y + 0.08, org.z);
+      const heading = Math.atan2(org.vx, org.vz);
+      org.mesh.rotation.y = heading;
+      const bob = Math.sin((state.time * (3.2 + org.genome.speed * 3.5)) + org.id) * 0.035 * Math.min(1, Math.hypot(org.vx, org.vz));
+      org.mesh.position.y += bob;
+      const sizePulse = org.flashed > 0 ? 1 + org.flashed * 0.15 : 1;
+      org.mesh.scale.setScalar(sizePulse);
+      org.flashed = Math.max(0, org.flashed - dt * 2.5);
+    }
+
+    function cellAt(x, z) {
+      const i = Math.round((x / WORLD_SIZE + 0.5) * (GRID - 1));
+      const j = Math.round((z / WORLD_SIZE + 0.5) * (GRID - 1));
+      if (i < 0 || j < 0 || i >= GRID || j >= GRID) return null;
+      return state.cells[j * GRID + i];
+    }
+
+    function countSpecies(species) {
+      return state.organisms.filter((org) => org.species === species).length;
+    }
+
+    function step(dt) {
+      state.time += dt;
+      updateResources(dt);
+      updateOrganisms(dt);
+      updateCarcasses(dt);
+      enforceExtinctions();
+      if (!state.history.length || state.time - state.history[state.history.length - 1].t >= HISTORY_STEP) sampleHistory();
+    }
+
+    function updateResources(dt) {
+      const daylight = dayLight();
+      for (const idx of state.landCells) {
+        const cell = state.cells[idx];
+        const nutrientBoost = cell.nutrient * 0.42;
+        cell.meadow = clamp(cell.meadow + dt * (0.006 + daylight * 0.012) * cell.fertility * (0.45 + cell.moisture + nutrientBoost));
+        cell.bloom = clamp(cell.bloom + dt * 0.004 * daylight * cell.fertility * cell.moisture - dt * 0.001);
+        cell.algae = clamp(cell.algae + dt * 0.007 * cell.shore * (0.35 + (1 - daylight) * 0.5 + nutrientBoost) - dt * 0.0007 * cell.algae);
+        cell.nutrient = Math.max(0, cell.nutrient - dt * 0.018);
+      }
+    }
+
+    function updateOrganisms(dt) {
+      const daylight = dayLight();
+      for (const org of [...state.organisms]) {
+        const def = speciesDefs[org.species];
+        org.age += dt;
+        org.cooldown = Math.max(0, org.cooldown - dt);
+        const baseCost = 0.022 + org.genome.metabolism * 0.032 + org.genome.size * 0.02;
+        const nightCost = org.species === "rift" ? daylight * (0.012 + org.genome.nocturnal * 0.018) : (1 - daylight) * 0.008;
+        org.energy -= dt * (baseCost + nightCost) * 8;
+        org.health = clamp(org.health + dt * 0.006 - (org.energy < 8 ? dt * 0.034 : 0));
+
+        decide(org, daylight);
+        moveOrganism(org, dt, daylight);
+        feed(org, dt, daylight);
+        tryMate(org);
+        updateOrganismMesh(org, dt);
+
+        if (org.age > def.lifespan * (0.72 + org.genome.efficiency * 0.42) || org.energy <= -8 || org.health <= 0) {
+          killOrganism(org, org.health <= 0 || org.energy <= -8 ? "starved" : "aged out");
+        }
+      }
+    }
+
+    function decide(org, daylight) {
+      const def = speciesDefs[org.species];
+      const sensor = sensorRange(org, daylight);
+      const pos = { x: org.x, z: org.z };
+      const threat = org.species === "rift" ? null : nearestOrganism(org, (o) => o.species === "rift", sensor * (0.85 + org.genome.camouflage * 0.25));
+      const ready = org.energy > def.birthEnergy * (0.72 + org.genome.fertility * 0.22) && org.cooldown <= 0 && org.age > def.matureAge;
+      const mate = ready ? nearestOrganism(org, (o) => o.species === org.species && o.energy > def.birthEnergy * 0.62 && o.cooldown <= 0 && o.age > def.matureAge, sensor) : null;
+
+      if (threat && threat.d2 < sensor * sensor * 0.6) {
+        org.state = "fleeing predator";
+        org.target = { x: org.x + (org.x - threat.org.x) * 2.6, z: org.z + (org.z - threat.org.z) * 2.6, kind: "flee" };
+        return;
+      }
+
+      if (mate) {
+        org.state = "seeking mate";
+        org.target = { x: mate.org.x, z: mate.org.z, kind: "mate", id: mate.org.id };
+        return;
+      }
+
+      if (org.species === "rift") {
+        const prey = nearestOrganism(org, (o) => o.species !== "rift", sensor * (0.78 + org.genome.aggression * 0.55));
+        if (prey && (org.energy < 92 || org.genome.aggression > 0.56 || daylight < 0.35)) {
+          org.state = daylight < 0.35 ? "night stalking" : "hunting";
+          org.target = { x: prey.org.x, z: prey.org.z, kind: "prey", id: prey.org.id };
+          return;
+        }
+        const rest = bestCellAround(pos, sensor * 0.8, (cell, distance) => cell.y * 0.25 + cell.fertility * 0.18 - cell.shore * 0.22 - distance * 0.02, 18);
+        org.state = daylight > 0.55 ? "resting in shade" : "patrolling";
+        org.target = rest ? { x: rest.x, z: rest.z, kind: "rest" } : wanderTarget(org);
+        return;
+      }
+
+      if (org.species === "tide") {
+        const carcass = nearestCarcass(org, sensor);
+        if (carcass && (org.energy < 82 || carcass.c.amount > 12)) {
+          org.state = "scavenging carrion";
+          org.target = { x: carcass.c.x, z: carcass.c.z, kind: "carrion", id: carcass.c.id };
+          return;
+        }
+        const shore = bestCellAround(pos, sensor, (cell, distance) => cell.shore * 1.25 + cell.algae * 1.4 + cell.moisture * 0.25 - distance * 0.026, 24);
+        org.state = shore && shore.algae > 0.22 ? "skimming algae" : "patrolling shore";
+        org.target = shore ? { x: shore.x, z: shore.z, kind: "algae" } : wanderTarget(org);
+        return;
+      }
+
+      const graze = bestCellAround(pos, sensor, (cell, distance) => cell.meadow * 1.7 + cell.bloom * 0.28 + cell.fertility * 0.25 - cell.shore * 0.18 - distance * 0.03, 22);
+      org.state = graze && graze.meadow > 0.26 ? "grazing meadow" : "searching";
+      org.target = graze ? { x: graze.x, z: graze.z, kind: "meadow" } : wanderTarget(org);
+    }
+
+    function sensorRange(org, daylight) {
+      const def = speciesDefs[org.species];
+      let sensor = def.baseSensor * (0.72 + org.genome.sensor * 0.72);
+      if (org.species === "rift") sensor *= 0.82 + (1 - daylight) * (0.42 + org.genome.nocturnal * 0.42);
+      if (org.species !== "rift") sensor *= 0.78 + daylight * 0.26 + org.genome.camouflage * 0.08;
+      return sensor;
+    }
+
+    function speedFor(org, daylight) {
+      const def = speciesDefs[org.species];
+      let speed = def.baseSpeed * (0.62 + org.genome.speed * 0.72) / (1 + org.genome.size * 0.24 + org.genome.armor * 0.18);
+      if (org.species === "rift") speed *= 0.78 + (1 - daylight) * (0.34 + org.genome.nocturnal * 0.36);
+      if (org.species === "tide") speed *= 0.82 + org.genome.shore * 0.2;
+      return speed;
+    }
+
+    function nearestOrganism(org, predicate, range) {
+      let best = null;
+      const limit = range * range;
+      for (const other of state.organisms) {
+        if (other === org || !predicate(other)) continue;
+        const d2 = dist2(org, other);
+        if (d2 < limit && (!best || d2 < best.d2)) best = { org: other, d2 };
+      }
+      return best;
+    }
+
+    function nearestCarcass(org, range) {
+      let best = null;
+      const limit = range * range;
+      for (const c of state.carcasses) {
+        const dx = org.x - c.x;
+        const dz = org.z - c.z;
+        const d2 = dx * dx + dz * dz;
+        if (d2 < limit && (!best || d2 < best.d2)) best = { c, d2 };
+      }
+      return best;
+    }
+
+    function bestCellAround(pos, radius, scoreFn, samples) {
+      let best = null;
+      let bestScore = -Infinity;
+      const center = cellAt(pos.x, pos.z);
+      if (center && center.land) {
+        best = center;
+        bestScore = scoreFn(center, 0);
+      }
+      for (let n = 0; n < samples; n += 1) {
+        const angle = state.rng() * TAU;
+        const r = Math.sqrt(state.rng()) * radius;
+        const cell = cellAt(pos.x + Math.cos(angle) * r, pos.z + Math.sin(angle) * r);
+        if (!cell || !cell.land) continue;
+        const score = scoreFn(cell, r);
+        if (score > bestScore) {
+          bestScore = score;
+          best = cell;
+        }
+      }
+      return best;
+    }
+
+    function wanderTarget(org) {
+      const angle = state.rng() * TAU;
+      const range = 5 + state.rng() * 11;
+      return { x: org.x + Math.cos(angle) * range, z: org.z + Math.sin(angle) * range, kind: "wander" };
+    }
+
+    function moveOrganism(org, dt, daylight) {
+      if (!org.target) org.target = wanderTarget(org);
+      const targetCell = cellAt(org.target.x, org.target.z);
+      if (!targetCell || !targetCell.land || (org.species !== "tide" && targetCell.shore > 0.92 && targetCell.y < 0.12)) {
+        org.target = wanderTarget(org);
+      }
+
+      let tx = org.target.x - org.x;
+      let tz = org.target.z - org.z;
+      const len = Math.hypot(tx, tz) || 1;
+      tx /= len;
+      tz /= len;
+
+      const current = cellAt(org.x, org.z);
+      if (current) {
+        const shorePenalty = org.species === "tide" ? 0 : current.shore * (0.6 - org.genome.shore * 0.3);
+        if (shorePenalty > 0.12) {
+          tx += (org.x / WORLD_SIZE) * shorePenalty;
+          tz += (org.z / WORLD_SIZE) * shorePenalty;
+        }
+      }
+
+      const speed = speedFor(org, daylight);
+      const damping = 0.78;
+      org.vx = org.vx * damping + tx * speed * (1 - damping);
+      org.vz = org.vz * damping + tz * speed * (1 - damping);
+      const nx = org.x + org.vx * dt;
+      const nz = org.z + org.vz * dt;
+      const nextCell = cellAt(nx, nz);
+      if (nextCell && nextCell.land) {
+        org.x = clamp(nx, -WORLD_SIZE * 0.49, WORLD_SIZE * 0.49);
+        org.z = clamp(nz, -WORLD_SIZE * 0.49, WORLD_SIZE * 0.49);
+      } else {
+        org.vx *= -0.45;
+        org.vz *= -0.45;
+        org.target = wanderTarget(org);
+      }
+    }
+
+    function feed(org, dt, daylight) {
+      const cell = cellAt(org.x, org.z);
+      if (!cell) return;
+      if (org.species === "vale" && cell.meadow > 0.03) {
+        const bite = Math.min(cell.meadow, dt * (0.055 + org.genome.size * 0.035 + org.genome.efficiency * 0.03));
+        cell.meadow -= bite;
+        cell.nutrient += bite * 0.04;
+        org.energy += bite * (27 + org.genome.efficiency * 21);
+        org.health = clamp(org.health + bite * 0.06);
+      }
+
+      if (org.species === "tide") {
+        if (cell.algae > 0.03) {
+          const bite = Math.min(cell.algae, dt * (0.06 + org.genome.shore * 0.055 + org.genome.efficiency * 0.025));
+          cell.algae -= bite;
+          cell.nutrient += bite * 0.05;
+          org.energy += bite * (25 + org.genome.efficiency * 20);
+          org.health = clamp(org.health + bite * 0.04);
+        }
+        const carcass = nearestCarcass(org, 1.45);
+        if (carcass) {
+          const bite = Math.min(carcass.c.amount, dt * (8 + org.genome.size * 6));
+          carcass.c.amount -= bite;
+          org.energy += bite * (0.86 + org.genome.efficiency * 0.3);
+          cell.nutrient = clamp(cell.nutrient + bite * 0.007);
+          org.state = "feeding on carrion";
+        }
+        cell.nutrient = clamp(cell.nutrient + dt * 0.015 * org.genome.shore);
+      }
+
+      if (org.species === "rift") {
+        const prey = nearestOrganism(org, (o) => o.species !== "rift", 1.25 + org.genome.size * 0.75);
+        if (prey) {
+          const victim = prey.org;
+          const armor = victim.genome.armor * (victim.species === "vale" ? 0.9 : 0.35);
+          const damage = dt * (0.2 + org.genome.aggression * 0.34 + org.genome.size * 0.18) * (1 - armor * 0.55);
+          victim.health -= damage;
+          victim.energy -= damage * 22;
+          org.energy += damage * 14;
+          org.state = "attacking";
+          if (victim.health <= 0) {
+            org.energy += 18 + victim.genome.size * 12;
+            killOrganism(victim, `caught by ${speciesDefs.rift.singular}`);
+          }
+        }
+      }
+    }
+
+    function tryMate(org) {
+      const def = speciesDefs[org.species];
+      if (org.cooldown > 0 || org.age < def.matureAge || org.energy < def.birthEnergy) return;
+      const mate = nearestOrganism(org, (o) => (
+        o.species === org.species &&
+        o.id !== org.id &&
+        o.cooldown <= 0 &&
+        o.age > def.matureAge &&
+        o.energy > def.birthEnergy * 0.68
+      ), 1.8);
+      if (!mate) return;
+
+      const parentB = mate.org;
+      const childGenome = crossoverGenome(org, parentB);
+      const pos = {
+        x: (org.x + parentB.x) / 2 + (state.rng() - 0.5) * 1.4,
+        z: (org.z + parentB.z) / 2 + (state.rng() - 0.5) * 1.4
+      };
+      const child = createOrganism(org.species, childGenome, pos, Math.max(org.generation, parentB.generation) + 1, [org.id, parentB.id]);
+      if (child) {
+        org.energy *= 0.58;
+        parentB.energy *= 0.68;
+        org.cooldown = 26 + (1 - org.genome.fertility) * 24;
+        parentB.cooldown = 26 + (1 - parentB.genome.fertility) * 24;
+        org.flashed = 1;
+        parentB.flashed = 1;
+        child.flashed = 1.2;
+        state.births += 1;
+        addEvent(`${speciesDefs[org.species].singular} born`, `G${child.generation} inherited ${dominantTrait(child)} from parents ${org.id} and ${parentB.id}.`);
+      }
+    }
+
+    function crossoverGenome(a, b) {
+      const g = {};
+      for (const key of traitKeys) {
+        const source = state.rng() < 0.5 ? a.genome[key] : b.genome[key];
+        const blend = (a.genome[key] + b.genome[key]) * 0.5;
+        const mutation = (state.rng() - 0.5) * (key === "hue" ? 0.075 : 0.18);
+        g[key] = clamp(lerp(source, blend, 0.35) + mutation);
+      }
+      if (a.species) {
+        const base = speciesDefs[a.species].baseHue;
+        g.hue = clamp(lerp(g.hue, base, 0.08));
+      }
+      return g;
+    }
+
+    function dominantTrait(org) {
+      let best = "balanced genes";
+      let value = -1;
+      for (const key of traitKeys.filter((k) => k !== "hue")) {
+        if (org.genome[key] > value) {
+          value = org.genome[key];
+          best = key;
+        }
+      }
+      return `${best} ${(value * 100).toFixed(0)}%`;
+    }
+
+    function killOrganism(org, reason) {
+      const idx = state.organisms.indexOf(org);
+      if (idx === -1) return;
+      state.organisms.splice(idx, 1);
+      organismGroup.remove(org.mesh);
+      org.mesh.traverse((child) => {
+        if (child.material && child.material !== shared.eyeMat && child.material !== shared.darkMat) {
+          if (Array.isArray(child.material)) child.material.forEach((mat) => mat.dispose());
+          else child.material.dispose();
+        }
+      });
+      const amount = 10 + org.genome.size * 18 + Math.max(0, org.energy) * 0.2;
+      createCarcass(org.x, org.z, org.y, amount, org.species);
+      state.deaths += 1;
+      if (state.selectedId === org.id) state.selectedId = null;
+      if (state.rng() < 0.18 || reason.includes("caught")) addEvent(`${speciesDefs[org.species].singular} died`, `Organism ${org.id} ${reason}; carrion now feeds shore scavengers.`);
+    }
+
+    function createCarcass(x, z, y, amount, species) {
+      const id = `c${state.time.toFixed(1)}-${state.rng().toString(36).slice(2, 6)}`;
+      const mat = new THREE.MeshStandardMaterial({
+        color: species === "rift" ? 0x6d1f1b : 0x6b4631,
+        roughness: 0.88
+      });
+      const mesh = new THREE.Mesh(new THREE.SphereGeometry(0.24 + amount * 0.012, 8, 6), mat);
+      mesh.scale.y = 0.22;
+      mesh.position.set(x, y + 0.08, z);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      resourceGroup.add(mesh);
+      state.carcasses.push({ id, x, z, y, amount, age: 0, mesh });
+    }
+
+    function updateCarcasses(dt) {
+      for (const c of [...state.carcasses]) {
+        c.age += dt;
+        c.amount -= dt * 0.42;
+        const cell = cellAt(c.x, c.z);
+        if (cell) cell.nutrient = clamp(cell.nutrient + dt * 0.004);
+        c.mesh.scale.setScalar(clamp(c.amount / 24, 0.25, 1.5));
+        c.mesh.scale.y *= 0.22;
+        if (c.amount <= 0 || c.age > 95) {
+          state.carcasses.splice(state.carcasses.indexOf(c), 1);
+          resourceGroup.remove(c.mesh);
+          c.mesh.geometry.dispose();
+          c.mesh.material.dispose();
+        }
+      }
+    }
+
+    function enforceExtinctions() {
+      for (const key of Object.keys(speciesDefs)) {
+        if (countSpecies(key) === 0 && !state.extinctionMarked.has(key)) {
+          state.extinctionMarked.add(key);
+          state.extinctions += 1;
+          addEvent(`${speciesDefs[key].name} extinct`, "No living organisms remain in this ecological role.");
+        }
+      }
+    }
+
+    function dayLight() {
+      const phase = dayPhase();
+      return clamp(Math.sin(phase * TAU - Math.PI / 2) * 0.5 + 0.5);
+    }
+
+    function dayPhase() {
+      return ((state.time + DAY_LENGTH * 0.28) % DAY_LENGTH) / DAY_LENGTH;
+    }
+
+    function updateLighting(dt) {
+      const daylight = dayLight();
+      const phase = dayPhase();
+      const skyDay = new THREE.Color(0x8dc9ef);
+      const skyDusk = new THREE.Color(0x493d58);
+      const skyNight = new THREE.Color(0x07111e);
+      const sky = daylight > 0.2
+        ? skyDusk.clone().lerp(skyDay, clamp((daylight - 0.2) / 0.8))
+        : skyNight.clone().lerp(skyDusk, daylight / 0.2);
+      scene.background = sky;
+      scene.fog.color.copy(sky.clone().lerp(new THREE.Color(0x071013), 0.35));
+      scene.fog.density = lerp(0.026, 0.011, daylight);
+      sunLight.intensity = lerp(0.12, 2.7, daylight);
+      sunLight.position.set(Math.cos(phase * TAU) * 42, 14 + daylight * 54, Math.sin(phase * TAU) * 42);
+      moonLight.intensity = lerp(0.68, 0.05, daylight);
+      hemiLight.intensity = lerp(0.38, 1.12, daylight);
+      if (waterMesh) {
+        waterMesh.material.color.set(daylight > 0.38 ? 0x1f8aa6 : 0x142c58);
+        waterMesh.material.opacity = lerp(0.72, 0.55, daylight);
+        waterMesh.position.y = SEA_LEVEL - 0.06 + Math.sin(state.time * 0.45) * 0.025;
+      }
+      if (terrainMesh) terrainMesh.material.color.setScalar(lerp(0.55, 1, daylight));
+      if (selectionRing.visible) selectionRing.material.opacity = 0.62 + Math.sin(state.time * 5) * 0.2;
+      renderer.toneMappingExposure = lerp(0.84, 1.08, daylight);
+      if (dt) updateNightGlow(daylight);
+    }
+
+    function updateNightGlow(daylight) {
+      for (const org of state.organisms) {
+        if (org.species !== "rift") continue;
+        org.mesh.traverse((child) => {
+          if (child.material && child.material.emissive) child.material.emissiveIntensity = lerp(0.55, 0.16, daylight);
+        });
+      }
+    }
+
+    function refreshResources(force = false) {
+      const now = state.time;
+      if (!force && now - resourceRefresh < 1.2) return;
+      resourceRefresh = now;
+      for (const key of Object.keys(resourceMeshes)) {
+        resourceGroup.remove(resourceMeshes[key]);
+        resourceMeshes[key].geometry.dispose();
+        resourceMeshes[key].material.dispose();
+      }
+      resourceMeshes = {};
+      makeResourceInstances("meadow", sharedGrassGeometry(), new THREE.MeshStandardMaterial({ color: 0x71d978, roughness: 0.85 }), 580, (cell) => cell.meadow);
+      makeResourceInstances("bloom", new THREE.OctahedronGeometry(0.1, 0), new THREE.MeshStandardMaterial({ color: 0xffd166, roughness: 0.48, emissive: 0x3b2400, emissiveIntensity: 0.1 }), 210, (cell) => cell.bloom);
+      makeResourceInstances("algae", new THREE.CylinderGeometry(0.16, 0.2, 0.035, 7), new THREE.MeshStandardMaterial({ color: 0x4fd7cc, roughness: 0.62, emissive: 0x043d3c, emissiveIntensity: 0.15 }), 260, (cell) => cell.algae * cell.shore);
+    }
+
+    function sharedGrassGeometry() {
+      return new THREE.ConeGeometry(0.08, 0.45, 5);
+    }
+
+    function makeResourceInstances(key, geometry, material, maxCount, valueFn) {
+      const candidates = state.landCells
+        .map((idx) => state.cells[idx])
+        .filter((cell) => valueFn(cell) > 0.13)
+        .sort((a, b) => valueFn(b) - valueFn(a));
+      const count = Math.min(maxCount, candidates.length);
+      const mesh = new THREE.InstancedMesh(geometry, material, count);
+      const dummy = new THREE.Object3D();
+      for (let i = 0; i < count; i += 1) {
+        const cell = candidates[(i * 7) % candidates.length];
+        const value = valueFn(cell);
+        dummy.position.set(
+          cell.x + (rand2(cell.i, cell.j, state.seedHash + i) - 0.5) * CELL * 0.8,
+          cell.y + (key === "algae" ? 0.055 : 0.18),
+          cell.z + (rand2(cell.j, cell.i, state.seedHash + i + 41) - 0.5) * CELL * 0.8
+        );
+        dummy.rotation.set(0, rand2(i, cell.i, state.seedHash) * TAU, 0);
+        const scale = key === "meadow" ? 0.55 + value * 1.4 : 0.45 + value * 1.1;
+        dummy.scale.setScalar(scale);
+        dummy.updateMatrix();
+        mesh.setMatrixAt(i, dummy.matrix);
+      }
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      resourceMeshes[key] = mesh;
+      resourceGroup.add(mesh);
+    }
+
+    function sampleHistory(force = false) {
+      const counts = {};
+      for (const key of Object.keys(speciesDefs)) counts[key] = countSpecies(key);
+      state.history.push({ t: state.time, counts });
+      if (state.history.length > 150) state.history.shift();
+
+      const traits = {};
+      for (const key of Object.keys(speciesDefs)) {
+        const orgs = state.organisms.filter((o) => o.species === key);
+        traits[key] = averageTraits(orgs);
+      }
+      state.traitHistory.push({ t: state.time, traits });
+      if (state.traitHistory.length > 150) state.traitHistory.shift();
+      if (!force) drawCharts();
+    }
+
+    function averageTraits(orgs) {
+      const out = {};
+      for (const key of traitKeys) out[key] = 0;
+      if (!orgs.length) return out;
+      for (const org of orgs) {
+        for (const key of traitKeys) out[key] += org.genome[key];
+      }
+      for (const key of traitKeys) out[key] /= orgs.length;
+      return out;
+    }
+
+    function refreshUi(force = false) {
+      if (!force && state.time - uiRefresh < 0.25) return;
+      uiRefresh = state.time;
+      const counts = {};
+      let total = 0;
+      for (const key of Object.keys(speciesDefs)) {
+        counts[key] = countSpecies(key);
+        total += counts[key];
+      }
+
+      els.timeMetric.textContent = fmtTime(state.time);
+      els.lightMetric.textContent = lightLabel(dayLight());
+      els.popMetric.textContent = String(total);
+      els.birthMetric.textContent = String(state.births);
+      els.extMetric.textContent = String(state.extinctions);
+      els.healthPill.textContent = total < 20 ? "collapse risk" : total > 190 ? "crowded" : "active";
+      els.meadowTile.textContent = pct(avgCell("meadow"));
+      els.algaeTile.textContent = pct(avgCell("algae", (c) => c.shore > 0.18));
+      els.carrionTile.textContent = String(state.carcasses.length);
+      els.lineageTile.textContent = `G${Math.max(0, ...state.organisms.map((o) => o.generation))}`;
+      els.historySpan.textContent = `${state.history.length} samples`;
+
+      els.speciesList.innerHTML = Object.keys(speciesDefs).map((key) => {
+        const def = speciesDefs[key];
+        return `<div class="species-row">
+          <span class="dot" style="color:${def.color}"></span>
+          <div class="species-name">${def.name}<span class="species-role">${def.role}</span></div>
+          <div class="species-count">${counts[key]}</div>
+        </div>`;
+      }).join("");
+
+      renderSelected();
+      renderTraits();
+      renderEvents();
+    }
+
+    function lightLabel(daylight) {
+      if (daylight < 0.12) return "Night";
+      if (daylight < 0.35) return "Dawn";
+      if (daylight > 0.82) return "High sun";
+      if (daylight > 0.45) return "Day";
+      return "Dusk";
+    }
+
+    function avgCell(prop, filter = () => true) {
+      let sum = 0;
+      let count = 0;
+      for (const idx of state.landCells) {
+        const cell = state.cells[idx];
+        if (!filter(cell)) continue;
+        sum += cell[prop];
+        count += 1;
+      }
+      return count ? sum / count : 0;
+    }
+
+    function renderSelected() {
+      const org = state.organisms.find((o) => o.id === state.selectedId);
+      if (!org) {
+        els.selectedPill.textContent = "none";
+        els.selectedPanel.innerHTML = `<h2>Click a creature</h2><div class="subtext">Selection shows inherited genes, age, health, energy, current intent, and lineage.</div>`;
+        selectionRing.visible = false;
+        return;
+      }
+      const def = speciesDefs[org.species];
+      els.selectedPill.textContent = `${def.singular} ${org.id}`;
+      selectionRing.visible = true;
+      selectionRing.position.set(org.x, org.y + 0.045, org.z);
+      const bars = ["energy", "health", "size", "speed", "sensor", "fertility", "armor", "shore", "nocturnal"].map((key) => {
+        const value = key === "energy" ? clamp(org.energy / def.birthEnergy) : key === "health" ? org.health : org.genome[key];
+        return `<div class="bar-row"><span>${key}</span><div class="bar"><i style="width:${Math.round(value * 100)}%"></i></div><b>${Math.round(value * 100)}</b></div>`;
+      }).join("");
+      els.selectedPanel.innerHTML = `
+        <h2>${def.singular} ${org.id}</h2>
+        <div class="subtext">G${org.generation} ${org.parents ? `from ${org.parents.join(" x ")}` : "founder"} - age ${org.age.toFixed(0)}s</div>
+        <span class="pill">${escapeHtml(org.state)}</span>
+        <div class="bars">${bars}</div>
+      `;
+    }
+
+    function renderTraits() {
+      const rows = Object.keys(speciesDefs).map((key) => {
+        const orgs = state.organisms.filter((o) => o.species === key);
+        const avg = averageTraits(orgs);
+        const def = speciesDefs[key];
+        return `<div class="trait">
+          <span style="color:${def.color}">${def.name}</span>
+          <strong>${orgs.length ? `size ${Math.round(avg.size * 100)} / speed ${Math.round(avg.speed * 100)}` : "extinct"}</strong>
+        </div>`;
+      });
+      rows.push(`<div class="trait"><span>mutation</span><strong>+/- 9% per gene</strong></div>`);
+      rows.push(`<div class="trait"><span>selection</span><strong>${state.deaths} deaths</strong></div>`);
+      rows.push(`<div class="trait"><span>offspring</span><strong>${state.births} births</strong></div>`);
+      els.traitGrid.innerHTML = rows.join("");
+
+      const latest = state.traitHistory[state.traitHistory.length - 1];
+      if (latest) {
+        const fragments = Object.keys(speciesDefs).map((key) => {
+          const t = latest.traits[key];
+          return `${speciesDefs[key].name}: size ${Math.round(t.size * 100)}, sensor ${Math.round(t.sensor * 100)}, armor ${Math.round(t.armor * 100)}`;
+        });
+        els.selectionText.textContent = fragments.join(". ");
+      }
+    }
+
+    function renderEvents() {
+      els.eventLog.innerHTML = state.events.slice(0, 12).map((event) => `
+        <div class="event">
+          <small>${fmtTime(event.t)}</small>
+          <strong>${escapeHtml(event.title)}</strong>
+          <div>${escapeHtml(event.body)}</div>
+        </div>
+      `).join("");
+    }
+
+    function addEvent(title, body) {
+      state.events.unshift({ t: state.time, title, body });
+      if (state.events.length > 60) state.events.pop();
+    }
+
+    function drawCharts() {
+      drawPopulationChart();
+      drawTraitChart();
+      els.popLegend.innerHTML = Object.keys(speciesDefs).map((key) => (
+        `<span><i class="dot" style="color:${speciesDefs[key].color}"></i>${speciesDefs[key].name}</span>`
+      )).join("");
+    }
+
+    function setupCanvas(canvas) {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio, 2);
+      canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+      canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+      const ctx = canvas.getContext("2d");
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return { ctx, w: rect.width, h: rect.height };
+    }
+
+    function drawPopulationChart() {
+      const { ctx, w, h } = setupCanvas(els.popChart);
+      ctx.clearRect(0, 0, w, h);
+      drawGrid(ctx, w, h);
+      if (state.history.length < 2) return;
+      const maxPop = Math.max(10, ...state.history.flatMap((p) => Object.values(p.counts)));
+      for (const key of Object.keys(speciesDefs)) {
+        ctx.strokeStyle = speciesDefs[key].color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        state.history.forEach((p, i) => {
+          const x = (i / (state.history.length - 1)) * (w - 18) + 9;
+          const y = h - 12 - (p.counts[key] / maxPop) * (h - 24);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+      }
+    }
+
+    function drawTraitChart() {
+      const { ctx, w, h } = setupCanvas(els.traitChart);
+      ctx.clearRect(0, 0, w, h);
+      drawGrid(ctx, w, h);
+      if (state.traitHistory.length < 2) return;
+      const traits = ["size", "speed", "sensor"];
+      const colors = ["#ffd166", "#67cfff", "#b69cff"];
+      traits.forEach((trait, traitIndex) => {
+        ctx.strokeStyle = colors[traitIndex];
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        state.traitHistory.forEach((p, i) => {
+          let sum = 0;
+          let count = 0;
+          for (const key of Object.keys(speciesDefs)) {
+            const c = state.history[i]?.counts[key] || 0;
+            if (c > 0) {
+              sum += p.traits[key][trait] * c;
+              count += c;
+            }
+          }
+          const value = count ? sum / count : 0;
+          const x = (i / (state.traitHistory.length - 1)) * (w - 18) + 9;
+          const y = h - 12 - value * (h - 24);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+      });
+      ctx.fillStyle = "rgba(245,247,239,0.72)";
+      ctx.font = "11px ui-sans-serif, system-ui";
+      ctx.fillText("size", 12, 18);
+      ctx.fillText("speed", 58, 18);
+      ctx.fillText("sensor", 112, 18);
+    }
+
+    function drawGrid(ctx, w, h) {
+      ctx.fillStyle = "rgba(0,0,0,0.12)";
+      ctx.fillRect(0, 0, w, h);
+      ctx.strokeStyle = "rgba(255,255,255,0.08)";
+      ctx.lineWidth = 1;
+      for (let i = 1; i < 4; i += 1) {
+        const y = (h / 4) * i;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
+    }
+
+    function onPointerDown(event) {
+      const rect = renderer.domElement.getBoundingClientRect();
+      pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(pointer, camera);
+      const hits = raycaster.intersectObjects(organismGroup.children, true);
+      if (hits.length) {
+        const hit = hits.find((h) => h.object.userData.orgId);
+        if (hit) {
+          state.selectedId = hit.object.userData.orgId;
+          renderSelected();
+        }
+      }
+    }
+
+    function animate(now = performance.now()) {
+      requestAnimationFrame(animate);
+      const realDt = Math.min(0.05, (now - lastFrame) / 1000);
+      lastFrame = now;
+      const speed = getSpeed();
+      if (state && speed > 0) {
+        const simDt = Math.min(0.9, realDt * speed);
+        const steps = Math.max(1, Math.ceil(simDt / 0.18));
+        for (let i = 0; i < steps; i += 1) step(simDt / steps);
+      }
+      if (state) {
+        updateLighting(realDt);
+        refreshResources();
+        refreshUi();
+      }
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    initThree();
+    reset(randomSeed());
+    animate();
+  </script>
+</body>
+</html>
