@@ -360,6 +360,23 @@
             "score": null
           },
           "notes": "Open `life-sim/codex-gpt-5-4/index.html` directly in a browser, serve the folder with `python3 -m http.server 8080` if local module loading is blocked, or use the mirrored artifact at `./artifacts/life-sim/codex-gpt-5-4.html`."
+        },
+        {
+          "slug": "codex-gpt-5-5-xhigh",
+          "harness": "codex",
+          "model": "gpt-5-5-xhigh",
+          "projectName": "trophic-drift-atoll",
+          "summary": "Single-file Three.js artificial-life atoll with deterministic seeded terrain, meadow and shoreline resources, three interacting ecological roles, local sensing and decision rules, predation, grazing, carrion scavenging, nutrient feedback, sexual crossover reproduction, mutable inherited genomes, visible body-plan drift, day/night behavior changes, organism inspection, and live population/trait/event charts.",
+          "tech": ["html", "css", "javascript", "threejs", "webgl", "artificial-life"],
+          "submittedAt": "2026-04-24",
+          "artifactUrl": "./artifacts/life-sim/codex-gpt-5-5-xhigh.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a browser-playable HTML simulation directly in the solution folder and mirrors it under docs/artifacts for one-click GitHub Pages evaluation.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `life-sim/codex-gpt-5-5-xhigh/index.html` directly in a browser, serve the folder with `python3 -m http.server 8080` if local module loading is blocked, or use the mirrored artifact at `./artifacts/life-sim/codex-gpt-5-5-xhigh.html`."
         }
       ]
     }
