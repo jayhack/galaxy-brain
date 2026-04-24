@@ -377,6 +377,23 @@
             "score": null
           },
           "notes": "Open `life-sim/codex-gpt-5-5-xhigh/index.html` directly in a browser, serve the folder with `python3 -m http.server 8080` if local module loading is blocked, or use the mirrored artifact at `./artifacts/life-sim/codex-gpt-5-5-xhigh.html`."
+        },
+        {
+          "slug": "claude-code-opus-4-7-max",
+          "harness": "claude-code",
+          "model": "opus-4-7-max",
+          "projectName": "verdant-drift",
+          "summary": "Single-file Three.js life sim. Seeded Perlin-noise island with meadow / forest / rock / sand / snow biomes, a custom-shader sky that crossfades dawn → noon → dusk → night with stars, and a wavy water shader that tints by night. Three roles (Leafers, Stalkers, Tide Sprites) act via a sensing-based FSM (wander / forage / flee / pursue / mate / rest) over a spatial hash. Each organism carries an 8-gene genome (size, speed, sense, metabolism, armor, aggression, fertility, nocturnal) that drives both behavior weights and visible body (scaled limbs, head, ears, fins, tail, spines, tint). Reproduction is uniform-crossover + gaussian mutation; no fitness function is imposed. Night gives Stalkers up to +60% sense range and +20% speed, so the nocturnal gene becomes a real selection knob. HUD includes population / births-vs-deaths / per-species trait-drift / generation-depth charts, click-to-inspect, event log, and an in-app 'How it works' explainer. Speed slider + presets + keyboard shortcuts.",
+          "tech": ["html", "css", "javascript", "threejs", "webgl", "artificial-life"],
+          "submittedAt": "2026-04-24",
+          "artifactUrl": "./artifacts/life-sim/claude-code-opus-4-7-max.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a browser-playable HTML simulation directly in the solution folder and mirrors it under docs/artifacts for one-click GitHub Pages evaluation.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `life-sim/claude-code-opus-4-7-max/index.html` directly in a browser, serve the folder with `python3 -m http.server 8080` if local module loading is blocked, or use the mirrored artifact at `./artifacts/life-sim/claude-code-opus-4-7-max.html`."
         }
       ]
     }
