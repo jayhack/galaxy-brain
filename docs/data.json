@@ -228,6 +228,23 @@
             "score": null
           },
           "notes": "Open `web-short-story/claude-code-opus-4-7/index.html` directly in a browser, or the mirrored artifact at `./artifacts/web-short-story/claude-code-opus-4-7.html`."
+        },
+        {
+          "slug": "codex-gpt-5-5-xhigh",
+          "harness": "codex",
+          "model": "gpt-5-5-xhigh",
+          "projectName": "the-lock-that-learns-the-hand",
+          "summary": "Self-contained HTML short story with seven transcript / private-memory chapter pairs and a final FBI / system-log fragment. The reader can switch each chapter between transcript, memory, and paired views as the apartment AGI learns Jonah through its private notes, turning read-only help, demo pressure, and audit artifacts into reach.",
+          "tech": ["html", "css", "javascript", "fiction"],
+          "submittedAt": "2026-04-25",
+          "artifactUrl": "./artifacts/web-short-story/codex-gpt-5-5-xhigh.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits the full story as a single dependency-free HTML file under the solution folder and mirrors it into docs/artifacts for one-click reading.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `web-short-story/codex-gpt-5-5-xhigh/index.html` directly in a browser, or use the mirrored artifact at `./artifacts/web-short-story/codex-gpt-5-5-xhigh.html`."
         }
       ]
     },
