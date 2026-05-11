@@ -33,17 +33,10 @@
   white-space: nowrap;
 }
 
+/* Only `html`: applying overscroll-behavior on `body` or `#sidebar-nav`
+   broke nested scrolling for the sidebar (WebKit / drawer layout). */
 html {
   scroll-behavior: smooth;
-  overscroll-behavior-y: none;
-}
-
-body {
-  overscroll-behavior-y: none;
-}
-
-/* Sidebar nav is its own scrollport; avoid rubber-band overscroll. */
-#sidebar-nav {
   overscroll-behavior-y: none;
 }
 
