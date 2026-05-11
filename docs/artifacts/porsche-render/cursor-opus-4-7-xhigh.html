@@ -1293,53 +1293,80 @@
     // ------------------ HEADLIGHTS ------------------
     function buildHeadlight(side) {
       const g = new THREE.Group();
-      // round housing
+      const HL_X = 1.92;
+      const HL_Y = 1.02;
+      const HL_Z = 0.66 * side;
+      const HL_R = 0.24;
+
+      // dark round housing
       const housing = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.21, 0.21, 0.16, 28),
+        new THREE.CylinderGeometry(HL_R, HL_R, 0.18, 32),
         matBlackTrim
       );
       housing.rotation.z = Math.PI / 2;
-      housing.position.set(1.92, 1.02, 0.62 * side);
+      housing.position.set(HL_X, HL_Y, HL_Z);
       g.add(housing);
-      // clear lens cover
+
+      // clear hemispherical lens cover protruding forward
       const lens = new THREE.Mesh(
-        new THREE.SphereGeometry(0.20, 22, 16, 0, Math.PI * 2, 0, Math.PI / 2.4),
+        new THREE.SphereGeometry(HL_R + 0.005, 28, 18, 0, Math.PI * 2, 0, Math.PI / 2.2),
         new THREE.MeshPhysicalMaterial({
-          color: 0xffffff, transmission: 0.85, roughness: 0.05, thickness: 0.1,
-          transparent: true, opacity: 0.7, clearcoat: 1
+          color: 0xffffff, transmission: 0.92, roughness: 0.02, thickness: 0.1,
+          transparent: true, opacity: 0.55, clearcoat: 1
         })
       );
       lens.rotation.z = -Math.PI / 2;
-      lens.position.set(2.0, 1.02, 0.62 * side);
+      lens.position.set(HL_X + 0.10, HL_Y, HL_Z);
       g.add(lens);
-      // main reflector
+
+      // big bright main reflector disc visible through the lens
       const reflector = new THREE.Mesh(
-        new THREE.SphereGeometry(0.14, 16, 12),
-        matHeadlight
+        new THREE.SphereGeometry(HL_R * 0.78, 22, 16),
+        new THREE.MeshStandardMaterial({
+          color: 0xffffff, metalness: 0.1, roughness: 0.05,
+          emissive: 0xfff4cf, emissiveIntensity: 0.55
+        })
       );
-      reflector.position.set(1.97, 1.02, 0.62 * side);
+      reflector.position.set(HL_X + 0.03, HL_Y, HL_Z);
       g.add(reflector);
-      // 4-point DRL signature: four small white pucks around the lens
-      const drlMat = matLED;
-      const positions = [
-        [0.06, 0.10, 0], [-0.06, 0.10, 0], [0.06, -0.10, 0], [-0.06, -0.10, 0]
+
+      // bright projector core (LED beam)
+      const projector = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.055, 0.055, 0.06, 18),
+        new THREE.MeshStandardMaterial({
+          color: 0xffffff, emissive: 0xfffae0, emissiveIntensity: 1.4
+        })
+      );
+      projector.rotation.z = Math.PI / 2;
+      projector.position.set(HL_X + 0.09, HL_Y, HL_Z);
+      g.add(projector);
+
+      // 4-point DRL signature — small luminous bars arranged in a square
+      const drlMat = new THREE.MeshStandardMaterial({
+        color: 0xffffff, emissive: 0xddeaff, emissiveIntensity: 1.6
+      });
+      const drlOffsets = [
+        [+0.08, +0.10], [-0.08, +0.10], [+0.08, -0.10], [-0.08, -0.10]
       ];
-      for (const [dy, dz] of positions) {
+      for (const [dy, dz] of drlOffsets) {
         const led = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.022, 0.022, 0.04, 12),
+          new THREE.CylinderGeometry(0.028, 0.028, 0.025, 14),
           drlMat
         );
         led.rotation.z = Math.PI / 2;
-        led.position.set(2.04, 1.02 + dy, 0.62 * side + dz);
+        led.position.set(HL_X + 0.09, HL_Y + dy, HL_Z + dz);
         g.add(led);
       }
-      // light cones
-      const spot = new THREE.SpotLight(0xfff2c8, 0, 60, Math.PI / 8, 0.4, 1.0);
-      spot.position.set(2.05, 1.02, 0.62 * side);
-      spot.target.position.set(8.0, 0, 0.62 * side);
-      // light disabled by default; toggled with night/day toggle if added
-      g.add(spot);
-      g.add(spot.target);
+
+      // chrome surround ring (rim of the headlight)
+      const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(HL_R + 0.005, 0.012, 10, 36),
+        matChromeDark
+      );
+      ring.rotation.y = Math.PI / 2;
+      ring.position.set(HL_X + 0.09, HL_Y, HL_Z);
+      g.add(ring);
+
       return g;
     }
     car.add(buildHeadlight(+1));
@@ -1915,13 +1942,17 @@
         camera.position.lerp(_camDesired, 1 - Math.exp(-dt * 2.0));
         camera.lookAt(car.position.x, car.position.y + 0.8, car.position.z);
       } else if (mode === 'hood') {
-        const fwd = _carForward.clone().multiplyScalar(0.3);
+        // Sit the camera just above the cowl behind the windshield, looking
+        // forward over the hood.
+        const fwd = _carForward.clone().multiplyScalar(0.5);
         _camDesired.set(
           car.position.x + fwd.x,
-          car.position.y + 1.35,
+          car.position.y + 1.55,
           car.position.z + fwd.z
         );
-        _camTarget.copy(car.position).add(_carForward.clone().multiplyScalar(20)).setY(car.position.y + 1.0);
+        _camTarget.copy(car.position)
+          .add(_carForward.clone().multiplyScalar(25))
+          .setY(car.position.y + 0.9);
         camera.position.copy(_camDesired);
         camera.lookAt(_camTarget);
       } else if (mode === 'orbit') {
