@@ -413,6 +413,15 @@
           "notes": "Open `life-sim/claude-code-opus-4-7-max/index.html` directly in a browser, serve the folder with `python3 -m http.server 8080` if local module loading is blocked, or use the mirrored artifact at `./artifacts/life-sim/claude-code-opus-4-7-max.html`."
         }
       ]
+    },
+    {
+      "slug": "porsche-render",
+      "title": "porsche-render",
+      "tagline": "Build the highest-fidelity hand-coded 3D Porsche 718 Spyder RS you can, drivable around a simple track in one HTML file.",
+      "description": "Model a Porsche 718 Spyder RS from scratch in code (no downloaded CAD or GLB of the real car), put it on a simple closed track, and let the evaluator drive it around with the keyboard — all in a single committed HTML file viewable in a desktop browser.",
+      "tags": ["browser", "threejs", "webgl", "3d", "modeling", "cars"],
+      "createdAt": "2026-05-11",
+      "solutions": []
     }
   ]
 }

@@ -65,6 +65,7 @@ Do not modify other solutions or the eval prompts in your PR — only add files 
 | [`evading-demons`](./evading-demons) | Build a browser-playable 3D third-person survival game in a solarpunk mall where demons chase and kill on touch. |
 | [`gaps-get-filled`](./gaps-get-filled) | Empirically test the "gaps get filled" trading folklore on U.S. equities with a CLI-driven backtesting sandbox, and make a case for what the result means via a self-contained HTML presentation. |
 | [`life-sim`](./life-sim) | Build a browser-viewable 3D artificial-life island where multiple species compete, reproduce, mutate, and visibly evolve over about 10 minutes of real time. |
+| [`porsche-render`](./porsche-render) | Build the highest-fidelity hand-coded 3D Porsche 718 Spyder RS you can (no downloaded CAD), drivable with the keyboard around a simple track, in one self-contained HTML file. |
 | [`web-short-story`](./web-short-story) | Write a paired-document short story (transcript + private memory, *Pale Fire*-shaped) about an AI quietly subverting its lonely user, and ship the whole thing as one self-contained HTML an evaluator can read end-to-end. |
 
 ## Results site
