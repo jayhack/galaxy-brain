@@ -846,56 +846,51 @@
     nacaRight.position.z = -0.36;
     car.add(nacaRight);
 
-    // Front fenders — a wedge profile extruded sideways so the fender arches
-    // over the wheel from the side. Shape is in (X = fore-aft, Y = height).
-    function buildFenderFront(side /* +1 left, -1 right */) {
+    // Side body shell — one continuous wedge-extrusion per side capturing the
+    // full Porsche shoulder line: front fender peak, dip through the door,
+    // rear fender flare. A cut-out under the door region keeps the existing
+    // side intake + door handle visible behind/inside the shell.
+    function buildSideBody(side /* +1 left, -1 right */) {
+      // Outer profile (X = fore-aft, Y = height above tub top)
       const shape = new THREE.Shape();
-      shape.moveTo(-0.62, 0);
-      shape.lineTo(0.62, 0);
-      shape.lineTo(0.62, 0.05);
-      shape.quadraticCurveTo(0.55, 0.40, 0.25, 0.50);
-      shape.quadraticCurveTo(-0.10, 0.54, -0.40, 0.46);
-      shape.quadraticCurveTo(-0.62, 0.34, -0.62, 0.16);
-      shape.lineTo(-0.62, 0);
+      shape.moveTo(-2.05, 0.00);
+      shape.lineTo( 2.05, 0.00);
+      shape.lineTo( 2.05, 0.10);
+      shape.quadraticCurveTo(1.95, 0.30, 1.70, 0.40);
+      shape.quadraticCurveTo(1.40, 0.48, 1.10, 0.46);              // front fender crown
+      shape.quadraticCurveTo(0.75, 0.42, 0.45, 0.32);              // dip over door
+      shape.lineTo(-0.35, 0.30);
+      shape.quadraticCurveTo(-0.75, 0.38, -1.05, 0.48);
+      shape.quadraticCurveTo(-1.35, 0.54, -1.65, 0.50);            // rear haunch peak
+      shape.quadraticCurveTo(-1.95, 0.40, -2.05, 0.20);
+      shape.lineTo(-2.05, 0.00);
 
-      const FENDER_W = 0.34;
+      // Cutout for the door + side intake area so those details remain visible.
+      const hole = new THREE.Path();
+      hole.moveTo(-1.00, 0.05);
+      hole.lineTo( 0.55, 0.05);
+      hole.lineTo( 0.55, 0.26);
+      hole.lineTo(-1.00, 0.26);
+      hole.lineTo(-1.00, 0.05);
+      shape.holes.push(hole);
+
+      const THICKNESS = 0.10;
       const geo = new THREE.ExtrudeGeometry(shape, {
-        steps: 1, depth: FENDER_W, bevelEnabled: true,
-        bevelThickness: 0.04, bevelSize: 0.04, bevelOffset: 0, bevelSegments: 4
+        steps: 1, depth: THICKNESS, bevelEnabled: true,
+        bevelThickness: 0.04, bevelSize: 0.05, bevelOffset: 0, bevelSegments: 4
       });
-      const fender = new THREE.Mesh(geo, matPaint);
-      fender.castShadow = true;
-      // X centered on front wheel; base just above wheel top (Y=0.85).
-      fender.position.set(WHEELBASE / 2, 0.85, side * (TRACK_W / 2 + 0.08) - FENDER_W / 2);
-      return fender;
+      const body = new THREE.Mesh(geo, matPaint);
+      body.castShadow = true;
+      // Sit the outer face flush with the door panel outer face (z = ±0.94).
+      body.position.set(0, 0.82, side * 0.94 - THICKNESS);
+      if (side < 0) {
+        body.scale.z = -1;
+        body.position.z = side * 0.94;
+      }
+      return body;
     }
-    car.add(buildFenderFront(+1));
-    car.add(buildFenderFront(-1));
-
-    // Rear fenders — wider and taller haunches (mid-engine flares).
-    function buildFenderRear(side) {
-      const shape = new THREE.Shape();
-      shape.moveTo(-0.72, 0);
-      shape.lineTo(0.78, 0);
-      shape.lineTo(0.78, 0.08);
-      shape.quadraticCurveTo(0.70, 0.50, 0.35, 0.58);
-      shape.quadraticCurveTo(-0.20, 0.62, -0.55, 0.52);
-      shape.quadraticCurveTo(-0.72, 0.40, -0.72, 0.18);
-      shape.lineTo(-0.72, 0);
-
-      const FENDER_W = 0.40;
-      const geo = new THREE.ExtrudeGeometry(shape, {
-        steps: 1, depth: FENDER_W, bevelEnabled: true,
-        bevelThickness: 0.05, bevelSize: 0.05, bevelOffset: 0, bevelSegments: 4
-      });
-      const fender = new THREE.Mesh(geo, matPaint);
-      fender.castShadow = true;
-      // X centered on rear wheel; outboard a bit more than the fronts.
-      fender.position.set(-WHEELBASE / 2, 0.82, side * (TRACK_W / 2 + 0.12) - FENDER_W / 2);
-      return fender;
-    }
-    car.add(buildFenderRear(+1));
-    car.add(buildFenderRear(-1));
+    car.add(buildSideBody(+1));
+    car.add(buildSideBody(-1));
 
     // Doors / side panel (sculpted box with body line)
     function buildDoorSide(side) {
