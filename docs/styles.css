@@ -35,6 +35,16 @@
 
 html {
   scroll-behavior: smooth;
+  overscroll-behavior-y: none;
+}
+
+body {
+  overscroll-behavior-y: none;
+}
+
+/* Sidebar nav is its own scrollport; avoid rubber-band overscroll. */
+#sidebar-nav {
+  overscroll-behavior-y: none;
 }
 
 .prose pre {
