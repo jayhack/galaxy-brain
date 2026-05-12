@@ -262,38 +262,20 @@ function renderSidebar(route) {
   );
 
   for (const ev of state.data.evals) {
-    items.push(`<div class="sidebar-eval-header">${esc(ev.title)}</div>`);
-    const evActive = route.name === "eval" && route.evalSlug === ev.slug;
+    const n = ev.solutions.length;
+    const evActive =
+      (route.name === "eval" || route.name === "solution") &&
+      route.evalSlug === ev.slug;
+    const titleTail =
+      n === 0 ? " · no solutions yet" : ` · ${n} solution${n === 1 ? "" : "s"}`;
     items.push(
-      `<a href="#/eval/${esc(ev.slug)}" class="sidebar-link ${evActive ? "active" : ""}">
-         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6M7 4h10a2 2 0 012 2v14l-4-2-3 2-3-2-4 2V6a2 2 0 012-2z"/></svg>
-         <span>Prompt</span>
+      `<a href="#/eval/${esc(ev.slug)}"
+          class="sidebar-link sidebar-eval-row ${evActive ? "active" : ""}"
+          title="${esc(ev.title)}${titleTail}">
+         <span class="sidebar-eval-title">${esc(ev.title)}</span>
+         <span class="sidebar-solution-count" aria-label="${n} solution${n === 1 ? "" : "s"}">${n}</span>
        </a>`
     );
-    for (const sol of ev.solutions) {
-      const solActive =
-        route.name === "solution" &&
-        route.evalSlug === ev.slug &&
-        route.solutionSlug === sol.slug;
-      const shortHarness = sol.harnessShort || sol.harness.split("-")[0];
-      const iconSlot = harnessIconSlot(sol.harness, ui.harnessIconSlotSidebar);
-      const badgeMarkup = iconSlot
-        ? iconSlot
-        : `<span class="sidebar-badge">${esc(shortHarness)}</span>`;
-      items.push(
-        `<a href="#/eval/${esc(ev.slug)}/${esc(sol.slug)}"
-            class="sidebar-link ${solActive ? "active" : ""}"
-            title="${esc(sol.slug)} · ${esc(sol.harness)}/${esc(sol.model)}">
-           ${badgeMarkup}
-           <span class="sidebar-slug font-mono">${esc(sol.slug)}</span>
-         </a>`
-      );
-    }
-    if (ev.solutions.length === 0) {
-      items.push(
-        `<div class="sidebar-link text-base-content/40 italic" style="cursor:default">no solutions yet</div>`
-      );
-    }
   }
 
   state.sidebar.innerHTML = items.join("");
