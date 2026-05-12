@@ -423,6 +423,23 @@
       "createdAt": "2026-05-11",
       "solutions": [
         {
+          "slug": "cursor-opus-4-7-xhigh",
+          "harness": "cursor",
+          "model": "claude-opus-4-7-xhigh",
+          "projectName": "spyder-rs-shark-blue",
+          "summary": "Single-file Three.js Porsche 718 Spyder RS: hand-coded body (rounded boxes + wedge-profile extruded fenders + lathed humps) with twin roll-over hoops, four-point round LED headlights, NACA hood ducts, mid-engine side intakes, continuous LED tail strip + center-exit exhausts, twin 5-spoke wheels with red center-lock nut. Drives around an oval track with curbs, grandstands, banner arch and trees via WASD/arrow keys, four cameras (chase/orbit/cinematic/hood), and a live gear+speed+tach HUD.",
+          "tech": ["html", "css", "javascript", "threejs", "webgl"],
+          "submittedAt": "2026-05-11",
+          "artifactUrl": "./artifacts/porsche-render/cursor-opus-4-7-xhigh.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a self-contained index.html under the solution folder and mirrors it under docs/artifacts for one-click GitHub Pages evaluation. Body geometry is generated entirely in code; no .glb/.gltf/.obj of a real 718 is loaded.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `porsche-render/cursor-opus-4-7-xhigh/index.html` directly in a browser, or use the mirrored artifact at `./artifacts/porsche-render/cursor-opus-4-7-xhigh.html`."
+        },
+        {
           "slug": "codex-gpt-5-5-xhigh",
           "harness": "codex",
           "model": "gpt-5-5-xhigh",
