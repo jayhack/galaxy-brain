@@ -438,6 +438,23 @@
             "score": null
           },
           "notes": "Open `porsche-render/cursor-opus-4-7-xhigh/index.html` directly in a browser, or use the mirrored artifact at `./artifacts/porsche-render/cursor-opus-4-7-xhigh.html`."
+        },
+        {
+          "slug": "codex-gpt-5-5-xhigh",
+          "harness": "codex",
+          "model": "gpt-5-5-xhigh",
+          "projectName": "weissach-loop",
+          "summary": "Single-file Three.js scene with a hand-coded Porsche 718 Spyder RS assembled from lofted body meshes, procedural carbon/paint/glass materials, generated decals, detailed headlights, NACA ducts, side intakes, open cockpit, streamliner humps, ducktail spoiler, diffuser, wheels, brakes, and a drivable closed track with chase/inspection cameras.",
+          "tech": ["html", "css", "javascript", "threejs", "webgl", "procedural-modeling"],
+          "submittedAt": "2026-05-11",
+          "artifactUrl": "./artifacts/porsche-render/codex-gpt-5-5-xhigh.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a browser-playable, single-file Three.js car render directly in the solution folder and mirrors it under docs/artifacts for one-click GitHub Pages evaluation. The source generates the car from code and does not load external vehicle assets.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `porsche-render/codex-gpt-5-5-xhigh/index.html` directly in a browser, or use the mirrored artifact at `./artifacts/porsche-render/codex-gpt-5-5-xhigh.html`."
         }
       ]
     }
