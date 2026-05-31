@@ -2,6 +2,9 @@
 
 import { ui, statusBadgeClasses } from "./ui.js";
 
+/** Number of submissions shown in "most recent" feeds (home + per-model). */
+const RECENT_FEED_LIMIT = 8;
+
 /* ------------------------------------------------------------------ */
 /* state                                                               */
 /* ------------------------------------------------------------------ */
@@ -27,6 +30,14 @@ const state = {
 
 function updateHeaderBreadcrumbs(html) {
   if (state.headerBreadcrumbs) state.headerBreadcrumbs.innerHTML = html || "";
+}
+
+function safeDecode(s) {
+  try {
+    return decodeURIComponent(s);
+  } catch {
+    return s;
+  }
 }
 
 function esc(s) {
@@ -189,6 +200,80 @@ function homeHashFromTags(tags) {
   return `#/tag/${uniq.map((t) => encodeURIComponent(t)).join("+")}`;
 }
 
+/** Flat list of every solution across evals, each paired with its eval. */
+function allSolutions(data) {
+  const out = [];
+  for (const ev of data.evals) {
+    for (const sol of ev.solutions || []) out.push({ ev, sol });
+  }
+  return out;
+}
+
+/** Sort {ev, sol} pairs newest-first by submittedAt (ISO date string). */
+function bySubmittedDesc(a, b) {
+  const da = a.sol.submittedAt || "";
+  const db = b.sol.submittedAt || "";
+  if (da === db) {
+    // Stable-ish tiebreak so order is deterministic across renders.
+    return `${a.ev.slug}/${a.sol.slug}`.localeCompare(`${b.ev.slug}/${b.sol.slug}`);
+  }
+  return db.localeCompare(da);
+}
+
+/** Count solutions grouped by a field (`harness` or `model`), sorted desc by count. */
+function solutionCountsBy(data, field) {
+  const counts = new Map();
+  for (const { sol } of allSolutions(data)) {
+    const key = sol[field];
+    if (!key) continue;
+    counts.set(key, (counts.get(key) || 0) + 1);
+  }
+  return [...counts.entries()].sort((a, b) =>
+    b[1] - a[1] || a[0].localeCompare(b[0])
+  );
+}
+
+/** One cross-eval feed row (recent feed, harness/model browse). Shows the eval name. */
+function solutionFeedRowHtml(ev, sol) {
+  const htmlOut = siteArtifactUrl(sol.artifactUrl);
+  const htmlBtn = htmlOut
+    ? `<a href="${esc(htmlOut)}" target="_blank" rel="noopener" class="${ui.btnOutlineXs}" aria-label="Open HTML output">
+         <svg xmlns="http://www.w3.org/2000/svg" class="${ui.externalLinkIconXs}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+         HTML
+       </a>`
+    : "";
+  const harnessSlot = harnessIconSlot(sol.harness, ui.harnessIconSlotSolutionRow);
+  const harnessShort = harnessShortLabel(sol);
+  const metaBits = [
+    harnessSlot ? esc(harnessShort) : esc(sol.harness),
+    esc(sol.model),
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  return `
+    <div class="${ui.feedRowOuter}">
+      <a href="#/eval/${esc(ev.slug)}/${esc(sol.slug)}" class="${ui.feedRowMain}">
+        ${harnessSlot}
+        <span class="${ui.feedRowEval}">${esc(ev.title)}</span>
+        <span class="${ui.metaMono}">${metaBits}</span>
+        <span class="${ui.feedRowSlug}">${esc(sol.slug)}</span>
+      </a>
+      <div class="${ui.feedRowRail}">
+        <span class="${ui.feedDate}">${esc(sol.submittedAt || "")}</span>
+        ${htmlBtn}
+        ${statusBadge(sol.outcome?.status)}
+      </div>
+    </div>`;
+}
+
+/** Render a feed of {ev, sol} pairs (already ordered), or an empty-state alert. */
+function feedHtml(pairs, emptyMsg) {
+  if (!pairs.length) return `<div class="alert">${esc(emptyMsg)}</div>`;
+  return `<div class="${ui.feedList}">${pairs
+    .map(({ ev, sol }) => solutionFeedRowHtml(ev, sol))
+    .join("")}</div>`;
+}
+
 /* ------------------------------------------------------------------ */
 /* router                                                              */
 /* ------------------------------------------------------------------ */
@@ -217,6 +302,13 @@ function parseHash() {
     return { name: "home", selectedTags };
   }
   if (parts[0] === "about") return { name: "about" };
+  if (parts[0] === "recent") return { name: "recent" };
+  if (parts[0] === "harness" && parts.length >= 2) {
+    return { name: "harness", harness: safeDecode(parts[1]) };
+  }
+  if (parts[0] === "model" && parts.length >= 2) {
+    return { name: "model", model: safeDecode(parts[1]) };
+  }
   if (parts[0] === "eval" && parts.length === 2) {
     return { name: "eval", evalSlug: parts[1] };
   }
@@ -252,6 +344,12 @@ function renderSidebar(route) {
     `<a href="#/" class="sidebar-link ${route.name === "home" ? "active" : ""}">
        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l9-9 9 9M5 10v10h4v-6h6v6h4V10"/></svg>
        <span>Overview</span>
+     </a>`
+  );
+  items.push(
+    `<a href="#/recent" class="sidebar-link ${route.name === "recent" ? "active" : ""}">
+       <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+       <span>Recent submissions</span>
      </a>`
   );
   items.push(
@@ -403,6 +501,64 @@ function viewHome(route) {
       ? `${filteredEvals.length}/${data.evals.length} eval${data.evals.length === 1 ? "" : "s"} shown`
       : `${data.evals.length} eval${data.evals.length === 1 ? "" : "s"}`;
 
+  const urls = repoUrls(data);
+
+  /* Recent-submissions feed (newest first, capped). */
+  const allPairs = allSolutions(data).sort(bySubmittedDesc);
+  const recentPairs = allPairs.slice(0, RECENT_FEED_LIMIT);
+  const recentSection = allPairs.length
+    ? `<section class="${ui.sectionLg} w-full max-w-full min-w-0">
+         <div class="${ui.sectionHead}">
+           <h2 class="${ui.sectionTitle}">Recent submissions</h2>
+           <a href="#/recent" class="${ui.mutedSm} link link-hover">View all ${allPairs.length} →</a>
+         </div>
+         ${feedHtml(recentPairs, "No solutions submitted yet.")}
+       </section>`
+    : "";
+
+  /* Browse-by-harness and browse-by-model chips. */
+  const harnessCounts = solutionCountsBy(data, "harness");
+  const modelCounts = solutionCountsBy(data, "model");
+  const chipsFor = (field, counts) =>
+    counts
+      .map(([key, count]) => {
+        const icon =
+          field === "harness" ? harnessIconSlot(key, ui.harnessIconSlotSm) : "";
+        return `<a href="#/${field}/${encodeURIComponent(key)}" class="${ui.browseChip}">
+                  ${icon}
+                  <span class="font-mono">${esc(key)}</span>
+                  <span class="${ui.browseChipCount}">${count}</span>
+                </a>`;
+      })
+      .join("");
+  const browseSection =
+    harnessCounts.length || modelCounts.length
+      ? `<section class="${ui.sectionLg}">
+           <div class="${ui.sectionHeadBaseline}">
+             <h2 class="${ui.sectionTitle}">Browse submissions</h2>
+             <span class="${ui.mutedSm}">${allPairs.length} total</span>
+           </div>
+           <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+             ${
+               harnessCounts.length
+                 ? `<div>
+                      <div class="${ui.browseGroupLabel}">By harness</div>
+                      <div class="flex flex-wrap gap-2">${chipsFor("harness", harnessCounts)}</div>
+                    </div>`
+                 : ""
+             }
+             ${
+               modelCounts.length
+                 ? `<div>
+                      <div class="${ui.browseGroupLabel}">By model</div>
+                      <div class="flex flex-wrap gap-2">${chipsFor("model", modelCounts)}</div>
+                    </div>`
+                 : ""
+             }
+           </div>
+         </section>`
+      : "";
+
   updateHeaderBreadcrumbs("");
 
   state.view.innerHTML = `
@@ -415,13 +571,27 @@ function viewHome(route) {
               <h1 class="${ui.heroTitle}">galaxy-brain</h1>
               <p class="${ui.muted} text-base sm:text-lg leading-snug">
                 A collection of agent evals. Each eval is a prompt; each solution is one
-                harness/model pair's attempt. Browse them below.
+                harness/model pair's attempt. Browse by eval, harness, or model below.
               </p>
+              <div class="flex flex-wrap gap-2 mt-1">
+                <a href="#/about" class="${ui.btnHeroPrimary}">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  About galaxy-brain
+                </a>
+                <a href="${esc(urls.repo)}" target="_blank" rel="noopener noreferrer" class="${ui.btnHeroGhost}">
+                  ${githubLogoSvg("w-4 h-4")}
+                  View on GitHub
+                </a>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </section>
+
+    ${recentSection}
+
+    ${browseSection}
 
     <section>
       <div class="${ui.sectionHeadBaseline}">
@@ -549,6 +719,116 @@ function viewAbout() {
       </p>
     </article>
   `;
+}
+
+/** Shared scaffold for cross-eval feed pages (recent / harness / model). */
+function renderFeedPage({ crumbLabel, kicker, title, subtitle, browseRow, pairs, countLabel, emptyMsg }) {
+  updateHeaderBreadcrumbs(`
+    <nav class="${ui.crumbsWrap}">
+      <ul class="${ui.crumbsUl}">
+        <li class="${ui.crumbLi}"><a href="#/">Overview</a></li>
+        <li class="${ui.crumbCurrentTrunc}">${esc(crumbLabel)}</li>
+      </ul>
+    </nav>
+  `);
+
+  state.view.innerHTML = `
+    <header class="${ui.sectionMd}">
+      ${kicker ? `<div class="${ui.kvLabel} mb-2">${esc(kicker)}</div>` : ""}
+      <h1 class="${ui.pageTitle} break-words">${title}</h1>
+      ${subtitle ? `<p class="${ui.muted} mt-2 max-w-3xl">${subtitle}</p>` : ""}
+    </header>
+
+    ${browseRow || ""}
+
+    <section class="${ui.sectionLg} w-full max-w-full min-w-0">
+      <div class="${ui.sectionHead}">
+        <h2 class="${ui.sectionTitle}">Submissions</h2>
+        <span class="${ui.mutedSm}">${esc(countLabel || `${pairs.length} total`)}</span>
+      </div>
+      ${feedHtml(pairs, emptyMsg)}
+    </section>
+  `;
+}
+
+/** Chip row linking to every other harness/model value, for lateral browsing. */
+function browseSwitcherHtml(data, field, current) {
+  const counts = solutionCountsBy(data, field);
+  if (counts.length <= 1) return "";
+  const label = field === "harness" ? "Other harnesses" : "Other models";
+  const chips = counts
+    .filter(([key]) => key !== current)
+    .map(([key, count]) => {
+      const icon =
+        field === "harness" ? harnessIconSlot(key, ui.harnessIconSlotSm) : "";
+      return `<a href="#/${field}/${encodeURIComponent(key)}" class="${ui.browseChip}">
+                ${icon}
+                <span class="font-mono">${esc(key)}</span>
+                <span class="${ui.browseChipCount}">${count}</span>
+              </a>`;
+    })
+    .join("");
+  if (!chips) return "";
+  return `<section class="${ui.sectionMd}">
+            <div class="${ui.browseGroupLabel}">${label}</div>
+            <div class="flex flex-wrap gap-2">${chips}</div>
+          </section>`;
+}
+
+function viewRecent() {
+  const data = state.data;
+  const pairs = allSolutions(data).sort(bySubmittedDesc);
+  renderFeedPage({
+    crumbLabel: "Recent submissions",
+    kicker: "Feed",
+    title: "Recent submissions",
+    subtitle: "Every solution across all evals, newest first.",
+    pairs,
+    emptyMsg: "No solutions submitted yet.",
+  });
+}
+
+function viewHarness(route) {
+  const data = state.data;
+  const harness = route.harness;
+  const pairs = allSolutions(data)
+    .filter(({ sol }) => sol.harness === harness)
+    .sort(bySubmittedDesc);
+  if (!pairs.length) return view404(`No submissions for harness: ${harness}`);
+  const icon = harnessIconSlot(harness, ui.harnessIconSlotMd);
+  renderFeedPage({
+    crumbLabel: harness,
+    kicker: "Harness",
+    title: `<span class="inline-flex items-center gap-2">${icon}<span class="font-mono">${esc(harness)}</span></span>`,
+    subtitle: `All submissions made with the <span class="font-mono">${esc(harness)}</span> harness, newest first.`,
+    browseRow: browseSwitcherHtml(data, "harness", harness),
+    pairs,
+    emptyMsg: "No submissions for this harness.",
+  });
+}
+
+function viewModel(route) {
+  const data = state.data;
+  const model = route.model;
+  const all = allSolutions(data)
+    .filter(({ sol }) => sol.model === model)
+    .sort(bySubmittedDesc);
+  if (!all.length) return view404(`No submissions for model: ${model}`);
+  const pairs = all.slice(0, RECENT_FEED_LIMIT);
+  const truncated = all.length > pairs.length;
+  const subtitle = truncated
+    ? `The ${pairs.length} most recent submissions made with <span class="font-mono">${esc(model)}</span> (of ${all.length} total).`
+    : `All submissions made with <span class="font-mono">${esc(model)}</span>, newest first.`;
+  renderFeedPage({
+    crumbLabel: model,
+    kicker: "Model",
+    title: `<span class="font-mono">${esc(model)}</span>`,
+    subtitle,
+    browseRow: browseSwitcherHtml(data, "model", model),
+    pairs,
+    countLabel: truncated ? `${pairs.length} of ${all.length}` : `${all.length} total`,
+    emptyMsg: "No submissions for this model.",
+  });
 }
 
 function viewEval(route) {
@@ -904,6 +1184,12 @@ function render() {
       return viewHome(route);
     case "about":
       return viewAbout();
+    case "recent":
+      return viewRecent();
+    case "harness":
+      return viewHarness(route);
+    case "model":
+      return viewModel(route);
     case "eval":
       return viewEval(route);
     case "solution":

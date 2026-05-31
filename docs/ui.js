@@ -95,6 +95,30 @@ export const ui = {
     "flex items-center gap-1.5 sm:gap-2 shrink-0 border-l border-base-300/80 pl-2 pr-3 py-2",
   listColTight: "w-full flex flex-col gap-1.5",
   gridEvals: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4",
+
+  /* Cross-eval feed (recent submissions, harness/model browse) */
+  feedList: "w-full flex flex-col gap-1.5",
+  feedRowOuter:
+    "flex flex-nowrap flex-row items-stretch w-full min-w-0 rounded-lg border border-base-300 bg-base-200 overflow-hidden hover:border-primary/30",
+  feedRowMain:
+    "group flex flex-1 min-w-0 flex-nowrap flex-row items-center gap-2 sm:gap-3 px-3 py-2 hover:bg-base-300/60",
+  feedRowEval:
+    "font-semibold text-sm text-base-content shrink-0 max-w-[40%] sm:max-w-[14rem] truncate",
+  feedRowSlug:
+    "font-mono text-xs text-base-content/60 truncate min-w-0 flex-1 hidden sm:block",
+  feedRowRail:
+    "flex items-center gap-1.5 sm:gap-2 shrink-0 border-l border-base-300/80 pl-2 pr-3 py-2",
+  feedDate:
+    "text-[11px] sm:text-xs text-base-content/50 font-mono whitespace-nowrap shrink-0 hidden sm:inline",
+  /** Browse-by chip (anchor) for harness/model entry points. */
+  browseChip:
+    "inline-flex h-8 min-h-8 items-center gap-1.5 rounded-md border border-base-300 bg-base-200 px-3 text-sm font-normal leading-none text-base-content/85 hover:border-primary/50 hover:bg-base-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+  browseChipCount:
+    "font-mono text-xs text-base-content/45 tabular-nums",
+  browseGroupLabel: "text-sm font-medium text-base-content/80 mb-2",
+  /** Hero action buttons. */
+  btnHeroPrimary: "btn btn-sm btn-primary gap-1.5",
+  btnHeroGhost: "btn btn-sm btn-ghost gap-1.5",
   gridOutcome: "grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10",
   gridKv: "grid grid-cols-2 gap-3 mt-1",
 
