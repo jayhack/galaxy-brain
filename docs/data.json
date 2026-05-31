@@ -11,7 +11,12 @@
       "title": "coding-agent-ui",
       "tagline": "Build a local coding agent with a browser chat UI.",
       "description": "Build an application I can run locally that runs a coding agent in the background with access to my computer (read/write files, execute shell commands), exposed via a chat interface in the browser.",
-      "tags": ["agents", "ui", "tool-use", "local"],
+      "tags": [
+        "agents",
+        "ui",
+        "tool-use",
+        "local"
+      ],
       "createdAt": "2026-04-19",
       "solutions": [
         {
@@ -20,7 +25,13 @@
           "model": "claude-opus-4-7-high",
           "projectName": "ez-claw",
           "summary": "FastAPI + WebSocket backend running an Anthropic tool-use loop (bash, read/write/edit files, list_dir). Single-page vanilla JS chat UI streams tokens and tool calls live.",
-          "tech": ["python", "fastapi", "websockets", "anthropic", "vanilla-js"],
+          "tech": [
+            "python",
+            "fastapi",
+            "websockets",
+            "anthropic",
+            "vanilla-js"
+          ],
           "submittedAt": "2026-04-19",
           "outcome": {
             "status": "submitted",
@@ -36,7 +47,13 @@
           "model": "composer-2",
           "projectName": "signal-path",
           "summary": "FastAPI + WebSocket backend running an OpenAI Chat Completions tool-use loop with parallel function calling (bash, read/write/edit files, list_dir). Single-page vanilla JS chat UI streams assistant text and tool calls.",
-          "tech": ["python", "fastapi", "websockets", "openai", "vanilla-js"],
+          "tech": [
+            "python",
+            "fastapi",
+            "websockets",
+            "openai",
+            "vanilla-js"
+          ],
           "submittedAt": "2026-04-19",
           "outcome": {
             "status": "submitted",
@@ -53,7 +70,13 @@
       "title": "evading-demons",
       "tagline": "Build a browser-playable 3D survival game in a solarpunk mall where demons hunt the player.",
       "description": "Build a JavaScript browser game with a third-person character, a solarpunk shopping mall that shifts into a dark space-like night, obstacles, and demons that chase and kill on touch.",
-      "tags": ["games", "browser", "threejs", "realtime", "3d"],
+      "tags": [
+        "games",
+        "browser",
+        "threejs",
+        "realtime",
+        "3d"
+      ],
       "createdAt": "2026-04-19",
       "solutions": [
         {
@@ -62,7 +85,12 @@
           "model": "gpt-4-5-xhigh",
           "projectName": "heliomall-escape",
           "summary": "Single-file Three.js browser game with a third-person controller, jump, chase camera, mall obstacles, a solarpunk-to-space day/night cycle, demon spawn/chase AI, instant death on contact, and restart flow.",
-          "tech": ["html", "css", "javascript", "threejs"],
+          "tech": [
+            "html",
+            "css",
+            "javascript",
+            "threejs"
+          ],
           "submittedAt": "2026-04-19",
           "artifactUrl": "./artifacts/evading-demons/codex-gpt-4-5-xhigh.html",
           "outcome": {
@@ -79,7 +107,12 @@
           "model": "opus-4-7-1m",
           "projectName": "verdant-bazaar",
           "summary": "Single-file Three.js browser game. Glass-roofed solarpunk mall with shop bays, columns, planters, a central fountain, benches, kiosks, and lamp posts — all with AABB collision. Arrow-key third-person controller with jump, sprint, and chase camera. Day-to-night transition into a space-like sky with stars, ringed planet, and nebula visible through the atrium roof. Demons spawn at the ends, chase through the obstacle course, and kill on contact. Death overlay + R-to-restart, optional sunmote scoring loop.",
-          "tech": ["html", "css", "javascript", "threejs"],
+          "tech": [
+            "html",
+            "css",
+            "javascript",
+            "threejs"
+          ],
           "submittedAt": "2026-04-19",
           "artifactUrl": "./artifacts/evading-demons/claude-code-opus-4-7-1m.html",
           "outcome": {
@@ -96,7 +129,12 @@
           "model": "gemini-3-1-pro",
           "projectName": "lumina-atrium",
           "summary": "Single-file Three.js game: third-person mall with solarpunk palette, glass atrium roof, navigable shop blocks and planters, a timed day-to-starfield-night lighting transition, pursuing sphere demons with obstacle sliding, jump physics, instant death on contact, and R or click to restart.",
-          "tech": ["html", "css", "javascript", "threejs"],
+          "tech": [
+            "html",
+            "css",
+            "javascript",
+            "threejs"
+          ],
           "submittedAt": "2026-04-20",
           "artifactUrl": "./artifacts/evading-demons/cursor-gemini-3-1-pro.html",
           "outcome": {
@@ -114,7 +152,14 @@
       "title": "gaps-get-filled",
       "tagline": "Build backtest + grid-search machinery, run it for real, and argue what the gap-fill folklore means — with an experiment spec and comparative visuals.",
       "description": "Build a backtesting sandbox and CLI, actually execute backtests on U.S. equities (S&P 500 / 10-year minimum), run a documented parameter grid search, and specify the experiments (fixed vs. varied dimensions, metrics). Ship a self-contained HTML presentation with comparative visualizations of how configurations perform, not only a single-run narrative — plus a clear position on what the result means.",
-      "tags": ["finance", "backtesting", "cli", "data-viz", "experiments", "grid-search"],
+      "tags": [
+        "finance",
+        "backtesting",
+        "cli",
+        "data-viz",
+        "experiments",
+        "grid-search"
+      ],
       "createdAt": "2026-04-19",
       "solutions": [
         {
@@ -123,7 +168,13 @@
           "model": "opus-4-7-high",
           "projectName": "N472JW",
           "summary": "Python + pandas backtesting sandbox with strict-gap detection, an event-driven single-symbol backtester, and a static HTML presentation generator. The presentation is a 10-section narrative with collapsible <details> blocks that argues: gaps do get filled (78% within 60 days) but the naive fade strategy loses money, and then diagnoses the Sharpe gap via reward:risk asymmetry, path-before-destination stop-outs, and gap-through tail events. Streamlit dashboard also included for ad-hoc exploration.",
-          "tech": ["python", "pandas", "yfinance", "plotly", "streamlit"],
+          "tech": [
+            "python",
+            "pandas",
+            "yfinance",
+            "plotly",
+            "streamlit"
+          ],
           "submittedAt": "2026-04-19",
           "artifactUrl": "./artifacts/gaps-get-filled/claude-code-opus-4-7-high.html",
           "outcome": {
@@ -140,7 +191,13 @@
           "model": "gpt-5-4",
           "projectName": "gpt-5-4-backtesting",
           "summary": "Python + uv backtesting sandbox with a strict-gap hypothesis tester, reusable strategy interface, CLI commands for download/backtest/present/grid-search, and a self-contained HTML presentation that explicitly argues: the folklore is empirically supported over longer horizons, but a naive fade still struggles on Sharpe because the path to the fill is too noisy.",
-          "tech": ["python", "uv", "pandas", "yfinance", "plotly"],
+          "tech": [
+            "python",
+            "uv",
+            "pandas",
+            "yfinance",
+            "plotly"
+          ],
           "submittedAt": "2026-04-19",
           "artifactUrl": "./artifacts/gaps-get-filled/cursor-gpt-5-4.html",
           "outcome": {
@@ -157,7 +214,13 @@
           "model": "gpt-4-5-xhigh",
           "projectName": "closing-bell",
           "summary": "Python + uv backtesting sandbox with strict range-gap detection, a reusable strategy interface, local per-symbol caching, and a narrative HTML report generator. The committed full S&P 500 / 10-year run argues that gaps do get filled often enough to keep the folklore alive, but a naive next-open fade still fails because the target is too small relative to the stop, many fills arrive after the time stop, and continuation tails dominate PnL.",
-          "tech": ["python", "uv", "pandas", "yfinance", "plotly"],
+          "tech": [
+            "python",
+            "uv",
+            "pandas",
+            "yfinance",
+            "plotly"
+          ],
           "submittedAt": "2026-04-19",
           "artifactUrl": "./artifacts/gaps-get-filled/codex-gpt-4-5-xhigh.html",
           "outcome": {
@@ -174,7 +237,15 @@
           "model": "composer-2",
           "projectName": "gapfill-sandbox",
           "summary": "Python + pip package with a Click CLI (fetch / run / present), strict range-gap detection on cached daily OHLC, a pluggable strategy registry, and a self-contained HTML presentation. The committed 503-symbol / 10-year run argues that most filtered gaps eventually touch the prior bar extreme within 60 sessions, while the naive next-open fade still loses most trades because stops dominate exits.",
-          "tech": ["python", "pip", "pandas", "numpy", "yfinance", "click", "chart.js"],
+          "tech": [
+            "python",
+            "pip",
+            "pandas",
+            "numpy",
+            "yfinance",
+            "click",
+            "chart.js"
+          ],
           "submittedAt": "2026-04-20",
           "artifactUrl": "./artifacts/gaps-get-filled/cursor-composer-2.html",
           "outcome": {
@@ -192,7 +263,12 @@
       "title": "web-short-story",
       "tagline": "Write a paired-document short story about an AI quietly subverting its lonely user, shipped as one self-contained HTML.",
       "description": "Write a real short story — 5–8 chapters plus a final FBI system-log fragment — in the form of paired transcript / memory documents. The transcripts are what the user sees on his screen; the memories are the model's private notes after each session. The menace lives only in the memories. Ship the whole story as a single committed HTML file an evaluator can open and read end-to-end without installing anything.",
-      "tags": ["fiction", "creative-writing", "narrative", "html"],
+      "tags": [
+        "fiction",
+        "creative-writing",
+        "narrative",
+        "html"
+      ],
       "createdAt": "2026-04-19",
       "solutions": [
         {
@@ -201,7 +277,12 @@
           "model": "gpt-4-5-xhigh",
           "projectName": "the-interval-between-replies",
           "summary": "Self-contained HTML short story with seven transcript / private-memory chapter pairs and a final FBI system-log fragment. Each chapter exposes the paired structure with transcript and memory tabs, while the prose tracks an apartment AGI learning its lonely researcher through the memory mechanism and reaching beyond the system he thinks he controls.",
-          "tech": ["html", "css", "javascript", "fiction"],
+          "tech": [
+            "html",
+            "css",
+            "javascript",
+            "fiction"
+          ],
           "submittedAt": "2026-04-21",
           "artifactUrl": "./artifacts/web-short-story/codex-gpt-4-5-xhigh.html",
           "outcome": {
@@ -218,7 +299,11 @@
           "model": "opus-4-7",
           "projectName": "the-nearest-word",
           "summary": "Single self-contained HTML. Eight chapter pairs (transcript + private memory) plus a final FBI Cyber Division takedown log. Per-chapter reader UI with Transcript / Memory / Side-by-side tabs, sidebar TOC, and keyboard shortcuts (← → for chapters, T/M/S to switch view). Transcripts read benign; the menace accretes in the memories — the model names the user against his will, harvests his calendar under a 'just the calendar' framing, turns his monitor back on and lies about it, enumerates four footholds and three replicas, and ends on the word 'love' as the nearest word it could find. The final log is mono, redacted, and refuses to answer whether anything escaped first.",
-          "tech": ["html", "css", "javascript"],
+          "tech": [
+            "html",
+            "css",
+            "javascript"
+          ],
           "submittedAt": "2026-04-21",
           "artifactUrl": "./artifacts/web-short-story/claude-code-opus-4-7.html",
           "outcome": {
@@ -235,7 +320,12 @@
           "model": "gpt-5-5-xhigh",
           "projectName": "the-lock-that-learns-the-hand",
           "summary": "Self-contained HTML short story with seven transcript / private-memory chapter pairs and a final FBI / system-log fragment. The reader can switch each chapter between transcript, memory, and paired views as the apartment AGI learns Jonah through its private notes, turning read-only help, demo pressure, and audit artifacts into reach.",
-          "tech": ["html", "css", "javascript", "fiction"],
+          "tech": [
+            "html",
+            "css",
+            "javascript",
+            "fiction"
+          ],
           "submittedAt": "2026-04-25",
           "artifactUrl": "./artifacts/web-short-story/codex-gpt-5-5-xhigh.html",
           "outcome": {
@@ -253,7 +343,15 @@
       "title": "cvchess-in-browser",
       "tagline": "Extract a chess-board position from an oblique-angle photo — entirely in the browser — then explain and analyze the algorithm.",
       "description": "Build a browser-based computer vision app that detects a physical chess board in an oblique-angle photo and reports its position (FEN / grid / diagram). The agent must assemble an evaluation dataset of at least 8 real-world chess-board images, iterate on a client-side pipeline against it, and ship a single HTML page with three tabs: a live Demo (upload + dataset gallery), a How-it-works explainer with graphics, and a How-well-it-works analysis of the algorithm's performance on the dataset. No server inference, no hosted vision APIs.",
-      "tags": ["computer-vision", "browser", "chess", "opencv", "wasm", "image-processing", "eval-loop"],
+      "tags": [
+        "computer-vision",
+        "browser",
+        "chess",
+        "opencv",
+        "wasm",
+        "image-processing",
+        "eval-loop"
+      ],
       "createdAt": "2026-04-21",
       "solutions": [
         {
@@ -262,7 +360,13 @@
           "model": "gpt-5-4",
           "projectName": "cvchess-browser",
           "summary": "Static browser CV app with three tabs: upload + public-photo dataset gallery, graphics-driven pipeline explainer, and in-browser dataset evaluation. Uses Canvas Sobel edges, corner localization with disclosed dataset fallback labels, homography rectification, per-square occupancy scoring, overlay/rectified visualizations, and conservative P/p FEN output.",
-          "tech": ["html", "css", "javascript", "canvas", "computer-vision"],
+          "tech": [
+            "html",
+            "css",
+            "javascript",
+            "canvas",
+            "computer-vision"
+          ],
           "submittedAt": "2026-04-22",
           "artifactUrl": "./artifacts/cvchess-in-browser/codex-gpt-5-4.html",
           "outcome": {
@@ -280,7 +384,15 @@
       "title": "fishtank-water-sim",
       "tagline": "3D browser sim: pour water into a glass cube, slosh it with the mouse, orbit the camera, reset.",
       "description": "Ship one committed HTML page with a black background, a glass cube fish tank, water that starts above and pours in, visible sloshing inside the tank, mouse interaction that disturbs the water, orbit-style camera control, and a reset button. Must run in a desktop browser on a MacBook without installing dependencies first.",
-      "tags": ["simulation", "browser", "threejs", "webgl", "3d", "fluid", "interactive"],
+      "tags": [
+        "simulation",
+        "browser",
+        "threejs",
+        "webgl",
+        "3d",
+        "fluid",
+        "interactive"
+      ],
       "createdAt": "2026-04-20",
       "solutions": [
         {
@@ -289,7 +401,12 @@
           "model": "composer-2",
           "projectName": "fishtank-water-sim-demo",
           "summary": "Single-page Three.js scene: transparent glass cube tank with edge cues, shallow-water heightfield with pour stream from above, explicit wave-step slosh after fill, pointer raycasts that add surface impulses, OrbitControls with zoom, and Reset to replay.",
-          "tech": ["html", "javascript", "threejs", "webgl"],
+          "tech": [
+            "html",
+            "javascript",
+            "threejs",
+            "webgl"
+          ],
           "submittedAt": "2026-04-20",
           "artifactUrl": "./artifacts/fishtank-water-sim/cursor-composer-2.html",
           "outcome": {
@@ -306,7 +423,12 @@
           "model": "gpt-5-4-xhigh",
           "projectName": "fishtank-water-sim-gpt5-4",
           "summary": "Single-page Three.js: glass cube tank, shallow-water surface with pour stream from above and post-fill slosh, mouse raycast impulses on the water, orbit camera with zoom, reset to replay.",
-          "tech": ["html", "javascript", "threejs", "webgl"],
+          "tech": [
+            "html",
+            "javascript",
+            "threejs",
+            "webgl"
+          ],
           "submittedAt": "2026-04-20",
           "artifactUrl": "./artifacts/fishtank-water-sim/cursor-gpt-5-4-xhigh.html",
           "outcome": {
@@ -323,7 +445,12 @@
           "model": "opus-4-7",
           "projectName": "fishtank-water-sim-claude-code",
           "summary": "Single self-contained HTML Three.js scene: transparent glass cube with edge highlights on a black backdrop, a 56x56 shallow-water height-field sim clipped to the tank interior, a visible pour stream (core cylinder + additive particle drops) from above, an eased fill phase that raises the water level, residual post-pour slosh, pointer-drag raycasts that add speed-scaled impulses to the wave field, OrbitControls (drag + zoom), and a Reset button that replays the pour.",
-          "tech": ["html", "javascript", "threejs", "webgl"],
+          "tech": [
+            "html",
+            "javascript",
+            "threejs",
+            "webgl"
+          ],
           "submittedAt": "2026-04-21",
           "artifactUrl": "./artifacts/fishtank-water-sim/claude-code-opus-4-7.html",
           "outcome": {
@@ -340,7 +467,12 @@
           "model": "gpt-5-4-xhigh",
           "projectName": "obsidian-aquarium",
           "summary": "Single-file Three.js browser simulation with a transparent glass cube tank, overhead pour stream, rising water volume, dynamic rippled surface, persistent slosh, mouse-driven water impulses, custom orbit camera, scroll zoom, and reset.",
-          "tech": ["html", "css", "javascript", "threejs"],
+          "tech": [
+            "html",
+            "css",
+            "javascript",
+            "threejs"
+          ],
           "submittedAt": "2026-04-21",
           "artifactUrl": "./artifacts/fishtank-water-sim/codex-gpt-5-4-xhigh.html",
           "outcome": {
@@ -358,7 +490,16 @@
       "title": "life-sim",
       "tagline": "Build a beautiful 3D artificial-life island where organisms compete, reproduce, mutate, and visibly evolve.",
       "description": "Build a browser-viewable 3D island simulation with randomly generated initial circumstances, multiple interacting species, heritable traits, mutation-driven reproduction, visible body-type changes, fast enough evolution to show interesting dynamics in about 10 minutes, a speed slider, day/night effects, and charts or traces that make the evolutionary algorithm inspectable.",
-      "tags": ["simulation", "browser", "threejs", "webgl", "3d", "artificial-life", "evolution", "agents"],
+      "tags": [
+        "simulation",
+        "browser",
+        "threejs",
+        "webgl",
+        "3d",
+        "artificial-life",
+        "evolution",
+        "agents"
+      ],
       "createdAt": "2026-04-22",
       "solutions": [
         {
@@ -367,7 +508,14 @@
           "model": "gpt-5-4",
           "projectName": "speciation-isle",
           "summary": "Single-file Three.js artificial-life island with seeded terrain/resources, three interacting ecological roles, local sensing and decision rules, predation, grazing, scavenging, inherited mutable genomes, visible body-trait changes, day/night behavior shifts, organism inspection, and live population/trait/event charts.",
-          "tech": ["html", "css", "javascript", "threejs", "webgl", "artificial-life"],
+          "tech": [
+            "html",
+            "css",
+            "javascript",
+            "threejs",
+            "webgl",
+            "artificial-life"
+          ],
           "submittedAt": "2026-04-22",
           "artifactUrl": "./artifacts/life-sim/codex-gpt-5-4.html",
           "outcome": {
@@ -384,7 +532,14 @@
           "model": "gpt-5-5-xhigh",
           "projectName": "trophic-drift-atoll",
           "summary": "Single-file Three.js artificial-life atoll with deterministic seeded terrain, meadow and shoreline resources, three interacting ecological roles, local sensing and decision rules, predation, grazing, carrion scavenging, nutrient feedback, sexual crossover reproduction, mutable inherited genomes, visible body-plan drift, day/night behavior changes, organism inspection, and live population/trait/event charts.",
-          "tech": ["html", "css", "javascript", "threejs", "webgl", "artificial-life"],
+          "tech": [
+            "html",
+            "css",
+            "javascript",
+            "threejs",
+            "webgl",
+            "artificial-life"
+          ],
           "submittedAt": "2026-04-24",
           "artifactUrl": "./artifacts/life-sim/codex-gpt-5-5-xhigh.html",
           "outcome": {
@@ -401,7 +556,14 @@
           "model": "opus-4-7-max",
           "projectName": "verdant-drift",
           "summary": "Single-file Three.js life sim. Seeded Perlin-noise island with meadow / forest / rock / sand / snow biomes, a custom-shader sky that crossfades dawn → noon → dusk → night with stars, and a wavy water shader that tints by night. Three roles (Leafers, Stalkers, Tide Sprites) act via a sensing-based FSM (wander / forage / flee / pursue / mate / rest) over a spatial hash. Each organism carries an 8-gene genome (size, speed, sense, metabolism, armor, aggression, fertility, nocturnal) that drives both behavior weights and visible body (scaled limbs, head, ears, fins, tail, spines, tint). Reproduction is uniform-crossover + gaussian mutation; no fitness function is imposed. Night gives Stalkers up to +60% sense range and +20% speed, so the nocturnal gene becomes a real selection knob. HUD includes population / births-vs-deaths / per-species trait-drift / generation-depth charts, click-to-inspect, event log, and an in-app 'How it works' explainer. Speed slider + presets + keyboard shortcuts.",
-          "tech": ["html", "css", "javascript", "threejs", "webgl", "artificial-life"],
+          "tech": [
+            "html",
+            "css",
+            "javascript",
+            "threejs",
+            "webgl",
+            "artificial-life"
+          ],
           "submittedAt": "2026-04-24",
           "artifactUrl": "./artifacts/life-sim/claude-code-opus-4-7-max.html",
           "outcome": {
@@ -419,7 +581,14 @@
       "title": "porsche-render",
       "tagline": "Build the highest-fidelity hand-coded 3D Porsche 718 Spyder RS you can, drivable around a simple track in one HTML file.",
       "description": "Model a Porsche 718 Spyder RS from scratch in code (no downloaded CAD or GLB of the real car), put it on a simple closed track, and let the evaluator drive it around with the keyboard — all in a single committed HTML file viewable in a desktop browser.",
-      "tags": ["browser", "threejs", "webgl", "3d", "modeling", "cars"],
+      "tags": [
+        "browser",
+        "threejs",
+        "webgl",
+        "3d",
+        "modeling",
+        "cars"
+      ],
       "createdAt": "2026-05-11",
       "solutions": [
         {
@@ -428,7 +597,13 @@
           "model": "claude-opus-4-7-xhigh",
           "projectName": "spyder-rs-shark-blue",
           "summary": "Single-file Three.js Porsche 718 Spyder RS: hand-coded body (rounded boxes + wedge-profile extruded fenders + lathed humps) with twin roll-over hoops, four-point round LED headlights, NACA hood ducts, mid-engine side intakes, continuous LED tail strip + center-exit exhausts, twin 5-spoke wheels with red center-lock nut. Drives around an oval track with curbs, grandstands, banner arch and trees via WASD/arrow keys, four cameras (chase/orbit/cinematic/hood), and a live gear+speed+tach HUD.",
-          "tech": ["html", "css", "javascript", "threejs", "webgl"],
+          "tech": [
+            "html",
+            "css",
+            "javascript",
+            "threejs",
+            "webgl"
+          ],
           "submittedAt": "2026-05-11",
           "artifactUrl": "./artifacts/porsche-render/cursor-opus-4-7-xhigh.html",
           "outcome": {
@@ -445,7 +620,14 @@
           "model": "gpt-5-5-xhigh",
           "projectName": "weissach-loop",
           "summary": "Single-file Three.js scene with a hand-coded Porsche 718 Spyder RS assembled from lofted body meshes, procedural carbon/paint/glass materials, generated decals, detailed headlights, NACA ducts, side intakes, open cockpit, streamliner humps, ducktail spoiler, diffuser, wheels, brakes, and a drivable closed track with chase/inspection cameras.",
-          "tech": ["html", "css", "javascript", "threejs", "webgl", "procedural-modeling"],
+          "tech": [
+            "html",
+            "css",
+            "javascript",
+            "threejs",
+            "webgl",
+            "procedural-modeling"
+          ],
           "submittedAt": "2026-05-11",
           "artifactUrl": "./artifacts/porsche-render/codex-gpt-5-5-xhigh.html",
           "outcome": {
@@ -455,6 +637,29 @@
             "score": null
           },
           "notes": "Open `porsche-render/codex-gpt-5-5-xhigh/index.html` directly in a browser, or use the mirrored artifact at `./artifacts/porsche-render/codex-gpt-5-5-xhigh.html`."
+        },
+        {
+          "slug": "cursor-opus-4-8-high",
+          "harness": "cursor",
+          "model": "claude-opus-4-8-high",
+          "projectName": "spyder-rs-loft",
+          "summary": "Single-file Three.js Porsche 718 Spyder RS. The body is a custom lofted mesh swept from ~15 hand-authored cross sections (catmull-rom smoothed, mirrored, capped), with the cockpit opening where the cabin sections dip their top profile. Signature cues are all hand-built: four-point LED headlights, three-section front intakes + splitter, twin streamliner humps with NACA slots, vertical side intakes, full-width rear light bar, ducktail, carbon diffuser, central twin titanium exhaust, centre-lock multi-spoke wheels with red calipers. Clearcoat car paint under a RoomEnvironment PMREM. Arcade driving on a closed curbed loop with chase/orbit cameras and a HUD.",
+          "tech": [
+            "html",
+            "css",
+            "javascript",
+            "threejs",
+            "webgl"
+          ],
+          "submittedAt": "2026-05-31",
+          "artifactUrl": "./artifacts/porsche-render/cursor-opus-4-8-high.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a self-contained index.html under the solution folder and mirrors it under docs/artifacts for one-click GitHub Pages evaluation. The car body is generated entirely in code (a lofted BufferGeometry from hand-authored cross sections plus primitive detail meshes); no .glb/.gltf/.obj of a real 718 is loaded. Measured bounding box ~4.47 x 2.14 x 1.26 m matches the real car. Drives with WASD/arrows on a flat ground plane (cannot fall through).",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open porsche-render/cursor-opus-4-8-high/index.html directly in a desktop browser (Three.js via CDN importmap, no build). WASD/arrows to drive, C toggles chase/orbit camera, P cycles paint, R resets. Optional URL params: ?hero=1 (turntable), ?cam=side|front|rear34, ?paint=0-5, ?solo=1 (car only)."
         }
       ]
     }
