@@ -371,7 +371,7 @@ function viewHome(route) {
       : `<div id="eval-tag-filter" class="mb-6" role="group" aria-label="Filter evals by tag">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
             <span class="mono-label">◇ Filter by tag</span>
-            <span class="mono-label opacity-55">Match <strong>any</strong> selected tag</span>
+            <span class="mono-label opacity-70">Match <strong>any</strong> selected tag</span>
           </div>
           <div class="flex flex-wrap gap-2">
             ${allTagsSorted
@@ -395,15 +395,13 @@ function viewHome(route) {
         </div>`;
 
   const evalCards = filteredEvals
-    .map((ev, i) => {
-      const g = globuleForIndex(i);
+    .map((ev) => {
       const tags = (ev.tags || [])
         .map((t) => `<span class="${ui.badgeEvalTagSm}">${esc(t)}</span>`)
         .join(" ");
       const n = ev.solutions.length;
       return `
         <a href="#/eval/${esc(ev.slug)}" class="${ui.cardHover} p-5">
-          ${globuleHtml(g, 26, "g-card-corner hover-lift")}
           <div class="flex items-start justify-between gap-3">
             <h3 class="${ui.cardTitleLg}">${esc(ev.title)}</h3>
             <span class="${ui.badgePrimarySm}" title="${n} solution${n === 1 ? "" : "s"}">${n}</span>
@@ -444,10 +442,6 @@ function viewHome(route) {
                 solution one harness/model pair's attempt at it.
               </p>
             </div>
-          </div>
-          <div class="mt-6 flex flex-wrap items-center gap-2.5">
-            <span class="g-pill">${globuleDotHtml(globuleForIndex(0))}${data.evals.length} evals</span>
-            <span class="g-pill">${globuleDotHtml(globuleForIndex(1))}${data.evals.reduce((a, e) => a + e.solutions.length, 0)} solutions</span>
           </div>
         </div>
         <div class="hidden md:block md:col-span-4">
@@ -551,7 +545,7 @@ function viewAbout() {
       (c) => `
       <li class="${ui.aboutResourceCard}">
         <a href="${esc(c.href)}" class="link link-primary font-semibold" target="_blank" rel="noopener">${esc(c.title)}</a>
-        <p class="text-sm text-base-content/75 mt-2 mb-0">${esc(c.blurb)}</p>
+        <p class="text-sm text-base-content/90 mt-2 mb-0">${esc(c.blurb)}</p>
       </li>`
     )
     .join("");
@@ -649,7 +643,7 @@ function viewEval(route) {
     <section>
       <div class="${ui.sectionHeadRow}">
         <h2 class="${ui.sectionTitle}">Prompt</h2>
-        <span class="text-xs text-base-content/50 font-mono">${esc(promptPath)}</span>
+        <span class="text-xs text-base-content/70 font-mono">${esc(promptPath)}</span>
       </div>
       <div class="relative ${ui.roundedPanel}">
         <div class="absolute top-2 right-2 z-10">
@@ -833,7 +827,7 @@ function viewSolution(route) {
     <section class="${ui.sectionLg}">
       <div class="${ui.sectionHeadRow}">
         <h2 class="${ui.sectionTitle}">README</h2>
-        <span id="readme-path" class="text-xs text-base-content/50 font-mono"></span>
+        <span id="readme-path" class="text-xs text-base-content/70 font-mono"></span>
       </div>
       <article id="solution-md" class="${ui.proseReadme}">
         <div class="${ui.loadingRow}">
