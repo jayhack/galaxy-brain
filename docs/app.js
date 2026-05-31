@@ -1,6 +1,29 @@
 "use strict";
 
-import { ui, statusBadgeClasses } from "./ui.js";
+import { ui, statusBadgeClasses, statusGlobule, globuleForIndex } from "./ui.js";
+
+/** Inline globule sphere (the icon system) at an arbitrary size + colour. */
+function globuleHtml(globule, sizePx, extraClass = "") {
+  const g = globule || globuleForIndex(0);
+  return `<span class="globule ${esc(extraClass)}" style="width:${sizePx}px;height:${sizePx}px;--g-color:${g.color};--g-shade:${g.shade}"></span>`;
+}
+
+/** Small globule dot (mono pills, statuses, sidebar rows). */
+function globuleDotHtml(globule, extraClass = "") {
+  const g = globule || globuleForIndex(0);
+  return `<span class="g-dot ${esc(extraClass)}" style="--g-color:${g.color};--g-shade:${g.shade}"></span>`;
+}
+
+/** Absolutely-positioned globule for hero clusters. */
+function heroClusterGlobule(globule, sizePx, posCss, extraClass = "") {
+  const g = globule || globuleForIndex(0);
+  return `<span class="globule ${esc(extraClass)}" style="position:absolute;${posCss}width:${sizePx}px;height:${sizePx}px;--g-color:${g.color};--g-shade:${g.shade}"></span>`;
+}
+
+/** The G + cyan-globule monogram lockup (reused brand mark). */
+function monogramHtml(modifier = "") {
+  return `<span class="logo-monogram ${esc(modifier)}" aria-hidden="true"><span class="logo-letter">G</span><span class="globule g-cyan logo-dot"></span></span>`;
+}
 
 /* ------------------------------------------------------------------ */
 /* state                                                               */
@@ -11,11 +34,6 @@ const state = {
   view: document.getElementById("view"),
   sidebar: document.getElementById("sidebar-nav"),
   headerBreadcrumbs: document.getElementById("header-breadcrumbs"),
-  themeMenu: document.getElementById("theme-menu"),
-  themes: {
-    light: ["lofi", "light", "cupcake", "emerald", "corporate", "retro", "garden", "pastel", "nord", "autumn", "winter"],
-    dark: ["night", "dracula", "synthwave", "business"],
-  },
   markdownCache: new Map(),
   /** True after `viewHome` registered delegated click handler for tag filter. */
   homeTagFilterClickBound: false,
@@ -150,7 +168,8 @@ function siteArtifactUrl(artifactUrl) {
 
 function statusBadge(status) {
   const label = status || "unknown";
-  return `<span class="${statusBadgeClasses(status)}">${esc(label)}</span>`;
+  const g = statusGlobule[status] || { color: "var(--paper-3)", shade: "#9a8b5e" };
+  return `<span class="${statusBadgeClasses(status)}">${globuleDotHtml(g)}${esc(label)}</span>`;
 }
 
 async function fetchMarkdown(url) {
@@ -261,7 +280,7 @@ function renderSidebar(route) {
      </a>`
   );
 
-  for (const ev of state.data.evals) {
+  state.data.evals.forEach((ev, i) => {
     const n = ev.solutions.length;
     const evActive =
       (route.name === "eval" || route.name === "solution") &&
@@ -272,11 +291,14 @@ function renderSidebar(route) {
       `<a href="#/eval/${esc(ev.slug)}"
           class="sidebar-link sidebar-eval-row ${evActive ? "active" : ""}"
           title="${esc(ev.title)}${titleTail}">
-         <span class="sidebar-eval-title">${esc(ev.title)}</span>
+         <span class="sidebar-row-lead">
+           ${globuleDotHtml(globuleForIndex(i), "sidebar-dot")}
+           <span class="sidebar-eval-title">${esc(ev.title)}</span>
+         </span>
          <span class="sidebar-solution-count" aria-label="${n} solution${n === 1 ? "" : "s"}">${n}</span>
        </a>`
     );
-  }
+  });
 
   state.sidebar.innerHTML = items.join("");
 }
@@ -346,47 +368,48 @@ function viewHome(route) {
   const tagFilterBar =
     allTagsSorted.length === 0
       ? ""
-      : `<div id="eval-tag-filter" class="mb-5" role="group" aria-label="Filter evals by tag">
+      : `<div id="eval-tag-filter" class="mb-6" role="group" aria-label="Filter evals by tag">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
-            <span class="text-sm font-medium text-base-content/80">Filter by tag</span>
-            <span class="text-xs text-base-content/50">Showing evals that match <strong>any</strong> selected tag.</span>
+            <span class="mono-label">◇ Filter by tag</span>
+            <span class="mono-label opacity-55">Match <strong>any</strong> selected tag</span>
           </div>
           <div class="flex flex-wrap gap-2">
             ${allTagsSorted
-              .map((t) => {
+              .map((t, i) => {
                 const on = selectedSet.has(t);
-                return `<button type="button" data-tag-toggle="${esc(t)}" class="inline-flex h-8 min-h-8 items-center justify-center rounded-md border px-3 text-sm font-normal leading-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
-                  on
-                    ? "border-primary bg-primary text-primary-content"
-                    : "border-base-300 bg-base-200 text-base-content/85 hover:border-primary/50 hover:bg-base-300"
-                }">${esc(t)}</button>`;
+                const g = globuleForIndex(i);
+                const dot = `<span class="g-dot" style="--g-color:${g.color};--g-shade:${g.shade}"></span>`;
+                return `<button type="button" data-tag-toggle="${esc(t)}" aria-pressed="${on}" class="g-pill ${
+                  on ? "g-pill--on" : ""
+                }">${dot}${esc(t)}</button>`;
               })
               .join("")}
           </div>
           ${
             selectedSet.size
               ? `<div class="mt-3 flex flex-wrap items-center gap-2">
-                   <button type="button" data-tag-clear class="btn btn-xs btn-ghost">Clear all filters</button>
+                   <button type="button" data-tag-clear class="g-btn g-btn-ghost g-btn-xs">Clear all filters</button>
                  </div>`
               : ""
           }
         </div>`;
 
   const evalCards = filteredEvals
-    .map((ev) => {
+    .map((ev, i) => {
+      const g = globuleForIndex(i);
       const tags = (ev.tags || [])
         .map((t) => `<span class="${ui.badgeEvalTagSm}">${esc(t)}</span>`)
         .join(" ");
+      const n = ev.solutions.length;
       return `
-        <a href="#/eval/${esc(ev.slug)}" class="${ui.cardHover}">
-          <div class="card-body gap-3">
-            <div class="flex items-start justify-between gap-3">
-              <h3 class="${ui.cardTitleLg}">${esc(ev.title)}</h3>
-              <span class="${ui.badgePrimarySm}">${ev.solutions.length} solution${ev.solutions.length === 1 ? "" : "s"}</span>
-            </div>
-            <p class="text-sm ${ui.muted}">${esc(ev.tagline || ev.description || "")}</p>
-            <div class="flex flex-wrap gap-1.5 mt-1">${tags}</div>
+        <a href="#/eval/${esc(ev.slug)}" class="${ui.cardHover} p-5">
+          ${globuleHtml(g, 26, "g-card-corner hover-lift")}
+          <div class="flex items-start justify-between gap-3">
+            <h3 class="${ui.cardTitleLg}">${esc(ev.title)}</h3>
+            <span class="${ui.badgePrimarySm}" title="${n} solution${n === 1 ? "" : "s"}">${n}</span>
           </div>
+          <p class="text-sm ${ui.muted} mt-2.5 leading-relaxed">${esc(ev.tagline || ev.description || "")}</p>
+          <div class="flex flex-wrap gap-1.5 mt-3.5">${tags}</div>
         </a>`;
     })
     .join("");
@@ -407,17 +430,33 @@ function viewHome(route) {
 
   state.view.innerHTML = `
     <section class="${ui.heroHome}">
-      <div class="${ui.heroContent}">
-        <div class="max-w-3xl">
+      <div class="masthead-caps text-[11px] opacity-70 px-6 sm:px-10 pt-5">
+        Agent · Evals · MMXXVI ·
+      </div>
+      <div class="${ui.heroContent} pt-3 grid grid-cols-12 gap-6 items-center">
+        <div class="col-span-12 md:col-span-8 max-w-3xl">
           <div class="${ui.heroBrandGrid}">
-            <span class="${ui.heroEmojiLockup}" aria-hidden="true">🧠</span>
-            <div class="min-w-0 flex flex-col gap-2">
+            ${monogramHtml("logo-monogram--hero")}
+            <div class="min-w-0 flex flex-col gap-3">
               <h1 class="${ui.heroTitle}">galaxy-brain</h1>
-              <p class="${ui.muted} text-base sm:text-lg leading-snug">
-                A collection of agent evals. Each eval is a prompt; each solution is one
-                harness/model pair's attempt. Browse them below.
+              <p class="serif-italic text-lg sm:text-xl leading-snug max-w-xl">
+                A chromatic quarterly of agent evals — each eval is a prompt, each
+                solution one harness/model pair's attempt at it.
               </p>
             </div>
+          </div>
+          <div class="mt-6 flex flex-wrap items-center gap-2.5">
+            <span class="g-pill">${globuleDotHtml(globuleForIndex(0))}${data.evals.length} evals</span>
+            <span class="g-pill">${globuleDotHtml(globuleForIndex(1))}${data.evals.reduce((a, e) => a + e.solutions.length, 0)} solutions</span>
+          </div>
+        </div>
+        <div class="hidden md:block md:col-span-4">
+          <div class="cluster h-[190px]" aria-hidden="true">
+            ${heroClusterGlobule(globuleForIndex(3), 78, "right:8px;top:0px;", "hover-lift")}
+            ${heroClusterGlobule(globuleForIndex(1), 56, "right:88px;top:34px;", "zebra hover-lift")}
+            ${heroClusterGlobule(globuleForIndex(2), 64, "right:18px;top:96px;", "hover-lift")}
+            ${heroClusterGlobule(globuleForIndex(4), 40, "right:96px;top:120px;", "halftone hover-lift")}
+            ${heroClusterGlobule(globuleForIndex(0), 30, "right:74px;top:8px;", "hover-lift")}
           </div>
         </div>
       </div>
@@ -834,62 +873,14 @@ function viewSolution(route) {
 function view404(msg) {
   updateHeaderBreadcrumbs("");
   state.view.innerHTML = `
-    <div class="${ui.hero404}">
-      <div class="hero-content text-center py-16">
-        <div class="max-w-md">
-          <h1 class="${ui.pageTitle}">Not found</h1>
-          <p class="${ui.muted} mt-2">${esc(msg)}</p>
-          <a href="#/" class="${ui.btnPrimarySmMt}">Back to overview</a>
-        </div>
+    <div class="${ui.hero404} p-10 text-center flex flex-col items-center">
+      <div class="max-w-md flex flex-col items-center">
+        ${globuleHtml(globuleForIndex(1), 64, "halftone")}
+        <h1 class="${ui.pageTitle} mt-6">Not found</h1>
+        <p class="${ui.muted} mt-2">${esc(msg)}</p>
+        <a href="#/" class="${ui.btnPrimarySmMt}">${globuleDotHtml(globuleForIndex(0))}Back to overview</a>
       </div>
     </div>`;
-}
-
-/* ------------------------------------------------------------------ */
-/* theme                                                               */
-/* ------------------------------------------------------------------ */
-
-function setupTheme() {
-  const allThemes = [...state.themes.light, ...state.themes.dark];
-  const stored = localStorage.getItem("gb:theme");
-  const initial = stored && allThemes.includes(stored) ? stored : "lofi";
-  document.documentElement.setAttribute("data-theme", initial);
-
-  const groupHtml = (label, list) => `
-    <li class="menu-title pt-2"><span class="${ui.themeGroupLabel}">${label}</span></li>
-    ${list
-      .map(
-        (t) => `
-        <li>
-          <button data-theme-set="${t}" class="capitalize gap-2 ${t === initial ? "active" : ""}">
-            <span class="inline-flex gap-1" aria-hidden="true">
-              <span class="w-2 h-3 rounded-sm border border-base-content/20" data-theme="${t}" style="background:oklch(var(--p))"></span>
-              <span class="w-2 h-3 rounded-sm border border-base-content/20" data-theme="${t}" style="background:oklch(var(--s))"></span>
-              <span class="w-2 h-3 rounded-sm border border-base-content/20" data-theme="${t}" style="background:oklch(var(--b1))"></span>
-            </span>
-            <span class="flex-1 text-left">${t}</span>
-          </button>
-        </li>`
-      )
-      .join("")}
-  `;
-
-  state.themeMenu.classList.add("max-h-96", "overflow-y-auto", "flex-nowrap");
-  state.themeMenu.innerHTML = `
-    ${groupHtml("light", state.themes.light)}
-    ${groupHtml("dark", state.themes.dark)}
-  `;
-
-  state.themeMenu.addEventListener("click", (e) => {
-    const btn = e.target.closest("[data-theme-set]");
-    if (!btn) return;
-    const t = btn.dataset.themeSet;
-    document.documentElement.setAttribute("data-theme", t);
-    localStorage.setItem("gb:theme", t);
-    state.themeMenu
-      .querySelectorAll("[data-theme-set]")
-      .forEach((el) => el.classList.toggle("active", el.dataset.themeSet === t));
-  });
 }
 
 /* ------------------------------------------------------------------ */
@@ -914,7 +905,7 @@ function render() {
 }
 
 async function main() {
-  setupTheme();
+  document.documentElement.setAttribute("data-theme", "globule");
 
   let res;
   try {
@@ -931,7 +922,10 @@ async function main() {
   }
 
   const urls = repoUrls(state.data);
-  document.getElementById("footer-repo-link").href = urls.repo;
+  const footerLink = document.getElementById("footer-repo-link");
+  if (footerLink) footerLink.href = urls.repo;
+  const navSource = document.getElementById("navbar-source");
+  if (navSource) navSource.href = urls.repo;
 
   render();
 }

@@ -1,36 +1,37 @@
-/* small overrides on top of Tailwind + DaisyUI */
+/* ==================================================================
+   galaxy-brain — GLOBULE theme
+   A Designforum-Wien cultural quarterly, reissued for software:
+   warm cream paper, heavy ink type, and a glossy chromatic chain of
+   3D globules. Built on top of Tailwind + a single custom DaisyUI
+   "globule" theme; everything visual below is the design kit.
+   ================================================================== */
 
-/* No timed fades on interactive chrome: hover, focus, borders, and theme switches snap immediately.
+:root {
+  --paper: #f2ead0;
+  --paper-soft: #efe3c2;
+  --paper-3: #e0cf9e;
+  --ink: #0a0908;
+  --cyan: #2dc4d8;
+  --cyan-d: #126974;
+  --lime: #82e647;
+  --lime-d: #316e1e;
+  --cobalt: #2347c8;
+  --cobalt-d: #102166;
+  --indigo: #5b2ea0;
+  --indigo-d: #2b1452;
+  --magenta: #e04691;
+  --magenta-d: #6e1a45;
+  --sun: #f2d24a;
+  --sun-d: #8e6a0c;
+}
+
+/* No timed fades on interactive chrome; snap immediately.
    (Keyframe animations such as DaisyUI loading indicators are unchanged.) */
 *,
 *::before,
 *::after {
   transition-duration: 0s !important;
   transition-delay: 0s !important;
-}
-
-/* Sidebar open (mobile drawer): logo lives in the drawer only */
-#nav-drawer:checked ~ .drawer-content #navbar-brand {
-  display: none;
-}
-
-.breadcrumbs-header {
-  padding: 0;
-}
-
-.breadcrumbs-header ul {
-  flex-wrap: nowrap;
-}
-
-@media (min-width: 1024px) {
-  .breadcrumbs-header ul {
-    overflow: hidden;
-  }
-}
-
-/* DaisyUI badges: avoid mid-word wrapping when a flex row squeezes pill width (mobile). */
-.badge {
-  white-space: nowrap;
 }
 
 html {
@@ -40,83 +41,524 @@ html {
 
 body {
   overscroll-behavior-y: none;
+  background: var(--paper);
+  color: var(--ink);
 }
 
-/* Sidebar nav is its own scrollport; avoid rubber-band overscroll. */
+/* ===== SURFACES =================================================== */
+/* Warm butcher-paper grain: two faint radial dot layers in ink + cobalt. */
+.paper {
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(rgba(10, 9, 8, 0.05) 1px, transparent 1px),
+    radial-gradient(rgba(35, 71, 200, 0.04) 1px, transparent 1px);
+  background-size: 7px 7px, 11px 11px;
+  background-position: 0 0, 3px 4px;
+}
+.paper-soft {
+  background-color: var(--paper-soft);
+}
+/* 135° flow strip implies the chain's path; sits under globule clusters. */
+.flow-strip {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(45, 196, 216, 0.1) 0%,
+      rgba(91, 46, 160, 0.1) 35%,
+      rgba(224, 70, 145, 0.1) 65%,
+      rgba(130, 230, 71, 0.08) 100%
+    ),
+    var(--paper);
+}
+
+/* ===== TYPOGRAPHY ================================================= */
+.g-display {
+  font-family: "Archivo Black", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.035em;
+  line-height: 0.92;
+  text-transform: none;
+  color: var(--ink);
+}
+.serif-italic {
+  font-family: "Playfair Display", Georgia, serif;
+  font-style: italic;
+}
+.mono-label {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--ink);
+}
+.masthead-caps {
+  font-family: "Playfair Display", Georgia, serif;
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+.stamp-block {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 9.5px;
+  line-height: 1.7;
+  color: var(--ink);
+}
+
+/* ===== GLOBULE — the signature element ============================ */
+.globule {
+  position: relative;
+  border-radius: 999px;
+  flex: 0 0 auto;
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0) 24%),
+    radial-gradient(circle at 38% 32%, var(--g-color) 0%, var(--g-shade) 92%);
+  box-shadow:
+    inset -10px -14px 24px rgba(0, 0, 0, 0.42),
+    inset 6px 4px 18px rgba(255, 255, 255, 0.18),
+    0 8px 18px rgba(10, 9, 8, 0.22);
+}
+.g-cyan {
+  --g-color: var(--cyan);
+  --g-shade: var(--cyan-d);
+}
+.g-lime {
+  --g-color: var(--lime);
+  --g-shade: var(--lime-d);
+}
+.g-cobalt {
+  --g-color: var(--cobalt);
+  --g-shade: var(--cobalt-d);
+}
+.g-indigo {
+  --g-color: var(--indigo);
+  --g-shade: var(--indigo-d);
+}
+.g-magenta {
+  --g-color: var(--magenta);
+  --g-shade: var(--magenta-d);
+}
+.g-sun {
+  --g-color: var(--sun);
+  --g-shade: var(--sun-d);
+}
+
+/* Pattern globules — used on a minority of spheres (≤ 1 in 4). */
+.globule.zebra {
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 26%),
+    repeating-linear-gradient(78deg, var(--ink) 0 5px, transparent 5px 12px),
+    radial-gradient(circle at 38% 32%, var(--g-color) 0%, var(--g-shade) 92%);
+}
+.globule.polka {
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 26%),
+    radial-gradient(var(--ink) 2px, transparent 2.4px),
+    radial-gradient(circle at 38% 32%, var(--g-color) 0%, var(--g-shade) 92%);
+  background-size: auto, 9px 9px, auto;
+  background-position: 0 0, 2px 2px, 0 0;
+}
+.globule.halftone {
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0) 24%),
+    radial-gradient(circle at 78% 72%, var(--ink) 0%, var(--ink) 18%, transparent 60%),
+    radial-gradient(circle at 38% 32%, var(--g-color) 0%, var(--g-shade) 92%);
+}
+.globule.hover-lift:hover {
+  transform: translateY(-3px);
+}
+
+/* Small inline globule "dot" (tags, pills, statuses, bullets). */
+.g-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.9) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, var(--g-color, var(--cyan)) 0%, var(--g-shade, var(--cyan-d)) 100%);
+  box-shadow: inset -2px -2px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* ===== LOGO / WORDMARK ============================================ */
+.logo-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  color: var(--ink);
+  min-width: 0;
+}
+.logo-monogram {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  flex: 0 0 auto;
+}
+.logo-monogram--sm {
+  width: 1.7rem;
+  height: 1.7rem;
+}
+.logo-monogram--hero {
+  width: clamp(4.5rem, 9vw, 6.5rem);
+  height: clamp(4.5rem, 9vw, 6.5rem);
+}
+.logo-monogram--hero .logo-letter {
+  font-size: clamp(4.2rem, 8.5vw, 6.2rem);
+}
+.logo-monogram--hero .logo-dot {
+  width: clamp(1.6rem, 3vw, 2.3rem);
+  height: clamp(1.6rem, 3vw, 2.3rem);
+  right: -0.4rem;
+  bottom: 0.1rem;
+}
+.logo-letter {
+  font-family: "Archivo Black", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 900;
+  font-size: 2rem;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: var(--ink);
+}
+.logo-monogram--sm .logo-letter {
+  font-size: 1.6rem;
+}
+/* The signature cyan globule tucked into the G's counter. */
+.logo-dot {
+  position: absolute;
+  width: 0.85rem;
+  height: 0.85rem;
+  right: -0.18rem;
+  bottom: 0.05rem;
+}
+.logo-monogram--sm .logo-dot {
+  width: 0.7rem;
+  height: 0.7rem;
+}
+.logo-wordmark {
+  font-family: "Archivo Black", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 900;
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  line-height: 1.05;
+}
+
+/* ===== LINKS ====================================================== */
+.g-link {
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1.5px solid var(--indigo);
+  padding-bottom: 1px;
+}
+.g-link:hover {
+  color: var(--indigo);
+  border-bottom-color: var(--indigo);
+}
+
+/* ===== BUTTONS ==================================================== */
+.g-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 12px;
+  line-height: 1;
+  border: 1.5px solid var(--ink);
+  border-radius: 0;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+}
+.g-btn-sm {
+  padding: 9px 16px;
+  font-size: 11.5px;
+}
+.g-btn-xs {
+  padding: 6px 11px;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+}
+.g-btn-ink {
+  background: var(--ink);
+  color: var(--paper);
+}
+.g-btn-ink:hover {
+  background: #211f1c;
+  color: var(--paper);
+}
+.g-btn-ink .g-dot {
+  box-shadow: inset -2px -2px 3px rgba(0, 0, 0, 0.4);
+}
+.g-btn-paper {
+  background: var(--paper);
+  color: var(--ink);
+}
+.g-btn-paper:hover {
+  background: var(--paper-soft);
+  color: var(--ink);
+}
+.g-btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--ink);
+}
+.g-btn-ghost:hover {
+  background: var(--paper-soft);
+}
+/* Globule pill CTA — the single rare "primary action" button. */
+.g-btn-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 22px 10px 12px;
+  border-radius: 999px;
+  border: none;
+  color: var(--paper);
+  font-family: "Inter", sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  font-size: 12px;
+  text-decoration: none;
+  white-space: nowrap;
+  background:
+    radial-gradient(circle at 22% 24%, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0) 35%),
+    radial-gradient(circle at 38% 32%, var(--magenta) 0%, var(--magenta-d) 100%);
+  box-shadow:
+    inset -6px -8px 14px rgba(0, 0, 0, 0.32),
+    0 6px 14px rgba(10, 9, 8, 0.25);
+}
+.g-btn-cta:hover {
+  color: var(--paper);
+  filter: brightness(1.04);
+}
+.g-btn-cta .g-dot {
+  width: 16px;
+  height: 16px;
+}
+
+/* Square icon button (mobile menu toggle). */
+.g-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1.5px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+}
+.g-icon-btn:hover {
+  background: var(--paper-soft);
+}
+
+/* ===== PILLS / TAGS / BADGES ===================================== */
+.g-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 11px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 10px;
+  line-height: 1.3;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.g-pill--soft {
+  background: var(--paper-soft);
+  border-color: transparent;
+}
+.g-pill--tech {
+  max-width: 9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.g-pill--mono {
+  text-transform: none;
+  letter-spacing: 0.04em;
+}
+button.g-pill {
+  cursor: pointer;
+}
+button.g-pill:hover {
+  background: var(--paper-soft);
+}
+/* Selected tag filter: ink fill, paper text. */
+.g-pill--on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+button.g-pill--on:hover {
+  background: #211f1c;
+}
+
+/* Status pill: paper bg, ink text, colored globule dot carries the meaning. */
+.g-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 11px 4px 9px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 10px;
+  line-height: 1.3;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+/* Solution count chip (e.g. "3" next to an eval in the sidebar / cards). */
+.g-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ===== CARDS / PANELS ============================================ */
+.g-card {
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  position: relative;
+}
+.g-card-soft {
+  background: var(--paper-soft);
+  border: 1px solid var(--ink);
+  position: relative;
+}
+.g-card-hover {
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  position: relative;
+  display: block;
+  text-decoration: none;
+  color: var(--ink);
+}
+.g-card-hover:hover {
+  background: var(--paper-soft);
+}
+/* One small globule floats at a card's top-right as a category dot. */
+.g-card-corner {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 24px;
+  height: 24px;
+}
+.g-panel {
+  background: var(--paper);
+  border: 1px solid var(--ink);
+}
+
+/* ===== SECTION DIVIDER WITH GLOBULE ============================== */
+.g-rule {
+  position: relative;
+  height: 1px;
+  background: var(--ink);
+  margin: 22px 0;
+}
+.g-rule::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0) 28%),
+    radial-gradient(circle at 38% 32%, var(--magenta), var(--magenta-d));
+  box-shadow:
+    inset -3px -4px 6px rgba(0, 0, 0, 0.4),
+    0 2px 6px rgba(10, 9, 8, 0.3);
+}
+
+/* ===== HERO CLUSTER ============================================== */
+.cluster {
+  position: relative;
+  width: 100%;
+}
+.cluster .globule {
+  position: absolute;
+}
+
+/* ===== SIDEBAR =================================================== */
 #sidebar-nav {
   overscroll-behavior-y: none;
 }
-
-.prose pre {
-  background: oklch(var(--b2));
-  color: oklch(var(--bc));
-  border: 1px solid oklch(var(--b3));
-}
-
-/* README / prompt markdown: code fences stand out from the page chrome */
-.markdown-target pre {
-  background: color-mix(in oklch, oklch(var(--p)) 18%, oklch(var(--b2)));
-  border: 1px solid color-mix(in oklch, oklch(var(--p)) 38%, oklch(var(--b3)));
-  box-shadow: 0 1px 0 oklch(var(--bc) / 0.04);
-}
-
-.prose code {
-  background: oklch(var(--b2) / 0.6);
-  padding: 0.1em 0.35em;
-  border-radius: 0.35rem;
-  font-size: 0.9em;
-  font-weight: 500;
-}
-
-.prose pre code {
-  background: transparent;
-  padding: 0;
-}
-
-.prose a {
-  color: oklch(var(--p));
-}
-
-.sidebar-link.active {
-  background-color: oklch(var(--b3));
-  color: oklch(var(--p));
-  font-weight: 600;
-}
-
 .sidebar-link {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0.6rem;
-  border-radius: 0.5rem;
+  gap: 0.6rem;
+  padding: 0.5rem 0.65rem;
+  font-family: "Inter", sans-serif;
   font-size: 0.875rem;
-  color: oklch(var(--bc) / 0.85);
+  font-weight: 500;
+  color: var(--ink);
   cursor: pointer;
   text-decoration: none;
   width: 100%;
   text-align: left;
   min-width: 0;
+  border: 1px solid transparent;
+  border-radius: 0;
 }
-
-.sidebar-link > svg,
-.sidebar-link > .sidebar-badge,
-.sidebar-link > .sidebar-harness-icon-slot {
+.sidebar-link:hover {
+  background-color: var(--paper);
+  border-color: var(--paper-3);
+}
+.sidebar-link.active {
+  background-color: var(--paper);
+  border-color: var(--ink);
+  font-weight: 700;
+}
+/* Each sidebar row is prefixed by a globule dot (one globule = one item). */
+.sidebar-link .sidebar-dot {
+  width: 10px;
+  height: 10px;
   flex: 0 0 auto;
 }
-
-.sidebar-link > .sidebar-slug {
-  flex: 1 1 auto;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.sidebar-link > svg {
+  flex: 0 0 auto;
 }
-
 .sidebar-link.sidebar-eval-row {
   justify-content: space-between;
   gap: 0.5rem;
 }
-
 .sidebar-eval-title {
   flex: 1 1 auto;
   min-width: 0;
@@ -124,142 +566,269 @@ body {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
+.sidebar-link .sidebar-row-lead {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+  flex: 1 1 auto;
+}
 .sidebar-solution-count {
   flex: 0 0 auto;
-  min-width: 1.25rem;
+  min-width: 1.4rem;
   padding: 0.1rem 0.4rem;
-  border-radius: 9999px;
-  font-size: 0.65rem;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  line-height: 1.2;
-  text-align: center;
-  color: oklch(var(--bc) / 0.45);
-  background: oklch(var(--bc) / 0.08);
-  border: 1px solid oklch(var(--bc) / 0.1);
-}
-
-.sidebar-link.active .sidebar-solution-count {
-  color: oklch(var(--p) / 0.85);
-  background: oklch(var(--p) / 0.12);
-  border-color: oklch(var(--p) / 0.22);
-}
-
-.sidebar-badge {
-  display: inline-block;
-  padding: 0.05rem 0.4rem;
-  border-radius: 9999px;
-  border: 1px solid oklch(var(--bc) / 0.25);
-  background: oklch(var(--b1));
-  color: oklch(var(--bc) / 0.7);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
   font-size: 0.65rem;
   font-weight: 500;
-  line-height: 1.1;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-  max-width: 5rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-transform: lowercase;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.3;
+  text-align: center;
+  color: var(--ink);
+  background: var(--paper-soft);
+  border: 1px solid var(--ink);
+}
+.sidebar-link.active .sidebar-solution-count {
+  background: var(--ink);
+  color: var(--paper);
 }
 
-.sidebar-link.active .sidebar-badge {
-  border-color: oklch(var(--p) / 0.5);
-  color: oklch(var(--p));
-}
-
-/* Harness logos: fixed box so labels align; sidebar shows icon only (no pill). */
+/* ===== HARNESS ICONS ============================================= */
 .harness-icon-slot {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  color: oklch(var(--bc) / 0.72);
+  color: var(--ink);
 }
-
 .harness-icon-slot--sm {
   width: 1.125rem;
   height: 1.125rem;
 }
-
 .harness-icon-slot--md {
   width: 1.25rem;
   height: 1.25rem;
 }
-
-.sidebar-harness-icon-slot {
-  color: oklch(var(--bc) / 0.68);
-}
-
-.sidebar-link.active .sidebar-harness-icon-slot {
-  color: oklch(var(--p));
-}
-
 .solution-row-harness-icon {
-  color: oklch(var(--bc) / 0.55);
+  color: var(--ink);
+  opacity: 0.7;
 }
-
 .group:hover .solution-row-harness-icon {
-  color: oklch(var(--bc) / 0.75);
+  opacity: 1;
 }
 
-.sidebar-link:hover {
-  background-color: oklch(var(--b3) / 0.6);
-  color: oklch(var(--bc));
+/* ===== BREADCRUMBS =============================================== */
+.breadcrumbs-header {
+  padding: 0;
+}
+.breadcrumbs-header ul {
+  flex-wrap: nowrap;
+}
+@media (min-width: 1024px) {
+  .breadcrumbs-header ul {
+    overflow: hidden;
+  }
+}
+.breadcrumbs-header a {
+  color: var(--ink);
+  opacity: 0.7;
+}
+.breadcrumbs-header a:hover {
+  opacity: 1;
+  color: var(--indigo);
 }
 
-/* Tighter vertical rhythm than default Tailwind Typography (prose) */
+/* ===== DAISYUI OVERRIDES (structural pieces we keep) ============= */
+/* Square everything; only globules are round. */
+.badge,
+.btn,
+.card,
+.alert,
+.menu :where(li > *),
+.input,
+.dropdown-content {
+  border-radius: 0 !important;
+}
+.badge {
+  white-space: nowrap;
+}
+/* Alerts read like an ink-bordered paper card with a magenta globule dot. */
+.alert {
+  background: var(--paper-soft);
+  border: 1px solid var(--ink);
+  color: var(--ink);
+}
+.loading {
+  color: var(--cyan-d);
+}
+/* DaisyUI .link (used in inline error / about copy) → globule link. */
+.link {
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1.5px solid var(--indigo);
+}
+.link:hover {
+  color: var(--indigo);
+}
+.link-primary {
+  color: var(--ink);
+}
+
+/* Copy-button feedback */
+.g-copy-ok {
+  color: var(--lime-d);
+  border-color: var(--lime-d) !important;
+}
+.g-copy-err {
+  color: var(--magenta-d);
+  border-color: var(--magenta-d) !important;
+}
+
+/* ===== PROSE (markdown prompts / READMEs) ======================= */
 .markdown-target {
-  line-height: 1.55;
+  line-height: 1.62;
+  font-size: 15px;
+  color: var(--ink);
 }
-
 .markdown-target :is(p, ul, ol, blockquote, pre, table) {
-  margin-top: 0.55em;
-  margin-bottom: 0.55em;
+  margin-top: 0.6em;
+  margin-bottom: 0.6em;
 }
-
 .markdown-target :is(p, ul, ol, blockquote, pre, table):first-child {
   margin-top: 0;
 }
-
 .markdown-target :is(p, ul, ol, blockquote, pre, table):last-child {
   margin-bottom: 0;
 }
-
 .markdown-target :is(h1, h2, h3, h4, h5, h6) {
-  margin-top: 0.85em;
-  margin-bottom: 0.4em;
-  line-height: 1.28;
+  font-family: "Archivo Black", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-top: 1em;
+  margin-bottom: 0.45em;
+  line-height: 1.18;
 }
-
 .markdown-target :is(h1, h2, h3, h4, h5, h6):first-child {
   margin-top: 0;
 }
-
-.markdown-target :is(ul, ol) {
-  padding-left: 1.45em;
-  margin-top: 0.45em;
-  margin-bottom: 0.45em;
+.markdown-target h1 {
+  font-size: 1.8rem;
 }
-
-.markdown-target li {
-  margin-top: 0.15em;
-  margin-bottom: 0.15em;
+.markdown-target h2 {
+  font-size: 1.4rem;
 }
-
-.markdown-target li > :is(p, ul, ol) {
-  margin-top: 0.35em;
-  margin-bottom: 0.35em;
+.markdown-target h3 {
+  font-size: 1.15rem;
 }
-
-.markdown-target hr {
-  margin-top: 1em;
-  margin-bottom: 1em;
-}
-
 .markdown-target h1,
 .markdown-target h2,
 .markdown-target h3 {
   scroll-margin-top: 5rem;
+}
+.markdown-target :is(ul, ol) {
+  padding-left: 1.45em;
+}
+.markdown-target li {
+  margin-top: 0.2em;
+  margin-bottom: 0.2em;
+}
+.markdown-target li::marker {
+  color: var(--magenta-d);
+}
+.markdown-target li > :is(p, ul, ol) {
+  margin-top: 0.35em;
+  margin-bottom: 0.35em;
+}
+.markdown-target hr {
+  border: none;
+  height: 1px;
+  background: var(--ink);
+  margin: 1.2em 0;
+}
+.markdown-target a {
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1.5px solid var(--indigo);
+}
+.markdown-target a:hover {
+  color: var(--indigo);
+}
+.markdown-target strong {
+  font-weight: 700;
+}
+.markdown-target blockquote {
+  border-left: 2px solid var(--ink);
+  padding-left: 1em;
+  font-family: "Playfair Display", Georgia, serif;
+  font-style: italic;
+  color: var(--ink);
+}
+/* Inline code + fenced blocks: cream-soft chips, ink-bordered fences. */
+.markdown-target code {
+  background: var(--paper-soft);
+  border: 1px solid var(--paper-3);
+  padding: 0.08em 0.35em;
+  border-radius: 0;
+  font-size: 0.88em;
+  font-weight: 500;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  color: var(--ink);
+}
+.markdown-target pre {
+  background: var(--paper-soft);
+  border: 1px solid var(--ink);
+  border-left: 4px solid var(--cobalt);
+  color: var(--ink);
+  border-radius: 0;
+  padding: 0.9em 1em;
+  overflow-x: auto;
+}
+.markdown-target pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-size: 0.85em;
+}
+.markdown-target table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.markdown-target :is(th, td) {
+  border: 1px solid var(--ink);
+  padding: 0.4em 0.7em;
+  text-align: left;
+}
+.markdown-target th {
+  background: var(--paper-soft);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.78em;
+}
+
+/* Generic .prose (about page) inherits the same ink-on-paper treatment. */
+.prose {
+  color: var(--ink);
+}
+.prose :is(h1, h2, h3) {
+  font-family: "Archivo Black", "Helvetica Neue", Arial, sans-serif;
+  color: var(--ink);
+}
+.prose a {
+  color: var(--ink);
+  border-bottom: 1.5px solid var(--indigo);
+  text-decoration: none;
+}
+.prose a:hover {
+  color: var(--indigo);
+}
+.prose code {
+  background: var(--paper-soft);
+  border: 1px solid var(--paper-3);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* Mobile: brand lives in the drawer, hide the duplicate navbar brand. */
+#nav-drawer:checked ~ .drawer-content #navbar-brand {
+  display: none;
 }
