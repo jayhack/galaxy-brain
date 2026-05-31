@@ -7,9 +7,11 @@
    ================================================================== */
 
 :root {
-  --paper: #f2ead0;
-  --paper-soft: #efe3c2;
-  --paper-3: #e0cf9e;
+  /* Muted, low-saturation warm off-white — toned well down from the
+     original yellow cream so ink type reads at maximum contrast. */
+  --paper: #edebe4;
+  --paper-soft: #e4e2d9;
+  --paper-3: #cfcbbe;
   --ink: #0a0908;
   --cyan: #2dc4d8;
   --cyan-d: #126974;
@@ -46,29 +48,28 @@ body {
 }
 
 /* ===== SURFACES =================================================== */
-/* Warm butcher-paper grain: two faint radial dot layers in ink + cobalt. */
+/* Very subtle paper grain: a single, faint neutral dot layer. */
 .paper {
   background-color: var(--paper);
-  background-image:
-    radial-gradient(rgba(10, 9, 8, 0.05) 1px, transparent 1px),
-    radial-gradient(rgba(35, 71, 200, 0.04) 1px, transparent 1px);
-  background-size: 7px 7px, 11px 11px;
-  background-position: 0 0, 3px 4px;
+  background-image: radial-gradient(rgba(10, 9, 8, 0.03) 1px, transparent 1px);
+  background-size: 8px 8px;
+  background-position: 0 0;
 }
 .paper-soft {
   background-color: var(--paper-soft);
 }
-/* 135° flow strip implies the chain's path; sits under globule clusters. */
+/* 135° flow strip: a barely-there tint so the hero stays calm and text
+   stays legible. The globule cluster carries the colour, not the panel. */
 .flow-strip {
   background:
     linear-gradient(
       135deg,
-      rgba(45, 196, 216, 0.1) 0%,
-      rgba(91, 46, 160, 0.1) 35%,
-      rgba(224, 70, 145, 0.1) 65%,
-      rgba(130, 230, 71, 0.08) 100%
+      rgba(45, 196, 216, 0.05) 0%,
+      rgba(91, 46, 160, 0.045) 40%,
+      rgba(224, 70, 145, 0.045) 70%,
+      rgba(130, 230, 71, 0.035) 100%
     ),
-    var(--paper);
+    var(--paper-soft);
 }
 
 /* ===== TYPOGRAPHY ================================================= */
