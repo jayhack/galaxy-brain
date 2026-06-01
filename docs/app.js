@@ -428,7 +428,7 @@ function viewHome(route) {
 
   state.view.innerHTML = `
     <section class="${ui.heroHome}">
-      <div class="masthead-caps text-[11px] opacity-70 px-6 sm:px-10 pt-5">
+      <div class="masthead-caps text-[11px] opacity-90 px-6 sm:px-10 pt-5">
         Agent · Evals · MMXXVI ·
       </div>
       <div class="${ui.heroContent} pt-3 grid grid-cols-12 gap-6 items-center">

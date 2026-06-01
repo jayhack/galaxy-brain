@@ -93,7 +93,7 @@ export const ui = {
   gridKv: "grid grid-cols-2 gap-3 mt-1",
 
   /* Hero & marketing */
-  heroHome: "flow-strip border border-[var(--ink)] mb-8 relative overflow-hidden",
+  heroHome: "paper-soft border border-[var(--ink)] mb-8 relative overflow-hidden",
   hero404: "g-card",
   heroContent: "p-6 sm:p-10 text-left w-full relative z-10",
   heroEmoji: "logo-monogram",
