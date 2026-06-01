@@ -24,7 +24,8 @@ export const ui = {
   card: "g-card",
   cardHover: "g-card-hover",
   cardTitleSm: "g-display text-lg leading-tight",
-  cardTitleLg: "g-display text-xl leading-tight",
+  /* Eval-grid card name: Inter bold (not Archivo Black) for readability. */
+  cardTitleLg: "font-sans text-xl font-bold tracking-tight leading-tight text-base-content",
   roundedPanel: "g-panel",
   aboutResourceCard: "g-card p-4",
 

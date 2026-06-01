@@ -406,7 +406,7 @@ function viewHome(route) {
             <h3 class="${ui.cardTitleLg}">${esc(ev.title)}</h3>
             <span class="${ui.badgePrimarySm}" title="${n} solution${n === 1 ? "" : "s"}">${n}</span>
           </div>
-          <p class="text-sm ${ui.muted} mt-2.5 leading-relaxed">${esc(ev.tagline || ev.description || "")}</p>
+          <p class="text-sm text-base-content mt-2.5 leading-relaxed">${esc(ev.tagline || ev.description || "")}</p>
           <div class="flex flex-wrap gap-1.5 mt-3.5">${tags}</div>
         </a>`;
     })
