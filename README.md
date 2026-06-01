@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/og-image.png" alt="galaxy-brain — a chromatic quarterly of agent evals" width="100%" />
+</p>
+
 # galaxy-brain
 
 A collection of agent evals.
