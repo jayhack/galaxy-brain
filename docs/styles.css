@@ -27,6 +27,18 @@
   --sun-d: #8e6a0c;
 }
 
+/* The custom "globule" DaisyUI theme is declared in tailwind.config.daisyui,
+   but the page ships the prebuilt daisyui full.min.css (the Play CDN has no
+   DaisyUI plugin to compile that config), so data-theme="globule" silently
+   falls back to DaisyUI's default light theme. That default's base-content is
+   a medium slate-gray, which is why text-base-content (card titles, taglines,
+   muted copy) reads washed-out. Pin base-content to ink here so every
+   text-base-content surface renders at full ink contrast. oklch values map to
+   --ink (#0a0908); the /70–/90 opacity variants then dim from ink, not gray. */
+[data-theme="globule"] {
+  --bc: 14.07% 0.003 71.5;
+}
+
 /* No timed fades on interactive chrome; snap immediately.
    (Keyframe animations such as DaisyUI loading indicators are unchanged.) */
 *,
