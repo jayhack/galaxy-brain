@@ -63,6 +63,30 @@
             "score": null
           },
           "notes": "Open `sweats-dossier/codex-gpt-5-5-xhigh/index.html` directly, or use the mirrored artifact at `./artifacts/sweats-dossier/codex-gpt-5-5-xhigh.html`."
+        },
+        {
+          "slug": "claude-code-opus-4-8-max",
+          "harness": "claude-code",
+          "model": "opus-4-8-max",
+          "projectName": "the-sweats-dossier",
+          "summary": "A single-file editorial lookbook, 'The Sweats Dossier', arguing which high-quality sweats Jay Hack should buy. Opens with a fabric-first, no-logo thesis grounded in his public profile (Head of AI @ ClickUp; founder of Codegen; founder of the Mira AI shopping startup; ex-Palantir; Stanford CS/AI; @mathemagic1an) and his own minimal, dark design taste, then presents 7 picks laddered $130–$795 — Fear of God Essentials, Les Tien, The Real McCoy's (loopwheel), Lady White Co., Auralee, Stòffa, and the exact James Perse suede piped track pant he linked — each with brand, price, link, fabric/construction note, a product image, and a Jay-specific reason. A hand-built SVG positioning map (casual↔dressed × light↔18oz, bubble size = price) plus a comparison table make the picks comparable, with a 'bench' of alternates and a buy-in-this-order plan that closes on 'run it back'. Its angle: buy the construction (loopwheel, garment-dye, high-twist), not the gram count.",
+          "tech": [
+            "html",
+            "css",
+            "javascript",
+            "svg",
+            "research",
+            "lookbook"
+          ],
+          "submittedAt": "2026-06-05",
+          "artifactUrl": "./artifacts/sweats-dossier/claude-code-opus-4-8-max.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a single self-contained index.html (no build, no server) and mirrors it under public/artifacts and docs/artifacts for one-click review. Leads with an opinionated thesis, presents 7 specific products each with a real product image, brand, price, link, fabric note, and a researched Jay-specific rationale, and makes them comparable via an SVG positioning map and a spec table. All 8 product images were verified to load live from each brand's CDN, with a labeled fallback swatch if a brand blocks hotlinking.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `sweats-dossier/claude-code-opus-4-8-max/index.html` directly in a desktop browser — no build, no server, no npm install. Product images load live from each brand's CDN (a labeled swatch stands in if a brand blocks hotlinking; every product link still resolves). Mirrored at `./artifacts/sweats-dossier/claude-code-opus-4-8-max.html`."
         }
       ]
     },

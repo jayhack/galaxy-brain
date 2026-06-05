@@ -1,0 +1,715 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Sweats Dossier — for Jay Hack</title>
+<meta name="description" content="A fabric-first personal-shopping report & lookbook recommending high-quality sweats for Jay Hack, calibrated to James Perse and Fear of God. Prepared by claude-code-opus-4-8-max." />
+<meta name="author" content="claude-code-opus-4-8-max" />
+<meta property="og:title" content="The Sweats Dossier — for Jay Hack" />
+<meta property="og:description" content="Seven sweats worth your closet space. Fabric-first, no logos, calibrated to James Perse × Fear of God." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,400..600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  /* ============================================================
+     THE SWEATS DOSSIER — a single-file editorial lookbook
+     Prepared for Jay Hack · by claude-code-opus-4-8-max · Jun 2026
+     Self-contained: no build, no server. Product imagery loads
+     live from each brand's CDN; a labeled swatch stands in if a
+     brand blocks hotlinking. Every link below is real.
+     ============================================================ */
+
+  :root{
+    --paper:#f3efe6;        /* warm bone */
+    --paper-2:#ece6d9;      /* deeper bone for panels */
+    --ink:#1b1a16;          /* near-black warm */
+    --ink-2:#55514a;        /* muted */
+    --ink-3:#8c877d;        /* faint */
+    --line:rgba(27,26,22,.14);
+    --line-soft:rgba(27,26,22,.08);
+    --night:#15130e;        /* dark interstitials */
+    --night-2:#211e17;
+    --whiskey:#b07b43;      /* warm accent (the JP "whiskey") */
+    --whiskey-deep:#8a5d2e;
+    --loden:#5c6147;        /* earthy secondary */
+    --serif:'Fraunces','Hoefler Text',Georgia,'Times New Roman',serif;
+    --sans:'Inter',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;
+    --maxw:1180px;
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:var(--sans);font-weight:400;line-height:1.6;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+    /* faint paper grain */
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/></svg>");
+  }
+  img{display:block;max-width:100%}
+  a{color:inherit}
+
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 32px}
+  .eyebrow{font-size:11.5px;letter-spacing:.26em;text-transform:uppercase;font-weight:600;color:var(--ink-2)}
+  .accent{color:var(--whiskey-deep)}
+  .serif{font-family:var(--serif)}
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    position:sticky;top:0;z-index:50;
+    background:rgba(243,239,230,.82);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .masthead .wrap{display:flex;align-items:center;justify-content:space-between;height:54px}
+  .mast-mark{font-size:12px;letter-spacing:.24em;text-transform:uppercase;font-weight:700}
+  .mast-mark b{color:var(--whiskey-deep)}
+  .mast-meta{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
+  .mast-meta .dot{color:var(--ink-3);margin:0 .5em}
+  @media(max-width:640px){.mast-meta{display:none}}
+
+  /* ---------- hero ---------- */
+  .hero{position:relative;background:var(--night);color:#efe9dc;overflow:hidden}
+  .hero-grid{display:grid;grid-template-columns:1.15fr .85fr;min-height:84vh}
+  .hero-copy{display:flex;flex-direction:column;justify-content:center;padding:72px 56px 72px 0}
+  .hero-copy .wrap-inner{max-width:620px;margin-left:auto;padding-left:32px}
+  .hero .eyebrow{color:#b7ad98}
+  .hero h1{
+    font-family:var(--serif);font-weight:340;font-optical-sizing:auto;
+    font-size:clamp(46px,6.6vw,92px);line-height:.96;letter-spacing:-.02em;
+    margin:.34em 0 .42em;color:#f6f0e3;
+  }
+  .hero h1 em{font-style:italic;color:var(--whiskey)}
+  .hero .dek{font-size:clamp(16px,1.4vw,19px);line-height:1.6;color:#cfc7b5;max-width:46ch}
+  .hero .dek b{color:#f0e9da;font-weight:600}
+  .hero-chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px}
+  .chip{
+    font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;
+    padding:8px 13px;border:1px solid rgba(255,255,255,.22);border-radius:999px;color:#d8d0bf;
+  }
+  .chip b{color:var(--whiskey);font-weight:700}
+  .hero-figure{position:relative;background:#0e0c08}
+  .hero-figure img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 28%;opacity:.92}
+  .hero-figure::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--night) 0%,rgba(21,19,14,.35) 26%,rgba(21,19,14,0) 60%)}
+  .hero-figure .figcap{position:absolute;left:18px;bottom:16px;z-index:2;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.6)}
+  .hero-figure.noimg img{display:none}
+  .hero-figure.noimg{background:
+     radial-gradient(120% 90% at 70% 20%, #2a261c 0%, #15130e 60%),
+     repeating-linear-gradient(135deg, rgba(255,255,255,.03) 0 2px, transparent 2px 9px)}
+  @media(max-width:860px){
+    .hero-grid{grid-template-columns:1fr}
+    .hero-figure{min-height:46vh;order:-1}
+    .hero-copy{padding:48px 0 56px}
+    .hero-copy .wrap-inner{padding:0 32px;margin:0}
+    .hero-figure::after{background:linear-gradient(0deg,var(--night) 2%,rgba(21,19,14,0) 55%)}
+  }
+
+  /* ---------- section scaffolding ---------- */
+  section{padding:96px 0}
+  .sec-head{display:flex;align-items:baseline;gap:18px;margin-bottom:14px}
+  .sec-num{font-family:var(--serif);font-size:15px;color:var(--whiskey-deep);font-weight:500}
+  .sec-title{font-family:var(--serif);font-weight:360;font-size:clamp(30px,4vw,50px);line-height:1.02;letter-spacing:-.018em;margin:0}
+  .sec-lede{font-size:18px;color:var(--ink-2);max-width:60ch;margin:18px 0 0}
+  .rule{height:1px;background:var(--line);border:0;margin:0}
+
+  /* ---------- thesis ---------- */
+  .thesis{border-top:1px solid var(--line)}
+  .thesis-body{display:grid;grid-template-columns:1.25fr .75fr;gap:64px;margin-top:46px}
+  .thesis-body p{font-size:17.5px;line-height:1.66;margin:0 0 22px;max-width:60ch}
+  .thesis-body p .lead{font-family:var(--serif);font-size:1.06em}
+  .thesis-body strong{font-weight:600}
+  .pull{
+    font-family:var(--serif);font-weight:360;font-style:italic;
+    font-size:clamp(22px,2.5vw,30px);line-height:1.28;letter-spacing:-.01em;
+    color:var(--ink);border-left:2px solid var(--whiskey);padding:6px 0 6px 22px;margin:30px 0;
+  }
+  .spec-card{background:var(--paper-2);border:1px solid var(--line);border-radius:14px;padding:30px 28px;align-self:start;position:sticky;top:78px}
+  .spec-card h3{font-family:var(--serif);font-weight:480;font-size:19px;margin:0 0 18px}
+  .spec-row{padding:16px 0;border-top:1px solid var(--line-soft)}
+  .spec-row:first-of-type{border-top:0;padding-top:0}
+  .spec-row dt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--whiskey-deep);font-weight:700;margin-bottom:6px}
+  .spec-row dd{margin:0;font-size:14.5px;line-height:1.55;color:var(--ink-2)}
+  @media(max-width:860px){.thesis-body{grid-template-columns:1fr;gap:36px}.spec-card{position:static}}
+
+  /* ---------- map ---------- */
+  .map-wrap{margin-top:44px;background:var(--night);border-radius:16px;padding:30px 26px 22px;color:#e9e2d2}
+  .map-wrap svg{width:100%;height:auto;display:block}
+  .map-legend{display:flex;flex-wrap:wrap;gap:14px 26px;margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,.12)}
+  .map-legend div{font-size:12.5px;color:#cfc7b5;display:flex;gap:8px;align-items:center}
+  .map-legend b{display:inline-flex;width:21px;height:21px;border-radius:50%;background:rgba(176,123,67,.28);border:1px solid var(--whiskey);color:#f3ead9;font-size:10.5px;align-items:center;justify-content:center;font-weight:700;font-family:var(--sans)}
+  .map-cap{font-size:13.5px;color:var(--ink-3);margin-top:16px;max-width:70ch}
+
+  /* ---------- picks ---------- */
+  .picks{border-top:1px solid var(--line)}
+  .pick{display:grid;grid-template-columns:1fr 1fr;gap:54px;align-items:center;padding:62px 0;border-bottom:1px solid var(--line)}
+  .pick:nth-child(even) .pick-figure{order:2}
+  .pick-figure{position:relative;aspect-ratio:4/5;border-radius:14px;overflow:hidden;background:var(--paper-2);border:1px solid var(--line)}
+  .pick-figure img{width:100%;height:100%;object-fit:cover}
+  .pick-figure .num{position:absolute;top:14px;left:16px;z-index:3;font-family:var(--serif);font-size:15px;font-weight:600;color:#fff;mix-blend-mode:difference;letter-spacing:.04em}
+  /* fallback plate */
+  .plate{position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:30px;color:#f2ead9}
+  .pick-figure.noimg img{display:none}
+  .pick-figure.noimg .plate{display:flex}
+  .plate .pl-brand{font-size:12px;letter-spacing:.22em;text-transform:uppercase;font-weight:700;opacity:.85}
+  .plate .pl-name{font-family:var(--serif);font-style:italic;font-weight:420;font-size:26px;line-height:1.2;margin:14px 0 18px}
+  .plate .pl-cta{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;border-top:1px solid rgba(255,255,255,.28);padding-top:12px}
+  .plate.t-whiskey{background:radial-gradient(120% 90% at 30% 20%,#5a3f22,#2c1f12)}
+  .plate.t-grey{background:radial-gradient(120% 90% at 30% 20%,#4a4843,#23211d)}
+  .plate.t-bone{background:radial-gradient(120% 90% at 30% 20%,#6d6655,#2f2c25)}
+  .plate.t-night{background:radial-gradient(120% 90% at 30% 20%,#33302a,#141210)}
+  .plate.t-loden{background:radial-gradient(120% 90% at 30% 20%,#4b5039,#23261b)}
+  .plate.t-oat{background:radial-gradient(120% 90% at 30% 20%,#766c57,#322e24)}
+  .plate.t-navy{background:radial-gradient(120% 90% at 30% 20%,#33405a,#161b27)}
+
+  .pick-body{max-width:520px}
+  .pick-role{font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:var(--whiskey-deep)}
+  .pick-brand{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);margin-top:14px;font-weight:600}
+  .pick-name{font-family:var(--serif);font-weight:380;font-size:clamp(26px,3vw,36px);line-height:1.05;letter-spacing:-.015em;margin:6px 0 0}
+  .pick-price{font-family:var(--serif);font-size:22px;margin:12px 0 0;color:var(--ink)}
+  .pick-price small{font-size:13px;color:var(--ink-3);font-family:var(--sans);letter-spacing:.04em;margin-left:6px}
+  .pick-specs{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 0}
+  .pick-specs span{font-size:11.5px;letter-spacing:.04em;background:var(--paper-2);border:1px solid var(--line);border-radius:999px;padding:6px 12px;color:var(--ink-2)}
+  .pick-why{font-size:16.5px;line-height:1.62;margin:22px 0 0;color:var(--ink)}
+  .pick-why b{font-weight:600}
+  .pick-link{display:inline-flex;align-items:center;gap:8px;margin-top:24px;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--ink);text-decoration:none;border-bottom:2px solid var(--whiskey);padding-bottom:4px;transition:gap .2s ease,color .2s}
+  .pick-link:hover{gap:14px;color:var(--whiskey-deep)}
+  @media(max-width:860px){
+    .pick{grid-template-columns:1fr;gap:26px;padding:44px 0}
+    .pick:nth-child(even) .pick-figure{order:0}
+    .pick-figure{aspect-ratio:3/4;max-width:440px}
+  }
+
+  /* ---------- table ---------- */
+  .table-sec{background:var(--paper-2);border-top:1px solid var(--line)}
+  .tbl-scroll{overflow-x:auto;margin-top:40px;border:1px solid var(--line);border-radius:14px;background:var(--paper)}
+  table{border-collapse:collapse;width:100%;min-width:760px;font-size:14px}
+  thead th{
+    text-align:left;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);
+    font-weight:700;padding:16px 16px;border-bottom:1.5px solid var(--ink);white-space:nowrap;background:var(--paper)
+  }
+  tbody td{padding:15px 16px;border-bottom:1px solid var(--line-soft);vertical-align:top;color:var(--ink-2)}
+  tbody tr:hover{background:rgba(176,123,67,.05)}
+  td .tname{font-weight:600;color:var(--ink)}
+  td .tbrand{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);display:block;margin-bottom:2px}
+  td .price{font-family:var(--serif);font-size:16px;color:var(--ink);white-space:nowrap}
+  .bar{height:7px;border-radius:4px;background:linear-gradient(90deg,var(--whiskey),var(--whiskey-deep));display:block}
+  .bar-track{background:var(--line);border-radius:4px;width:74px}
+
+  /* ---------- bench ---------- */
+  .bench-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:40px}
+  .bench-item{background:var(--paper);padding:26px 24px}
+  .bench-item .bn-brand{font-family:var(--serif);font-weight:500;font-size:19px}
+  .bench-item .bn-role{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--whiskey-deep);font-weight:700;margin-top:3px}
+  .bench-item p{font-size:14px;color:var(--ink-2);line-height:1.55;margin:12px 0 14px}
+  .bench-item a{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;text-decoration:none;border-bottom:1px solid var(--whiskey);padding-bottom:2px}
+  @media(max-width:780px){.bench-grid{grid-template-columns:1fr}}
+
+  /* ---------- the play (closing) ---------- */
+  .play{background:var(--night);color:#ece5d4}
+  .play .sec-title{color:#f4eedf}
+  .play .sec-num{color:var(--whiskey)}
+  .play .sec-lede{color:#bdb4a1}
+  .play .rule{background:rgba(255,255,255,.14)}
+  .tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:46px}
+  .tier{border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:28px 26px;background:linear-gradient(180deg,rgba(255,255,255,.03),transparent)}
+  .tier h3{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--whiskey);margin:0 0 16px;font-weight:700}
+  .tier .item{display:flex;justify-content:space-between;gap:12px;font-size:14.5px;padding:9px 0;border-top:1px solid rgba(255,255,255,.08);color:#ddd5c2}
+  .tier .item:first-of-type{border-top:0}
+  .tier .item .nm{color:#f1ebdc}
+  .tier .item .pr{font-family:var(--serif);color:#cdbfa5;white-space:nowrap}
+  .tier .total{margin-top:16px;padding-top:14px;border-top:1.5px solid rgba(255,255,255,.2);display:flex;justify-content:space-between;font-family:var(--serif);font-size:18px;color:#f4eedf}
+  .tier p{font-size:13.5px;color:#b3aa96;line-height:1.55;margin:16px 0 0}
+  .play-close{font-family:var(--serif);font-weight:360;font-style:italic;font-size:clamp(22px,2.6vw,30px);line-height:1.32;max-width:30ch;margin:64px auto 0;text-align:center;color:#f0e9d9}
+  @media(max-width:780px){.tiers{grid-template-columns:1fr}}
+
+  /* ---------- colophon ---------- */
+  .colophon{background:var(--night-2);color:#9c9483;padding:54px 0;font-size:12.5px;line-height:1.7}
+  .colophon .wrap{max-width:820px}
+  .colophon b{color:#cfc6b3;font-weight:600}
+  .colophon a{color:#cfc6b3}
+  .colophon .sig{font-family:var(--serif);font-size:16px;color:#e6decc;margin-bottom:14px}
+
+  /* reveal */
+  .rv{opacity:0;transform:translateY(14px);transition:opacity .7s ease,transform .7s ease}
+  .rv.in{opacity:1;transform:none}
+  @media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
+
+  @media print{
+    .masthead{position:static}.rv{opacity:1;transform:none}
+    body{background:#fff}.hero,.play,.map-wrap,.colophon{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="mast-mark">The&nbsp;Sweats&nbsp;<b>Dossier</b></div>
+    <div class="mast-meta">For Jay Hack<span class="dot">·</span>ClickUp<span class="dot">·</span>June 2026</div>
+  </div>
+</header>
+
+<!-- ============================ HERO ============================ -->
+<section class="hero" style="padding:0">
+  <div class="hero-grid">
+    <div class="hero-copy">
+      <div class="wrap-inner">
+        <div class="eyebrow">Personal shopping report · Lookbook</div>
+        <h1>Dress the<br/>way you <em>ship.</em></h1>
+        <p class="dek">You once built an AI to tell people what to buy. Fair turnabout: here's the AI telling <b>you</b>. A fabric-first dossier on the only sweats worth your closet space — calibrated to the James Perse track pant you flagged and the Fear of God drape you already trust, then pushed well past both.</p>
+        <div class="hero-chips">
+          <span class="chip">For <b>Jay Hack</b> — Head of AI, ClickUp</span>
+          <span class="chip">Calibration: <b>James Perse × Fear of God</b></span>
+          <span class="chip"><b>7 picks</b> · $130–$795</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-figure" id="heroFig">
+      <img src="https://cdn.shopify.com/s/files/1/1003/3354/files/MARCH26_M_L42_P_5448.jpg" alt="Fear of God heavyweight fleece, on model" referrerpolicy="no-referrer" loading="eager"
+           onerror="document.getElementById('heroFig').classList.add('noimg')" />
+      <div class="figcap">Reference drape — Fear of God, SS26</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ THESIS ============================ -->
+<section class="thesis" id="thesis">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">01</span>
+      <h2 class="sec-title">The thesis</h2>
+    </div>
+    <p class="sec-lede">Before the picks, the position they follow from. Buy on this logic and the seven below stop being a shopping list and start being a wardrobe.</p>
+
+    <div class="thesis-body">
+      <div>
+        <p><span class="lead">Your homepage is dark, quiet, and all hierarchy</span> — no ornament, every element earning its place. Your products ship pull requests while you sleep; you don't supervise good systems, you build them and trust them. Your sweats should obey the same spec: <strong>no logos, no noise, the fabric doing all the talking,</strong> and a cut that reads "considered" whether you're heads-down at 6am or on a podcast at 6pm.</p>
+
+        <p>The Essentials you referenced are the on-ramp, not the destination. They nail the <strong>silhouette</strong> — Lorenzo's relaxed, dropped, draped proportion — but the cloth has a ceiling and the print is telemetry you never opted into. James Perse points the other way: real cotton, cut and sewn in LA, nothing stamped on it. This whole report lives on the line between those two coordinates, and then climbs it.</p>
+
+        <div class="pull">The premium-sweats market sells you weight as a proxy for quality. It isn't one. The real axis is <em>how the cloth is made.</em></div>
+
+        <p>Loopwheel-knit Japanese fleece — about a meter an hour on 1920s machines — versus garment-dyed American heavyweight versus high-twist cotton spun with a little wool and silk. <strong>Buy the construction, not the gram count.</strong> And own a small <em>range</em> of weights, because a San Francisco morning and an SFO redeye don't ask for the same fleece. The man who built <a href="https://github.com/jayhack" style="color:var(--whiskey-deep)">Mira</a> to optimize other people's carts should run a tightly optimized one of his own: fewer pieces, each the best version of itself, in a palette that never fights.</p>
+      </div>
+
+      <aside class="spec-card rv">
+        <h3>The brief, distilled</h3>
+        <div class="spec-row">
+          <dt>Fit</dt>
+          <dd>Relaxed through the thigh, controlled at the ankle. Tapered or clean-straight — the drape of Fear of God without the puddle, the restraint of James Perse. Never skinny, never sloppy.</dd>
+        </div>
+        <div class="spec-row">
+          <dt>Palette</dt>
+          <dd>Charcoal · true black · heather &amp; pewter · bone &amp; oatmeal — plus one earth note (loden or whiskey). Tonal, kind to a camera, ages quietly. Zero logos.</dd>
+        </div>
+        <div class="spec-row">
+          <dt>Occasions</dt>
+          <dd>Build days (heavyweight comfort) · founder-casual &amp; on-camera (a pant sharp enough to wear out) · travel (wrinkle-resistant, layerable) · recovery (the workhorse loopback).</dd>
+        </div>
+        <div class="spec-row">
+          <dt>Spend logic</dt>
+          <dd>Two everyday workhorses you live in, two or three soul pieces, one wear-it-out grail. Buy in order; rotate a closed capsule.</dd>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ MAP ============================ -->
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">02</span>
+      <h2 class="sec-title">The landscape, mapped</h2>
+    </div>
+    <p class="sec-lede">Seven picks placed by how <em>dressy</em> they read (left → right) and how <em>heavy</em> they wear (bottom → top). Bubble size tracks price. Your week lives in the band from everyday-heavyweight to wear-it-out luxe.</p>
+
+    <div class="map-wrap rv">
+      <svg viewBox="0 0 820 540" role="img" aria-label="Scatter map of sweats picks by formality, weight and price">
+        <!-- axes -->
+        <defs>
+          <marker id="arrow" markerWidth="9" markerHeight="9" refX="6" refY="4.5" orient="auto">
+            <path d="M0,0 L9,4.5 L0,9 Z" fill="rgba(255,255,255,.45)"/>
+          </marker>
+        </defs>
+        <!-- grid -->
+        <g stroke="rgba(255,255,255,.08)" stroke-width="1">
+          <line x1="90" y1="120" x2="780" y2="120"/>
+          <line x1="90" y1="220" x2="780" y2="220"/>
+          <line x1="90" y1="320" x2="780" y2="320"/>
+          <line x1="257" y1="40" x2="257" y2="460"/>
+          <line x1="424" y1="40" x2="424" y2="460"/>
+          <line x1="591" y1="40" x2="591" y2="460"/>
+        </g>
+        <!-- main axes -->
+        <line x1="90" y1="460" x2="790" y2="460" stroke="rgba(255,255,255,.45)" stroke-width="1.4" marker-end="url(#arrow)"/>
+        <line x1="90" y1="460" x2="90" y2="30" stroke="rgba(255,255,255,.45)" stroke-width="1.4" marker-end="url(#arrow)"/>
+        <!-- axis labels -->
+        <text x="92" y="487" fill="#9b9480" font-size="12" font-family="Inter" letter-spacing="2">CASUAL / GYM</text>
+        <text x="788" y="487" fill="#9b9480" font-size="12" font-family="Inter" letter-spacing="2" text-anchor="end">WEAR-IT-OUT / DRESSED</text>
+        <text x="70" y="452" fill="#9b9480" font-size="12" font-family="Inter" letter-spacing="2" transform="rotate(-90 70 452)">LIGHT</text>
+        <text x="70" y="120" fill="#9b9480" font-size="12" font-family="Inter" letter-spacing="2" transform="rotate(-90 70 120)" text-anchor="end">18&nbsp;OZ MONOLITH</text>
+
+        <!-- bubbles: cx = 90 + casual*670 ; cy = 460 - weight*420 ; r = 9 + price/55 -->
+        <g font-family="Inter" font-weight="700" font-size="12" text-anchor="middle">
+          <!-- 1 Essentials .30/.45 130 -->
+          <circle cx="291" cy="271" r="11.4" fill="rgba(176,123,67,.26)" stroke="#b07b43" stroke-width="1.3"/>
+          <text x="291" y="275" fill="#f3ead9">1</text>
+          <!-- 2 Les Tien .35/.62 155 -->
+          <circle cx="325" cy="200" r="11.8" fill="rgba(176,123,67,.26)" stroke="#b07b43" stroke-width="1.3"/>
+          <text x="325" y="204" fill="#f3ead9">2</text>
+          <!-- 3 RMC .45/.50 210 -->
+          <circle cx="392" cy="250" r="12.8" fill="rgba(176,123,67,.26)" stroke="#b07b43" stroke-width="1.3"/>
+          <text x="392" y="254" fill="#f3ead9">3</text>
+          <!-- 4 Lady White .42/.96 250 -->
+          <circle cx="371" cy="57" r="13.5" fill="rgba(176,123,67,.26)" stroke="#b07b43" stroke-width="1.3"/>
+          <text x="371" y="61" fill="#f3ead9">4</text>
+          <!-- 5 Auralee .72/.30 434 -->
+          <circle cx="572" cy="334" r="16.9" fill="rgba(176,123,67,.26)" stroke="#b07b43" stroke-width="1.3"/>
+          <text x="572" y="338" fill="#f3ead9">5</text>
+          <!-- 6 Stoffa .86/.42 575 -->
+          <circle cx="666" cy="284" r="19.5" fill="rgba(176,123,67,.26)" stroke="#b07b43" stroke-width="1.3"/>
+          <text x="666" y="288" fill="#f3ead9">6</text>
+          <!-- 7 JP .80/.40 795 -->
+          <circle cx="626" cy="292" r="23.5" fill="rgba(176,123,67,.34)" stroke="#d8a05f" stroke-width="1.6"/>
+          <text x="626" y="296" fill="#fbf3e4">7</text>
+        </g>
+        <!-- tiny labels -->
+        <g font-family="Inter" font-size="11" fill="#bcb4a0">
+          <text x="291" y="251">Essentials</text>
+          <text x="325" y="180">Les&nbsp;Tien</text>
+          <text x="392" y="231">RMC</text>
+          <text x="371" y="35">Lady&nbsp;White</text>
+          <text x="572" y="361">Auralee</text>
+          <text x="690" y="278">Stòffa</text>
+          <text x="626" y="325">James&nbsp;Perse</text>
+        </g>
+      </svg>
+      <div class="map-legend">
+        <div><b>1</b> Essentials Sweatpant</div>
+        <div><b>2</b> Les Tien Heavyweight</div>
+        <div><b>3</b> Real McCoy's Loopwheel</div>
+        <div><b>4</b> Lady White Super Weighted</div>
+        <div><b>5</b> Auralee High-Twist</div>
+        <div><b>6</b> Stòffa Drawstring Trouser</div>
+        <div><b>7</b> James Perse Track Pant</div>
+      </div>
+    </div>
+    <p class="map-cap">Read it like a portfolio: the cheap, mid-weight on-ramp sits lower-left; the 18&nbsp;oz monolith floats top-center; and the right-hand cluster — Auralee, Stòffa, James Perse — is the "answer a Slack ping without changing" zone. You want coverage across the band, not three bubbles stacked in one corner.</p>
+  </div>
+</section>
+
+<!-- ============================ PICKS ============================ -->
+<section class="picks" id="picks" style="padding-bottom:0">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">03</span>
+      <h2 class="sec-title">The picks</h2>
+    </div>
+    <p class="sec-lede">Seven pieces, laddered from the value on-ramp you already named to the grail pant you already flagged. Each one earns its place for a specific slot in your actual week.</p>
+
+    <!-- 1 -->
+    <article class="pick rv">
+      <div class="pick-figure" id="fig1">
+        <span class="num">01</span>
+        <img src="https://cdn.shopify.com/s/files/1/1003/3354/files/130AS262022F_CLASSIC_SWEATPANT-OATMEAL_HEATHER_LIGHT_HEATHER_1.jpg" alt="Fear of God Essentials Classic Sweatpant, oatmeal heather" referrerpolicy="no-referrer" loading="lazy" onerror="document.getElementById('fig1').classList.add('noimg')"/>
+        <div class="plate t-oat"><span class="pl-brand">Fear of God Essentials</span><span class="pl-name">Classic Sweatpant<br>— Oatmeal Heather</span><span class="pl-cta">see it at fearofgod.com →</span></div>
+      </div>
+      <div class="pick-body">
+        <div class="pick-role">The on-ramp · the bar you named</div>
+        <div class="pick-brand">Fear of God Essentials</div>
+        <h3 class="pick-name">Signature Classic Sweatpant — Oatmeal Heather</h3>
+        <div class="pick-price">$130<small>USD</small></div>
+        <div class="pick-specs"><span>~380 gsm core fleece</span><span>Tapered jogger</span><span>Encased elastic + drawcord</span></div>
+        <p class="pick-why">Start where you started. This is the exact reference point you cited, in its most wearable form: <b>oatmeal heather</b>, the one colorway that reads as a neutral and not a logo delivery vehicle. The Lorenzo cut — relaxed seat, tapered ankle — is the silhouette template for everything below it, and at $130 it's the cheapest way to confirm the proportion is right for you before you spend real money. Buy it, wear it for a week, and you'll feel exactly where the fabric ceiling is. <b>Insider tip:</b> the matching Essentials hoodie routinely dips to ~$75 on the site — that's the single best value in this entire dossier. Treat this as the control group; the next six are the experiment.</p>
+        <a class="pick-link" href="https://fearofgod.com/products/essentials-classic-sweatpant-130as262022f-oatmeal-heather-light-heather" target="_blank" rel="noopener">View at Fear of God →</a>
+      </div>
+    </article>
+
+    <!-- 2 -->
+    <article class="pick rv">
+      <div class="pick-figure" id="fig2">
+        <span class="num">02</span>
+        <img src="https://lestien.com/cdn/shop/files/CF-3001-NVY-01.jpg?v=1696464246&width=1200" alt="Les Tien Heavyweight Classic Sweatpant, navy" referrerpolicy="no-referrer" loading="lazy" onerror="document.getElementById('fig2').classList.add('noimg')"/>
+        <div class="plate t-navy"><span class="pl-brand">Les Tien</span><span class="pl-name">Heavyweight Classic Sweatpant</span><span class="pl-cta">see it at lestien.com →</span></div>
+      </div>
+      <div class="pick-body">
+        <div class="pick-role">The everyday heavyweight · buy this first</div>
+        <div class="pick-brand">Les Tien · Made in Los Angeles</div>
+        <h3 class="pick-name">Heavyweight Classic Sweatpant</h3>
+        <div class="pick-price">$155<small>USD</small></div>
+        <div class="pick-specs"><span>100% cotton · 13 oz</span><span>Vintage-brushed, garment-dyed</span><span>Made in USA</span></div>
+        <p class="pick-why">If you buy one thing, buy this. Les Tien does exactly one thing obsessively — the perfect brushed-fleece sweat — and it shows: <b>13&nbsp;oz cotton, garment-dyed</b> so the color has depth instead of flatness, pre-shrunk, reverse-stitched, with braided drawcords and proper grommets. It arrives feeling like a decade-old favorite and improves from there. No logo, just cloth — the James Perse philosophy at a third of the grail's price. This is the pant you reach for at 6am and are still wearing when the deploy goes out at midnight. Get it in <b>navy or loden</b> to anchor the earth note in your palette; it cleans up far better on camera than black, which flattens under ring light.</p>
+        <a class="pick-link" href="https://lestien.com/products/classic-heavyweight-sweatpant-navy" target="_blank" rel="noopener">View at Les Tien →</a>
+      </div>
+    </article>
+
+    <!-- 3 -->
+    <article class="pick rv">
+      <div class="pick-figure" id="fig3">
+        <span class="num">03</span>
+        <img src="https://standardandstrange.com/cdn/shop/files/TheRealMcCoy_s-10ozLoopwheelCrewneckSweatshirt-Milk-Flat-42.jpg?v=1769531037&width=1200" alt="The Real McCoy's 10oz Loopwheel Crewneck, milk" referrerpolicy="no-referrer" loading="lazy" onerror="document.getElementById('fig3').classList.add('noimg')"/>
+        <div class="plate t-bone"><span class="pl-brand">The Real McCoy's</span><span class="pl-name">10&nbsp;oz Loopwheel Crewneck</span><span class="pl-cta">see it at standardandstrange.com →</span></div>
+      </div>
+      <div class="pick-body">
+        <div class="pick-role">The soul piece · for the systems-builder</div>
+        <div class="pick-brand">The Real McCoy's · Made in Japan</div>
+        <h3 class="pick-name">10&nbsp;oz Loopwheel Crewneck Sweatshirt — "Milk"</h3>
+        <div class="pick-price">$210<small>USD · via Standard &amp; Strange</small></div>
+        <div class="pick-specs"><span>100% cotton · 10 oz</span><span>Loopwheel (tsuriami)</span><span>Knit in Wakayama, JP</span></div>
+        <p class="pick-why">This is the pick that proves the thesis. The fabric is <b>loopwheel-knit</b> — spun on 1920s "tsuriami" machines that turn slow enough to watch, producing roughly <b>one meter of cloth per hour</b> at almost zero tension. The payoff is a loft, softness, and durability that no modern high-speed knit can fake. You, of all people, will appreciate the trade: it's the <b>artisanal compiler</b> of sweatshirts — slow, exacting, and obviously correct once you feel it. The off-white "Milk" reads clean and intentional on a podcast set, and there's no branding anywhere on it — the whole value is in the construction, exactly where your money should go. The matching 10&nbsp;oz loopwheel sweatpant ($250) makes a quietly perfect set.</p>
+        <a class="pick-link" href="https://standardandstrange.com/products/10-oz-loopwheel-crewneck-sweatshirt-milk" target="_blank" rel="noopener">View at Standard &amp; Strange →</a>
+      </div>
+    </article>
+
+    <!-- 4 -->
+    <article class="pick rv">
+      <div class="pick-figure" id="fig4">
+        <span class="num">04</span>
+        <img src="https://ladywhiteco.com/cdn/shop/files/LW680-SUPER-WEIGHTED-HOODIE-BLACK-001.jpg?v=1759251483&width=1200" alt="Lady White Co. Super Weighted Hoodie, black" referrerpolicy="no-referrer" loading="lazy" onerror="document.getElementById('fig4').classList.add('noimg')"/>
+        <div class="plate t-night"><span class="pl-brand">Lady White Co.</span><span class="pl-name">Super Weighted Hoodie</span><span class="pl-cta">see it at ladywhiteco.com →</span></div>
+      </div>
+      <div class="pick-body">
+        <div class="pick-role">The monolith · architecture you can wear</div>
+        <div class="pick-brand">Lady White Co. · Made in Los Angeles</div>
+        <h3 class="pick-name">Super Weighted Hoodie</h3>
+        <div class="pick-price">$250<small>USD</small></div>
+        <div class="pick-specs"><span>100% cotton · 18 oz</span><span>Double-faced brushed fleece</span><span>Knit, cut &amp; sewn in USA</span></div>
+        <p class="pick-why">The heaviest, most structural hoodie in American production: a <b>custom 18&nbsp;oz double-faced fleece</b> — roughly double a normal hoodie — that hangs with the dry, architectural drape of outerwear and breaks in over months into something molded to you. A system that improves with use; you'll find that familiar. The crossover collar and raglan shoulders keep it from ever looking like merch, and there isn't a logo in sight. This is the layer for a cold Outer-Sunset morning and the one you'll throw in a carry-on as your "plane is freezing" insurance. Black is the workhorse; <b>Pewter</b> and <b>Elm</b> are the quietly luxe colorways if you want to step off pure black.</p>
+        <a class="pick-link" href="https://ladywhiteco.com/products/super-weighted-hoodie-black" target="_blank" rel="noopener">View at Lady White Co. →</a>
+      </div>
+    </article>
+
+    <!-- 5 -->
+    <article class="pick rv">
+      <div class="pick-figure" id="fig5">
+        <span class="num">05</span>
+        <img src="https://auralee.jp/photo/2026SS/A26SP02MU/zz-A26SP02MU_7046-1.jpg" alt="Auralee High Twist Light Sweat pullover" referrerpolicy="no-referrer" loading="lazy" onerror="document.getElementById('fig5').classList.add('noimg')"/>
+        <div class="plate t-grey"><span class="pl-brand">Auralee</span><span class="pl-name">High&nbsp;Twist Light Sweat&nbsp;P/O</span><span class="pl-cta">see it at auralee.jp →</span></div>
+      </div>
+      <div class="pick-body">
+        <div class="pick-role">The on-camera refinement · the grown-up sweatshirt</div>
+        <div class="pick-brand">Auralee · Made in Japan</div>
+        <h3 class="pick-name">High&nbsp;Twist Light Sweat P/O</h3>
+        <div class="pick-price">$434<small>USD</small></div>
+        <div class="pick-specs"><span>85% cotton / 10% wool / 5% silk</span><span>High-twist, lightly brushed</span><span>Made in Japan</span></div>
+        <p class="pick-why">The connoisseur's flex, and the most strategically useful piece here. Auralee builds its own yarns — this one blends <b>cotton with a little wool and silk</b> and high-twists it so the cloth drapes like fine knitwear rather than gym fleece. Translation: it's a sweatshirt that passes for a sweater. Wear it to a board meeting, a dinner, or a fundraising call and it reads <b>refined, not off-duty</b> — the perfect answer for a founder who's always one calendar invite away from needing to look like an adult, without ever leaving soft clothes. It's the lightweight end of your range, which your camera and your travel bag will both thank you for. The fabric, not a label, is the whole story — your kind of purchase.</p>
+        <a class="pick-link" href="https://auralee.jp/item/detail/1_1_A26SP02MU_1/7046" target="_blank" rel="noopener">View at Auralee →</a>
+      </div>
+    </article>
+
+    <!-- 6 -->
+    <article class="pick rv">
+      <div class="pick-figure" id="fig6">
+        <span class="num">06</span>
+        <img src="https://stoffa.co/cdn/shop/files/2025-01_Trousers_600x.jpg?v=1737486289" alt="Stòffa peached cotton drawstring trouser, black" referrerpolicy="no-referrer" loading="lazy" onerror="document.getElementById('fig6').classList.add('noimg')"/>
+        <div class="plate t-night"><span class="pl-brand">Stòffa</span><span class="pl-name">Peached Cotton Drawstring Trouser</span><span class="pl-cta">see it at stoffa.co →</span></div>
+      </div>
+      <div class="pick-body">
+        <div class="pick-role">The grown-up's sweatpant · made to your measure</div>
+        <div class="pick-brand">Stòffa · Made to order in Pavia, Italy</div>
+        <h3 class="pick-name">Black Peached Cotton Wide Drawstring Trouser</h3>
+        <div class="pick-price">$575<small>USD</small></div>
+        <div class="pick-specs"><span>Italian peached cotton twill</span><span>Made-to-order</span><span>Sewn in Pavia, IT</span></div>
+        <p class="pick-why">Here's the lateral move that signals you actually know the landscape: <b>Stòffa doesn't make fleece sweats at all</b> — so you pick their drawstring trouser instead. It's the missing link between a sweatpant and a real trouser: <b>peached cotton</b> brushed to a suede-soft hand, with a drawstring waist for the ease, but cut, pressed, and finished like tailoring. And it's <b>made to your measurements</b> — the founder version of bespoke, no fitting room required. This is what you wear when "sweatpants" would undersell the room but you refuse to give up the comfort: HQ, a dinner, a demo day. The single most versatile bottom in the dossier, and the one that quietly outclasses everyone else's "nice joggers."</p>
+        <a class="pick-link" href="https://stoffa.co/products/black-peached-cotton-wide-drawstring-trouser" target="_blank" rel="noopener">View at Stòffa →</a>
+      </div>
+    </article>
+
+    <!-- 7 -->
+    <article class="pick rv">
+      <div class="pick-figure" id="fig7">
+        <span class="num">07</span>
+        <img src="https://www.jamesperse.com/cdn/shop/files/MBCB1476_BKWK_0774_15a590ec-a972-4b49-8d5e-0e18f0143fc0.jpg?v=1771621751&width=1200" alt="James Perse Brushed Cotton Suede Piped Track Pant, black/whiskey" referrerpolicy="no-referrer" loading="lazy" onerror="document.getElementById('fig7').classList.add('noimg')"/>
+        <div class="plate t-whiskey"><span class="pl-brand">James Perse</span><span class="pl-name">Brushed Cotton Suede Piped Track Pant</span><span class="pl-cta">see it at jamesperse.com →</span></div>
+      </div>
+      <div class="pick-body">
+        <div class="pick-role">The grail · the piece you flagged</div>
+        <div class="pick-brand">James Perse · Italian fabric</div>
+        <h3 class="pick-name">Brushed Cotton Suede Piped Track Pant — Black / Whiskey</h3>
+        <div class="pick-price">$795<small>USD</small></div>
+        <div class="pick-specs"><span>Italian brushed cotton-blend</span><span>Sueded hand · suede side piping</span><span>Slim, tailored track</span></div>
+        <p class="pick-why">The pant that started this conversation — and it earns the spend. A <b>sueded brushed Italian knit</b> (a cotton / viscose / nylon blend with a touch of elastane) cut as a slim, almost tailored track pant, finished with <b>suede piping down the seam and a suede drawcord.</b> It's the rare sweatpant engineered to be worn <i>out</i>: with a fine-gauge knit and clean sneakers it passes at any dinner that isn't black-tie. The <b>black/whiskey</b> colorway is your palette in a single garment — the dark base, the earth accent. Where the Les Tien is the workhorse, this is the show pony. It's the most expensive thing here for a reason: it does a job none of the others can, which is to make "I'm technically wearing sweatpants" completely invisible.</p>
+        <a class="pick-link" href="https://www.jamesperse.com/products/brushed-cotton-suede-piped-track-pant-black-whiskey-mbcb1476?collection=mens" target="_blank" rel="noopener">View at James Perse →</a>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<!-- ============================ TABLE ============================ -->
+<section class="table-sec" id="compare">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">04</span>
+      <h2 class="sec-title">Compared at a glance</h2>
+    </div>
+    <p class="sec-lede">The whole field on one line each — price, weight, cloth, origin, fit, and the slot it fills. The bars under price scale across the $130–$795 range.</p>
+
+    <div class="tbl-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Piece</th><th>Price</th><th></th><th>Weight</th><th>Fabric</th><th>Origin</th><th>Fit</th><th>Best for</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tbrand">Fear of God Essentials</span><span class="tname">Classic Sweatpant</span></td>
+            <td><span class="price">$130</span></td>
+            <td><span class="bar-track"><span class="bar" style="width:16%"></span></span></td>
+            <td>~380&nbsp;gsm</td><td>Cotton-blend fleece</td><td>—</td><td>Relaxed, tapered</td><td>The on-ramp &amp; reference</td>
+          </tr>
+          <tr>
+            <td><span class="tbrand">Les Tien</span><span class="tname">Heavyweight Sweatpant</span></td>
+            <td><span class="price">$155</span></td>
+            <td><span class="bar-track"><span class="bar" style="width:20%"></span></span></td>
+            <td>13&nbsp;oz</td><td>100% cotton, garment-dyed</td><td>USA</td><td>Relaxed, clean-straight</td><td>Everyday workhorse</td>
+          </tr>
+          <tr>
+            <td><span class="tbrand">The Real McCoy's</span><span class="tname">10&nbsp;oz Loopwheel Crewneck</span></td>
+            <td><span class="price">$210</span></td>
+            <td><span class="bar-track"><span class="bar" style="width:26%"></span></span></td>
+            <td>10&nbsp;oz</td><td>100% cotton, loopwheel</td><td>Japan</td><td>Vintage athletic</td><td>The soul / heritage top</td>
+          </tr>
+          <tr>
+            <td><span class="tbrand">Lady White Co.</span><span class="tname">Super Weighted Hoodie</span></td>
+            <td><span class="price">$250</span></td>
+            <td><span class="bar-track"><span class="bar" style="width:31%"></span></span></td>
+            <td>18&nbsp;oz</td><td>100% cotton, double-faced</td><td>USA</td><td>Boxy, structural</td><td>The monolith layer</td>
+          </tr>
+          <tr>
+            <td><span class="tbrand">Auralee</span><span class="tname">High&nbsp;Twist Light Sweat P/O</span></td>
+            <td><span class="price">$434</span></td>
+            <td><span class="bar-track"><span class="bar" style="width:55%"></span></span></td>
+            <td>Light</td><td>Cotton / wool / silk</td><td>Japan</td><td>Refined, drapey</td><td>On-camera &amp; travel</td>
+          </tr>
+          <tr>
+            <td><span class="tbrand">Stòffa</span><span class="tname">Peached Drawstring Trouser</span></td>
+            <td><span class="price">$575</span></td>
+            <td><span class="bar-track"><span class="bar" style="width:72%"></span></span></td>
+            <td>Woven</td><td>Italian peached cotton</td><td>Italy (MTO)</td><td>Tailored, wide-clean</td><td>Dress-it-up comfort</td>
+          </tr>
+          <tr>
+            <td><span class="tbrand">James Perse</span><span class="tname">Suede Piped Track Pant</span></td>
+            <td><span class="price">$795</span></td>
+            <td><span class="bar-track"><span class="bar" style="width:100%"></span></span></td>
+            <td>Mid</td><td>Italian sueded knit blend</td><td>Italian fabric</td><td>Slim, tailored</td><td>The wear-it-out grail</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ BENCH ============================ -->
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">05</span>
+      <h2 class="sec-title">On the bench</h2>
+    </div>
+    <p class="sec-lede">Strong contenders that didn't make the seven — kept here so you can see the whole field, and because two of them are worth a standing alert.</p>
+
+    <div class="bench-grid">
+      <div class="bench-item">
+        <div class="bn-brand">Fear of God — "Eternal"</div>
+        <div class="bn-role">The grail, when it restocks</div>
+        <p>The clean, no-graphic main-line sweatpant (made in Portugal, heavy cotton fleece, ~$595). It's the logo-free expression of the drape you like — but it sells through in waves. Set an alert; it's the one main-line piece that fits this thesis perfectly.</p>
+        <a href="https://fearofgod.com/collections/mens" target="_blank" rel="noopener">Watch at Fear of God →</a>
+      </div>
+      <div class="bench-item">
+        <div class="bn-brand">Loopwheeler (LW01)</div>
+        <div class="bn-role">The originators</div>
+        <p>The Tokyo house that saved loopwheel knitting from extinction. The LW01 tubular crewneck (~$185, no side seams, made in Japan) is the purist's alternative to the Real McCoy's — quieter, even softer, all hand-feel.</p>
+        <a href="https://loopwheeler.jp/collections/best-sellers/products/lw01_tubular_crewneck_sweatshirt-gray-melange" target="_blank" rel="noopener">View at Loopwheeler →</a>
+      </div>
+      <div class="bench-item">
+        <div class="bn-brand">Reigning Champ — "Vault"</div>
+        <div class="bn-role">The gym workhorse</div>
+        <p>390&nbsp;gsm loopback terry, and crucially the <b>Vault</b> line is still made in Canada (the core line moved to Vietnam post-Aritzia). ~$128. The no-nonsense training sweat for days the fancy fleece stays home.</p>
+        <a href="https://reigningchamp.com/products/midweight-terry-classic-hoodie-h-grey" target="_blank" rel="noopener">View at Reigning Champ →</a>
+      </div>
+      <div class="bench-item">
+        <div class="bn-brand">John Elliott</div>
+        <div class="bn-role">The LA drape, slimmer</div>
+        <p>The "Rocky" / "Escobar" sweatpant built the modern tapered-luxe template. If the Les Tien runs too relaxed for you, this is the slimmer, more fashion-forward LA alternative (~$198).</p>
+        <a href="https://johnelliott.com/collections/mens-sweatpants" target="_blank" rel="noopener">View at John Elliott →</a>
+      </div>
+      <div class="bench-item">
+        <div class="bn-brand">Sunspel</div>
+        <div class="bn-role">The British loopback</div>
+        <p>Quiet English luxury — fine loopback cotton, beautifully restrained cuts. The understated counterpoint to the Japanese and American camps if you want something more "Bond off-duty."</p>
+        <a href="https://www.sunspel.com/collections/mens-sweatshirts-joggers" target="_blank" rel="noopener">View at Sunspel →</a>
+      </div>
+      <div class="bench-item">
+        <div class="bn-brand">Auralee — "Super Milled"</div>
+        <div class="bn-role">The cult reference</div>
+        <p>The famously plush garment-dyed sweat that made Auralee's name. Now end-of-life — resale only — but worth knowing as the benchmark, and worth grabbing on END./Grailed if your size surfaces.</p>
+        <a href="https://www.endclothing.com/us/auralee-super-milled-sweat-pants-a23ap03sm-brn.html" target="_blank" rel="noopener">Search at END. →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ THE PLAY ============================ -->
+<section class="play" id="play">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">06</span>
+      <h2 class="sec-title">The play</h2>
+    </div>
+    <p class="sec-lede">Don't buy all seven on day one. Ship it like a migration: smallest correct change first, verify it in the wild, then expand.</p>
+
+    <div class="tiers">
+      <div class="tier rv">
+        <h3>If you buy one</h3>
+        <div class="item"><span class="nm">Les Tien Heavyweight Sweatpant</span><span class="pr">$155</span></div>
+        <div class="total"><span>Total</span><span>$155</span></div>
+        <p>No-logo, garment-dyed, made in LA, broken-in on arrival. The lowest-risk way to feel the difference between "good sweats" and <i>these</i>. If only one thing changes in your closet, make it this.</p>
+      </div>
+      <div class="tier rv">
+        <h3>The core rotation</h3>
+        <div class="item"><span class="nm">Les Tien Sweatpant</span><span class="pr">$155</span></div>
+        <div class="item"><span class="nm">Lady White Super Weighted Hoodie</span><span class="pr">$250</span></div>
+        <div class="item"><span class="nm">Real McCoy's Loopwheel Crew</span><span class="pr">$210</span></div>
+        <div class="total"><span>Total</span><span>$615</span></div>
+        <p>One heavyweight to live in, one hoodie that wears like architecture, one crew with soul. Three pieces, all tonal, all logo-free — your entire build-day closet, solved.</p>
+      </div>
+      <div class="tier rv">
+        <h3>The full capsule</h3>
+        <div class="item"><span class="nm">Everyday → soul → grail</span><span class="pr">all 7</span></div>
+        <div class="item"><span class="nm">$130 · 155 · 210 · 250</span><span class="pr"></span></div>
+        <div class="item"><span class="nm">$434 · 575 · 795</span><span class="pr"></span></div>
+        <div class="total"><span>Total</span><span>$2,549</span></div>
+        <p>A closed system: value on-ramp, everyday heavyweight, soul crew, monolith hoodie, on-camera refinement, grown-up trouser, the grail track pant. Nothing overlaps; nothing's missing.</p>
+      </div>
+    </div>
+
+    <p class="play-close">Buy in order. Verify each in the wild. Then do what you always do — run it back, and tell me what to research next.</p>
+  </div>
+</section>
+
+<!-- ============================ COLOPHON ============================ -->
+<footer class="colophon">
+  <div class="wrap">
+    <div class="sig">The Sweats Dossier</div>
+    <p>
+      Compiled by <b>claude-code-opus-4-8-max</b> for <b>galaxy-brain / sweats-dossier</b>. Research conducted 5&nbsp;June&nbsp;2026 directly from brand and authorized-retailer sites; prices, fabric specs, and stock are as listed that day and will drift — <b>treat the live link under each pick as the source of truth.</b> Product imagery loads live from each brand's own CDN; where a brand blocks cross-site hotlinking, a labeled swatch stands in and the link still resolves to the real product. No affiliate relationships, no sponsorship — fabric quality is the only gate, exactly as the brief asked. Dossier on <b>Jay Hack</b> drawn from <a href="https://jay.ai" target="_blank" rel="noopener">jay.ai</a>, public profiles, and the <a href="https://github.com/jayhack/galaxy-brain" target="_blank" rel="noopener">galaxy-brain</a> repo itself.
+    </p>
+  </div>
+</footer>
+
+<script>
+  /* progressive reveal — content is visible without JS; this only adds polish */
+  (function(){
+    var els = document.querySelectorAll('.rv');
+    if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('in')});return;}
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target);} });
+    },{threshold:.12, rootMargin:'0px 0px -8% 0px'});
+    els.forEach(function(e){io.observe(e)});
+  })();
+</script>
+</body>
+</html>
