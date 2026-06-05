@@ -1,0 +1,517 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* ==================================================================
+   galaxy-brain — GLOBULE theme, as a layer on top of shadcn/ui.
+
+   HOW TO RETHEME (single source of truth):
+   1. COLORS  -> edit the "BRAND TOKENS" block below. Every shadcn
+      semantic token (--background, --foreground, --primary, ...) is
+      mapped onto these, so changing one brand value restyles the
+      whole app (components + prose + globules).
+   2. FONTS   -> edit app/fonts.ts (next/font). Those expose CSS vars
+      (--font-display, --font-sans, --font-serif, --font-mono) that are
+      wired into the @theme block below. Swap a font there, done.
+   ================================================================== */
+
+@custom-variant dark (&:is(.dark *));
+
+/* ===== BRAND TOKENS — EDIT COLORS HERE ============================ */
+:root {
+  /* Paper (warm off-white) + ink. Toned down so ink reads at max contrast. */
+  --paper: #edebe4;
+  --paper-soft: #e4e2d9;
+  --paper-3: #cfcbbe;
+  --ink: #0a0908;
+
+  /* The six globule colours (base + deep shade). */
+  --cyan: #2dc4d8;
+  --cyan-d: #126974;
+  --lime: #82e647;
+  --lime-d: #316e1e;
+  --cobalt: #2347c8;
+  --cobalt-d: #102166;
+  --indigo: #5b2ea0;
+  --indigo-d: #2b1452;
+  --magenta: #e04691;
+  --magenta-d: #6e1a45;
+  --sun: #f2d24a;
+  --sun-d: #8e6a0c;
+
+  /* Square corners are part of the identity. Bump this to round everything. */
+  --radius: 0rem;
+}
+
+/* ===== shadcn SEMANTIC TOKENS -> mapped onto brand tokens ========= */
+:root {
+  --background: var(--paper);
+  --foreground: var(--ink);
+
+  --card: var(--paper);
+  --card-foreground: var(--ink);
+
+  --popover: var(--paper);
+  --popover-foreground: var(--ink);
+
+  --primary: var(--ink);
+  --primary-foreground: var(--paper);
+
+  --secondary: var(--paper-soft);
+  --secondary-foreground: var(--ink);
+
+  --muted: var(--paper-soft);
+  /* Secondary copy: ink dimmed to ~72% — still dark, never washed-out gray. */
+  --muted-foreground: color-mix(in srgb, var(--ink) 72%, transparent);
+
+  --accent: var(--paper-soft);
+  --accent-foreground: var(--ink);
+
+  --destructive: var(--magenta-d);
+  --destructive-foreground: var(--paper);
+
+  --border: var(--ink);
+  --input: var(--ink);
+  --ring: var(--indigo);
+
+  --chart-1: var(--cyan);
+  --chart-2: var(--magenta);
+  --chart-3: var(--lime);
+  --chart-4: var(--cobalt);
+  --chart-5: var(--sun);
+
+  --sidebar: var(--paper-soft);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--ink);
+  --sidebar-primary-foreground: var(--paper);
+  --sidebar-accent: var(--paper);
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: var(--ink);
+  --sidebar-ring: var(--indigo);
+}
+
+/* ===== TAILWIND THEME (utilities) ================================= */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Brand colours exposed as utilities (text-ink, bg-paper, ...). */
+  --color-paper: var(--paper);
+  --color-paper-soft: var(--paper-soft);
+  --color-paper-3: var(--paper-3);
+  --color-ink: var(--ink);
+  --color-cyan: var(--cyan);
+  --color-magenta: var(--magenta);
+  --color-lime: var(--lime);
+  --color-cobalt: var(--cobalt);
+  --color-indigo: var(--indigo);
+  --color-sun: var(--sun);
+
+  --radius-sm: var(--radius);
+  --radius-md: var(--radius);
+  --radius-lg: var(--radius);
+  --radius-xl: var(--radius);
+
+  /* Fonts come from next/font (app/fonts.ts) via these CSS vars. */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
+  --font-display: var(--font-archivo), "Helvetica Neue", Arial, sans-serif;
+  --font-serif: var(--font-playfair), Georgia, serif;
+}
+
+/* ===== BASE ======================================================= */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    scroll-behavior: smooth;
+    overscroll-behavior-y: none;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    overscroll-behavior-y: none;
+    background-image: radial-gradient(rgba(10, 9, 8, 0.03) 1px, transparent 1px);
+    background-size: 8px 8px;
+    background-position: 0 0;
+  }
+  /* No timed fades on chrome; snap immediately. */
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0s;
+    transition-delay: 0s;
+  }
+}
+
+/* ==================================================================
+   GLOBULE BRAND LAYER — visual primitives that sit on top of shadcn.
+   ================================================================== */
+
+/* ===== SURFACES =================================================== */
+.paper {
+  background-color: var(--paper);
+  background-image: radial-gradient(rgba(10, 9, 8, 0.03) 1px, transparent 1px);
+  background-size: 8px 8px;
+  background-position: 0 0;
+}
+.paper-soft {
+  background-color: var(--paper-soft);
+}
+.flow-strip {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(45, 196, 216, 0.05) 0%,
+      rgba(91, 46, 160, 0.045) 40%,
+      rgba(224, 70, 145, 0.045) 70%,
+      rgba(130, 230, 71, 0.035) 100%
+    ),
+    var(--paper-soft);
+}
+
+/* ===== TYPOGRAPHY ================================================= */
+.g-display {
+  font-family: var(--font-display);
+  font-weight: 900;
+  letter-spacing: -0.035em;
+  line-height: 0.92;
+  color: var(--ink);
+}
+.serif-italic {
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: var(--ink);
+}
+.mono-label {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--ink);
+}
+.masthead-caps {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.stamp-block {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 9.5px;
+  line-height: 1.7;
+  color: var(--ink);
+}
+
+/* ===== GLOBULE — the signature element ============================ */
+.globule {
+  position: relative;
+  border-radius: 999px;
+  flex: 0 0 auto;
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0) 24%),
+    radial-gradient(circle at 38% 32%, var(--g-color), var(--g-shade) 92%);
+  box-shadow:
+    inset -10px -14px 24px rgba(0, 0, 0, 0.42),
+    inset 6px 4px 18px rgba(255, 255, 255, 0.18),
+    0 8px 18px rgba(10, 9, 8, 0.22);
+}
+.globule.zebra {
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 26%),
+    repeating-linear-gradient(78deg, var(--ink) 0 5px, transparent 5px 12px),
+    radial-gradient(circle at 38% 32%, var(--g-color), var(--g-shade) 92%);
+}
+.globule.polka {
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 26%),
+    radial-gradient(var(--ink) 2px, transparent 2.4px),
+    radial-gradient(circle at 38% 32%, var(--g-color), var(--g-shade) 92%);
+  background-size: auto, 9px 9px, auto;
+  background-position: 0 0, 2px 2px, 0 0;
+}
+.globule.halftone {
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0) 24%),
+    radial-gradient(circle at 78% 72%, var(--ink) 0%, var(--ink) 18%, transparent 60%),
+    radial-gradient(circle at 38% 32%, var(--g-color), var(--g-shade) 92%);
+}
+.globule.hover-lift {
+  transition: transform 0.15s ease;
+}
+.globule.hover-lift:hover {
+  transform: translateY(-3px);
+}
+
+.g-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.9) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, var(--g-color, var(--cyan)), var(--g-shade, var(--cyan-d)) 100%);
+  box-shadow: inset -2px -2px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* ===== LOGO / WORDMARK ============================================ */
+.logo-monogram {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  flex: 0 0 auto;
+}
+.logo-monogram--sm {
+  width: 1.7rem;
+  height: 1.7rem;
+}
+.logo-monogram--hero {
+  width: clamp(4.5rem, 9vw, 6.5rem);
+  height: clamp(4.5rem, 9vw, 6.5rem);
+}
+.logo-monogram--hero .logo-letter {
+  font-size: clamp(4.2rem, 8.5vw, 6.2rem);
+}
+.logo-monogram--hero .logo-dot {
+  width: clamp(1.6rem, 3vw, 2.3rem);
+  height: clamp(1.6rem, 3vw, 2.3rem);
+  right: -0.4rem;
+  bottom: 0.1rem;
+}
+.logo-letter {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 2rem;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: var(--ink);
+}
+.logo-monogram--sm .logo-letter {
+  font-size: 1.6rem;
+}
+.logo-dot {
+  position: absolute;
+  width: 0.85rem;
+  height: 0.85rem;
+  right: -0.18rem;
+  bottom: 0.05rem;
+}
+.logo-monogram--sm .logo-dot {
+  width: 0.7rem;
+  height: 0.7rem;
+}
+.logo-wordmark {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  line-height: 1.05;
+}
+
+/* ===== SECTION DIVIDER WITH GLOBULE ============================== */
+.g-rule {
+  position: relative;
+  height: 1px;
+  background: var(--ink);
+  margin: 22px 0;
+}
+.g-rule::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0) 28%),
+    radial-gradient(circle at 38% 32%, var(--magenta), var(--magenta-d));
+  box-shadow:
+    inset -3px -4px 6px rgba(0, 0, 0, 0.4),
+    0 2px 6px rgba(10, 9, 8, 0.3);
+}
+
+/* ===== LINKS (used inside prose) ================================== */
+.g-link {
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1.5px solid var(--indigo);
+  padding-bottom: 1px;
+}
+.g-link:hover {
+  color: var(--indigo);
+}
+
+/* ===== PROSE (markdown prompts / READMEs) ======================== */
+.markdown-target {
+  line-height: 1.62;
+  font-size: 15px;
+  color: var(--ink);
+}
+.markdown-target :is(p, ul, ol, blockquote, pre, table) {
+  margin-top: 0.6em;
+  margin-bottom: 0.6em;
+}
+.markdown-target :is(p, ul, ol, blockquote, pre, table):first-child {
+  margin-top: 0;
+}
+.markdown-target :is(p, ul, ol, blockquote, pre, table):last-child {
+  margin-bottom: 0;
+}
+.markdown-target :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--font-display);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-top: 1em;
+  margin-bottom: 0.45em;
+  line-height: 1.18;
+}
+.markdown-target :is(h1, h2, h3, h4, h5, h6):first-child {
+  margin-top: 0;
+}
+.markdown-target h1 {
+  font-size: 1.8rem;
+}
+.markdown-target h2 {
+  font-size: 1.4rem;
+}
+.markdown-target h3 {
+  font-size: 1.15rem;
+}
+.markdown-target :is(h1, h2, h3) {
+  scroll-margin-top: 5rem;
+}
+.markdown-target :is(ul, ol) {
+  padding-left: 1.45em;
+}
+.markdown-target ul {
+  list-style: disc;
+}
+.markdown-target ol {
+  list-style: decimal;
+}
+.markdown-target li {
+  margin-top: 0.2em;
+  margin-bottom: 0.2em;
+}
+.markdown-target li::marker {
+  color: var(--magenta-d);
+}
+.markdown-target li > :is(p, ul, ol) {
+  margin-top: 0.35em;
+  margin-bottom: 0.35em;
+}
+.markdown-target hr {
+  border: none;
+  height: 1px;
+  background: var(--ink);
+  margin: 1.2em 0;
+}
+.markdown-target a {
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1.5px solid var(--indigo);
+}
+.markdown-target a:hover {
+  color: var(--indigo);
+}
+.markdown-target strong {
+  font-weight: 700;
+}
+.markdown-target em {
+  font-style: italic;
+}
+.markdown-target blockquote {
+  border-left: 2px solid var(--ink);
+  padding-left: 1em;
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: var(--ink);
+}
+.markdown-target code {
+  background: var(--paper-soft);
+  border: 1px solid var(--paper-3);
+  padding: 0.08em 0.35em;
+  font-size: 0.88em;
+  font-weight: 500;
+  font-family: var(--font-mono);
+  color: var(--ink);
+}
+.markdown-target pre {
+  background: var(--paper-soft);
+  border: 1px solid var(--ink);
+  border-left: 4px solid var(--cobalt);
+  color: var(--ink);
+  padding: 0.9em 1em;
+  overflow-x: auto;
+}
+.markdown-target pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-size: 0.85em;
+}
+.markdown-target table {
+  border-collapse: collapse;
+  width: 100%;
+  display: block;
+  overflow-x: auto;
+}
+.markdown-target :is(th, td) {
+  border: 1px solid var(--ink);
+  padding: 0.4em 0.7em;
+  text-align: left;
+}
+.markdown-target th {
+  background: var(--paper-soft);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.78em;
+}
+.markdown-target img {
+  max-width: 100%;
+  height: auto;
+}

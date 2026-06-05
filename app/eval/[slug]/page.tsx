@@ -1,0 +1,167 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+
+import {
+  getEvals,
+  getEval,
+  getEvalPrompt,
+  repoUrls,
+} from "@/lib/content";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { GithubIcon } from "@/components/icons";
+import { MarkdownContent } from "@/components/markdown-content";
+import { CopyButton } from "@/components/copy-button";
+import { SolutionRow } from "@/components/solution-row";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+
+type Params = { slug: string };
+
+export function generateStaticParams() {
+  return getEvals().map((ev) => ({ slug: ev.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<Params>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const ev = getEval(slug);
+  if (!ev) return { title: "Not found - galaxy-brain" };
+  return {
+    title: `${ev.title} - galaxy-brain`,
+    description: ev.tagline || ev.description,
+  };
+}
+
+export default async function EvalPage({
+  params,
+}: {
+  params: Promise<Params>;
+}) {
+  const { slug } = await params;
+  const ev = getEval(slug);
+  if (!ev) notFound();
+
+  const urls = repoUrls();
+  const promptPath = `${ev.slug}/README.md`;
+  const prompt = await getEvalPrompt(ev);
+
+  return (
+    <>
+      <Breadcrumb className="mb-6">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/">Overview</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>{ev.title}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
+      <header className="mb-6">
+        <h1 className="g-display text-4xl sm:text-5xl">{ev.title}</h1>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          {(ev.tags || []).map((t) => (
+            <Badge key={t} asChild variant="outline">
+              <Link href={`/?tags=${encodeURIComponent(t)}`}>{t}</Link>
+            </Badge>
+          ))}
+        </div>
+        <p className="mt-2 max-w-3xl text-ink/90">
+          {ev.description || ev.tagline || ""}
+        </p>
+        <div className="mt-5 flex flex-wrap items-center gap-2.5">
+          <Button asChild variant="ink" size="sm">
+            <a
+              href={urls.tree(ev.slug)}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="View this eval's files on GitHub"
+            >
+              <GithubIcon />
+              View on Github
+            </a>
+          </Button>
+          <Button asChild variant="ghost" size="sm">
+            <a
+              href={urls.blob(promptPath)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Edit prompt
+            </a>
+          </Button>
+        </div>
+      </header>
+
+      <section className="mb-10 w-full min-w-0 max-w-full">
+        <div className="mb-3 flex w-full items-center justify-between border-b border-ink pb-2">
+          <h2 className="g-display text-2xl">Solutions</h2>
+          <span className="mono-label opacity-70">
+            {ev.solutions.length} total
+          </span>
+        </div>
+        {ev.solutions.length === 0 ? (
+          <div className="border border-ink bg-paper-soft px-4 py-3 text-sm text-ink">
+            No solutions submitted yet.
+          </div>
+        ) : (
+          <div className="flex w-full flex-col gap-2">
+            {ev.solutions.map((s) => (
+              <SolutionRow key={s.slug} ev={ev} sol={s} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section>
+        <div className="mb-3 flex items-center justify-between border-b border-ink pb-2">
+          <h2 className="g-display text-2xl">Prompt</h2>
+          <span className="font-mono text-xs text-ink/70">{promptPath}</span>
+        </div>
+        <div className="relative border border-ink bg-paper">
+          {prompt ? (
+            <div className="absolute right-2 top-2 z-10">
+              <CopyButton text={prompt.raw} />
+            </div>
+          ) : null}
+          <div className="p-5">
+            {prompt ? (
+              <MarkdownContent html={prompt.html} />
+            ) : (
+              <p className="text-ink/90">
+                Couldn&apos;t load{" "}
+                <code className="border border-paper-3 bg-paper-soft px-1.5 py-0.5 font-mono text-xs">
+                  {promptPath}
+                </code>
+                .{" "}
+                <a
+                  className="g-link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={urls.blob(promptPath)}
+                >
+                  Open on GitHub.
+                </a>
+              </p>
+            )}
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}

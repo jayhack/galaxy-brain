@@ -75,9 +75,20 @@ Do not modify other solutions or the eval prompts in your PR — only add files 
 
 ## Results site
 
-A Next.js results browser is served from [`app/`](./app) and deployed on Vercel. The browser runtime still uses the snappy hash-routed SPA from [`docs/app.js`](./docs/app.js), [`docs/ui.js`](./docs/ui.js), and [`docs/styles.css`](./docs/styles.css); Next provides the Vercel build, metadata, and a static first-load payload for the existing registry and markdown files.
+A Next.js (App Router, React 19) results browser is served from [`app/`](./app) and deployed on Vercel. It uses [shadcn/ui](https://ui.shadcn.com/) on a local Tailwind v4 build, with the bespoke "globule" visual identity layered on top as a theme (see [`app/globals.css`](./app/globals.css)).
 
-The site is driven by [`docs/data.json`](./docs/data.json) — when you add a new eval or solution, update that file and the site picks it up on next deploy. At build/render time, Next embeds that registry plus eval prompts and solution READMEs into the initial page payload, so browsing the results site does not make a backend JSON/API request for app data.
+Every page is **statically generated** at build time — the home/overview, about, each `/eval/<slug>`, and each `/eval/<slug>/<solution>` — and eval prompts / solution READMEs are rendered to HTML at build. There are **no runtime data fetches or CDN dependencies**: fonts are self-hosted via `next/font`, and the registry is embedded at build, so navigating the site is instant.
+
+The site is driven by [`docs/data.json`](./docs/data.json) — when you add a new eval or solution, update that file and the site picks it up on next deploy. Data and markdown are read at build time by [`lib/content.ts`](./lib/content.ts).
+
+### Theming (colors + fonts)
+
+The theme is a single source of truth:
+
+- **Colors** — edit the `BRAND TOKENS` block in [`app/globals.css`](./app/globals.css). Every shadcn semantic token (`--background`, `--foreground`, `--primary`, …) is mapped onto the globule palette, so changing one value re-themes the whole app.
+- **Fonts** — edit [`app/fonts.ts`](./app/fonts.ts) (`next/font`). Those loaders expose CSS variables wired into the Tailwind `@theme` block.
+
+Legacy hash URLs from the old SPA (e.g. `#/eval/<slug>`) are redirected to the new paths by [`components/hash-redirect.tsx`](./components/hash-redirect.tsx).
 
 ### Local development
 
@@ -86,7 +97,7 @@ From the repository root:
 1. Install dependencies once: `npm install`
 2. Start the Next.js dev server: `npm run dev`
 
-The dev command serves the site at **http://127.0.0.1:3000/**. The app keeps the existing hash routes, for example `/#/eval/web-short-story`.
+The dev command serves the site at **http://127.0.0.1:3000/**. Routes are real paths now, for example `/eval/web-short-story` (old `#/eval/...` links still redirect).
 
 Production build check:
 
