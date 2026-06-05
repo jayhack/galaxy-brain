@@ -593,7 +593,7 @@ function viewEval(route) {
   const promptPath = `${ev.slug}/README.md`;
 
   const tags = (ev.tags || [])
-    .map((t) => `<span class="${ui.badgeGhostSm}">${esc(t)}</span>`)
+    .map((t) => `<a class="${ui.badgeGhostSm}" href="${esc(homeHashFromTags([t]))}">${esc(t)}</a>`)
     .join(" ");
 
   const solRows =
@@ -612,10 +612,10 @@ function viewEval(route) {
 
   state.view.innerHTML = `
     <header class="${ui.sectionSm}">
-      <div class="${ui.flexGapTag}">
+      <h1 class="${ui.pageTitle}">${esc(ev.title)}</h1>
+      <div class="${ui.flexGapTag} mt-3">
         ${tags}
       </div>
-      <h1 class="${ui.pageTitle}">${esc(ev.title)}</h1>
       <p class="${ui.muted} mt-2 max-w-3xl">${esc(ev.description || ev.tagline || "")}</p>
       <div class="${ui.stackGapBtn}">
         <a

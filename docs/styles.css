@@ -415,7 +415,11 @@ body {
 button.g-pill {
   cursor: pointer;
 }
-button.g-pill:hover {
+a.g-pill {
+  text-decoration: none;
+}
+button.g-pill:hover,
+a.g-pill:hover {
   background: var(--paper-soft);
 }
 /* Selected tag filter: ink fill, paper text. */
