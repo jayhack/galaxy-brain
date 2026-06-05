@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
+import { EvalArt } from "@/components/eval-art";
 
 export type EvalCardData = {
   slug: string;
@@ -9,34 +10,39 @@ export type EvalCardData = {
   description?: string;
   tags: string[];
   count: number;
+  /** Stable position in the canonical eval list -> picks this eval's globule. */
+  colorIndex: number;
 };
 
 export function EvalCard({ ev }: { ev: EvalCardData }) {
   return (
     <Link
       href={`/eval/${ev.slug}`}
-      className="relative block border border-ink bg-paper p-5 no-underline transition-colors hover:bg-paper-soft"
+      className="group block overflow-hidden rounded-md border border-ink bg-paper no-underline transition-colors hover:bg-paper-soft"
     >
-      <div className="flex items-start justify-between gap-3">
-        <h3 className="font-sans text-xl font-bold leading-tight tracking-tight text-ink">
-          {ev.title}
-        </h3>
+      <EvalArt colorIndex={ev.colorIndex} className="h-24">
         <Badge
           variant="count"
+          className="absolute right-3 top-3 border-paper/40 bg-ink/35 text-paper backdrop-blur-sm"
           title={`${ev.count} solution${ev.count === 1 ? "" : "s"}`}
         >
           {ev.count}
         </Badge>
-      </div>
-      <p className="mt-2.5 text-sm leading-relaxed text-ink">
-        {ev.tagline || ev.description || ""}
-      </p>
-      <div className="mt-3.5 flex flex-wrap gap-1.5">
-        {ev.tags.map((t) => (
-          <Badge key={t} variant="soft">
-            {t}
-          </Badge>
-        ))}
+      </EvalArt>
+      <div className="p-5">
+        <h3 className="font-sans text-xl font-semibold leading-tight tracking-tight text-ink">
+          {ev.title}
+        </h3>
+        <p className="mt-2.5 text-sm leading-relaxed text-ink">
+          {ev.tagline || ev.description || ""}
+        </p>
+        <div className="mt-3.5 flex flex-wrap gap-1.5">
+          {ev.tags.map((t) => (
+            <Badge key={t} variant="soft">
+              {t}
+            </Badge>
+          ))}
+        </div>
       </div>
     </Link>
   );

@@ -86,7 +86,7 @@ export function EvalBrowser({
                   aria-pressed={on}
                   onClick={() => toggle(t)}
                   className={cn(
-                    "inline-flex cursor-pointer items-center gap-1.5 border px-[11px] py-1 font-mono text-[10px] font-medium uppercase tracking-[0.14em] leading-[1.3] transition-colors",
+                    "inline-flex cursor-pointer items-center gap-1.5 rounded-md border px-[11px] py-1 font-mono text-[10px] font-medium uppercase tracking-[0.14em] leading-[1.3] transition-colors",
                     on
                       ? "border-ink bg-ink text-paper"
                       : "border-ink bg-paper text-ink hover:bg-paper-soft"
@@ -114,7 +114,7 @@ export function EvalBrowser({
 
       {selectedSet.size > 0 && filtered.length === 0 ? (
         <div
-          className="mb-4 border border-ink bg-paper-soft px-4 py-3 text-sm text-ink"
+          className="mb-4 rounded-md border border-ink bg-paper-soft px-4 py-3 text-sm text-ink"
           role="status"
         >
           No eval matches these tags. Try fewer tags or{" "}

@@ -14,6 +14,9 @@ import { GithubIcon } from "@/components/icons";
 import { MarkdownContent } from "@/components/markdown-content";
 import { CopyButton } from "@/components/copy-button";
 import { SolutionRow } from "@/components/solution-row";
+import { EvalArt } from "@/components/eval-art";
+import { Globule } from "@/components/globule";
+import { globuleForIndex } from "@/lib/globules";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -52,6 +55,8 @@ export default async function EvalPage({
   const ev = getEval(slug);
   if (!ev) notFound();
 
+  const colorIndex = getEvals().findIndex((e) => e.slug === ev.slug);
+  const globule = globuleForIndex(colorIndex);
   const urls = repoUrls();
   const promptPath = `${ev.slug}/README.md`;
   const prompt = await getEvalPrompt(ev);
@@ -72,16 +77,35 @@ export default async function EvalPage({
         </BreadcrumbList>
       </Breadcrumb>
 
+      <EvalArt
+        globule={globule}
+        className="mb-6 h-44 rounded-md border border-ink sm:h-56"
+      >
+        <Globule
+          globule={globule}
+          size={108}
+          className="pointer-events-none absolute -top-6 right-6 opacity-95 sm:right-10"
+        />
+        <div className="eval-art-scrim" />
+        <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
+          <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-paper/80">
+            Eval
+          </span>
+          <h1 className="mt-1.5 font-display text-4xl font-semibold leading-none tracking-tight text-paper drop-shadow-[0_1px_10px_rgba(0,0,0,0.35)] sm:text-5xl">
+            {ev.title}
+          </h1>
+        </div>
+      </EvalArt>
+
       <header className="mb-6">
-        <h1 className="g-display text-4xl sm:text-5xl">{ev.title}</h1>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {(ev.tags || []).map((t) => (
             <Badge key={t} asChild variant="outline">
               <Link href={`/?tags=${encodeURIComponent(t)}`}>{t}</Link>
             </Badge>
           ))}
         </div>
-        <p className="mt-2 max-w-3xl text-ink/90">
+        <p className="mt-3 max-w-3xl text-ink/90">
           {ev.description || ev.tagline || ""}
         </p>
         <div className="mt-5 flex flex-wrap items-center gap-2.5">
@@ -116,7 +140,7 @@ export default async function EvalPage({
           </span>
         </div>
         {ev.solutions.length === 0 ? (
-          <div className="border border-ink bg-paper-soft px-4 py-3 text-sm text-ink">
+          <div className="rounded-md border border-ink bg-paper-soft px-4 py-3 text-sm text-ink">
             No solutions submitted yet.
           </div>
         ) : (
@@ -133,7 +157,7 @@ export default async function EvalPage({
           <h2 className="g-display text-2xl">Prompt</h2>
           <span className="font-mono text-xs text-ink/70">{promptPath}</span>
         </div>
-        <div className="relative border border-ink bg-paper">
+        <div className="relative rounded-md border border-ink bg-paper">
           {prompt ? (
             <div className="absolute right-2 top-2 z-10">
               <CopyButton text={prompt.raw} />

@@ -10,7 +10,7 @@
       mapped onto these, so changing one brand value restyles the
       whole app (components + prose + globules).
    2. FONTS   -> edit app/fonts.ts (next/font). Those expose CSS vars
-      (--font-display, --font-sans, --font-serif, --font-mono) that are
+      (--font-display, --font-sans, --font-logo, --font-mono) that are
       wired into the @theme block below. Swap a font there, done.
    ================================================================== */
 
@@ -38,8 +38,8 @@
   --sun: #f2d24a;
   --sun-d: #8e6a0c;
 
-  /* Square corners are part of the identity. Bump this to round everything. */
-  --radius: 0rem;
+  /* Global corner radius. Small + soft (not sharp). Bump to round more. */
+  --radius: 0.375rem;
 }
 
 /* ===== shadcn SEMANTIC TOKENS -> mapped onto brand tokens ========= */
@@ -144,8 +144,9 @@
   /* Fonts come from next/font (app/fonts.ts) via these CSS vars. */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
-  --font-display: var(--font-archivo), "Helvetica Neue", Arial, sans-serif;
-  --font-serif: var(--font-playfair), Georgia, serif;
+  /* Modern grotesk for headings/display; Archivo Black is logo-only. */
+  --font-display: var(--font-space), ui-sans-serif, system-ui, sans-serif;
+  --font-logo: var(--font-archivo), "Helvetica Neue", Arial, sans-serif;
 }
 
 /* ===== BASE ======================================================= */
@@ -202,14 +203,14 @@
 /* ===== TYPOGRAPHY ================================================= */
 .g-display {
   font-family: var(--font-display);
-  font-weight: 900;
-  letter-spacing: -0.035em;
-  line-height: 0.92;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
   color: var(--ink);
 }
-.serif-italic {
-  font-family: var(--font-serif);
-  font-style: italic;
+.lede {
+  font-family: var(--font-display);
+  font-weight: 400;
   color: var(--ink);
 }
 .mono-label {
@@ -222,8 +223,8 @@
   color: var(--ink);
 }
 .masthead-caps {
-  font-family: var(--font-serif);
-  font-weight: 400;
+  font-family: var(--font-mono);
+  font-weight: 500;
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--ink);
@@ -318,7 +319,7 @@
   bottom: 0.1rem;
 }
 .logo-letter {
-  font-family: var(--font-display);
+  font-family: var(--font-logo);
   font-weight: 900;
   font-size: 2rem;
   line-height: 1;
@@ -340,7 +341,7 @@
   height: 0.7rem;
 }
 .logo-wordmark {
-  font-family: var(--font-display);
+  font-family: var(--font-logo);
   font-weight: 900;
   font-size: 1rem;
   letter-spacing: -0.02em;
@@ -401,7 +402,7 @@
 }
 .markdown-target :is(h1, h2, h3, h4, h5, h6) {
   font-family: var(--font-display);
-  font-weight: 900;
+  font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--ink);
   margin-top: 1em;
@@ -466,13 +467,12 @@
 .markdown-target blockquote {
   border-left: 2px solid var(--ink);
   padding-left: 1em;
-  font-family: var(--font-serif);
-  font-style: italic;
   color: var(--ink);
 }
 .markdown-target code {
   background: var(--paper-soft);
   border: 1px solid var(--paper-3);
+  border-radius: var(--radius);
   padding: 0.08em 0.35em;
   font-size: 0.88em;
   font-weight: 500;
@@ -483,6 +483,7 @@
   background: var(--paper-soft);
   border: 1px solid var(--ink);
   border-left: 4px solid var(--cobalt);
+  border-radius: var(--radius);
   color: var(--ink);
   padding: 0.9em 1em;
   overflow-x: auto;
@@ -514,4 +515,63 @@
 .markdown-target img {
   max-width: 100%;
   height: auto;
+}
+
+/* ==================================================================
+   EVAL ART — per-eval gradient "header image".
+   Each eval is its own globule: the band is coloured by --g-color /
+   --g-shade (set inline per eval). Placeholder until real art lands.
+   ================================================================== */
+.eval-art {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      circle at 24% 18%,
+      rgba(255, 255, 255, 0.55) 0%,
+      rgba(255, 255, 255, 0) 46%
+    ),
+    radial-gradient(
+      135% 150% at 74% 128%,
+      var(--g-shade, var(--cobalt-d)) 0%,
+      var(--g-color, var(--cobalt)) 72%
+    );
+}
+/* Faint metaverse-aisle grid drifting across the band. */
+.eval-art::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(120% 120% at 70% 120%, #000 0%, transparent 75%);
+  -webkit-mask-image: radial-gradient(120% 120% at 70% 120%, #000 0%, transparent 75%);
+}
+/* Glossy globule highlight peeking from the corner. */
+.eval-art::after {
+  content: "";
+  position: absolute;
+  width: 56%;
+  aspect-ratio: 1;
+  right: -8%;
+  top: -38%;
+  border-radius: 999px;
+  background: radial-gradient(
+    circle at 34% 32%,
+    rgba(255, 255, 255, 0.6) 0%,
+    rgba(255, 255, 255, 0) 60%
+  );
+}
+/* Dark scrim so overlaid title text stays readable on any colour. */
+.eval-art-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(10, 9, 8, 0.55) 0%,
+    rgba(10, 9, 8, 0.12) 45%,
+    rgba(10, 9, 8, 0) 70%
+  );
 }

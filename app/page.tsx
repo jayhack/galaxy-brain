@@ -6,13 +6,14 @@ import { EvalBrowser } from "@/components/eval-browser";
 import type { EvalCardData } from "@/components/eval-card";
 
 export default function HomePage() {
-  const evals: EvalCardData[] = getEvals().map((ev) => ({
+  const evals: EvalCardData[] = getEvals().map((ev, i) => ({
     slug: ev.slug,
     title: ev.title,
     tagline: ev.tagline,
     description: ev.description,
     tags: ev.tags || [],
     count: ev.solutions.length,
+    colorIndex: i,
   }));
   const allTags = getAllTags();
 
@@ -30,7 +31,7 @@ export default function HomePage() {
                 <h1 className="g-display min-w-0 text-3xl sm:text-5xl">
                   galaxy-brain
                 </h1>
-                <p className="serif-italic max-w-xl text-lg leading-snug sm:text-xl">
+                <p className="lede max-w-xl text-lg leading-snug text-ink/85 sm:text-xl">
                   A chromatic quarterly of agent evals &mdash; each eval is a
                   prompt, each solution one harness/model pair&apos;s attempt at
                   it.

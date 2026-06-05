@@ -105,7 +105,7 @@ export default function AboutPage() {
       </p>
       <ul className="mt-4 grid max-w-3xl list-none grid-cols-1 gap-3 pl-0">
         {compLinks.map((c) => (
-          <li key={c.href} className="border border-ink bg-paper p-4">
+          <li key={c.href} className="rounded-md border border-ink bg-paper p-4">
             <a
               href={c.href}
               className="g-link font-semibold"

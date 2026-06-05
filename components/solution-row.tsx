@@ -21,7 +21,7 @@ export function SolutionRow({ ev, sol }: { ev: Eval; sol: Solution }) {
   const firstTech = sol.tech?.[0] || "";
 
   return (
-    <div className="flex w-full min-w-0 flex-row flex-nowrap items-stretch overflow-hidden border border-ink bg-paper hover:bg-paper-soft">
+    <div className="flex w-full min-w-0 flex-row flex-nowrap items-stretch overflow-hidden rounded-md border border-ink bg-paper hover:bg-paper-soft">
       <Link
         href={`/eval/${ev.slug}/${sol.slug}`}
         className="group flex min-w-0 flex-1 flex-row flex-nowrap items-center gap-2 px-3 py-2.5 no-underline sm:gap-3"

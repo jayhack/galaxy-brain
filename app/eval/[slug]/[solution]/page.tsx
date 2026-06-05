@@ -214,7 +214,7 @@ export default async function SolutionPage({
             <span className="font-mono text-xs text-ink/70">{readme.path}</span>
           ) : null}
         </div>
-        <div className="border border-ink bg-paper p-5">
+        <div className="rounded-md border border-ink bg-paper p-5">
           {readme ? (
             <MarkdownContent html={readme.html} />
           ) : (
@@ -239,7 +239,7 @@ export default async function SolutionPage({
           <span className="mono-label opacity-70">{others.length} total</span>
         </div>
         {others.length === 0 ? (
-          <div className="border border-ink bg-paper-soft px-4 py-3 text-sm text-ink">
+          <div className="rounded-md border border-ink bg-paper-soft px-4 py-3 text-sm text-ink">
             No other solutions for this eval.
           </div>
         ) : (

@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 // GLOBULE button: square, ink-bordered, uppercase editorial type.
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap font-sans font-semibold uppercase tracking-[0.16em] leading-none border cursor-pointer select-none transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:shrink-0 [&_svg]:pointer-events-none",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-sans font-semibold uppercase tracking-[0.16em] leading-none border cursor-pointer select-none transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:shrink-0 [&_svg]:pointer-events-none",
   {
     variants: {
       variant: {
