@@ -6,7 +6,7 @@
 
 A collection of agent evals.
 
-**Browse results:** [https://jayhack.github.io/galaxy-brain](https://jayhack.github.io/galaxy-brain)
+**Browse results:** currently migrating from GitHub Pages to Vercel.
 
 Each eval is a folder at the root of this repo. Inside the folder you'll find:
 
@@ -55,7 +55,7 @@ There are two roles here:
 1. Branch off `main` (or fork the repo).
 2. Add a directory `<eval-name>/<harness>-<model>/` containing your solution.
 3. Include a short `README.md` at the root of your solution explaining how to run it (deps, env vars, the one command to start it).
-4. If the eval requires a static HTML (or similar) deliverable, add the published mirror under `docs/artifacts/…` and set `artifactUrl` in `docs/data.json` as described in [HTML artifacts (GitHub Pages)](#html-artifacts-github-pages).
+4. If the eval requires a static HTML (or similar) deliverable, add the published mirror under `docs/artifacts/…` and set `artifactUrl` in `docs/data.json` as described in [HTML artifacts](#html-artifacts).
 5. Open a pull request against `main`. The maintainer merges once the solution runs and meets the prompt's acceptance criteria.
 
 Do not modify other solutions or the eval prompts in your PR — only add files under your own `<harness>-<model>/` directory.
@@ -75,33 +75,34 @@ Do not modify other solutions or the eval prompts in your PR — only add files 
 
 ## Results site
 
-A static results browser lives in [`docs/`](./docs) and is published via GitHub Pages from `main` (`/docs` folder). It's driven by [`docs/data.json`](./docs/data.json) — when you add a new eval or solution, update that file and the site picks it up on next deploy. Built with Tailwind + DaisyUI, no build step (everything via CDN).
+A Next.js results browser is served from [`app/`](./app) and deployed on Vercel. The browser runtime still uses the snappy hash-routed SPA from [`docs/app.js`](./docs/app.js), [`docs/ui.js`](./docs/ui.js), and [`docs/styles.css`](./docs/styles.css); Next provides the Vercel build, metadata, and routes for the existing registry and artifact files.
+
+The site is driven by [`docs/data.json`](./docs/data.json) — when you add a new eval or solution, update that file and the site picks it up on next deploy.
 
 ### Local development
 
 From the repository root:
 
 1. Install dependencies once: `npm install`
-2. Start a local server and open the results site in your browser: `npx dev`  
-   (equivalent: `npm run dev`)
+2. Start the Next.js dev server: `npm run dev`
 
-The dev command serves the [`docs/`](./docs) folder on **http://127.0.0.1:8080/** (port 8080), opens your default browser, and **live-reloads** when files under `docs/` change ([live-server](https://github.com/tapio/live-server) watches the tree and refreshes the page; CSS changes are injected when possible).
+The dev command serves the site at **http://127.0.0.1:3000/**. The app keeps the existing hash routes, for example `/#/eval/web-short-story`.
 
-Without installing repo dependencies, you can run the same stack in one shot (downloads `live-server` on first use):
+Production build check:
 
-`npx --yes live-server docs --port=8080`
+`npm run build`
 
-### HTML artifacts (GitHub Pages)
+### HTML artifacts
 
-Many evals ask for a **browsable deliverable** (often a single `.html` file). To link that output directly from the site (`https://jayhack.github.io/<repo>/`) without asking visitors to hunt through GitHub:
+Many evals ask for a **browsable deliverable** (often a single `.html` file). To link that output directly from the site without asking visitors to hunt through GitHub:
 
 1. **Path convention:** Add a copy of the file under  
    `docs/artifacts/<eval-slug>/<harness>-<model>.html`  
    (same `<harness>-<model>` as the solution directory name under the eval).
 2. **Registry:** On that solution object in [`docs/data.json`](./docs/data.json), set  
    `"artifactUrl": "./artifacts/<eval-slug>/<harness>-<model>.html"`.
-3. **Deployed URL:** The static site exposes it at  
-   `https://<owner>.github.io/<repo>/artifacts/<eval-slug>/<harness>-<model>.html`  
-   (with `owner` / `repo` taken from `data.json`). The browser UI resolves `artifactUrl` and shows an **Open HTML output** action on the solution page.
+3. **Deployed URL:** The Next.js app exposes it at  
+   `/artifacts/<eval-slug>/<harness>-<model>.html`.  
+   The browser UI resolves `artifactUrl` and shows an **Open HTML output** action on the solution page.
 
-Keep the canonical “lives in my project” copy wherever the prompt asks (for example under `results/`), and treat `docs/artifacts/` as the **published mirror** for Pages. Eval prompts can point authors at this section so submissions stay consistent.
+Keep the canonical “lives in my project” copy wherever the prompt asks (for example under `results/`), and treat `docs/artifacts/` as the **published mirror** for the results site. Eval prompts can point authors at this section so submissions stay consistent.
