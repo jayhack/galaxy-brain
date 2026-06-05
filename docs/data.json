@@ -7,6 +7,21 @@
   },
   "evals": [
     {
+      "slug": "sweats-dossier",
+      "title": "sweats-dossier",
+      "tagline": "Research Jay Hack and ship a one-HTML personal-shopper report recommending high-quality sweats, calibrated to James Perse and Fear of God.",
+      "description": "Find out as much as you can about Jay Hack (start at jay.ai), then ship one self-contained HTML report that opens with an opinionated thesis on what kind of sweats he should be buying and follows up with 4–8 specific picks — each with brand, price, link, fabric note, and a reason tied to something you actually learned about him. James Perse and Fear of God / Essentials set the quality bar. Include at least one chart or table so the picks are easy to compare.",
+      "tags": [
+        "research",
+        "personal-shopper",
+        "fashion",
+        "report",
+        "html"
+      ],
+      "createdAt": "2026-06-05",
+      "solutions": []
+    },
+    {
       "slug": "coding-agent-ui",
       "title": "coding-agent-ui",
       "tagline": "Build a local coding agent with a browser chat UI.",
