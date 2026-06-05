@@ -1,0 +1,6 @@
+.next
+node_modules
+out
+
+# Runtime artifacts are served from public/artifacts; this mirror is for docs/history.
+docs/artifacts

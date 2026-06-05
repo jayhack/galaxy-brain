@@ -1,5 +1,9 @@
-@import "tailwindcss";
+@import "tailwindcss" source(none);
 @import "tw-animate-css";
+
+@source "../app/**/*.{js,jsx,ts,tsx,mdx}";
+@source "../components/**/*.{js,jsx,ts,tsx,mdx}";
+@source "../lib/**/*.{js,jsx,ts,tsx,mdx}";
 
 /* ==================================================================
    galaxy-brain — GLOBULE theme, as a layer on top of shadcn/ui.

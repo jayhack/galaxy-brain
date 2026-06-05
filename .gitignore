@@ -8,6 +8,7 @@ venv/
 .vercel/
 node_modules/
 .next/
+out/
 dist/
 build/
 .pytest_cache/
