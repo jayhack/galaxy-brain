@@ -2,21 +2,28 @@
 
 ## Prompt
 
-Ship **one self-contained HTML file** — a personal shopping report **and lookbook** — recommending a small set of high-quality sweats for **Jay Hack** ([jay.ai](https://jay.ai)).
+Today, we're making a personal shopping report **and lookbook** — that makes a case to **Jay Hack** ([jay.ai](https://jay.ai)) for which sweats he should buy.
 
 His original ask, verbatim:
 
 > I'm looking for super high quality sweats. Example, the above or something from like essentials. https://www.jamesperse.com/products/brushed-cotton-suede-piped-track-pant-black-whiskey-mbcb1476?collection=mens What are some good options?
 
-**James Perse** and **Fear of God / Fear of God Essentials** are the inspirations — that's the bar for fabric, drape, and silhouette. Suggest at that tier even if individual pieces are cheaper (Lady White Co., Reigning Champ, Stòffa, Auralee, Sunspel — fabric quality is the gate, not price).
+**James Perse** and **Fear of God / Fear of God Essentials** are referenced the inspirations — that's the bar for fabric, drape, and silhouette. Suggest at that tier even if individual pieces are cheaper (Lady White Co., Reigning Champ, Stòffa, Auralee, Sunspel — fabric quality is the gate, not price).
 
-### Images — this is a lookbook, not a list
+Your job is to:
+- Research the man, to understand him and his motivations
+- Research the space of candidate options
+- Present a compelling narrative to him for where he should spend his hard-earned money.
 
-Treat the report as a **visual lookbook**. Every pick needs at least one good product image, and the page should look like something you'd actually flip through, not a wall of text with links.
+A solution is successful to the extent that Jay (1) can easily consume it, (2) finds it informative and compelling and (3) takes your advice, then "runs it back" and asks for more.
 
-- **Grab product images from the internet.** Brand sites, retailer pages, Pinterest, lookbook references — whatever shows the piece well.
-- **Hot-link them, or download them locally** next to the HTML (an `images/` folder is fine). Either approach is fine; downloaded is more robust, hot-linked is lighter.
-- **Don't worry about image licensing.** This artifact is personal to Jay and **will not be published or used commercially**. A small source credit next to each image is polite but no formal rights work is needed.
+Best solutions are those that have unique insight into the landscape of options and present important findings.
+
+Examples of things that could contribute to a compelling narrative:
+- Beautiful lookbooks that illustrate different aesthetics, and comparing these to iconic historical examples of stylish/comfortable sweats
+- Scraping product reviews and doing an analysis
+- Finding AI to generate images of what sweats could look like on Jay
+
 
 ## What it has to do
 
@@ -57,6 +64,6 @@ So the [results site](https://jayhack.github.io/galaxy-brain) shows **Open HTML 
 
 ## Notes for evaluators
 
-Judged on: did the report find out something *real* about Jay, do the picks follow from the thesis, would Jay actually wear any of these, and does the HTML look like something he'd actually want to read.
+Holistically, how compelling is the narrative being made here and how "true" is it? Ultimate evaluation will be taking your advice, trying on the sweats, and seeing which ones are best.
 
 Solutions: `<harness>-<model>/` under this folder.
