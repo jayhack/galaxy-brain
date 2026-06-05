@@ -18,6 +18,7 @@ import { HarnessModelBadges } from "@/components/harness-model-badges";
 import { MarkdownContent } from "@/components/markdown-content";
 import { SolutionRow } from "@/components/solution-row";
 import { CollapsibleSection } from "@/components/collapsible-section";
+import { ArtifactPreview } from "@/components/artifact-preview";
 
 type Params = { slug: string; solution: string };
 
@@ -59,7 +60,6 @@ export default async function SolutionPage({
   const inner = sol.projectName ? `${dirPath}/${sol.projectName}` : dirPath;
   const oc = sol.outcome || {};
   const artifact = artifactHref(sol.artifactUrl);
-  const hasArtifact = Boolean(sol.artifactUrl);
   const readme = await getSolutionReadme(ev, sol);
   const others = ev.solutions.filter((s) => s.slug !== sol.slug);
 
@@ -80,14 +80,7 @@ export default async function SolutionPage({
         ) : null}
         <p className="mt-3 max-w-3xl text-ink/90">{sol.summary || ""}</p>
         <div className="mt-5 flex flex-wrap items-center gap-2.5">
-          {hasArtifact && artifact ? (
-            <Button asChild variant="cta" size="sm">
-              <a href={artifact} target="_blank" rel="noopener noreferrer">
-                Open artifact
-              </a>
-            </Button>
-          ) : null}
-          <Button asChild variant={hasArtifact ? "paper" : "ink"} size="sm">
+          <Button asChild variant="ink" size="sm">
             <a
               href={urls.tree(dirPath)}
               target="_blank"
@@ -118,66 +111,33 @@ export default async function SolutionPage({
         </div>
       </header>
 
-      <section className="mb-10 grid grid-cols-1 gap-5 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardContent className="p-5">
-            <CardTitle>Outcome</CardTitle>
-            <div className="mt-1 grid grid-cols-2 gap-3">
-              <div>
-                <div className={kvLabel}>status</div>
-                <div className="mt-1">
-                  <StatusBadge status={oc.status} />
-                </div>
-              </div>
-              <div>
-                <div className={kvLabel}>evaluated</div>
-                <div className="mt-1 text-sm">{oc.evaluatedAt || "\u2014"}</div>
-              </div>
-              <div>
-                <div className={kvLabel}>score</div>
-                <div className="mt-1 text-sm">
-                  {oc.score == null ? "\u2014" : String(oc.score)}
-                </div>
-              </div>
-              <div>
-                <div className={kvLabel}>harness/model</div>
-                <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                  <HarnessModelBadges sol={sol} />
-                </div>
-              </div>
-            </div>
-            {oc.verdict ? (
-              <div className="mt-4">
-                <div className={`${kvLabel} mb-1`}>verdict</div>
-                <p className="text-sm text-ink/85">{oc.verdict}</p>
-              </div>
-            ) : null}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-5">
-            <CardTitle>Stack</CardTitle>
-            <div className="mt-1 flex flex-wrap gap-1.5">
-              {(sol.tech || []).length > 0 ? (
-                (sol.tech || []).map((t) => (
-                  <Badge key={t} variant="outline" mono>
-                    {t}
-                  </Badge>
-                ))
-              ) : (
-                <span className="text-sm text-ink/70">{"\u2014"}</span>
-              )}
-            </div>
-            {sol.notes ? (
-              <div className="mt-4">
-                <div className={`${kvLabel} mb-1`}>notes</div>
-                <p className="text-sm text-ink/90">{sol.notes}</p>
-              </div>
-            ) : null}
-          </CardContent>
-        </Card>
-      </section>
+      <CollapsibleSection
+        title="Solution"
+        className="mb-10"
+        meta={
+          artifact ? (
+            <span className="font-mono text-xs text-ink/70">
+              click to open full-screen
+            </span>
+          ) : undefined
+        }
+      >
+        {artifact ? (
+          <ArtifactPreview src={artifact} title={sol.slug} />
+        ) : (
+          <div className="rounded-md border border-ink bg-paper-soft px-4 py-3 text-sm text-ink">
+            No HTML artifact for this solution.{" "}
+            <a
+              className="g-link"
+              target="_blank"
+              rel="noopener noreferrer"
+              href={urls.tree(dirPath)}
+            >
+              Browse the source.
+            </a>
+          </div>
+        )}
+      </CollapsibleSection>
 
       <CollapsibleSection
         title="README"
@@ -206,6 +166,59 @@ export default async function SolutionPage({
           )}
         </div>
       </CollapsibleSection>
+
+      {oc.verdict || oc.score != null || (sol.tech || []).length > 0 || sol.notes ? (
+        <section className="mb-10 grid grid-cols-1 gap-5 lg:grid-cols-3">
+          <Card className="lg:col-span-2">
+            <CardContent className="p-5">
+              <CardTitle>Outcome</CardTitle>
+              <div className="mt-2 grid grid-cols-2 gap-3">
+                <div>
+                  <div className={kvLabel}>status</div>
+                  <div className="mt-1.5">
+                    <StatusBadge status={oc.status} />
+                  </div>
+                </div>
+                <div>
+                  <div className={kvLabel}>score</div>
+                  <div className="mt-1.5 text-sm">
+                    {oc.score == null ? "\u2014" : String(oc.score)}
+                  </div>
+                </div>
+              </div>
+              {oc.verdict ? (
+                <div className="mt-4">
+                  <div className={`${kvLabel} mb-1`}>verdict</div>
+                  <p className="text-sm text-ink/85">{oc.verdict}</p>
+                </div>
+              ) : null}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-5">
+              <CardTitle>Stack</CardTitle>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {(sol.tech || []).length > 0 ? (
+                  (sol.tech || []).map((t) => (
+                    <Badge key={t} variant="outline" mono>
+                      {t}
+                    </Badge>
+                  ))
+                ) : (
+                  <span className="text-sm text-ink/70">{"\u2014"}</span>
+                )}
+              </div>
+              {sol.notes ? (
+                <div className="mt-4">
+                  <div className={`${kvLabel} mb-1`}>notes</div>
+                  <p className="text-sm text-ink/90">{sol.notes}</p>
+                </div>
+              ) : null}
+            </CardContent>
+          </Card>
+        </section>
+      ) : null}
 
       <section className="mb-10 w-full min-w-0 max-w-full">
         <div className="mb-3 flex w-full items-center justify-between border-b border-ink pb-2">
