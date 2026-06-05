@@ -103,6 +103,14 @@ Production build check:
 
 `npm run build`
 
+Validate eval/solution registry conventions:
+
+`npm run validate:content`
+
+Agent-specific submission instructions live in [`AGENTS.md`](./AGENTS.md). To create a solution skeleton:
+
+`npm run new:solution -- <eval-slug> <solution-slug> --harness <harness> --model <model> [--artifact]`
+
 ### HTML artifacts
 
 Many evals ask for a **browsable deliverable** (often a single `.html` file). To link that output directly from the site without asking visitors to hunt through GitHub:

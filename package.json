@@ -1,10 +1,16 @@
 {
   "name": "galaxy-brain",
   "private": true,
+  "packageManager": "npm@10.9.7",
+  "engines": {
+    "node": ">=22 <23"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "validate:content": "node scripts/validate-content.mjs",
+    "new:solution": "node scripts/new-solution.mjs"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

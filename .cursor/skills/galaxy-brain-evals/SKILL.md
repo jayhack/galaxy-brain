@@ -52,7 +52,7 @@ After installing, **restart Cursor** (or reload the window) so the skill is pick
 
 1. Create `<eval-name>/` at the repo root (kebab-case slug, matches what you will put in `docs/data.json`).
 2. Add `<eval-name>/README.md` with a clear structure (see below).
-3. Add an entry for the eval in `docs/data.json` so it appears on the GitHub Pages results site (`evals` array: `slug`, `title`, `tagline`, `description`, `tags`, `createdAt`, `solutions` — often `[]` at first). Use **`tags` only for the eval itself** (topic keywords like `browser`, `threejs`). Do not list solution folder names or harness/model identifiers there; those belong on each object under `solutions` (`slug`, `harness`, `model`).
+3. Add an entry for the eval in `docs/data.json` so it appears on the Vercel results site (`evals` array: `slug`, `title`, `tagline`, `description`, `tags`, `createdAt`, `solutions` — often `[]` at first). Use **`tags` only for the eval itself** (topic keywords like `browser`, `threejs`). Do not list solution folder names or harness/model identifiers there; those belong on each object under `solutions` (`slug`, `harness`, `model`).
 4. Push to `main` (new evals do not have to go through a PR in this repo’s workflow).
 
 Cross-check the canonical overview in the root **`README.md`** (“Layout”, “Contributing”, “HTML artifacts”).
@@ -71,7 +71,7 @@ Keep acceptance criteria **testable** and **offline-friendly** when possible (e.
 
 ## Results site: `docs/data.json`
 
-- File: `docs/data.json` (driven by `repo.owner`, `repo.name`, `repo.branch` for GitHub Pages URLs).
+- File: `docs/data.json` (driven by `repo.owner`, `repo.name`, `repo.branch` for GitHub URLs).
 - Each eval is one object in `evals`. Use the same **`slug`** as the folder name.
 - When solutions exist, each solution object uses **`slug`** equal to the directory name under the eval (e.g. `cursor-opus-4-7-high`), plus fields like `harness`, `model`, `summary`, `tech`, `submittedAt`, `outcome`, and optionally **`artifactUrl`** for static HTML mirrors.
 
@@ -79,10 +79,10 @@ Keep acceptance criteria **testable** and **offline-friendly** when possible (e.
 
 If the prompt requires a **browsable deliverable** (often a single `.html`):
 
-1. Published mirror path: `docs/artifacts/<eval-slug>/<harness>-<model>.html`
+1. Published mirror path: `public/artifacts/<eval-slug>/<harness>-<model>.html`
 2. On the solution entry in `docs/data.json`, set `"artifactUrl": "./artifacts/<eval-slug>/<harness>-<model>.html"`
 
-The root **`README.md`** section **“HTML artifacts (GitHub Pages)”** has the full convention and URL shape.
+The root **`README.md`** section **“HTML artifacts”** has the full convention and URL shape.
 
 ## Solution directory naming (for submitters)
 
@@ -95,7 +95,7 @@ Submitters add **only** their solution tree; they should not rewrite the eval pr
 - [ ] New root folder `<eval-name>/` with `README.md` (prompt + acceptance + scope).
 - [ ] New `evals[]` entry in `docs/data.json` with matching `slug`.
 - [ ] If HTML is required, document the artifact path convention for submitters in the eval README or point to the root README.
-- [ ] Results site: verify `docs/index.html` + `docs/data.json` after deploy if you care about the browser UI.
+- [ ] Results site: run `npm run validate:content` and `npm run build`.
 
 ## See also
 
