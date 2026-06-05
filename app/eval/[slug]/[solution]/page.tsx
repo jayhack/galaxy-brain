@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { ExternalLink } from "lucide-react";
 
 import {
   getEvals,
@@ -12,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
-import { GithubIcon } from "@/components/icons";
+import { ExternalLinkIcon, GithubIcon } from "@/components/icons";
 import { StatusBadge } from "@/components/status-badge";
 import { HarnessModelBadges } from "@/components/harness-model-badges";
 import { MarkdownContent } from "@/components/markdown-content";
@@ -101,7 +100,7 @@ export default async function SolutionPage({
           {artifact ? (
             <Button asChild variant="paper" size="sm">
               <a href={artifact} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="size-4" />
+                <ExternalLinkIcon className="size-4" />
                 Open HTML output
               </a>
             </Button>

@@ -1,8 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { Copy } from "lucide-react";
 
+import { CopyIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -61,7 +61,7 @@ export function CopyButton({
         className
       )}
     >
-      <Copy className="size-3.5" />
+      <CopyIcon className="size-3.5" />
       {state === "ok" ? "copied" : state === "err" ? "failed" : label}
     </Button>
   );
