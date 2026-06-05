@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import path from "node:path";
 import { marked } from "marked";
 import sanitizeHtml from "sanitize-html";
@@ -81,6 +82,12 @@ export function repoUrls(d: SiteData = data) {
     blob: (p: string) => `${base}/blob/${branch}/${p}`,
     tree: (p: string) => `${base}/tree/${branch}/${p}`,
   };
+}
+
+/** Static header image served from `/public/headers/<slug>.jpg`, or null if none exists. */
+export function headerImage(slug: string): string | null {
+  const file = path.join(repoRoot, "public", "headers", `${slug}.jpg`);
+  return existsSync(file) ? `/headers/${slug}.jpg` : null;
 }
 
 /** `./artifacts/<eval>/<harness-model>.html` -> `/artifacts/<eval>/<harness-model>.html` (served from /public). */

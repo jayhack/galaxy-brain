@@ -589,6 +589,11 @@ details.section:not([open]) .section-chevron {
     rgba(255, 255, 255, 0) 60%
   );
 }
+/* With a real photo, drop the placeholder grid + gloss so the image reads clean. */
+.eval-art--photo::before,
+.eval-art--photo::after {
+  content: none;
+}
 /* Dark scrim so overlaid title text stays readable on any colour. */
 .eval-art-scrim {
   position: absolute;
