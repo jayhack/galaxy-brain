@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ExternalLink } from "lucide-react";
 
@@ -18,14 +17,7 @@ import { StatusBadge } from "@/components/status-badge";
 import { HarnessModelBadges } from "@/components/harness-model-badges";
 import { MarkdownContent } from "@/components/markdown-content";
 import { SolutionRow } from "@/components/solution-row";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { CollapsibleSection } from "@/components/collapsible-section";
 
 type Params = { slug: string; solution: string };
 
@@ -73,26 +65,6 @@ export default async function SolutionPage({
 
   return (
     <>
-      <Breadcrumb className="mb-6">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href="/">Overview</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href={`/eval/${ev.slug}`}>{ev.title}</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage className="font-mono">{sol.slug}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
       <header className="mb-8">
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <StatusBadge status={oc.status} />
@@ -207,14 +179,16 @@ export default async function SolutionPage({
         </Card>
       </section>
 
-      <section className="mb-10">
-        <div className="mb-3 flex items-center justify-between border-b border-ink pb-2">
-          <h2 className="g-display text-2xl">README</h2>
-          {readme ? (
+      <CollapsibleSection
+        title="README"
+        className="mb-10"
+        meta={
+          readme ? (
             <span className="font-mono text-xs text-ink/70">{readme.path}</span>
-          ) : null}
-        </div>
-        <div className="rounded-md border border-ink bg-paper p-5">
+          ) : undefined
+        }
+      >
+        <div className="rounded-md border border-ink bg-paper-soft p-5">
           {readme ? (
             <MarkdownContent html={readme.html} />
           ) : (
@@ -231,7 +205,7 @@ export default async function SolutionPage({
             </p>
           )}
         </div>
-      </section>
+      </CollapsibleSection>
 
       <section className="mb-10 w-full min-w-0 max-w-full">
         <div className="mb-3 flex w-full items-center justify-between border-b border-ink pb-2">

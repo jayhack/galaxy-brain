@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Pencil } from "lucide-react";
 
 import {
   getEvals,
@@ -14,17 +14,11 @@ import { GithubIcon } from "@/components/icons";
 import { MarkdownContent } from "@/components/markdown-content";
 import { CopyButton } from "@/components/copy-button";
 import { SolutionRow } from "@/components/solution-row";
+import { CollapsibleSection } from "@/components/collapsible-section";
 import { EvalArt } from "@/components/eval-art";
 import { Globule } from "@/components/globule";
 import { globuleForIndex } from "@/lib/globules";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import Link from "next/link";
 
 type Params = { slug: string };
 
@@ -63,20 +57,6 @@ export default async function EvalPage({
 
   return (
     <>
-      <Breadcrumb className="mb-6">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href="/">Overview</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>{ev.title}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
       <EvalArt
         globule={globule}
         className="mb-6 h-44 rounded-md border border-ink sm:h-56"
@@ -126,6 +106,7 @@ export default async function EvalPage({
               target="_blank"
               rel="noopener noreferrer"
             >
+              <Pencil className="size-3.5" />
               Edit prompt
             </a>
           </Button>
@@ -152,12 +133,11 @@ export default async function EvalPage({
         )}
       </section>
 
-      <section>
-        <div className="mb-3 flex items-center justify-between border-b border-ink pb-2">
-          <h2 className="g-display text-2xl">Prompt</h2>
-          <span className="font-mono text-xs text-ink/70">{promptPath}</span>
-        </div>
-        <div className="relative rounded-md border border-ink bg-paper">
+      <CollapsibleSection
+        title="Prompt"
+        meta={<span className="font-mono text-xs text-ink/70">{promptPath}</span>}
+      >
+        <div className="relative rounded-md border border-ink bg-paper-soft">
           {prompt ? (
             <div className="absolute right-2 top-2 z-10">
               <CopyButton text={prompt.raw} />
@@ -169,7 +149,7 @@ export default async function EvalPage({
             ) : (
               <p className="text-ink/90">
                 Couldn&apos;t load{" "}
-                <code className="border border-paper-3 bg-paper-soft px-1.5 py-0.5 font-mono text-xs">
+                <code className="rounded border border-paper-3 bg-paper px-1.5 py-0.5 font-mono text-xs">
                   {promptPath}
                 </code>
                 .{" "}
@@ -185,7 +165,7 @@ export default async function EvalPage({
             )}
           </div>
         </div>
-      </section>
+      </CollapsibleSection>
     </>
   );
 }

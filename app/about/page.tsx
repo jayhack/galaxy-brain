@@ -1,15 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { repoUrls } from "@/lib/content";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 
 export const metadata: Metadata = { title: "About - galaxy-brain" };
 
@@ -63,20 +54,6 @@ export default function AboutPage() {
 
   return (
     <article className="max-w-none">
-      <Breadcrumb className="mb-6">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href="/">Overview</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>About</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
       <h1 className="g-display text-4xl">About galaxy-brain</h1>
       <p className="mt-4 max-w-3xl leading-relaxed text-ink/90">
         This repo is a <strong>personal</strong> set of evals: prompts and tasks

@@ -384,9 +384,26 @@
   color: var(--indigo);
 }
 
+/* ===== COLLAPSIBLE SECTIONS (native <details>) =================== */
+details.section > summary {
+  list-style: none;
+}
+details.section > summary::-webkit-details-marker {
+  display: none;
+}
+details.section > summary:hover .section-chevron {
+  color: var(--ink);
+}
+.section-chevron {
+  transition: transform 0.15s ease;
+}
+details.section:not([open]) .section-chevron {
+  transform: rotate(-90deg);
+}
+
 /* ===== PROSE (markdown prompts / READMEs) ======================== */
 .markdown-target {
-  line-height: 1.62;
+  line-height: 1.7;
   font-size: 15px;
   color: var(--ink);
 }
@@ -413,13 +430,16 @@
   margin-top: 0;
 }
 .markdown-target h1 {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
 }
 .markdown-target h2 {
-  font-size: 1.4rem;
+  font-size: 1.2rem;
 }
 .markdown-target h3 {
-  font-size: 1.15rem;
+  font-size: 1.02rem;
+}
+.markdown-target h4 {
+  font-size: 0.95rem;
 }
 .markdown-target :is(h1, h2, h3) {
   scroll-margin-top: 5rem;
@@ -470,7 +490,7 @@
   color: var(--ink);
 }
 .markdown-target code {
-  background: var(--paper-soft);
+  background: var(--paper);
   border: 1px solid var(--paper-3);
   border-radius: var(--radius);
   padding: 0.08em 0.35em;
@@ -480,7 +500,7 @@
   color: var(--ink);
 }
 .markdown-target pre {
-  background: var(--paper-soft);
+  background: var(--paper);
   border: 1px solid var(--ink);
   border-left: 4px solid var(--cobalt);
   border-radius: var(--radius);
@@ -506,7 +526,7 @@
   text-align: left;
 }
 .markdown-target th {
-  background: var(--paper-soft);
+  background: var(--paper);
   font-family: var(--font-mono);
   text-transform: uppercase;
   letter-spacing: 0.08em;

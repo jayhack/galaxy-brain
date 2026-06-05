@@ -8,6 +8,7 @@ import { Monogram } from "@/components/globule";
 import { MobileDrawer } from "@/components/mobile-drawer";
 import { SiteSidebar } from "@/components/site-sidebar";
 import { HashRedirect } from "@/components/hash-redirect";
+import { HeaderBreadcrumb } from "@/components/header-breadcrumb";
 import { Button } from "@/components/ui/button";
 
 const siteTitle = "galaxy-brain - agent evals";
@@ -58,6 +59,7 @@ export default function RootLayout({
     title: ev.title,
     count: ev.solutions.length,
   }));
+  const evalTitles = Object.fromEntries(evals.map((e) => [e.slug, e.title]));
   const repo = repoUrls().repo;
 
   return (
@@ -82,9 +84,10 @@ export default function RootLayout({
                   <span className="logo-wordmark truncate">galaxy-brain</span>
                 </Link>
               </div>
-              <span className="mono-label hidden opacity-75 lg:inline">
-                Agent&nbsp;Evals
-              </span>
+              <HeaderBreadcrumb
+                evalTitles={evalTitles}
+                className="hidden min-w-0 lg:flex"
+              />
               <Button asChild variant="paper" size="xs">
                 <a href={repo} target="_blank" rel="noopener noreferrer">
                   Source -&gt;

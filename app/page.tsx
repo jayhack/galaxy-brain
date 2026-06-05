@@ -28,9 +28,14 @@ export default function HomePage() {
             <div className="grid max-w-4xl grid-cols-[auto_minmax(0,1fr)] items-center gap-4 md:gap-6">
               <Monogram modifier="logo-monogram--hero" />
               <div className="flex min-w-0 flex-col gap-3">
-                <h1 className="g-display min-w-0 text-3xl sm:text-5xl">
-                  galaxy-brain
-                </h1>
+                <div className="min-w-0">
+                  <h1 className="g-display min-w-0 text-3xl sm:text-5xl">
+                    galaxy-brain
+                  </h1>
+                  <p className="mt-2 font-mono text-xs uppercase tracking-[0.22em] text-ink/70 sm:text-sm">
+                    Curated Agent Evals
+                  </p>
+                </div>
                 <p className="lede max-w-xl text-lg leading-snug text-ink/85 sm:text-xl">
                   A chromatic quarterly of agent evals &mdash; each eval is a
                   prompt, each solution one harness/model pair&apos;s attempt at
