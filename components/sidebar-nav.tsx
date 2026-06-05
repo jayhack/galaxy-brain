@@ -3,8 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Info } from "lucide-react";
 
+import { HomeIcon, InfoIcon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { GlobuleDot } from "@/components/globule";
 import { globuleForIndex } from "@/lib/globules";
@@ -27,14 +27,14 @@ export function SidebarNav({
   return (
     <nav className={cn("flex flex-col gap-0.5", className)}>
       <Link href="/" className={cn(linkBase, pathname === "/" && linkActive)}>
-        <Home className="size-4 shrink-0" />
+        <HomeIcon className="size-4 shrink-0" />
         <span>Overview</span>
       </Link>
       <Link
         href="/about"
         className={cn(linkBase, pathname === "/about" && linkActive)}
       >
-        <Info className="size-4 shrink-0" />
+        <InfoIcon className="size-4 shrink-0" />
         <span>About</span>
       </Link>
 

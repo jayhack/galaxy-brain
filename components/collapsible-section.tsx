@@ -1,6 +1,6 @@
 import * as React from "react";
-import { ChevronDown } from "lucide-react";
 
+import { ChevronDownIcon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 /**
@@ -24,7 +24,7 @@ export function CollapsibleSection({
     <details className={cn("section", className)} open={defaultOpen}>
       <summary className="flex cursor-pointer list-none select-none items-center justify-between gap-3 border-b border-ink pb-2">
         <span className="flex items-center gap-2">
-          <ChevronDown
+          <ChevronDownIcon
             className="section-chevron size-4 shrink-0 text-ink/70"
             aria-hidden
           />

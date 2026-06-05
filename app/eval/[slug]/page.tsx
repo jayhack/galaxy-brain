@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Pencil } from "lucide-react";
 
 import {
   getEvals,
@@ -10,7 +9,7 @@ import {
 } from "@/lib/content";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { GithubIcon } from "@/components/icons";
+import { GithubIcon, PencilIcon } from "@/components/icons";
 import { MarkdownContent } from "@/components/markdown-content";
 import { CopyButton } from "@/components/copy-button";
 import { SolutionRow } from "@/components/solution-row";
@@ -106,7 +105,7 @@ export default async function EvalPage({
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Pencil className="size-3.5" />
+              <PencilIcon className="size-3.5" />
               Edit prompt
             </a>
           </Button>

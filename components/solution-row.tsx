@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { ExternalLink } from "lucide-react";
 
+import { ExternalLinkIcon } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { HarnessIcon } from "@/components/icons";
@@ -51,7 +51,7 @@ export function SolutionRow({ ev, sol }: { ev: Eval; sol: Solution }) {
         {html ? (
           <Button asChild variant="paper" size="xs">
             <a href={html} target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="size-3.5" />
+              <ExternalLinkIcon className="size-3.5" />
               Open
             </a>
           </Button>
