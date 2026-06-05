@@ -90,10 +90,17 @@ export function headerImage(slug: string): string | null {
   return existsSync(file) ? `/headers/${slug}.jpg` : null;
 }
 
-/** `./artifacts/<eval>/<harness-model>.html` -> `/artifacts/<eval>/<harness-model>.html` (served from /public). */
+/** `./artifacts/<eval>/<harness-model>.html` -> `/artifacts/<eval>/<harness-model>` (served from /public). */
 export function artifactHref(artifactUrl?: string | null): string | null {
   if (!artifactUrl) return null;
-  return "/" + String(artifactUrl).replace(/^\.?\//, "");
+  // The deployed site uses clean URLs (Next.js static export on Vercel), the
+  // same way `/eval/<slug>/<solution>` is served. A request to the artifact
+  // *with* a `.html` suffix 404s; the file is exposed at the extension-less
+  // path. Strip a trailing `.html` so the "Open HTML output" link and the
+  // inline preview resolve in production.
+  return (
+    "/" + String(artifactUrl).replace(/^\.?\//, "").replace(/\.html$/i, "")
+  );
 }
 
 /* ----- Markdown (rendered at build, sanitized) ----- */
