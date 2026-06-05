@@ -55,7 +55,7 @@ There are two roles here:
 1. Branch off `main` (or fork the repo).
 2. Add a directory `<eval-name>/<harness>-<model>/` containing your solution.
 3. Include a short `README.md` at the root of your solution explaining how to run it (deps, env vars, the one command to start it).
-4. If the eval requires a static HTML (or similar) deliverable, add the published mirror under `docs/artifacts/…` and set `artifactUrl` in `docs/data.json` as described in [HTML artifacts](#html-artifacts).
+4. If the eval requires a static HTML (or similar) deliverable, add the published mirror under `public/artifacts/…` and set `artifactUrl` in `docs/data.json` as described in [HTML artifacts](#html-artifacts).
 5. Open a pull request against `main`. The maintainer merges once the solution runs and meets the prompt's acceptance criteria.
 
 Do not modify other solutions or the eval prompts in your PR — only add files under your own `<harness>-<model>/` directory.
@@ -75,9 +75,9 @@ Do not modify other solutions or the eval prompts in your PR — only add files 
 
 ## Results site
 
-A Next.js results browser is served from [`app/`](./app) and deployed on Vercel. The browser runtime still uses the snappy hash-routed SPA from [`docs/app.js`](./docs/app.js), [`docs/ui.js`](./docs/ui.js), and [`docs/styles.css`](./docs/styles.css); Next provides the Vercel build, metadata, and routes for the existing registry and artifact files.
+A Next.js results browser is served from [`app/`](./app) and deployed on Vercel. The browser runtime still uses the snappy hash-routed SPA from [`docs/app.js`](./docs/app.js), [`docs/ui.js`](./docs/ui.js), and [`docs/styles.css`](./docs/styles.css); Next provides the Vercel build, metadata, and a static first-load payload for the existing registry and markdown files.
 
-The site is driven by [`docs/data.json`](./docs/data.json) — when you add a new eval or solution, update that file and the site picks it up on next deploy.
+The site is driven by [`docs/data.json`](./docs/data.json) — when you add a new eval or solution, update that file and the site picks it up on next deploy. At build/render time, Next embeds that registry plus eval prompts and solution READMEs into the initial page payload, so browsing the results site does not make a backend JSON/API request for app data.
 
 ### Local development
 
@@ -97,7 +97,7 @@ Production build check:
 Many evals ask for a **browsable deliverable** (often a single `.html` file). To link that output directly from the site without asking visitors to hunt through GitHub:
 
 1. **Path convention:** Add a copy of the file under  
-   `docs/artifacts/<eval-slug>/<harness>-<model>.html`  
+   `public/artifacts/<eval-slug>/<harness>-<model>.html`  
    (same `<harness>-<model>` as the solution directory name under the eval).
 2. **Registry:** On that solution object in [`docs/data.json`](./docs/data.json), set  
    `"artifactUrl": "./artifacts/<eval-slug>/<harness>-<model>.html"`.
@@ -105,4 +105,4 @@ Many evals ask for a **browsable deliverable** (often a single `.html` file). To
    `/artifacts/<eval-slug>/<harness>-<model>.html`.  
    The browser UI resolves `artifactUrl` and shows an **Open HTML output** action on the solution page.
 
-Keep the canonical “lives in my project” copy wherever the prompt asks (for example under `results/`), and treat `docs/artifacts/` as the **published mirror** for the results site. Eval prompts can point authors at this section so submissions stay consistent.
+Keep the canonical “lives in my project” copy wherever the prompt asks (for example under `results/`), and treat `public/artifacts/` as the **published mirror** for the results site. Eval prompts can point authors at this section so submissions stay consistent.

@@ -1,0 +1,139 @@
+{
+  "name": "cvchess-in-browser public photo evaluation set",
+  "createdAt": "2026-04-22",
+  "notes": "All images were downloaded from Wikimedia Commons at approximately 1280px on the long edge. The corner annotations are evaluation labels used by the app only as a disclosed low-confidence fallback for shipped dataset images; uploaded images use the automatic browser pipeline.",
+  "images": [
+    {
+      "id": "staunton-oblique",
+      "name": "Staunton board, oblique",
+      "file": "images/staunton-oblique.jpg",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Chess_game_Staunton_No._6.jpg",
+      "attribution": "Wilfredor",
+      "license": "CC0",
+      "view": "low oblique",
+      "style": "wood tournament set",
+      "lighting": "studio white background",
+      "expected": "ranks 8/7 and 2/1 occupied as a standard starting-position occupancy grid"
+    },
+    {
+      "id": "staunton-side",
+      "name": "Staunton board, side view",
+      "file": "images/staunton-side.jpg",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Chess_game_Staunton_No._6_perfil_view.jpg",
+      "attribution": "Wilfredor",
+      "license": "CC0",
+      "view": "extreme oblique",
+      "style": "wood tournament set",
+      "lighting": "studio white background",
+      "expected": "32 occupied squares by count; exact square labels are ambiguous under side-view orientation"
+    },
+    {
+      "id": "staunton-top",
+      "name": "Staunton board, top-down",
+      "file": "images/staunton-top.jpg",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Chess_game_Staunton_No._6_top_view.jpg",
+      "attribution": "Wilfredor",
+      "license": "CC0",
+      "view": "top-down",
+      "style": "coordinate wood board",
+      "lighting": "even studio",
+      "expected": "standard starting-position occupancy grid"
+    },
+    {
+      "id": "jaques-oblique",
+      "name": "Jaques antique portable set",
+      "file": "images/jaques-oblique.jpg",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Jaques_(London)_antique_portable_chess_set_-oblique.JPG",
+      "attribution": "Snowmanradio",
+      "license": "CC BY-SA 4.0",
+      "view": "strong oblique",
+      "style": "antique pegged travel board",
+      "lighting": "soft indoor",
+      "expected": "approximately 25 occupied squares by count"
+    },
+    {
+      "id": "board-2",
+      "name": "Casual paper board",
+      "file": "images/board-2.jpg",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Chess_board_2.jpg",
+      "attribution": "Utkarshsingh.1992",
+      "license": "CC BY-SA 3.0",
+      "view": "oblique",
+      "style": "printed paper board",
+      "lighting": "office overhead",
+      "expected": "approximately 12 occupied squares by count"
+    },
+    {
+      "id": "groningen-1",
+      "name": "Groningen giant board",
+      "file": "images/groningen-1.jpg",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Giant_chess_board,_Groningen_(2018)_01.jpg",
+      "attribution": "Donald Trung",
+      "license": "CC BY-SA 4.0",
+      "view": "street-level oblique",
+      "style": "outdoor giant board",
+      "lighting": "daylight",
+      "expected": "approximately 28 occupied squares by count"
+    },
+    {
+      "id": "mall-board",
+      "name": "Oxford Valley mall floor board",
+      "file": "images/mall-board.jpg",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:2025-06-24_18_06_23_Large_floor_chess_board_(with_a_few_pieces_damaged_or_missing)_at_the_Oxford_Valley_Mall_in_Middletown_Township,_Bucks_County,_Pennsylvania.jpg",
+      "attribution": "Famartin",
+      "license": "CC BY-SA 4.0",
+      "view": "low oblique",
+      "style": "large mall floor board",
+      "lighting": "mixed indoor",
+      "expected": "approximately 30 occupied squares by count"
+    },
+    {
+      "id": "outdoor-board",
+      "name": "Malaga empty plaza board",
+      "file": "images/outdoor-board.jpg",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Giant_Outdoor_Chess_Board_in_Malaga.jpg",
+      "attribution": "Daniel Capilla",
+      "license": "CC BY-SA 4.0",
+      "view": "distant oblique",
+      "style": "outdoor tile board",
+      "lighting": "bright sun and shadow",
+      "expected": "all 64 squares empty"
+    },
+    {
+      "id": "schachbrett",
+      "name": "Top-down board with shadows",
+      "file": "images/schachbrett.jpg",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Schachbrett_--_2021_--_9676.jpg",
+      "attribution": "Dietmar Rabich",
+      "license": "CC BY-SA 4.0",
+      "view": "top-down",
+      "style": "wood board, active game",
+      "lighting": "hard shadow",
+      "expected": "approximately 27 occupied squares by count"
+    },
+    {
+      "id": "studio-board",
+      "name": "Close crop, metal board",
+      "file": "images/studio-board.jpg",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Image_Chess.jpg",
+      "attribution": "Devcore",
+      "license": "CC0",
+      "view": "close oblique crop",
+      "style": "metal travel board",
+      "lighting": "shallow depth of field",
+      "expected": "visual failure-mode image; full board is not visible"
+    },
+    {
+      "id": "tile-board",
+      "name": "Oversized tile close-up",
+      "file": "images/tile-board.jpg",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Oversized_chess_pieces_on_a_tile_board.jpg",
+      "attribution": "Farhan Perdana (Blek) from Jakarta, Indonesia",
+      "license": "CC BY 2.0",
+      "view": "extreme close-up",
+      "style": "worn outdoor pieces",
+      "lighting": "night / flash",
+      "expected": "visual failure-mode image; full board is not visible"
+    }
+  ]
+}

@@ -1,6 +1,16 @@
 import LegacySite from "./LegacySite";
+import { buildStaticSitePayload } from "./content";
 
-export default function HomePage() {
+function serializeForInlineScript(value) {
+  return JSON.stringify(value)
+    .replace(/</g, "\\u003c")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
+}
+
+export default async function HomePage() {
+  const staticPayload = await buildStaticSitePayload();
+
   return (
     <>
       <div className="drawer lg:drawer-open">
@@ -118,6 +128,12 @@ export default function HomePage() {
           </div>
         </aside>
       </div>
+      <script
+        id="gb-static-payload"
+        dangerouslySetInnerHTML={{
+          __html: `window.__GALAXY_BRAIN_STATIC__=${serializeForInlineScript(staticPayload)};`,
+        }}
+      />
       <LegacySite />
     </>
   );

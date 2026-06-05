@@ -147,17 +147,15 @@ function harnessModelBadgesHtml(sol) {
 function repoUrls(data) {
   const { owner, name, branch } = data.repo;
   const base = `https://github.com/${owner}/${name}`;
-  const raw = `https://raw.githubusercontent.com/${owner}/${name}/${branch}`;
   return {
     repo: base,
     branchTree: `${base}/tree/${branch}`,
     blob: (path) => `${base}/blob/${branch}/${path}`,
     tree: (path) => `${base}/tree/${branch}/${path}`,
-    raw: (path) => `${raw}/${path}`,
   };
 }
 
-/** Resolve `artifactUrl` from data.json (e.g. `./artifacts/<eval>/<harness-model>.html`) to an absolute URL on this GitHub Pages site. */
+/** Resolve `artifactUrl` from data.json (e.g. `./artifacts/<eval>/<harness-model>.html`) to an absolute URL on this site. */
 function siteArtifactUrl(artifactUrl) {
   if (!artifactUrl) return null;
   const path = String(artifactUrl).replace(/^\.\//, "");
@@ -173,16 +171,11 @@ function statusBadge(status) {
 }
 
 async function fetchMarkdown(url) {
-  if (state.markdownCache.has(url)) return state.markdownCache.get(url);
-  try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const text = await res.text();
-    state.markdownCache.set(url, text);
-    return text;
-  } catch (e) {
-    return null;
-  }
+  const markdownPath = String(url || "").replace(/^\/+/, "");
+  if (state.markdownCache.has(markdownPath)) return state.markdownCache.get(markdownPath);
+  const text = window.__GALAXY_BRAIN_STATIC__?.markdown?.[markdownPath] ?? null;
+  if (text != null) state.markdownCache.set(markdownPath, text);
+  return text;
 }
 
 function normalizeMarkdownForMarked(md) {
@@ -196,9 +189,9 @@ function normalizeMarkdownForMarked(md) {
 }
 
 function renderMarkdown(md) {
-  marked.setOptions({ gfm: true, breaks: false, mangle: false, headerIds: true });
-  const html = marked.parse(normalizeMarkdownForMarked(md));
-  return DOMPurify.sanitize(html, { ADD_ATTR: ["target", "rel"] });
+  window.marked.setOptions({ gfm: true, breaks: false, mangle: false, headerIds: true });
+  const html = window.marked.parse(normalizeMarkdownForMarked(md));
+  return window.DOMPurify.sanitize(html, { ADD_ATTR: ["target", "rel"] });
 }
 
 /** Build overview hash from selected eval tags (`#/`, `#/tag/a+b`). */
@@ -578,7 +571,7 @@ function viewAbout() {
       <h2 class="${ui.proseAboutH2}">Source</h2>
       <p class="${ui.muted80}">
         <a href="${esc(urls.repo)}" class="link link-primary" target="_blank" rel="noopener">Repository on GitHub</a>
-        — eval prompts live next to submitted solutions; this site reads <code class="text-xs">docs/data.json</code> for the browser.
+        — eval prompts live next to submitted solutions; the static build embeds <code class="text-xs">docs/data.json</code> for the browser.
       </p>
     </article>
   `;
@@ -668,7 +661,7 @@ function viewEval(route) {
     </section>
   `;
 
-  fetchMarkdown(urls.raw(promptPath)).then((md) => {
+  fetchMarkdown(promptPath).then((md) => {
     const target = document.getElementById("prompt-md");
     const copyBtn = document.getElementById("prompt-copy-btn");
     if (!target) return;
@@ -848,7 +841,7 @@ function viewSolution(route) {
 
   (async () => {
     for (const path of readmeCandidates) {
-      const md = await fetchMarkdown(urls.raw(path));
+      const md = await fetchMarkdown(path);
       if (md != null) {
         const target = document.getElementById("solution-md");
         const pathEl = document.getElementById("readme-path");
@@ -901,16 +894,12 @@ function render() {
 async function main() {
   document.documentElement.setAttribute("data-theme", "globule");
 
-  let res;
-  try {
-    res = await fetch("./data.json", { cache: "no-cache" });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    state.data = await res.json();
-  } catch (e) {
+  state.data = window.__GALAXY_BRAIN_STATIC__?.data || null;
+  if (!state.data) {
     updateHeaderBreadcrumbs("");
     state.view.innerHTML = `
       <div class="alert alert-error">
-        <span>Failed to load <code>data.json</code>: ${esc(e.message)}</span>
+        <span>Failed to load embedded site data.</span>
       </div>`;
     return;
   }

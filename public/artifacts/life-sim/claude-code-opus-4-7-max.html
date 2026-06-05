@@ -1,0 +1,2567 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Verdant Drift — Life Sim</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CradialGradient id='g' cx='0.4' cy='0.3'%3E%3Cstop offset='0' stop-color='%23ffe49a'/%3E%3Cstop offset='1' stop-color='%231a2b38'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='12' fill='url(%23g)'/%3E%3Cpath d='M7 41c10-16 34-24 50-10-9 1-16 7-17 18-10-2-22-3-33-8z' fill='%2352c07a'/%3E%3Cpath d='M4 45c18 10 40 10 56 0' stroke='%2368b6f2' stroke-width='4' fill='none'/%3E%3C/svg%3E" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #eef3ea;
+      --muted: rgba(238, 243, 234, 0.72);
+      --faint: rgba(238, 243, 234, 0.45);
+      --panel: rgba(10, 18, 22, 0.82);
+      --panel-solid: rgba(10, 18, 22, 0.96);
+      --line: rgba(255, 255, 255, 0.12);
+      --line-strong: rgba(255, 255, 255, 0.22);
+      --grazer: #74e08a;
+      --hunter: #ff6a58;
+      --shore: #62c9ff;
+      --sun: #ffd27a;
+      --moon: #a7bdf7;
+      --accent: #b79bff;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      width: 100%; height: 100%; margin: 0; overflow: hidden;
+      background: #050a0d; color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input, select { font: inherit; color: inherit; }
+    #viewport { position: fixed; inset: 0; }
+    canvas.webgl { display: block; width: 100%; height: 100%; }
+
+    .topbar {
+      position: fixed; top: 12px; left: 12px; right: 12px; z-index: 10;
+      display: flex; align-items: stretch; gap: 10px; padding: 10px 12px;
+      border: 1px solid var(--line); border-radius: 12px;
+      background: linear-gradient(180deg, rgba(12,22,26,0.94), rgba(12,22,26,0.72));
+      backdrop-filter: blur(16px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    }
+    .brand {
+      min-width: 180px; display: grid; gap: 2px; align-content: center;
+      padding-right: 12px; border-right: 1px solid var(--line);
+    }
+    .brand strong { font-size: 14px; font-weight: 700; letter-spacing: 0.2px; }
+    .brand span { font-size: 11px; color: var(--faint); }
+    .brand .seed-line { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .brand .seed-line code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      background: rgba(255,255,255,0.06); padding: 1px 6px; border-radius: 4px; color: var(--ink);
+    }
+
+    .metrics {
+      flex: 1; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; min-width: 0;
+    }
+    .metric {
+      display: grid; gap: 1px; padding: 5px 9px;
+      border: 1px solid var(--line); border-radius: 8px;
+      background: rgba(255,255,255,0.04); min-width: 70px;
+    }
+    .metric span { font-size: 10px; color: var(--faint); letter-spacing: 0.4px; text-transform: uppercase; }
+    .metric strong { font-size: 14px; font-weight: 650; font-variant-numeric: tabular-nums; }
+    .metric.grazer strong { color: var(--grazer); }
+    .metric.hunter strong { color: var(--hunter); }
+    .metric.shore strong { color: var(--shore); }
+
+    .speed-block {
+      display: grid; gap: 4px; padding: 5px 10px 6px;
+      border: 1px solid var(--line); border-radius: 8px;
+      background: rgba(255,255,255,0.04); min-width: 190px;
+    }
+    .speed-block .row { display: flex; align-items: center; gap: 6px; font-size: 11px; }
+    .speed-block label { color: var(--faint); letter-spacing: 0.3px; text-transform: uppercase; font-size: 10px; }
+    .speed-block output { color: var(--ink); font-variant-numeric: tabular-nums; font-weight: 650; font-size: 12px; margin-left: auto; }
+    .speed-block input[type=range] { width: 100%; accent-color: var(--accent); }
+    .speed-chips { display: flex; gap: 4px; flex-wrap: wrap; }
+    .speed-chips button {
+      padding: 2px 7px; border-radius: 999px; border: 1px solid var(--line);
+      background: rgba(255,255,255,0.05); font-size: 11px; cursor: pointer;
+      color: var(--muted); transition: all .15s;
+    }
+    .speed-chips button:hover { color: var(--ink); border-color: var(--line-strong); }
+    .speed-chips button.active { background: var(--accent); color: #1b1430; border-color: var(--accent); }
+
+    .actions { display: flex; gap: 6px; }
+    .btn {
+      padding: 8px 12px; border-radius: 8px; border: 1px solid var(--line);
+      background: rgba(255,255,255,0.06); color: var(--ink); cursor: pointer; font-size: 12px;
+      transition: all .15s;
+    }
+    .btn:hover { background: rgba(255,255,255,0.12); border-color: var(--line-strong); }
+    .btn.primary { background: var(--accent); color: #1b1430; border-color: var(--accent); font-weight: 650; }
+    .btn.primary:hover { filter: brightness(1.08); }
+    .btn-group { display: inline-flex; gap: 2px; }
+    .btn-group .btn { border-radius: 0; }
+    .btn-group .btn:first-child { border-radius: 8px 0 0 8px; }
+    .btn-group .btn:last-child { border-radius: 0 8px 8px 0; }
+
+    .sidepanel {
+      position: fixed; top: 86px; bottom: 12px; width: 320px; z-index: 9;
+      display: flex; flex-direction: column; gap: 10px;
+      border: 1px solid var(--line); border-radius: 12px; padding: 12px;
+      background: linear-gradient(180deg, rgba(12,22,26,0.90), rgba(12,22,26,0.75));
+      backdrop-filter: blur(16px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+      overflow: hidden;
+    }
+    .sidepanel.left { left: 12px; }
+    .sidepanel.right { right: 12px; }
+
+    .panel-tabs { display: flex; gap: 2px; padding: 2px; border-radius: 8px; background: rgba(0,0,0,0.25); }
+    .panel-tabs button {
+      flex: 1; padding: 6px 8px; border: 0; border-radius: 6px; background: transparent;
+      color: var(--muted); cursor: pointer; font-size: 12px; font-weight: 550;
+    }
+    .panel-tabs button.active { background: rgba(255,255,255,0.10); color: var(--ink); }
+    .panel-body { overflow-y: auto; flex: 1; padding-right: 2px; scrollbar-width: thin; }
+    .panel-body::-webkit-scrollbar { width: 6px; }
+    .panel-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+
+    .card {
+      padding: 10px; border: 1px solid var(--line); border-radius: 10px;
+      background: rgba(255,255,255,0.035); margin-bottom: 10px;
+    }
+    .card h3 {
+      font-size: 11px; color: var(--faint); letter-spacing: 0.8px; text-transform: uppercase;
+      margin: 0 0 8px; font-weight: 600;
+    }
+    .card h3 .pill {
+      font-size: 9px; padding: 1px 6px; border-radius: 999px; letter-spacing: 0.3px;
+      margin-left: 6px; background: rgba(255,255,255,0.08); color: var(--muted);
+    }
+
+    .spec-legend { display: grid; gap: 6px; font-size: 12px; }
+    .spec-row { display: flex; align-items: flex-start; gap: 8px; }
+    .spec-dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+    .spec-dot.grazer { background: var(--grazer); box-shadow: 0 0 10px rgba(116,224,138,0.6); }
+    .spec-dot.hunter { background: var(--hunter); box-shadow: 0 0 10px rgba(255,106,88,0.6); }
+    .spec-dot.shore { background: var(--shore); box-shadow: 0 0 10px rgba(98,201,255,0.6); }
+    .spec-info { flex: 1; min-width: 0; }
+    .spec-info strong { font-weight: 600; }
+    .spec-info em { color: var(--muted); font-style: normal; font-size: 11px; }
+
+    canvas.chart { display: block; width: 100%; height: 110px; background: rgba(0,0,0,0.25); border-radius: 6px; }
+    canvas.chart.tall { height: 130px; }
+    .chart-wrap { display: grid; gap: 4px; margin-bottom: 6px; }
+    .chart-caption { font-size: 10px; color: var(--faint); display: flex; justify-content: space-between; }
+
+    .inspector { display: grid; gap: 8px; }
+    .inspector-header { display: flex; align-items: center; gap: 8px; }
+    .inspector-header .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .inspector-header h4 { margin: 0; font-size: 13px; }
+    .kv { display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; font-size: 11px; }
+    .kv dt { color: var(--faint); letter-spacing: 0.3px; }
+    .kv dd { margin: 0; font-variant-numeric: tabular-nums; }
+    .kv dd .bar {
+      display: inline-block; width: 100%; max-width: 90px; height: 5px; background: rgba(255,255,255,0.08);
+      border-radius: 99px; vertical-align: middle; margin-left: 4px; position: relative; overflow: hidden;
+    }
+    .kv dd .bar > i { position: absolute; inset: 0 auto 0 0; background: var(--accent); border-radius: 99px; display: block; }
+    .state-chip {
+      display: inline-block; padding: 2px 7px; border-radius: 999px;
+      background: rgba(255,255,255,0.08); font-size: 10px; letter-spacing: 0.2px;
+    }
+    .hint { color: var(--faint); font-size: 11px; }
+
+    .event-log { font-size: 11px; display: grid; gap: 3px; }
+    .event-log .ev { color: var(--muted); }
+    .event-log .ev .t { color: var(--faint); margin-right: 6px; font-variant-numeric: tabular-nums; }
+    .event-log .ev.birth .k { color: var(--grazer); }
+    .event-log .ev.death .k { color: var(--hunter); }
+    .event-log .ev.mutate .k { color: var(--accent); }
+    .event-log .ev.extinct .k { color: #ffb964; }
+
+    /* How-it-works modal */
+    .modal-bg {
+      position: fixed; inset: 0; z-index: 20; display: none;
+      background: rgba(4, 8, 10, 0.7); backdrop-filter: blur(6px);
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-bg.open { display: flex; }
+    .modal {
+      max-width: 760px; width: 100%; max-height: 90vh; overflow-y: auto;
+      border: 1px solid var(--line); border-radius: 14px;
+      background: var(--panel-solid); padding: 28px 30px;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+    }
+    .modal h2 { margin: 0 0 4px; font-size: 20px; }
+    .modal .sub { color: var(--muted); font-size: 13px; margin-bottom: 16px; }
+    .modal h3 {
+      font-size: 12px; color: var(--faint); letter-spacing: 0.6px;
+      text-transform: uppercase; margin: 16px 0 6px;
+    }
+    .modal p, .modal li { font-size: 13px; line-height: 1.55; color: var(--ink); }
+    .modal ul { margin: 4px 0; padding-left: 20px; }
+    .modal code {
+      background: rgba(255,255,255,0.07); padding: 1px 5px; border-radius: 4px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px;
+    }
+    .modal .close-row { display: flex; justify-content: flex-end; margin-top: 16px; }
+
+    .tip {
+      position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%); z-index: 8;
+      padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line);
+      background: var(--panel); color: var(--muted); font-size: 11px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3); user-select: none;
+      transition: opacity .4s;
+    }
+
+    @media (max-width: 1100px) {
+      .sidepanel { width: 290px; }
+    }
+    @media (max-width: 960px) {
+      .sidepanel { width: 260px; }
+      .brand { min-width: 130px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="viewport"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <strong>Verdant Drift</strong>
+      <span>3D life simulation · evolving island</span>
+      <div class="seed-line">seed <code id="seedCode">—</code> · gen <code id="genCode">0</code></div>
+    </div>
+    <div class="metrics" id="metrics">
+      <div class="metric"><span>Day</span><strong id="mDay">0</strong></div>
+      <div class="metric"><span>Time</span><strong id="mTime">06:00</strong></div>
+      <div class="metric grazer"><span>Leafers</span><strong id="mGrazer">0</strong></div>
+      <div class="metric hunter"><span>Stalkers</span><strong id="mHunter">0</strong></div>
+      <div class="metric shore"><span>Tide Sprites</span><strong id="mShore">0</strong></div>
+      <div class="metric"><span>Plants</span><strong id="mPlants">0</strong></div>
+      <div class="metric"><span>Births</span><strong id="mBirths">0</strong></div>
+    </div>
+    <div class="speed-block">
+      <div class="row">
+        <label>Speed</label>
+        <output id="speedOut">1.0×</output>
+      </div>
+      <input id="speedSlider" type="range" min="0" max="8" step="0.1" value="1" />
+      <div class="speed-chips">
+        <button data-speed="0">Pause</button>
+        <button data-speed="0.5">0.5×</button>
+        <button data-speed="1" class="active">1×</button>
+        <button data-speed="2">2×</button>
+        <button data-speed="4">4×</button>
+        <button data-speed="8">8×</button>
+      </div>
+    </div>
+    <div class="actions">
+      <div class="btn-group">
+        <input id="seedInput" class="btn" style="width:110px" type="text" placeholder="seed" />
+        <button id="btnSeed" class="btn">Go</button>
+      </div>
+      <button id="btnNew" class="btn primary">New island</button>
+      <button id="btnReset" class="btn">Reset</button>
+      <button id="btnHow" class="btn">How it works</button>
+    </div>
+  </header>
+
+  <aside class="sidepanel left">
+    <div class="panel-tabs" id="leftTabs">
+      <button data-tab="species" class="active">Species</button>
+      <button data-tab="inspect">Inspect</button>
+      <button data-tab="events">Events</button>
+    </div>
+    <div class="panel-body" id="leftBody">
+      <div data-tab="species" class="tab-content">
+        <div class="card">
+          <h3>Ecological roles</h3>
+          <div class="spec-legend">
+            <div class="spec-row"><div class="spec-dot grazer"></div>
+              <div class="spec-info"><strong>Leafers</strong> — herbivores
+                <div><em>Graze vegetation, flee predators. Reproduce in pairs when well-fed. Evolve toward their meadow niche.</em></div>
+              </div></div>
+            <div class="spec-row"><div class="spec-dot hunter"></div>
+              <div class="spec-info"><strong>Stalkers</strong> — predators
+                <div><em>Hunt Leafers and Sprites. Night buffs their vision &amp; speed — nocturnal pressure shapes prey schedules.</em></div>
+              </div></div>
+            <div class="spec-row"><div class="spec-dot shore"></div>
+              <div class="spec-info"><strong>Tide Sprites</strong> — coastal foragers
+                <div><em>Feed on shoreline algae &amp; carrion. Fast, skittish, add nutrients that help nearby plants regrow.</em></div>
+              </div></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Tips</h3>
+          <ul style="margin:0;padding-left:16px;font-size:12px;color:var(--muted);line-height:1.5">
+            <li>Click any organism to inspect its genes and state.</li>
+            <li>Drag the scene to orbit. Scroll to zoom. Right-drag to pan.</li>
+            <li>Watch trait drift lines — survivors pass on winning gene values.</li>
+            <li>Press <code style="font-family:ui-monospace">space</code> to pause, <code style="font-family:ui-monospace">1-5</code> for speed presets.</li>
+          </ul>
+        </div>
+      </div>
+      <div data-tab="inspect" class="tab-content" hidden>
+        <div class="card" id="inspectorCard">
+          <div class="hint">Click an organism to inspect its traits, state, energy, lineage, and recent decisions. Selection follows the creature until it dies.</div>
+        </div>
+      </div>
+      <div data-tab="events" class="tab-content" hidden>
+        <div class="card">
+          <h3>Event log <span class="pill" id="eventCount">0</span></h3>
+          <div class="event-log" id="eventLog"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <aside class="sidepanel right">
+    <div class="panel-tabs" id="rightTabs">
+      <button data-tab="pop" class="active">Populations</button>
+      <button data-tab="traits">Traits</button>
+      <button data-tab="lineage">Lineage</button>
+    </div>
+    <div class="panel-body" id="rightBody">
+      <div data-tab="pop" class="tab-content">
+        <div class="card">
+          <h3>Populations over time</h3>
+          <div class="chart-wrap">
+            <canvas class="chart tall" id="popChart"></canvas>
+            <div class="chart-caption"><span id="popCapLeft">start</span><span id="popCapRight">now</span></div>
+          </div>
+          <div class="spec-legend" id="popLegend"></div>
+        </div>
+        <div class="card">
+          <h3>Births &amp; deaths per minute</h3>
+          <canvas class="chart" id="rateChart"></canvas>
+          <div class="chart-caption"><span>green births · red deaths (smoothed)</span></div>
+        </div>
+      </div>
+      <div data-tab="traits" class="tab-content" hidden>
+        <div class="card">
+          <h3>Leafer trait drift</h3>
+          <canvas class="chart" id="traitGrazer"></canvas>
+          <div class="chart-caption"><span>size · speed · sense · armor</span></div>
+        </div>
+        <div class="card">
+          <h3>Stalker trait drift</h3>
+          <canvas class="chart" id="traitHunter"></canvas>
+          <div class="chart-caption"><span>size · speed · sense · aggression</span></div>
+        </div>
+        <div class="card">
+          <h3>Tide Sprite trait drift</h3>
+          <canvas class="chart" id="traitShore"></canvas>
+          <div class="chart-caption"><span>size · speed · sense · nocturnal</span></div>
+        </div>
+      </div>
+      <div data-tab="lineage" class="tab-content" hidden>
+        <div class="card">
+          <h3>Current snapshot</h3>
+          <div class="kv" id="snapshotKv"></div>
+        </div>
+        <div class="card">
+          <h3>Generation depth</h3>
+          <canvas class="chart" id="genChart"></canvas>
+          <div class="chart-caption"><span>max generation reached by species</span></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="tip" id="tip">Drag to orbit · scroll to zoom · click a creature</div>
+
+  <div class="modal-bg" id="howModal">
+    <div class="modal">
+      <h2>How Verdant Drift works</h2>
+      <div class="sub">A single-file Three.js artificial-life island. No backend, no APIs.</div>
+
+      <h3>World generation</h3>
+      <p>Each seed drives a deterministic PRNG (mulberry32). A fractal gradient-noise heightmap is radially faded into an island; a second noise field supplies moisture. Biomes — meadow, forest, rock, sand — come from altitude and moisture. Water is flat at sea level with a wavy shader.</p>
+
+      <h3>Resources</h3>
+      <p>Two living resources: <code>plants</code> scattered in moist meadows/forests, <code>algae</code> patches along the shoreline. Both regrow over time, faster when lit by day and near Tide Sprite trails. Dead organisms drop <code>carrion</code> on the terrain, which scavengers consume.</p>
+
+      <h3>Organisms &amp; genome</h3>
+      <p>Every organism carries a genome of 8 floats: <code>size · speed · sense · metabolism · armor · aggression · fertility · nocturnal</code>. The genome shapes the body (scale, legs, spines, head size, tint) and the behavior weights. Each organism has energy, health, age, hunger, fear, and a small memory of its last meal.</p>
+
+      <h3>Decisions</h3>
+      <p>Every tick an organism senses nearby entities via a coarse spatial hash (grid cells sized ~4 units). Based on hunger, fear, and mate-readiness, it chooses a state: <code>wander · forage · flee · pursue · mate · rest</code>. States steer velocity toward a target with simple seek/flee/arrive rules and terrain-following over the heightmap.</p>
+
+      <h3>Reproduction &amp; evolution</h3>
+      <p>Mature organisms with high energy seek a same-species mate. On pair-up, offspring inherit each gene from one parent (uniform crossover) with gaussian mutation (σ≈0.08, clamped to valid ranges). Both parents pay an energy cost; newborns appear between them. No fitness function is imposed — selection emerges from who actually survives to breed.</p>
+
+      <h3>Day / night</h3>
+      <p>A simulated day is 120 seconds of wall-clock time (scaled by speed). The sun orbits the island, sky tint crossfades from dawn → noon → dusk → night. At night: plants regrow more slowly, Leafers prefer rest, and <strong>Stalkers</strong> (and any species with a high nocturnal gene) gain up to 60% extra sense range and +20% speed. This creates a genuine selection pressure across the circadian loop.</p>
+
+      <h3>Population caps &amp; performance</h3>
+      <p>The world holds up to 420 organisms. When a species exceeds its soft cap, reproduction is suppressed for that species until attrition frees room. Rendering uses simple primitive bodies per organism (low poly) — cheap enough for a few hundred creatures on a laptop. Distant orgs reuse simplified materials.</p>
+
+      <h3>What to watch for (≤10 min)</h3>
+      <ul>
+        <li>Leafer size drifts in response to Stalker pressure — predators prefer slower prey, so speed/sense trend up.</li>
+        <li>Stalker populations oscillate in classic predator-prey cycles against Leafers.</li>
+        <li>Tide Sprites niche along the shoreline; their nocturnal gene often drifts to avoid Stalker prime time.</li>
+        <li>Extinctions happen when isolated populations can't find mates — watch the lineage panel for collapse.</li>
+      </ul>
+
+      <div class="close-row"><button class="btn primary" id="btnCloseHow">Got it</button></div>
+    </div>
+  </div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// -------------------- Utilities --------------------
+
+function hashSeed(str) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return (h >>> 0);
+}
+
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return function () {
+    a = (a + 0x6D2B79F5) | 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
+function lerp(a, b, t) { return a + (b - a) * t; }
+function smoothstep(a, b, x) {
+  const t = clamp((x - a) / (b - a), 0, 1);
+  return t * t * (3 - 2 * t);
+}
+
+// Box-Muller gaussian (normal 0..1)
+function gauss(rand) {
+  let u = 0, v = 0;
+  while (u === 0) u = rand();
+  while (v === 0) v = rand();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+
+// -------------------- Noise --------------------
+function createPerlin2D(seed) {
+  const rng = mulberry32(seed);
+  const p = new Uint8Array(256);
+  for (let i = 0; i < 256; i++) p[i] = i;
+  for (let i = 255; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    const t = p[i]; p[i] = p[j]; p[j] = t;
+  }
+  const perm = new Uint8Array(512);
+  for (let i = 0; i < 512; i++) perm[i] = p[i & 255];
+
+  const grad = [
+    [1, 1], [-1, 1], [1, -1], [-1, -1],
+    [1, 0], [-1, 0], [0, 1], [0, -1]
+  ];
+  const fade = (t) => t * t * t * (t * (t * 6 - 15) + 10);
+
+  return function (x, y) {
+    const xi = Math.floor(x) & 255;
+    const yi = Math.floor(y) & 255;
+    const xf = x - Math.floor(x);
+    const yf = y - Math.floor(y);
+    const u = fade(xf), v = fade(yf);
+    const a = perm[xi] + yi;
+    const b = perm[xi + 1] + yi;
+    const g00 = grad[perm[a] & 7];
+    const g10 = grad[perm[b] & 7];
+    const g01 = grad[perm[a + 1] & 7];
+    const g11 = grad[perm[b + 1] & 7];
+    const n00 = g00[0] * xf + g00[1] * yf;
+    const n10 = g10[0] * (xf - 1) + g10[1] * yf;
+    const n01 = g01[0] * xf + g01[1] * (yf - 1);
+    const n11 = g11[0] * (xf - 1) + g11[1] * (yf - 1);
+    return lerp(lerp(n00, n10, u), lerp(n01, n11, u), v);
+  };
+}
+
+function fbm2(noise, x, y, oct = 5, lac = 2.0, gain = 0.5) {
+  let sum = 0, amp = 1, freq = 1, norm = 0;
+  for (let i = 0; i < oct; i++) {
+    sum += amp * noise(x * freq, y * freq);
+    norm += amp;
+    amp *= gain;
+    freq *= lac;
+  }
+  return sum / norm;
+}
+
+// -------------------- World constants --------------------
+
+const WORLD_RADIUS = 58;        // world extends roughly -58..58 in X/Z
+const TERRAIN_RES = 160;        // grid resolution
+const WATER_LEVEL = 0;
+const MAX_HEIGHT = 12;
+
+const SPECIES = {
+  GRAZER: 0,
+  HUNTER: 1,
+  SHORE: 2,
+};
+const SPECIES_NAMES = ['Leafer', 'Stalker', 'Tide Sprite'];
+const SPECIES_COLORS = [0x74e08a, 0xff6a58, 0x62c9ff];
+const SPECIES_CSSCOLORS = ['#74e08a', '#ff6a58', '#62c9ff'];
+
+const POP_CAP_TOTAL = 420;
+const POP_CAP_SPECIES = [180, 60, 110]; // soft caps
+
+const DAY_SECONDS = 120; // 1 simulated day = 120 sim-seconds
+const NOON = 0.25, DUSK = 0.5, MIDNIGHT = 0.75, DAWN = 0;
+
+// -------------------- Terrain --------------------
+
+function generateTerrain(seed) {
+  const heightNoise = createPerlin2D(seed ^ 0x1337);
+  const detailNoise = createPerlin2D(seed ^ 0xfa11);
+  const moistureNoise = createPerlin2D(seed ^ 0xbeef);
+  const N = TERRAIN_RES;
+  const heights = new Float32Array(N * N);
+  const moisture = new Float32Array(N * N);
+  const biome = new Uint8Array(N * N);
+  const pickRng = mulberry32(seed ^ 0x5eed);
+
+  for (let j = 0; j < N; j++) {
+    for (let i = 0; i < N; i++) {
+      const idx = j * N + i;
+      const nx = (i / (N - 1)) * 2 - 1;
+      const ny = (j / (N - 1)) * 2 - 1;
+
+      // Organic island shape — bumpy falloff
+      const r = Math.sqrt(nx * nx + ny * ny);
+      const shoreBump = 0.12 * fbm2(heightNoise, nx * 1.6 + 40, ny * 1.6 + 40, 3);
+      const falloff = clamp(1 - Math.pow((r + shoreBump) / 0.96, 2.3), 0, 1);
+
+      let h = fbm2(heightNoise, nx * 1.4, ny * 1.4, 6, 2.0, 0.52);
+      h = (h + 1) * 0.5;
+      h = Math.pow(h, 1.05);
+      h *= falloff;
+      h += 0.06 * fbm2(detailNoise, nx * 5, ny * 5, 4) * falloff;
+
+      // Depress center slightly for inland valleys
+      h *= 0.85 + 0.15 * fbm2(detailNoise, nx * 0.6 + 12, ny * 0.6 + 12, 2);
+
+      const worldH = h * MAX_HEIGHT - 1.2;
+      heights[idx] = worldH;
+
+      let m = fbm2(moistureNoise, nx * 2.0, ny * 2.0, 4);
+      m = (m + 1) * 0.5;
+      m = clamp(m, 0, 1);
+      moisture[idx] = m;
+
+      // Biome classification
+      // 0 water, 1 sand, 2 meadow, 3 forest, 4 rock, 5 snow
+      let b;
+      if (worldH <= WATER_LEVEL + 0.15) b = 0;
+      else if (worldH < 1.1) b = 1;
+      else if (worldH < 4.5) b = m > 0.52 ? (m > 0.75 ? 3 : 2) : 2;
+      else if (worldH < 8.2) b = m > 0.4 ? 3 : 4;
+      else b = worldH > 10.2 ? 5 : 4;
+      biome[idx] = b;
+    }
+  }
+  return { heights, moisture, biome, size: N, radius: WORLD_RADIUS };
+}
+
+function worldXToGrid(x) { return (x / WORLD_RADIUS + 1) * 0.5 * (TERRAIN_RES - 1); }
+function gridToWorldX(g) { return (g / (TERRAIN_RES - 1) * 2 - 1) * WORLD_RADIUS; }
+
+function heightAt(T, x, z) {
+  const gx = worldXToGrid(x);
+  const gz = worldXToGrid(z);
+  if (gx < 0 || gx >= TERRAIN_RES - 1 || gz < 0 || gz >= TERRAIN_RES - 1) return WATER_LEVEL - 1;
+  const i = Math.floor(gx), j = Math.floor(gz);
+  const fx = gx - i, fz = gz - j;
+  const h00 = T.heights[j * TERRAIN_RES + i];
+  const h10 = T.heights[j * TERRAIN_RES + i + 1];
+  const h01 = T.heights[(j + 1) * TERRAIN_RES + i];
+  const h11 = T.heights[(j + 1) * TERRAIN_RES + i + 1];
+  return lerp(lerp(h00, h10, fx), lerp(h01, h11, fx), fz);
+}
+
+function biomeAt(T, x, z) {
+  const gx = clamp(Math.round(worldXToGrid(x)), 0, TERRAIN_RES - 1);
+  const gz = clamp(Math.round(worldXToGrid(z)), 0, TERRAIN_RES - 1);
+  return T.biome[gz * TERRAIN_RES + gx];
+}
+
+// -------------------- Rendering (scene) --------------------
+
+const viewport = document.getElementById('viewport');
+const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.domElement.classList.add('webgl');
+viewport.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x9ac6d9, 0.010);
+
+const camera = new THREE.PerspectiveCamera(52, window.innerWidth / window.innerHeight, 0.5, 500);
+camera.position.set(48, 42, 62);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.target.set(0, 1.5, 0);
+controls.minDistance = 6;
+controls.maxDistance = 160;
+controls.maxPolarAngle = Math.PI * 0.48;
+
+const ambient = new THREE.AmbientLight(0xbfd7e2, 0.5);
+scene.add(ambient);
+const hemi = new THREE.HemisphereLight(0xbfe3ff, 0x232b20, 0.4);
+scene.add(hemi);
+
+const sunLight = new THREE.DirectionalLight(0xffe8b8, 1.6);
+sunLight.castShadow = true;
+sunLight.shadow.mapSize.set(2048, 2048);
+sunLight.shadow.camera.left = -70;
+sunLight.shadow.camera.right = 70;
+sunLight.shadow.camera.top = 70;
+sunLight.shadow.camera.bottom = -70;
+sunLight.shadow.camera.near = 0.1;
+sunLight.shadow.camera.far = 300;
+sunLight.shadow.bias = -0.0008;
+scene.add(sunLight);
+scene.add(sunLight.target);
+
+const moonLight = new THREE.DirectionalLight(0x5f79b8, 0.0);
+moonLight.castShadow = false;
+scene.add(moonLight);
+scene.add(moonLight.target);
+
+// Sky dome - gradient shader
+const skyGeom = new THREE.SphereGeometry(260, 32, 20);
+const skyMat = new THREE.ShaderMaterial({
+  side: THREE.BackSide,
+  uniforms: {
+    uTop: { value: new THREE.Color(0x0b2140) },
+    uMid: { value: new THREE.Color(0xf4b97a) },
+    uBot: { value: new THREE.Color(0x1a2430) },
+    uSunY: { value: 0.5 },
+    uStarAmt: { value: 0.0 },
+  },
+  vertexShader: `
+    varying vec3 vWorld;
+    void main() {
+      vec4 w = modelMatrix * vec4(position, 1.0);
+      vWorld = normalize(w.xyz);
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: `
+    varying vec3 vWorld;
+    uniform vec3 uTop;
+    uniform vec3 uMid;
+    uniform vec3 uBot;
+    uniform float uSunY;
+    uniform float uStarAmt;
+    float hash(vec3 p) {
+      p = fract(p * 0.3183099 + 0.1);
+      p *= 17.0;
+      return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
+    }
+    void main() {
+      float y = clamp(vWorld.y * 0.5 + 0.5, 0.0, 1.0);
+      vec3 col;
+      if (y > 0.5) col = mix(uMid, uTop, smoothstep(0.5, 1.0, y));
+      else col = mix(uBot, uMid, smoothstep(0.0, 0.5, y));
+      // Subtle sun glow at horizon
+      float hor = smoothstep(0.0, 0.1, 0.1 - abs(vWorld.y - uSunY * 0.15)) * 0.5;
+      col += vec3(1.0, 0.7, 0.4) * hor * uSunY * 0.25;
+      // Stars at night
+      if (uStarAmt > 0.0 && vWorld.y > 0.0) {
+        vec3 sp = vWorld * 220.0;
+        vec3 cell = floor(sp);
+        float h = hash(cell);
+        if (h > 0.9965) {
+          float s = smoothstep(0.9965, 1.0, h);
+          col += vec3(0.9, 0.95, 1.0) * s * uStarAmt * 1.2;
+        }
+      }
+      gl_FragColor = vec4(col, 1.0);
+    }
+  `,
+});
+const sky = new THREE.Mesh(skyGeom, skyMat);
+sky.renderOrder = -10;
+scene.add(sky);
+
+// Sun/moon sprites
+const sunMat = new THREE.SpriteMaterial({ color: 0xfff2c6, transparent: true, opacity: 0.95, depthWrite: false });
+const sunSprite = new THREE.Sprite(sunMat); sunSprite.scale.set(10, 10, 1); scene.add(sunSprite);
+const moonMat = new THREE.SpriteMaterial({ color: 0xdde6ff, transparent: true, opacity: 0.9, depthWrite: false });
+const moonSprite = new THREE.Sprite(moonMat); moonSprite.scale.set(6, 6, 1); scene.add(moonSprite);
+
+// -------------------- World container & objects --------------------
+
+let world = null;   // current world state (terrain mesh, organisms, etc)
+
+function disposeMaterialAndGeometry(obj) {
+  obj.traverse?.((o) => {
+    if (o.isMesh) {
+      o.geometry?.dispose();
+      if (Array.isArray(o.material)) o.material.forEach(m => m?.dispose());
+      else o.material?.dispose();
+    }
+    if (o.isSprite) { o.material?.map?.dispose?.(); o.material?.dispose?.(); }
+  });
+}
+
+function buildTerrainMesh(T) {
+  const size = 2 * WORLD_RADIUS;
+  const geom = new THREE.PlaneGeometry(size, size, TERRAIN_RES - 1, TERRAIN_RES - 1);
+  geom.rotateX(-Math.PI / 2);
+  const pos = geom.attributes.position;
+  const colors = new Float32Array(pos.count * 3);
+  const c = new THREE.Color();
+
+  const BIOME_PALETTE = [
+    new THREE.Color(0x1c3848), // 0 water (won't be used — painted below waterline darker)
+    new THREE.Color(0xdccf95), // 1 sand
+    new THREE.Color(0x5d9b4c), // 2 meadow
+    new THREE.Color(0x335b33), // 3 forest
+    new THREE.Color(0x5f5c52), // 4 rock
+    new THREE.Color(0xe4e8ea), // 5 snow
+  ];
+
+  for (let j = 0; j < TERRAIN_RES; j++) {
+    for (let i = 0; i < TERRAIN_RES; i++) {
+      const idx = j * TERRAIN_RES + i;
+      const h = T.heights[idx];
+      pos.setY(idx, h);
+      const b = T.biome[idx];
+      const base = BIOME_PALETTE[b] || BIOME_PALETTE[2];
+      c.copy(base);
+      // Shade by slope estimate (quick finite diff)
+      const hx = i < TERRAIN_RES - 1 ? T.heights[idx + 1] - h : 0;
+      const hz = j < TERRAIN_RES - 1 ? T.heights[idx + TERRAIN_RES] - h : 0;
+      const slope = Math.min(1, Math.sqrt(hx * hx + hz * hz) * 0.6);
+      c.offsetHSL(0, -0.05 * slope, -0.1 * slope);
+      // Moisture tint
+      if (b === 2 || b === 3) {
+        c.offsetHSL(0, 0.05 * T.moisture[idx], -0.02 * (1 - T.moisture[idx]));
+      }
+      if (b === 1) c.offsetHSL(0, 0, 0.03 * (T.moisture[idx] - 0.5));
+      colors[idx * 3] = c.r;
+      colors[idx * 3 + 1] = c.g;
+      colors[idx * 3 + 2] = c.b;
+    }
+  }
+  geom.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  geom.computeVertexNormals();
+  const mat = new THREE.MeshStandardMaterial({
+    vertexColors: true, roughness: 0.95, metalness: 0.0, flatShading: false, dithering: true,
+  });
+  const mesh = new THREE.Mesh(geom, mat);
+  mesh.receiveShadow = true;
+  return mesh;
+}
+
+function buildWater(T) {
+  const size = 2 * WORLD_RADIUS + 20;
+  const geom = new THREE.PlaneGeometry(size, size, 80, 80);
+  geom.rotateX(-Math.PI / 2);
+  const mat = new THREE.ShaderMaterial({
+    transparent: true,
+    uniforms: {
+      uTime: { value: 0 },
+      uShallow: { value: new THREE.Color(0x7fd3d8) },
+      uDeep: { value: new THREE.Color(0x113949) },
+      uFog: { value: new THREE.Color(0x9ac6d9) },
+      uFogDensity: { value: 0.010 },
+      uNight: { value: 0 },
+    },
+    vertexShader: `
+      uniform float uTime;
+      varying vec3 vPos;
+      varying float vWave;
+      void main() {
+        vec3 p = position;
+        float w =
+          0.08 * sin(p.x * 0.28 + uTime * 1.1) +
+          0.08 * sin(p.z * 0.34 + uTime * 1.4) +
+          0.05 * sin((p.x + p.z) * 0.17 - uTime * 0.9) +
+          0.04 * sin((p.x - p.z) * 0.48 + uTime * 0.6);
+        p.y += w;
+        vWave = w;
+        vec4 wp = modelMatrix * vec4(p, 1.0);
+        vPos = wp.xyz;
+        gl_Position = projectionMatrix * viewMatrix * wp;
+      }
+    `,
+    fragmentShader: `
+      varying vec3 vPos;
+      varying float vWave;
+      uniform vec3 uShallow;
+      uniform vec3 uDeep;
+      uniform vec3 uFog;
+      uniform float uFogDensity;
+      uniform float uNight;
+      void main() {
+        float d = clamp(-vPos.y * 0.35 + 0.3, 0.0, 1.0);
+        vec3 col = mix(uShallow, uDeep, d);
+        float spec = smoothstep(0.04, 0.11, vWave);
+        col += vec3(0.9, 0.95, 1.0) * spec * (1.0 - uNight) * 0.25;
+        col += vec3(0.4, 0.55, 0.8) * spec * uNight * 0.15;
+        col = mix(col * 0.3, col, 1.0 - uNight * 0.55);
+        float dist = length(vPos - cameraPosition);
+        float f = 1.0 - exp(-uFogDensity * uFogDensity * dist * dist);
+        col = mix(col, uFog, clamp(f, 0.0, 0.85));
+        gl_FragColor = vec4(col, 0.88);
+      }
+    `,
+  });
+  const mesh = new THREE.Mesh(geom, mat);
+  mesh.position.y = WATER_LEVEL - 0.05;
+  mesh.receiveShadow = true;
+  return mesh;
+}
+
+// Trees as instanced low-poly cones+cylinders for visual density
+function buildTreesAndRocks(T, seed) {
+  const group = new THREE.Group();
+  const rng = mulberry32(seed ^ 0xdead);
+  // Trees — two geometries (cone canopy + cylinder trunk)
+  const trunkGeom = new THREE.CylinderGeometry(0.14, 0.22, 1.0, 6);
+  const canopyGeom = new THREE.ConeGeometry(0.9, 1.6, 8);
+  const trunkMat = new THREE.MeshStandardMaterial({ color: 0x53331f, roughness: 1.0 });
+  const leafMat = new THREE.MeshStandardMaterial({ color: 0x2e6a36, roughness: 0.95, flatShading: true });
+  const palmLeafMat = new THREE.MeshStandardMaterial({ color: 0x4fae68, roughness: 0.9, flatShading: true });
+
+  const maxTrees = 800;
+  const trunks = new THREE.InstancedMesh(trunkGeom, trunkMat, maxTrees);
+  const canopies = new THREE.InstancedMesh(canopyGeom, leafMat, maxTrees);
+  trunks.castShadow = true; trunks.receiveShadow = true;
+  canopies.castShadow = true; canopies.receiveShadow = true;
+  const tmpM = new THREE.Matrix4(), tmpP = new THREE.Vector3(), tmpS = new THREE.Vector3(), tmpQ = new THREE.Quaternion();
+  let count = 0;
+  for (let k = 0; k < 3200 && count < maxTrees; k++) {
+    const x = (rng() * 2 - 1) * (WORLD_RADIUS - 2);
+    const z = (rng() * 2 - 1) * (WORLD_RADIUS - 2);
+    const b = biomeAt(T, x, z);
+    if (!(b === 2 || b === 3)) continue;
+    // Forest denser than meadow
+    const chance = b === 3 ? 0.9 : 0.25;
+    if (rng() > chance) continue;
+    const h = heightAt(T, x, z);
+    if (h < 0.4) continue;
+    const scale = 0.8 + rng() * 1.3 + (b === 3 ? 0.6 : 0);
+    tmpP.set(x, h, z); tmpS.set(scale, scale * (0.9 + rng() * 0.4), scale); tmpQ.setFromEuler(new THREE.Euler(0, rng() * Math.PI, 0));
+    tmpM.compose(new THREE.Vector3(x, h + 0.5 * tmpS.y, z), tmpQ, tmpS);
+    trunks.setMatrixAt(count, tmpM);
+    tmpM.compose(new THREE.Vector3(x, h + 1.1 * tmpS.y, z), tmpQ, tmpS);
+    canopies.setMatrixAt(count, tmpM);
+    count++;
+  }
+  trunks.count = count;
+  canopies.count = count;
+  trunks.instanceMatrix.needsUpdate = true;
+  canopies.instanceMatrix.needsUpdate = true;
+  group.add(trunks); group.add(canopies);
+
+  // Palms along sand biome
+  const palmTrunkGeom = new THREE.CylinderGeometry(0.08, 0.16, 1, 5);
+  const palmCanopyGeom = new THREE.ConeGeometry(0.7, 0.6, 6, 1, true);
+  const maxPalms = 240;
+  const palmTrunks = new THREE.InstancedMesh(palmTrunkGeom, trunkMat, maxPalms);
+  const palmCanopies = new THREE.InstancedMesh(palmCanopyGeom, palmLeafMat, maxPalms);
+  palmTrunks.castShadow = true; palmCanopies.castShadow = true;
+  let pcount = 0;
+  for (let k = 0; k < 1800 && pcount < maxPalms; k++) {
+    const x = (rng() * 2 - 1) * (WORLD_RADIUS - 1);
+    const z = (rng() * 2 - 1) * (WORLD_RADIUS - 1);
+    const b = biomeAt(T, x, z);
+    if (b !== 1) continue;
+    if (rng() > 0.4) continue;
+    const h = heightAt(T, x, z);
+    if (h < 0.05 || h > 1.3) continue;
+    const scale = 1.4 + rng() * 0.8;
+    const tilt = (rng() - 0.5) * 0.3;
+    tmpQ.setFromEuler(new THREE.Euler(tilt, rng() * Math.PI, tilt));
+    tmpS.set(scale, scale * 1.5, scale);
+    tmpM.compose(new THREE.Vector3(x, h + tmpS.y * 0.5, z), tmpQ, tmpS);
+    palmTrunks.setMatrixAt(pcount, tmpM);
+    tmpM.compose(new THREE.Vector3(x, h + tmpS.y * 1.05, z), tmpQ, new THREE.Vector3(scale * 1.2, scale * 0.4, scale * 1.2));
+    palmCanopies.setMatrixAt(pcount, tmpM);
+    pcount++;
+  }
+  palmTrunks.count = pcount; palmCanopies.count = pcount;
+  palmTrunks.instanceMatrix.needsUpdate = true; palmCanopies.instanceMatrix.needsUpdate = true;
+  group.add(palmTrunks); group.add(palmCanopies);
+
+  // Rocks on rock biome
+  const rockGeom = new THREE.DodecahedronGeometry(0.5, 0);
+  const rockMat = new THREE.MeshStandardMaterial({ color: 0x7b7669, roughness: 1.0, flatShading: true });
+  const maxRocks = 240;
+  const rocks = new THREE.InstancedMesh(rockGeom, rockMat, maxRocks);
+  rocks.castShadow = true; rocks.receiveShadow = true;
+  let rcount = 0;
+  for (let k = 0; k < 1800 && rcount < maxRocks; k++) {
+    const x = (rng() * 2 - 1) * (WORLD_RADIUS - 2);
+    const z = (rng() * 2 - 1) * (WORLD_RADIUS - 2);
+    const b = biomeAt(T, x, z);
+    if (!(b === 4 || b === 5)) continue;
+    if (rng() > 0.3) continue;
+    const h = heightAt(T, x, z);
+    const scale = 0.6 + rng() * 1.5;
+    tmpQ.setFromEuler(new THREE.Euler(rng() * Math.PI, rng() * Math.PI, rng() * Math.PI));
+    tmpS.set(scale, scale * (0.7 + rng() * 0.5), scale);
+    tmpM.compose(new THREE.Vector3(x, h + tmpS.y * 0.3, z), tmpQ, tmpS);
+    rocks.setMatrixAt(rcount, tmpM);
+    rcount++;
+  }
+  rocks.count = rcount; rocks.instanceMatrix.needsUpdate = true;
+  group.add(rocks);
+
+  return group;
+}
+
+// -------------------- Resources (plants, algae) --------------------
+// Plants live on the terrain surface. They're rendered as small billboards (InstancedMesh of a simple plane with a circular pattern),
+// but using a simple tinted cylinder for performance and clarity.
+
+const MAX_PLANTS = 900;
+const MAX_ALGAE = 300;
+
+function buildPlantResources(T, seed) {
+  const rng = mulberry32(seed ^ 0x91a1);
+  const g = new THREE.Group();
+
+  // Plant geometry: little cone for stalk and sphere leaf
+  const plantGeom = new THREE.ConeGeometry(0.22, 0.55, 5);
+  const plantMat = new THREE.MeshStandardMaterial({ color: 0xa2de5a, emissive: 0x162a0b, roughness: 0.9, flatShading: true });
+  const plants = new THREE.InstancedMesh(plantGeom, plantMat, MAX_PLANTS);
+  plants.castShadow = false; plants.receiveShadow = true;
+  plants.count = 0;
+  plants.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(MAX_PLANTS * 3), 3);
+
+  // Algae as thin disks on shore
+  const algaeGeom = new THREE.CircleGeometry(0.55, 8);
+  algaeGeom.rotateX(-Math.PI / 2);
+  const algaeMat = new THREE.MeshStandardMaterial({ color: 0x9bd8a7, roughness: 0.9, transparent: true, opacity: 0.9 });
+  const algae = new THREE.InstancedMesh(algaeGeom, algaeMat, MAX_ALGAE);
+  algae.count = 0;
+
+  g.add(plants);
+  g.add(algae);
+
+  return { group: g, plants, algae, rng };
+}
+
+// -------------------- Body geometry cache per species (reused, scaled per organism) --------------------
+
+const sharedGeoms = {
+  // Leafer: rounded body + head + 4 legs
+  grazerBody: new THREE.CapsuleGeometry(0.55, 0.4, 4, 10),
+  grazerHead: new THREE.SphereGeometry(0.3, 10, 8),
+  grazerLeg: new THREE.CylinderGeometry(0.07, 0.05, 0.45, 5),
+  grazerEar: new THREE.ConeGeometry(0.1, 0.22, 6),
+  // Stalker: elongated body, big head, four legs with claws
+  hunterBody: new THREE.CapsuleGeometry(0.42, 0.9, 4, 10),
+  hunterHead: new THREE.ConeGeometry(0.38, 0.5, 7),
+  hunterLeg: new THREE.CylinderGeometry(0.08, 0.05, 0.55, 5),
+  hunterTail: new THREE.ConeGeometry(0.12, 0.7, 5),
+  // Sprite: small diamond body with fins
+  shoreBody: new THREE.OctahedronGeometry(0.38, 0),
+  shoreFin: new THREE.ConeGeometry(0.22, 0.5, 3),
+  shoreTail: new THREE.ConeGeometry(0.14, 0.35, 3),
+  // Generic
+  baby: new THREE.SphereGeometry(0.2, 8, 6),
+  spike: new THREE.ConeGeometry(0.12, 0.3, 4),
+};
+
+// -------------------- Genome --------------------
+const GENE_NAMES = ['size', 'speed', 'sense', 'metabolism', 'armor', 'aggression', 'fertility', 'nocturnal'];
+
+function randGenome(rng, species) {
+  // Base ranges 0..1
+  const g = {
+    size: clamp(0.4 + gauss(rng) * 0.1, 0.18, 1.0),
+    speed: clamp(0.5 + gauss(rng) * 0.12, 0.15, 1.0),
+    sense: clamp(0.5 + gauss(rng) * 0.1, 0.1, 1.0),
+    metabolism: clamp(0.5 + gauss(rng) * 0.1, 0.15, 1.0),
+    armor: clamp(0.25 + gauss(rng) * 0.1, 0.0, 1.0),
+    aggression: clamp(0.25 + gauss(rng) * 0.1, 0.0, 1.0),
+    fertility: clamp(0.5 + gauss(rng) * 0.1, 0.2, 1.0),
+    nocturnal: clamp(0.4 + gauss(rng) * 0.15, 0.0, 1.0),
+  };
+  // Species biases
+  if (species === SPECIES.HUNTER) {
+    g.aggression = clamp(0.6 + gauss(rng) * 0.1, 0.3, 1.0);
+    g.size = clamp(0.55 + gauss(rng) * 0.1, 0.35, 1.0);
+    g.speed = clamp(0.6 + gauss(rng) * 0.1, 0.3, 1.0);
+    g.nocturnal = clamp(0.6 + gauss(rng) * 0.15, 0.25, 1.0);
+  } else if (species === SPECIES.SHORE) {
+    g.speed = clamp(0.65 + gauss(rng) * 0.1, 0.35, 1.0);
+    g.size = clamp(0.3 + gauss(rng) * 0.08, 0.15, 0.6);
+    g.sense = clamp(0.6 + gauss(rng) * 0.1, 0.3, 1.0);
+  } else {
+    g.metabolism = clamp(0.45 + gauss(rng) * 0.1, 0.2, 1.0);
+  }
+  return g;
+}
+
+function crossoverGenome(a, b, rng) {
+  const c = {};
+  for (const k of GENE_NAMES) c[k] = (rng() < 0.5 ? a[k] : b[k]);
+  return c;
+}
+
+function mutateGenome(g, rng, sigma = 0.08) {
+  const m = {};
+  for (const k of GENE_NAMES) {
+    const lo = 0.0, hi = 1.0;
+    m[k] = clamp(g[k] + gauss(rng) * sigma, lo, hi);
+  }
+  // Size minimums so bodies don't vanish
+  m.size = clamp(m.size, 0.12, 1.0);
+  m.speed = clamp(m.speed, 0.05, 1.0);
+  return m;
+}
+
+// -------------------- Organism --------------------
+
+const STATES = {
+  WANDER: 'wander',
+  FORAGE: 'forage',
+  FLEE: 'flee',
+  PURSUE: 'pursue',
+  MATE: 'mate',
+  REST: 'rest',
+};
+
+let NEXT_ID = 1;
+
+class Organism {
+  constructor(species, pos, genome, gen = 1, parents = []) {
+    this.id = NEXT_ID++;
+    this.species = species;
+    this.genome = genome;
+    this.pos = pos.clone();
+    this.vel = new THREE.Vector3();
+    this.heading = Math.random() * Math.PI * 2;
+    this.state = STATES.WANDER;
+    this.target = null;     // reference to another organism or {type:'plant', idx} etc
+    this.targetPos = null;  // static position
+    this.age = 0;
+    this.maxAge = 55 + genome.size * 30 + genome.armor * 15 + Math.random() * 10;
+    this.energy = 1.0;
+    this.health = 1.0;
+    this.hunger = 0.3;
+    this.fear = 0.0;
+    this.matingCooldown = 0;
+    this.matureAt = 9.0 * (0.7 + genome.size * 0.8);
+    this.reproCount = 0;
+    this.gen = gen;
+    this.parents = parents;
+    this.alive = true;
+    this.dieReason = null;
+    this.buildMesh();
+  }
+
+  buildMesh() {
+    this.mesh = new THREE.Group();
+    const g = this.genome;
+    const size = 0.65 + g.size * 0.85;
+    const baseColor = new THREE.Color(SPECIES_COLORS[this.species]);
+    // Color mutation: tint by traits
+    const hsl = {};
+    baseColor.getHSL(hsl);
+    const hueShift = (g.nocturnal - 0.5) * 0.08 + (g.aggression - 0.5) * 0.04;
+    const satShift = 0.05 - g.armor * 0.12;
+    const litShift = 0.04 - g.armor * 0.15 + g.nocturnal * -0.1;
+    baseColor.setHSL(
+      (hsl.h + hueShift + 1) % 1,
+      clamp(hsl.s + satShift, 0.25, 1.0),
+      clamp(hsl.l + litShift, 0.15, 0.75)
+    );
+    const bodyMat = new THREE.MeshStandardMaterial({
+      color: baseColor, roughness: 0.85, flatShading: true,
+      metalness: g.armor * 0.25,
+    });
+    this.bodyMat = bodyMat;
+    this.baseColor = baseColor.clone();
+
+    const limbColor = new THREE.Color(baseColor).offsetHSL(0, 0, -0.18);
+    const limbMat = new THREE.MeshStandardMaterial({ color: limbColor, roughness: 0.9, flatShading: true });
+    this.limbMat = limbMat;
+
+    if (this.species === SPECIES.GRAZER) {
+      const body = new THREE.Mesh(sharedGeoms.grazerBody, bodyMat);
+      body.scale.set(size, size * 0.85, size);
+      body.rotation.z = Math.PI / 2;
+      body.castShadow = true;
+      this.mesh.add(body); this.body = body;
+
+      const head = new THREE.Mesh(sharedGeoms.grazerHead, bodyMat);
+      const headSize = size * (0.65 + g.aggression * 0.25);
+      head.position.set(size * 0.55, size * 0.25, 0);
+      head.scale.setScalar(headSize);
+      head.castShadow = true;
+      this.mesh.add(head); this.head = head;
+
+      // Ears
+      const earL = new THREE.Mesh(sharedGeoms.grazerEar, bodyMat);
+      earL.position.set(size * 0.55, size * 0.7, size * 0.15);
+      earL.rotation.x = -0.2;
+      earL.scale.set(size * 0.8, size * 0.5 + g.sense * 0.8, size * 0.8);
+      this.mesh.add(earL);
+      const earR = earL.clone(); earR.position.z = -size * 0.15; this.mesh.add(earR);
+
+      // Legs (4)
+      this.legs = [];
+      for (let i = 0; i < 4; i++) {
+        const leg = new THREE.Mesh(sharedGeoms.grazerLeg, limbMat);
+        const fx = i < 2 ? 1 : -1;
+        const fz = (i % 2 === 0) ? 1 : -1;
+        const legLen = size * (0.55 + g.speed * 0.6);
+        leg.position.set(fx * size * 0.35, -size * 0.05 - legLen * 0.5, fz * size * 0.3);
+        leg.scale.y = legLen;
+        leg.castShadow = true;
+        this.mesh.add(leg);
+        this.legs.push(leg);
+      }
+      // Spines for armor
+      if (g.armor > 0.55) {
+        const n = 2 + Math.floor(g.armor * 3);
+        for (let i = 0; i < n; i++) {
+          const s = new THREE.Mesh(sharedGeoms.spike, limbMat);
+          s.position.set((Math.random() - 0.5) * size * 0.8, size * 0.7, (Math.random() - 0.5) * size * 0.6);
+          s.scale.setScalar(size * 0.6 * g.armor);
+          this.mesh.add(s);
+        }
+      }
+    } else if (this.species === SPECIES.HUNTER) {
+      const body = new THREE.Mesh(sharedGeoms.hunterBody, bodyMat);
+      body.scale.set(size * 0.9, size * 0.8, size * 0.9);
+      body.rotation.z = Math.PI / 2;
+      body.castShadow = true;
+      this.mesh.add(body); this.body = body;
+
+      const head = new THREE.Mesh(sharedGeoms.hunterHead, bodyMat);
+      const headSize = size * (0.7 + g.aggression * 0.4);
+      head.position.set(size * 0.9, size * 0.25, 0);
+      head.rotation.z = -Math.PI / 2;
+      head.scale.set(headSize, headSize * 1.4, headSize);
+      head.castShadow = true;
+      this.mesh.add(head); this.head = head;
+
+      const tail = new THREE.Mesh(sharedGeoms.hunterTail, bodyMat);
+      tail.position.set(-size * 0.9, size * 0.2, 0);
+      tail.rotation.z = Math.PI / 2;
+      tail.scale.setScalar(size * 0.9);
+      this.mesh.add(tail); this.tail = tail;
+
+      this.legs = [];
+      for (let i = 0; i < 4; i++) {
+        const leg = new THREE.Mesh(sharedGeoms.hunterLeg, limbMat);
+        const fx = i < 2 ? 0.6 : -0.6;
+        const fz = (i % 2 === 0) ? 1 : -1;
+        const legLen = size * (0.6 + g.speed * 0.7);
+        leg.position.set(fx * size, -size * 0.05 - legLen * 0.5, fz * size * 0.3);
+        leg.scale.y = legLen;
+        leg.castShadow = true;
+        this.mesh.add(leg);
+        this.legs.push(leg);
+      }
+      // Back spines for high aggression
+      if (g.aggression > 0.6) {
+        for (let i = 0; i < 3; i++) {
+          const s = new THREE.Mesh(sharedGeoms.spike, limbMat);
+          s.position.set(-size * 0.1 + i * size * 0.3, size * 0.55, 0);
+          s.scale.setScalar(size * 0.5 * g.aggression);
+          this.mesh.add(s);
+        }
+      }
+    } else {
+      // Sprite
+      const body = new THREE.Mesh(sharedGeoms.shoreBody, bodyMat);
+      body.scale.set(size, size * 0.6, size * 0.9);
+      body.castShadow = true;
+      this.mesh.add(body); this.body = body;
+
+      const finL = new THREE.Mesh(sharedGeoms.shoreFin, bodyMat);
+      finL.position.set(0, 0, size * 0.45);
+      finL.rotation.x = Math.PI / 2;
+      finL.scale.set(size * 0.8, size * (0.8 + g.speed * 0.6), size * 0.6);
+      this.mesh.add(finL);
+      const finR = finL.clone(); finR.position.z = -size * 0.45; finR.rotation.x = -Math.PI / 2; this.mesh.add(finR);
+      this.fins = [finL, finR];
+
+      const tail = new THREE.Mesh(sharedGeoms.shoreTail, bodyMat);
+      tail.position.set(-size * 0.55, 0, 0);
+      tail.rotation.z = Math.PI / 2;
+      tail.scale.setScalar(size * 0.9);
+      this.mesh.add(tail); this.tail = tail;
+    }
+
+    // small "baby" halo indicator when young
+    this.mesh.position.copy(this.pos);
+    this.mesh.userData.orgId = this.id;
+  }
+
+  setHunterColorNight(on) {
+    if (this.species !== SPECIES.HUNTER) return;
+    // Subtle glow-shift at night
+    const c = this.baseColor.clone();
+    if (on) c.offsetHSL(0.04, 0.1, 0.03);
+    this.bodyMat.color.copy(c);
+  }
+}
+
+// -------------------- Spatial grid --------------------
+
+class SpatialGrid {
+  constructor(size, cell) {
+    this.cell = cell;
+    this.size = size;
+    this.dim = Math.ceil((size * 2) / cell) + 1;
+    this.buckets = new Map();
+  }
+  key(x, z) {
+    const i = Math.floor((x + this.size) / this.cell);
+    const j = Math.floor((z + this.size) / this.cell);
+    return i * 10007 + j;
+  }
+  clear() { this.buckets.clear(); }
+  insert(org) {
+    const k = this.key(org.pos.x, org.pos.z);
+    let b = this.buckets.get(k);
+    if (!b) { b = []; this.buckets.set(k, b); }
+    b.push(org);
+  }
+  queryRadius(x, z, r, out) {
+    const r2 = r * r;
+    const minI = Math.floor((x - r + this.size) / this.cell);
+    const maxI = Math.floor((x + r + this.size) / this.cell);
+    const minJ = Math.floor((z - r + this.size) / this.cell);
+    const maxJ = Math.floor((z + r + this.size) / this.cell);
+    for (let i = minI; i <= maxI; i++) {
+      for (let j = minJ; j <= maxJ; j++) {
+        const k = i * 10007 + j;
+        const b = this.buckets.get(k);
+        if (!b) continue;
+        for (const o of b) {
+          const dx = o.pos.x - x; const dz = o.pos.z - z;
+          if (dx * dx + dz * dz <= r2) out.push(o);
+        }
+      }
+    }
+  }
+}
+
+// -------------------- World state --------------------
+
+class World {
+  constructor(seedStr) {
+    this.seedStr = seedStr;
+    this.seed = hashSeed(seedStr);
+    this.rng = mulberry32(this.seed);
+    this.terrain = generateTerrain(this.seed);
+    this.time = 0;
+    this.dayTime = 0.25; // start around noon
+    this.dayCount = 0;
+    this.lastDayFrac = this.dayTime;
+    this.organisms = [];
+    this.nextPlantIdx = 0;
+    this.births = 0;
+    this.deaths = 0;
+    this.births1m = [];
+    this.deaths1m = [];
+    this.maxGen = [1, 1, 1];
+    this.grid = new SpatialGrid(WORLD_RADIUS + 10, 5);
+    this.plantPositions = [];    // {x,y,z,energy,alive,matrixIdx}
+    this.algaePositions = [];
+    this.carrion = []; // {pos, energy, species}
+    this.events = [];
+
+    // Build scene objects
+    this.root = new THREE.Group();
+    this.terrainMesh = buildTerrainMesh(this.terrain); this.root.add(this.terrainMesh);
+    this.waterMesh = buildWater(this.terrain); this.root.add(this.waterMesh);
+    this.scenery = buildTreesAndRocks(this.terrain, this.seed); this.root.add(this.scenery);
+    this.resources = buildPlantResources(this.terrain, this.seed); this.root.add(this.resources.group);
+
+    // Carrion as small instanced markers
+    const carrionGeom = new THREE.SphereGeometry(0.2, 5, 4);
+    const carrionMat = new THREE.MeshStandardMaterial({ color: 0x7a2b1a, roughness: 0.9, flatShading: true });
+    this.carrionMesh = new THREE.InstancedMesh(carrionGeom, carrionMat, 80);
+    this.carrionMesh.count = 0;
+    this.root.add(this.carrionMesh);
+
+    this.organismGroup = new THREE.Group();
+    this.root.add(this.organismGroup);
+
+    // Seeded nutrient field
+    this.seedPlants();
+    this.seedAlgae();
+    this.seedOrganisms();
+
+    // Log
+    this.logEvent('world', `Island seeded (${seedStr})`);
+  }
+
+  seedPlants() {
+    const rng = this.rng;
+    const T = this.terrain;
+    for (let k = 0; k < 2400 && this.plantPositions.length < MAX_PLANTS; k++) {
+      const x = (rng() * 2 - 1) * (WORLD_RADIUS - 2);
+      const z = (rng() * 2 - 1) * (WORLD_RADIUS - 2);
+      const b = biomeAt(T, x, z);
+      if (!(b === 2 || b === 3)) continue;
+      const m = T.moisture[Math.round(worldXToGrid(z)) * TERRAIN_RES + Math.round(worldXToGrid(x))] || 0.5;
+      if (rng() > 0.4 + m * 0.4) continue;
+      const y = heightAt(T, x, z);
+      this.plantPositions.push({ x, y, z, alive: true, energy: 1.0, age: rng() * 20, biome: b });
+    }
+    this.syncPlantInstances();
+  }
+
+  syncPlantInstances() {
+    const plants = this.resources.plants;
+    const tmp = new THREE.Matrix4();
+    const tmpP = new THREE.Vector3();
+    const tmpQ = new THREE.Quaternion().identity();
+    const tmpS = new THREE.Vector3();
+    const col = new THREE.Color();
+    let c = 0;
+    for (const p of this.plantPositions) {
+      if (!p.alive) continue;
+      tmpP.set(p.x, p.y + 0.18 * p.energy, p.z);
+      const s = 0.8 + p.energy * 0.6;
+      tmpS.set(s, s, s);
+      tmp.compose(tmpP, tmpQ, tmpS);
+      plants.setMatrixAt(c, tmp);
+      col.setHSL(0.28 - p.energy * 0.05, 0.55 + p.energy * 0.2, 0.25 + p.energy * 0.25);
+      plants.instanceColor.setXYZ(c, col.r, col.g, col.b);
+      c++;
+      if (c >= MAX_PLANTS) break;
+    }
+    plants.count = c;
+    plants.instanceMatrix.needsUpdate = true;
+    plants.instanceColor.needsUpdate = true;
+  }
+
+  seedAlgae() {
+    const rng = this.rng;
+    const T = this.terrain;
+    for (let k = 0; k < 2000 && this.algaePositions.length < MAX_ALGAE; k++) {
+      const x = (rng() * 2 - 1) * (WORLD_RADIUS - 1);
+      const z = (rng() * 2 - 1) * (WORLD_RADIUS - 1);
+      const b = biomeAt(T, x, z);
+      if (b !== 1) continue;
+      const h = heightAt(T, x, z);
+      if (h < -0.2 || h > 0.4) continue;
+      if (rng() > 0.28) continue;
+      this.algaePositions.push({ x, y: Math.max(h + 0.01, WATER_LEVEL + 0.005), z, alive: true, energy: 1.0 });
+    }
+    this.syncAlgaeInstances();
+  }
+
+  syncAlgaeInstances() {
+    const algae = this.resources.algae;
+    const tmp = new THREE.Matrix4();
+    const tmpP = new THREE.Vector3();
+    const tmpQ = new THREE.Quaternion().identity();
+    const tmpS = new THREE.Vector3();
+    let c = 0;
+    for (const p of this.algaePositions) {
+      if (!p.alive) continue;
+      tmpP.set(p.x, p.y, p.z);
+      const s = 0.8 + p.energy * 0.6;
+      tmpS.set(s, 1, s);
+      tmp.compose(tmpP, tmpQ, tmpS);
+      algae.setMatrixAt(c, tmp);
+      c++;
+      if (c >= MAX_ALGAE) break;
+    }
+    algae.count = c;
+    algae.instanceMatrix.needsUpdate = true;
+  }
+
+  syncCarrion() {
+    const m = this.carrionMesh;
+    const tmp = new THREE.Matrix4();
+    const tmpP = new THREE.Vector3();
+    const tmpQ = new THREE.Quaternion().identity();
+    const tmpS = new THREE.Vector3(1, 1, 1);
+    let c = 0;
+    for (const p of this.carrion) {
+      if (p.energy <= 0) continue;
+      tmpP.copy(p.pos);
+      const s = 0.7 + p.energy * 0.6;
+      tmpS.set(s, s * 0.7, s);
+      tmp.compose(tmpP, tmpQ, tmpS);
+      m.setMatrixAt(c, tmp); c++;
+      if (c >= 80) break;
+    }
+    m.count = c;
+    m.instanceMatrix.needsUpdate = true;
+  }
+
+  seedOrganisms() {
+    const rng = this.rng;
+    const T = this.terrain;
+    const tryPlaceOn = (pred, maxTries = 100) => {
+      for (let t = 0; t < maxTries; t++) {
+        const x = (rng() * 2 - 1) * (WORLD_RADIUS - 3);
+        const z = (rng() * 2 - 1) * (WORLD_RADIUS - 3);
+        const b = biomeAt(T, x, z);
+        const h = heightAt(T, x, z);
+        if (pred(b, h)) return new THREE.Vector3(x, h, z);
+      }
+      return null;
+    };
+    // Leafers: 45, in meadow/forest
+    for (let i = 0; i < 45; i++) {
+      const pos = tryPlaceOn((b, h) => (b === 2 || b === 3) && h > 0.5);
+      if (!pos) continue;
+      const gn = randGenome(rng, SPECIES.GRAZER);
+      this.spawn(new Organism(SPECIES.GRAZER, pos, gn, 1, []));
+    }
+    // Stalkers: 10, rockier
+    for (let i = 0; i < 10; i++) {
+      const pos = tryPlaceOn((b, h) => (b === 3 || b === 4) && h > 0.8);
+      if (!pos) continue;
+      const gn = randGenome(rng, SPECIES.HUNTER);
+      this.spawn(new Organism(SPECIES.HUNTER, pos, gn, 1, []));
+    }
+    // Sprites: 25, shoreline
+    for (let i = 0; i < 25; i++) {
+      const pos = tryPlaceOn((b, h) => b === 1 && h < 1.2 && h > -0.1);
+      if (!pos) continue;
+      const gn = randGenome(rng, SPECIES.SHORE);
+      this.spawn(new Organism(SPECIES.SHORE, pos, gn, 1, []));
+    }
+  }
+
+  spawn(org) {
+    this.organisms.push(org);
+    this.organismGroup.add(org.mesh);
+  }
+
+  logEvent(kind, text) {
+    this.events.push({ t: this.time, kind, text });
+    if (this.events.length > 240) this.events.splice(0, this.events.length - 240);
+  }
+
+  // Perception radius for an organism, factoring in gene + night bonus
+  perceptionRadius(org, nightAmt) {
+    const base = 5 + org.genome.sense * 16;
+    const nightBoost = 1 + org.genome.nocturnal * nightAmt * 0.6;
+    return base * nightBoost;
+  }
+
+  // Resolve movement to terrain surface
+  groundPosAt(x, z) {
+    const h = heightAt(this.terrain, x, z);
+    return Math.max(h, WATER_LEVEL - 0.3);
+  }
+
+  countSpecies() {
+    const out = [0, 0, 0];
+    for (const o of this.organisms) out[o.species]++;
+    return out;
+  }
+
+  tickResources(dt, dayAmt) {
+    // Plants regrow and respawn slowly
+    for (const p of this.plantPositions) {
+      if (!p.alive) {
+        p.age += dt;
+        if (p.age > 16 && Math.random() < 0.02 * dt) { p.alive = true; p.energy = 0.2; p.age = 0; }
+        continue;
+      }
+      const grow = 0.04 * dt * (0.5 + dayAmt * 0.9);
+      p.energy = clamp(p.energy + grow, 0, 1);
+      p.age += dt;
+    }
+    // Algae regrow a little slower
+    for (const a of this.algaePositions) {
+      if (!a.alive) {
+        a.age = (a.age || 0) + dt;
+        if (a.age > 22 && Math.random() < 0.02 * dt) { a.alive = true; a.energy = 0.25; a.age = 0; }
+        continue;
+      }
+      a.energy = clamp(a.energy + 0.035 * dt, 0, 1);
+    }
+    // Decay carrion
+    for (const c of this.carrion) c.energy -= 0.05 * dt;
+    this.carrion = this.carrion.filter(c => c.energy > 0.03);
+  }
+
+  // Try to reproduce — called when two mature organisms meet close
+  tryReproduce(a, b) {
+    if (a.species !== b.species) return null;
+    if (!a.alive || !b.alive) return null;
+    if (a.matingCooldown > 0 || b.matingCooldown > 0) return null;
+    if (a.age < a.matureAt || b.age < b.matureAt) return null;
+    const need = 0.55;
+    if (a.energy < need || b.energy < need) return null;
+    // Fertility roll
+    const fert = (a.genome.fertility + b.genome.fertility) * 0.5;
+    if (Math.random() > 0.55 + fert * 0.4) return null;
+
+    // Species cap check
+    const counts = this.countSpecies();
+    if (counts[a.species] >= POP_CAP_SPECIES[a.species]) return null;
+    if (this.organisms.length >= POP_CAP_TOTAL) return null;
+
+    const child = crossoverGenome(a.genome, b.genome, Math.random);
+    const mutated = mutateGenome(child, Math.random, 0.08);
+    // Offspring born between parents
+    const pos = new THREE.Vector3(
+      (a.pos.x + b.pos.x) * 0.5 + (Math.random() - 0.5) * 1.2,
+      0,
+      (a.pos.z + b.pos.z) * 0.5 + (Math.random() - 0.5) * 1.2,
+    );
+    pos.y = this.groundPosAt(pos.x, pos.z);
+    const gen = Math.max(a.gen, b.gen) + 1;
+    const baby = new Organism(a.species, pos, mutated, gen, [a.id, b.id]);
+    baby.energy = 0.6;
+    baby.age = 0;
+    this.spawn(baby);
+    a.energy -= 0.3; b.energy -= 0.3;
+    a.matingCooldown = 6; b.matingCooldown = 6;
+    a.reproCount++; b.reproCount++;
+    this.births++;
+    this.births1m.push(this.time);
+    this.maxGen[a.species] = Math.max(this.maxGen[a.species], gen);
+    // Mutation event detection — large deltas
+    let maxDelta = 0; let maxKey = null;
+    for (const k of GENE_NAMES) {
+      const d = Math.abs(mutated[k] - ((a.genome[k] + b.genome[k]) * 0.5));
+      if (d > maxDelta) { maxDelta = d; maxKey = k; }
+    }
+    if (maxDelta > 0.12) {
+      this.logEvent('mutate', `${SPECIES_NAMES[a.species]} gen ${gen}: ${maxKey} drifted ${(maxDelta * 100).toFixed(0)}%`);
+    }
+    return baby;
+  }
+
+  // Called when org dies — drop carrion
+  handleDeath(org, reason) {
+    if (!org.alive) return;
+    org.alive = false;
+    org.dieReason = reason;
+    this.deaths++;
+    this.deaths1m.push(this.time);
+    // Carrion
+    if (reason !== 'eaten') {
+      this.carrion.push({ pos: org.pos.clone(), energy: 0.6 + org.genome.size * 0.4, species: org.species });
+    }
+    this.organismGroup.remove(org.mesh);
+    disposeMaterialAndGeometry(org.mesh);
+    if (this.selectedOrgId === org.id) this.selectedOrgId = null;
+    if (reason && (reason === 'eaten' || reason === 'starved' || reason === 'aged')) {
+      this.logEvent('death', `${SPECIES_NAMES[org.species]} #${org.id} ${reason} (g${org.gen}, age ${org.age.toFixed(0)}s)`);
+    }
+  }
+
+  update(dt) {
+    if (dt <= 0) return;
+    this.time += dt;
+    // day time
+    this.dayTime += dt / DAY_SECONDS;
+    while (this.dayTime >= 1) { this.dayTime -= 1; this.dayCount++; this.logEvent('world', `Day ${this.dayCount} begins`); }
+    const nightAmt = this.nightAmount(); // 0..1
+    const dayAmt = 1 - nightAmt;
+
+    this.tickResources(dt, dayAmt);
+
+    // Build spatial grid
+    this.grid.clear();
+    for (const o of this.organisms) if (o.alive) this.grid.insert(o);
+
+    // Tick each organism
+    const tmpNeighbors = [];
+    for (const org of this.organisms) {
+      if (!org.alive) continue;
+      this.tickOrganism(org, dt, nightAmt, dayAmt, tmpNeighbors);
+    }
+
+    // Cull dead
+    this.organisms = this.organisms.filter(o => {
+      if (!o.alive) return false;
+      return true;
+    });
+
+    // Sync instance meshes
+    this.syncPlantInstances();
+    this.syncAlgaeInstances();
+    this.syncCarrion();
+
+    // Trim 1m windows
+    const cutoff = this.time - 60;
+    while (this.births1m.length && this.births1m[0] < cutoff) this.births1m.shift();
+    while (this.deaths1m.length && this.deaths1m[0] < cutoff) this.deaths1m.shift();
+
+    // Extinctions
+    const counts = this.countSpecies();
+    for (let s = 0; s < 3; s++) {
+      const was = this._lastCounts ? this._lastCounts[s] : counts[s];
+      if (was > 0 && counts[s] === 0) this.logEvent('extinct', `${SPECIES_NAMES[s]} went extinct at t=${this.time.toFixed(0)}s`);
+    }
+    this._lastCounts = counts;
+  }
+
+  nightAmount() {
+    // day phase 0..1: 0 = dawn, 0.25 noon, 0.5 dusk, 0.75 midnight
+    const t = this.dayTime;
+    // d: 0 at noon, 1 at midnight (smooth cosine)
+    const d = 0.5 - 0.5 * Math.cos(2 * Math.PI * ((t - 0.25 + 1) % 1));
+    return clamp(smoothstep(0.35, 0.92, d), 0, 1);
+  }
+
+  tickOrganism(org, dt, nightAmt, dayAmt, neighborsOut) {
+    org.age += dt;
+    org.matingCooldown = Math.max(0, org.matingCooldown - dt);
+    // Metabolism: energy drain
+    const burn = 0.011 * (0.4 + org.genome.metabolism) * (0.9 + org.genome.speed * 0.6);
+    org.energy -= burn * dt;
+    // State-derived activity: when at rest, burn less
+    if (org.state === STATES.REST) org.energy += burn * dt * 0.6;
+
+    // Nocturnal preference: if active against your preference, pay a small cost
+    const prefDay = 1 - org.genome.nocturnal;
+    const activeness = (1 - (org.state === STATES.REST ? 1 : 0));
+    const timeCostBase = Math.abs(dayAmt - prefDay);
+    org.energy -= 0.006 * timeCostBase * activeness * dt;
+
+    // Hunger / fear update
+    org.hunger = clamp(1 - org.energy, 0, 1);
+    org.fear *= Math.exp(-dt * 0.5);
+
+    // Perception
+    const radius = this.perceptionRadius(org, nightAmt);
+    neighborsOut.length = 0;
+    this.grid.queryRadius(org.pos.x, org.pos.z, radius, neighborsOut);
+
+    let nearestPred = null, nearestPredDist = Infinity;
+    let nearestPrey = null, nearestPreyDist = Infinity;
+    let nearestMate = null, nearestMateDist = Infinity;
+    for (const n of neighborsOut) {
+      if (n === org || !n.alive) continue;
+      const dx = n.pos.x - org.pos.x, dz = n.pos.z - org.pos.z;
+      const d2 = dx * dx + dz * dz;
+      if (n.species === SPECIES.HUNTER && org.species !== SPECIES.HUNTER) {
+        if (d2 < nearestPredDist) { nearestPredDist = d2; nearestPred = n; }
+      }
+      if (org.species === SPECIES.HUNTER && (n.species === SPECIES.GRAZER || n.species === SPECIES.SHORE)) {
+        // Prefer grazers unless sprite much closer
+        const weight = n.species === SPECIES.GRAZER ? 1 : 1.6;
+        if (d2 * weight < nearestPreyDist) { nearestPreyDist = d2 * weight; nearestPrey = n; }
+      }
+      if (n.species === org.species && n !== org && n.alive && n.age >= n.matureAt && org.age >= org.matureAt && n.matingCooldown <= 0 && org.matingCooldown <= 0 && n.energy > 0.5 && org.energy > 0.5) {
+        if (d2 < nearestMateDist) { nearestMateDist = d2; nearestMate = n; }
+      }
+    }
+
+    // Choose state
+    let state = STATES.WANDER;
+    const hungerDrive = org.hunger;
+    const predatorFear = nearestPred ? Math.max(0, 1 - Math.sqrt(nearestPredDist) / radius) : 0;
+
+    if (predatorFear > 0.45 && org.species !== SPECIES.HUNTER) {
+      state = STATES.FLEE;
+      org.target = nearestPred;
+      org.fear = Math.max(org.fear, predatorFear);
+    } else if (org.species === SPECIES.HUNTER && nearestPrey && hungerDrive > 0.15) {
+      state = STATES.PURSUE;
+      org.target = nearestPrey;
+    } else if (nearestMate && hungerDrive < 0.4 && org.matingCooldown <= 0) {
+      state = STATES.MATE;
+      org.target = nearestMate;
+    } else if (hungerDrive > 0.25) {
+      state = STATES.FORAGE;
+      org.target = null;
+      // Find food target
+      if (org.species === SPECIES.GRAZER) {
+        // Find nearest plant
+        const p = this.findNearestPlant(org.pos, Math.max(radius, 18));
+        if (p) org.targetPos = new THREE.Vector3(p.x, p.y, p.z), org.target = { type: 'plant', p };
+      } else if (org.species === SPECIES.SHORE) {
+        // Algae or carrion
+        const a = this.findNearestAlgae(org.pos, Math.max(radius, 18));
+        const c = this.findNearestCarrion(org.pos, Math.max(radius, 18));
+        let chosen = null;
+        if (a && (!c || a._d < c._d)) chosen = { type: 'algae', p: a, pos: new THREE.Vector3(a.x, a.y, a.z) };
+        else if (c) chosen = { type: 'carrion', c, pos: c.pos };
+        if (chosen) { org.target = chosen; org.targetPos = chosen.pos; }
+      } else {
+        // Hunter w/o prey → roam
+        state = STATES.WANDER;
+      }
+    }
+
+    // Night rest preference for non-nocturnal
+    if (state === STATES.WANDER && nightAmt > 0.65 && org.genome.nocturnal < 0.35 && org.energy > 0.4) {
+      state = STATES.REST;
+    }
+    // Day rest for strong nocturnal
+    if (state === STATES.WANDER && dayAmt > 0.7 && org.genome.nocturnal > 0.75 && org.energy > 0.4) {
+      state = STATES.REST;
+    }
+
+    org.state = state;
+
+    // Act: compute desired velocity
+    const speedBase = 2.0 + org.genome.speed * 4.5; // m/s
+    let speedMul = 1.0;
+    if (state === STATES.FLEE) speedMul = 1.35;
+    if (state === STATES.PURSUE) speedMul = 1.2;
+    if (state === STATES.REST) speedMul = 0.2;
+    // Night boost for nocturnal
+    if (nightAmt > 0.3 && org.genome.nocturnal > 0.55) speedMul *= 1 + 0.2 * nightAmt * org.genome.nocturnal;
+    const speed = speedBase * speedMul * (0.5 + 0.5 * (org.health));
+
+    const desired = new THREE.Vector3();
+
+    if (state === STATES.FLEE && nearestPred) {
+      desired.set(org.pos.x - nearestPred.pos.x, 0, org.pos.z - nearestPred.pos.z).normalize();
+    } else if (state === STATES.PURSUE && nearestPrey) {
+      desired.set(nearestPrey.pos.x - org.pos.x, 0, nearestPrey.pos.z - org.pos.z).normalize();
+    } else if (state === STATES.MATE && nearestMate) {
+      desired.set(nearestMate.pos.x - org.pos.x, 0, nearestMate.pos.z - org.pos.z).normalize();
+    } else if (state === STATES.FORAGE && org.targetPos) {
+      desired.set(org.targetPos.x - org.pos.x, 0, org.targetPos.z - org.pos.z);
+      const len = desired.length();
+      if (len > 0.001) desired.multiplyScalar(1 / len); else desired.set(0, 0, 0);
+    } else if (state === STATES.REST) {
+      desired.set(0, 0, 0);
+    } else {
+      // Wander — Perlin-ish heading drift
+      org.heading += (Math.random() - 0.5) * dt * 2.2;
+      // Push away from water if on land species
+      if (org.species !== SPECIES.SHORE) {
+        const ahead = new THREE.Vector3(org.pos.x + Math.cos(org.heading) * 3, 0, org.pos.z + Math.sin(org.heading) * 3);
+        const h = heightAt(this.terrain, ahead.x, ahead.z);
+        if (h < 0.2) org.heading += Math.PI * 0.5 + (Math.random() - 0.5) * 0.5;
+      } else {
+        // Sprites prefer shore (biome 1)
+        const ahead = new THREE.Vector3(org.pos.x + Math.cos(org.heading) * 3, 0, org.pos.z + Math.sin(org.heading) * 3);
+        const h = heightAt(this.terrain, ahead.x, ahead.z);
+        if (h > 1.8 || h < -0.3) org.heading += Math.PI * 0.6 + (Math.random() - 0.5) * 0.4;
+      }
+      desired.set(Math.cos(org.heading), 0, Math.sin(org.heading));
+    }
+    desired.multiplyScalar(speed);
+
+    // Apply to velocity (smooth)
+    org.vel.x = lerp(org.vel.x, desired.x, clamp(dt * 3.5, 0, 1));
+    org.vel.z = lerp(org.vel.z, desired.z, clamp(dt * 3.5, 0, 1));
+
+    org.pos.x += org.vel.x * dt;
+    org.pos.z += org.vel.z * dt;
+    // World bounds
+    const maxR = WORLD_RADIUS - 1;
+    const r = Math.sqrt(org.pos.x * org.pos.x + org.pos.z * org.pos.z);
+    if (r > maxR) {
+      org.pos.x *= maxR / r;
+      org.pos.z *= maxR / r;
+      org.heading += Math.PI;
+      org.vel.multiplyScalar(-0.3);
+    }
+    // Terrain follow
+    const hGround = heightAt(this.terrain, org.pos.x, org.pos.z);
+    let targetY = hGround + 0.35 + org.genome.size * 0.4;
+    if (org.species === SPECIES.SHORE && hGround < WATER_LEVEL) targetY = WATER_LEVEL + 0.05;
+    org.pos.y = lerp(org.pos.y, targetY, clamp(dt * 6, 0, 1));
+
+    // Mesh transform
+    org.mesh.position.copy(org.pos);
+    const vH = Math.atan2(org.vel.z, org.vel.x);
+    if (org.vel.lengthSq() > 0.2) {
+      org.mesh.rotation.y = lerp(org.mesh.rotation.y, -vH + Math.PI / 2, clamp(dt * 6, 0, 1));
+    }
+    // Simple bob — legs/fins animate
+    const bob = Math.sin(this.time * (5 + org.genome.speed * 5) + org.id) * 0.06 * Math.min(1, org.vel.length() / 3);
+    org.mesh.position.y += bob;
+
+    // Handle interactions
+    if (state === STATES.FORAGE && org.target && org.targetPos) {
+      const dx = org.targetPos.x - org.pos.x, dz = org.targetPos.z - org.pos.z;
+      const d2 = dx * dx + dz * dz;
+      if (d2 < 0.9) {
+        if (org.target.type === 'plant' && org.target.p.alive && org.target.p.energy > 0.1) {
+          const eat = Math.min(0.4 * dt * 3, org.target.p.energy);
+          org.target.p.energy -= eat * 1.4;
+          org.energy = Math.min(1.2, org.energy + eat * 1.2);
+          if (org.target.p.energy <= 0.03) { org.target.p.alive = false; org.target.p.age = 0; }
+        } else if (org.target.type === 'algae' && org.target.p.alive && org.target.p.energy > 0.1) {
+          const eat = Math.min(0.35 * dt * 3, org.target.p.energy);
+          org.target.p.energy -= eat * 1.2;
+          org.energy = Math.min(1.2, org.energy + eat);
+          if (org.target.p.energy <= 0.03) { org.target.p.alive = false; org.target.p.age = 0; }
+          // Sprites fertilize nearby plants (nutrient wake)
+          if (Math.random() < dt * 0.4) this.nudgePlantGrowth(org.pos.x, org.pos.z, 6);
+        } else if (org.target.type === 'carrion' && org.target.c.energy > 0.05) {
+          const eat = Math.min(0.4 * dt, org.target.c.energy);
+          org.target.c.energy -= eat;
+          org.energy = Math.min(1.2, org.energy + eat * 1.3);
+        } else {
+          org.target = null; org.targetPos = null;
+        }
+      }
+    }
+
+    if (state === STATES.PURSUE && nearestPrey) {
+      const dx = nearestPrey.pos.x - org.pos.x, dz = nearestPrey.pos.z - org.pos.z;
+      const d2 = dx * dx + dz * dz;
+      const reach = 0.75 + org.genome.size * 0.4 + nearestPrey.genome.size * 0.4;
+      if (d2 < reach * reach) {
+        // Attack
+        const atk = (0.5 + org.genome.aggression * 0.5 + org.genome.size * 0.3) * dt * 3;
+        const def = (0.2 + nearestPrey.genome.armor * 0.9 + nearestPrey.genome.size * 0.25);
+        const dmg = Math.max(0.02, atk - def * 0.6);
+        nearestPrey.health -= dmg;
+        if (nearestPrey.health <= 0) {
+          org.energy = Math.min(1.4, org.energy + 0.55 + nearestPrey.genome.size * 0.4);
+          this.handleDeath(nearestPrey, 'eaten');
+          this.logEvent('death', `${SPECIES_NAMES[nearestPrey.species]} eaten by Stalker #${org.id}`);
+        }
+      }
+    }
+
+    if (state === STATES.MATE && nearestMate) {
+      const dx = nearestMate.pos.x - org.pos.x, dz = nearestMate.pos.z - org.pos.z;
+      const d2 = dx * dx + dz * dz;
+      if (d2 < 1.2) {
+        const baby = this.tryReproduce(org, nearestMate);
+        if (baby) this.logEvent('birth', `${SPECIES_NAMES[org.species]} #${baby.id} born (gen ${baby.gen})`);
+      }
+    }
+
+    // Health regen when well-fed and not hunted
+    if (org.energy > 0.8 && org.fear < 0.2 && org.health < 1) {
+      org.health = Math.min(1, org.health + 0.05 * dt);
+    }
+    // Damage from hunger
+    if (org.energy < 0.05) {
+      org.health -= 0.1 * dt;
+    }
+
+    // Death
+    if (org.health <= 0 || org.energy <= -0.05 || org.age >= org.maxAge) {
+      let reason = 'aged';
+      if (org.energy <= -0.05) reason = 'starved';
+      else if (org.health <= 0) reason = 'died';
+      this.handleDeath(org, reason);
+    }
+  }
+
+  nudgePlantGrowth(x, z, r) {
+    const r2 = r * r;
+    for (const p of this.plantPositions) {
+      const dx = p.x - x, dz = p.z - z;
+      if (dx * dx + dz * dz < r2) {
+        if (!p.alive) { if (Math.random() < 0.5) { p.alive = true; p.energy = 0.3; p.age = 0; } }
+        else p.energy = clamp(p.energy + 0.05, 0, 1);
+      }
+    }
+  }
+
+  findNearestPlant(pos, r) {
+    let best = null, bd = Infinity;
+    const r2 = r * r;
+    // Sample a subset for speed
+    const step = 3;
+    const start = (Math.random() * step) | 0;
+    for (let i = start; i < this.plantPositions.length; i += step) {
+      const p = this.plantPositions[i];
+      if (!p.alive || p.energy < 0.12) continue;
+      const dx = p.x - pos.x, dz = p.z - pos.z;
+      const d2 = dx * dx + dz * dz;
+      if (d2 < r2 && d2 < bd) { bd = d2; best = p; }
+    }
+    return best;
+  }
+
+  findNearestAlgae(pos, r) {
+    let best = null, bd = Infinity;
+    const r2 = r * r;
+    for (const p of this.algaePositions) {
+      if (!p.alive || p.energy < 0.12) continue;
+      const dx = p.x - pos.x, dz = p.z - pos.z;
+      const d2 = dx * dx + dz * dz;
+      if (d2 < r2 && d2 < bd) { bd = d2; best = p; }
+    }
+    if (best) best._d = Math.sqrt(bd);
+    return best;
+  }
+
+  findNearestCarrion(pos, r) {
+    let best = null, bd = Infinity;
+    const r2 = r * r;
+    for (const c of this.carrion) {
+      if (c.energy <= 0.05) continue;
+      const dx = c.pos.x - pos.x, dz = c.pos.z - pos.z;
+      const d2 = dx * dx + dz * dz;
+      if (d2 < r2 && d2 < bd) { bd = d2; best = c; }
+    }
+    if (best) best._d = Math.sqrt(bd);
+    return best;
+  }
+
+  dispose() {
+    disposeMaterialAndGeometry(this.root);
+    scene.remove(this.root);
+  }
+}
+
+// -------------------- Main loop & lighting --------------------
+
+function updateLighting(dayTime, nightAmt) {
+  // Sun orbit — sun angle = 0 at dawn (east), pi at dusk (west), behind horizon at night
+  const sunAngle = (dayTime - 0.25) * Math.PI * 2;
+  const sunH = Math.sin(dayTime * Math.PI * 2); // +1 noon, -1 midnight
+  const R = 200;
+  const sunPos = new THREE.Vector3(Math.cos(sunAngle) * R, sunH * R * 0.9, Math.sin(sunAngle) * R * 0.5);
+  sunLight.position.copy(sunPos);
+  sunLight.target.position.set(0, 0, 0);
+  sunLight.target.updateMatrixWorld();
+
+  const moonPos = new THREE.Vector3(-sunPos.x, -sunH * R * 0.9, -sunPos.z);
+  moonLight.position.copy(moonPos);
+  moonLight.target.position.set(0, 0, 0);
+  moonLight.target.updateMatrixWorld();
+
+  const sunVisible = sunH > -0.05;
+  const moonVisible = sunH < 0.1;
+
+  sunSprite.position.copy(sunPos).multiplyScalar(0.8);
+  sunSprite.visible = sunVisible;
+  moonSprite.position.copy(moonPos).multiplyScalar(0.8);
+  moonSprite.visible = moonVisible;
+
+  // Light intensity / color
+  const dayAmt = 1 - nightAmt;
+  const sunInt = Math.max(0, sunH) * 1.4 + 0.1;
+  sunLight.intensity = sunInt * dayAmt + 0.05;
+  const warm = new THREE.Color().setHSL(0.09 + dayAmt * 0.02, 0.8, 0.6);
+  const cool = new THREE.Color().setHSL(0.65, 0.6, 0.3);
+  sunLight.color.copy(warm).lerp(cool, smoothstep(0.25, 0.55, nightAmt));
+  moonLight.intensity = nightAmt * 0.45;
+  ambient.intensity = 0.3 + dayAmt * 0.25;
+  hemi.intensity = 0.25 + dayAmt * 0.25;
+
+  // Sky colors
+  const topDay = new THREE.Color(0x6fb3e2);
+  const midDay = new THREE.Color(0xdfe8ee);
+  const botDay = new THREE.Color(0xb0c7cf);
+  const topSunset = new THREE.Color(0x25294a);
+  const midSunset = new THREE.Color(0xf18957);
+  const botSunset = new THREE.Color(0x74202e);
+  const topNight = new THREE.Color(0x020412);
+  const midNight = new THREE.Color(0x0a1426);
+  const botNight = new THREE.Color(0x030710);
+
+  // Dawn/dusk are around nightAmt ~ 0.4-0.6
+  const sunset = smoothstep(0.2, 0.5, nightAmt) * (1 - smoothstep(0.55, 0.85, nightAmt));
+  const night = smoothstep(0.5, 0.9, nightAmt);
+  const day = clamp(1 - sunset - night, 0, 1);
+  const mixCol = (a, b, c, wa, wb, wc) => {
+    return new THREE.Color(
+      a.r * wa + b.r * wb + c.r * wc,
+      a.g * wa + b.g * wb + c.g * wc,
+      a.b * wa + b.b * wb + c.b * wc,
+    );
+  };
+  skyMat.uniforms.uTop.value.copy(mixCol(topDay, topSunset, topNight, day, sunset, night));
+  skyMat.uniforms.uMid.value.copy(mixCol(midDay, midSunset, midNight, day, sunset, night));
+  skyMat.uniforms.uBot.value.copy(mixCol(botDay, botSunset, botNight, day, sunset, night));
+  skyMat.uniforms.uSunY.value = clamp(sunH * 0.5 + 0.5, 0, 1);
+  skyMat.uniforms.uStarAmt.value = nightAmt;
+
+  // Fog
+  const fogDay = new THREE.Color(0xa7cfde);
+  const fogSunset = new THREE.Color(0xb0614b);
+  const fogNight = new THREE.Color(0x0b1626);
+  scene.fog.color.copy(mixCol(fogDay, fogSunset, fogNight, day, sunset, night));
+  scene.fog.density = 0.012 + nightAmt * 0.006;
+
+  if (world && world.waterMesh) {
+    world.waterMesh.material.uniforms.uFog.value.copy(scene.fog.color);
+    world.waterMesh.material.uniforms.uFogDensity.value = scene.fog.density;
+    world.waterMesh.material.uniforms.uNight.value = nightAmt;
+  }
+}
+
+// -------------------- UI and charts --------------------
+
+const UI = {
+  metrics: {
+    day: document.getElementById('mDay'),
+    time: document.getElementById('mTime'),
+    grazer: document.getElementById('mGrazer'),
+    hunter: document.getElementById('mHunter'),
+    shore: document.getElementById('mShore'),
+    plants: document.getElementById('mPlants'),
+    births: document.getElementById('mBirths'),
+  },
+  seedCode: document.getElementById('seedCode'),
+  genCode: document.getElementById('genCode'),
+  speedOut: document.getElementById('speedOut'),
+  speedSlider: document.getElementById('speedSlider'),
+  eventLog: document.getElementById('eventLog'),
+  eventCount: document.getElementById('eventCount'),
+  inspectorCard: document.getElementById('inspectorCard'),
+  snapshotKv: document.getElementById('snapshotKv'),
+  popChart: document.getElementById('popChart'),
+  rateChart: document.getElementById('rateChart'),
+  traitGrazer: document.getElementById('traitGrazer'),
+  traitHunter: document.getElementById('traitHunter'),
+  traitShore: document.getElementById('traitShore'),
+  genChart: document.getElementById('genChart'),
+};
+
+function setupDPI(canvas) {
+  const ctx = canvas.getContext('2d');
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  function resize() {
+    const r = canvas.getBoundingClientRect();
+    canvas.width = Math.max(1, Math.floor(r.width * dpr));
+    canvas.height = Math.max(1, Math.floor(r.height * dpr));
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  resize();
+  return { ctx, resize, dpr };
+}
+
+const popChartCtx = setupDPI(UI.popChart);
+const rateChartCtx = setupDPI(UI.rateChart);
+const traitGrazerCtx = setupDPI(UI.traitGrazer);
+const traitHunterCtx = setupDPI(UI.traitHunter);
+const traitShoreCtx = setupDPI(UI.traitShore);
+const genChartCtx = setupDPI(UI.genChart);
+
+window.addEventListener('resize', () => {
+  popChartCtx.resize(); rateChartCtx.resize();
+  traitGrazerCtx.resize(); traitHunterCtx.resize(); traitShoreCtx.resize();
+  genChartCtx.resize();
+});
+
+// History buffers
+const HIST_MAX_POINTS = 300;
+const history = {
+  time: [],
+  grazer: [],
+  hunter: [],
+  shore: [],
+  plants: [],
+  births: [],
+  deaths: [],
+  trait: {
+    0: { size: [], speed: [], sense: [], armor: [] },
+    1: { size: [], speed: [], sense: [], aggression: [] },
+    2: { size: [], speed: [], sense: [], nocturnal: [] },
+  },
+  genMax: [[], [], []],
+};
+
+function pushHistoryTick() {
+  if (!world) return;
+  const t = world.time;
+  const counts = world.countSpecies();
+  const plants = world.plantPositions.reduce((n, p) => p.alive ? n + 1 : n, 0);
+
+  const buckets = [
+    { count: 0, size: 0, speed: 0, sense: 0, armor: 0, aggression: 0, nocturnal: 0 },
+    { count: 0, size: 0, speed: 0, sense: 0, armor: 0, aggression: 0, nocturnal: 0 },
+    { count: 0, size: 0, speed: 0, sense: 0, armor: 0, aggression: 0, nocturnal: 0 },
+  ];
+  for (const o of world.organisms) {
+    const s = o.species;
+    buckets[s].count++;
+    buckets[s].size += o.genome.size;
+    buckets[s].speed += o.genome.speed;
+    buckets[s].sense += o.genome.sense;
+    buckets[s].armor += o.genome.armor;
+    buckets[s].aggression += o.genome.aggression;
+    buckets[s].nocturnal += o.genome.nocturnal;
+  }
+
+  for (let s = 0; s < 3; s++) {
+    const b = buckets[s]; const n = Math.max(1, b.count);
+    const avg = {
+      size: b.size / n, speed: b.speed / n, sense: b.sense / n,
+      armor: b.armor / n, aggression: b.aggression / n, nocturnal: b.nocturnal / n
+    };
+    const tr = history.trait[s];
+    const key4 = s === 0 ? 'armor' : s === 1 ? 'aggression' : 'nocturnal';
+    tr.size.push(avg.size);
+    tr.speed.push(avg.speed);
+    tr.sense.push(avg.sense);
+    tr[key4].push(avg[key4]);
+    while (tr.size.length > HIST_MAX_POINTS) {
+      tr.size.shift(); tr.speed.shift(); tr.sense.shift(); tr[key4].shift();
+    }
+    history.genMax[s].push(world.maxGen[s]);
+    while (history.genMax[s].length > HIST_MAX_POINTS) history.genMax[s].shift();
+  }
+
+  history.time.push(t);
+  history.grazer.push(counts[0]);
+  history.hunter.push(counts[1]);
+  history.shore.push(counts[2]);
+  history.plants.push(plants);
+  history.births.push(world.births1m.length);
+  history.deaths.push(world.deaths1m.length);
+  while (history.time.length > HIST_MAX_POINTS) {
+    history.time.shift();
+    history.grazer.shift();
+    history.hunter.shift();
+    history.shore.shift();
+    history.plants.shift();
+    history.births.shift();
+    history.deaths.shift();
+  }
+}
+
+function drawLineChart(ctxObj, series, options = {}) {
+  const canvas = ctxObj.ctx.canvas;
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  if (w === 0 || h === 0) return;
+  // Resize backing store if client dims changed
+  const dpr = ctxObj.dpr;
+  const targetW = Math.max(1, Math.floor(w * dpr));
+  const targetH = Math.max(1, Math.floor(h * dpr));
+  if (canvas.width !== targetW || canvas.height !== targetH) {
+    canvas.width = targetW; canvas.height = targetH;
+    ctxObj.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  const ctx = ctxObj.ctx;
+  ctx.clearRect(0, 0, w, h);
+  // BG grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let i = 0; i < 4; i++) {
+    const y = (h - 4) * (i / 3) + 2;
+    ctx.moveTo(0, y); ctx.lineTo(w, y);
+  }
+  ctx.stroke();
+
+  let maxV = options.max ?? 0;
+  for (const s of series) {
+    for (const v of s.data) if (v > maxV) maxV = v;
+  }
+  maxV = Math.max(maxV, 1);
+  const padY = 4;
+  const padX = 2;
+
+  for (const s of series) {
+    const data = s.data;
+    if (!data.length) continue;
+    ctx.beginPath();
+    ctx.lineWidth = s.w || 1.5;
+    ctx.strokeStyle = s.color;
+    if (s.fill) ctx.fillStyle = s.fill;
+    const stride = Math.max(1, data.length - 1);
+    for (let i = 0; i < data.length; i++) {
+      const x = padX + (i / stride) * (w - padX * 2);
+      const y = h - padY - (data[i] / maxV) * (h - padY * 2);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    if (s.fill) {
+      ctx.lineTo(w - padX, h - padY);
+      ctx.lineTo(padX, h - padY);
+      ctx.closePath();
+      ctx.fill();
+      ctx.beginPath();
+      for (let i = 0; i < data.length; i++) {
+        const x = padX + (i / stride) * (w - padX * 2);
+        const y = h - padY - (data[i] / maxV) * (h - padY * 2);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    } else {
+      ctx.stroke();
+    }
+  }
+  // Legend axis label
+  ctx.fillStyle = 'rgba(255,255,255,0.45)';
+  ctx.font = '10px Inter, system-ui';
+  ctx.fillText(String(Math.round(maxV)), 4, 10);
+}
+
+function drawCharts() {
+  drawLineChart(popChartCtx, [
+    { data: history.plants, color: 'rgba(120,200,120,0.35)', fill: 'rgba(120,200,120,0.10)', w: 1 },
+    { data: history.grazer, color: SPECIES_CSSCOLORS[0], w: 2 },
+    { data: history.hunter, color: SPECIES_CSSCOLORS[1], w: 2 },
+    { data: history.shore, color: SPECIES_CSSCOLORS[2], w: 2 },
+  ]);
+
+  drawLineChart(rateChartCtx, [
+    { data: history.births, color: '#74e08a', w: 2 },
+    { data: history.deaths, color: '#ff6a58', w: 2 },
+  ]);
+
+  const traits0 = history.trait[0];
+  drawLineChart(traitGrazerCtx, [
+    { data: traits0.size, color: '#ffd27a', w: 1.5 },
+    { data: traits0.speed, color: '#b79bff', w: 1.5 },
+    { data: traits0.sense, color: '#62c9ff', w: 1.5 },
+    { data: traits0.armor, color: '#ff6a58', w: 1.5 },
+  ], { max: 1 });
+  const traits1 = history.trait[1];
+  drawLineChart(traitHunterCtx, [
+    { data: traits1.size, color: '#ffd27a', w: 1.5 },
+    { data: traits1.speed, color: '#b79bff', w: 1.5 },
+    { data: traits1.sense, color: '#62c9ff', w: 1.5 },
+    { data: traits1.aggression, color: '#ff6a58', w: 1.5 },
+  ], { max: 1 });
+  const traits2 = history.trait[2];
+  drawLineChart(traitShoreCtx, [
+    { data: traits2.size, color: '#ffd27a', w: 1.5 },
+    { data: traits2.speed, color: '#b79bff', w: 1.5 },
+    { data: traits2.sense, color: '#62c9ff', w: 1.5 },
+    { data: traits2.nocturnal, color: '#ff6a58', w: 1.5 },
+  ], { max: 1 });
+
+  drawLineChart(genChartCtx, [
+    { data: history.genMax[0], color: SPECIES_CSSCOLORS[0], w: 2 },
+    { data: history.genMax[1], color: SPECIES_CSSCOLORS[1], w: 2 },
+    { data: history.genMax[2], color: SPECIES_CSSCOLORS[2], w: 2 },
+  ]);
+}
+
+function renderPopLegend() {
+  const el = document.getElementById('popLegend');
+  el.innerHTML = `
+    <div class="spec-row"><div class="spec-dot grazer"></div><div class="spec-info"><strong>Leafers</strong> <em id="popLegendG">0</em></div></div>
+    <div class="spec-row"><div class="spec-dot hunter"></div><div class="spec-info"><strong>Stalkers</strong> <em id="popLegendH">0</em></div></div>
+    <div class="spec-row"><div class="spec-dot shore"></div><div class="spec-info"><strong>Tide Sprites</strong> <em id="popLegendS">0</em></div></div>
+  `;
+}
+renderPopLegend();
+
+function renderEvents() {
+  if (!world) return;
+  const list = world.events.slice(-24).reverse();
+  UI.eventCount.textContent = world.events.length;
+  UI.eventLog.innerHTML = list.map(e => {
+    const tm = e.t.toFixed(1);
+    return `<div class="ev ${e.kind}"><span class="t">${tm}s</span><span class="k">${e.text}</span></div>`;
+  }).join('');
+}
+
+function renderInspector() {
+  if (!world) return;
+  const id = world.selectedOrgId;
+  const el = UI.inspectorCard;
+  if (!id) {
+    el.innerHTML = '<div class="hint">Click an organism to inspect its traits, state, energy, lineage, and recent decisions. Selection follows the creature until it dies.</div>';
+    return;
+  }
+  const org = world.organisms.find(o => o.id === id);
+  if (!org || !org.alive) {
+    el.innerHTML = '<div class="hint">Target organism is no longer alive. Click another.</div>';
+    return;
+  }
+  const g = org.genome;
+  const colorHex = SPECIES_CSSCOLORS[org.species];
+  const pct = (v) => `${Math.round(v * 100)}`;
+  const pctBar = (v) => `<span class="bar"><i style="width:${Math.round(v * 100)}%;background:${colorHex}"></i></span>`;
+  el.innerHTML = `
+    <div class="inspector">
+      <div class="inspector-header">
+        <span class="dot" style="background:${colorHex}"></span>
+        <h4>${SPECIES_NAMES[org.species]} #${org.id}</h4>
+        <span class="state-chip" style="margin-left:auto">${org.state}</span>
+      </div>
+      <dl class="kv">
+        <dt>Gen</dt><dd>${org.gen}</dd>
+        <dt>Age</dt><dd>${org.age.toFixed(1)}s / ${org.maxAge.toFixed(0)}s</dd>
+        <dt>Energy</dt><dd>${pct(org.energy)}% ${pctBar(clamp(org.energy, 0, 1))}</dd>
+        <dt>Health</dt><dd>${pct(org.health)}% ${pctBar(clamp(org.health, 0, 1))}</dd>
+        <dt>Hunger</dt><dd>${pct(org.hunger)}% ${pctBar(org.hunger)}</dd>
+        <dt>Fear</dt><dd>${pct(org.fear)}% ${pctBar(org.fear)}</dd>
+        <dt>Children</dt><dd>${org.reproCount}</dd>
+      </dl>
+      <div>
+        <div class="hint" style="margin-bottom:4px">Genome</div>
+        <dl class="kv">
+          <dt>size</dt><dd>${pct(g.size)}% ${pctBar(g.size)}</dd>
+          <dt>speed</dt><dd>${pct(g.speed)}% ${pctBar(g.speed)}</dd>
+          <dt>sense</dt><dd>${pct(g.sense)}% ${pctBar(g.sense)}</dd>
+          <dt>metab</dt><dd>${pct(g.metabolism)}% ${pctBar(g.metabolism)}</dd>
+          <dt>armor</dt><dd>${pct(g.armor)}% ${pctBar(g.armor)}</dd>
+          <dt>aggr</dt><dd>${pct(g.aggression)}% ${pctBar(g.aggression)}</dd>
+          <dt>fert</dt><dd>${pct(g.fertility)}% ${pctBar(g.fertility)}</dd>
+          <dt>noct</dt><dd>${pct(g.nocturnal)}% ${pctBar(g.nocturnal)}</dd>
+        </dl>
+      </div>
+      <div class="hint">Parents: ${(org.parents && org.parents.length) ? org.parents.join(' · ') : '(ancestral)'} </div>
+    </div>
+  `;
+}
+
+function renderSnapshot() {
+  if (!world) return;
+  const counts = world.countSpecies();
+  const avgAge = [0, 0, 0], cnt = [0, 0, 0];
+  for (const o of world.organisms) { avgAge[o.species] += o.age; cnt[o.species]++; }
+  for (let s = 0; s < 3; s++) avgAge[s] = cnt[s] > 0 ? avgAge[s] / cnt[s] : 0;
+  const el = UI.snapshotKv;
+  el.innerHTML = `
+    <dt>Leafers</dt><dd>${counts[0]} · avg age ${avgAge[0].toFixed(1)}s · gen ${world.maxGen[0]}</dd>
+    <dt>Stalkers</dt><dd>${counts[1]} · avg age ${avgAge[1].toFixed(1)}s · gen ${world.maxGen[1]}</dd>
+    <dt>Tide Sprites</dt><dd>${counts[2]} · avg age ${avgAge[2].toFixed(1)}s · gen ${world.maxGen[2]}</dd>
+    <dt>Total births</dt><dd>${world.births}</dd>
+    <dt>Total deaths</dt><dd>${world.deaths}</dd>
+    <dt>Plants alive</dt><dd>${world.plantPositions.reduce((n, p) => p.alive ? n + 1 : n, 0)}</dd>
+    <dt>Algae alive</dt><dd>${world.algaePositions.reduce((n, p) => p.alive ? n + 1 : n, 0)}</dd>
+  `;
+}
+
+// -------------------- Selection (raycasting) --------------------
+
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+
+renderer.domElement.addEventListener('click', (e) => {
+  const rect = renderer.domElement.getBoundingClientRect();
+  pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+  pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+  raycaster.setFromCamera(pointer, camera);
+  if (!world) return;
+  const hits = raycaster.intersectObjects(world.organismGroup.children, true);
+  if (hits.length) {
+    let o = hits[0].object;
+    while (o && o.userData.orgId === undefined) o = o.parent;
+    if (o && o.userData.orgId) {
+      world.selectedOrgId = o.userData.orgId;
+      // Show inspect tab
+      setLeftTab('inspect');
+      renderInspector();
+    }
+  }
+});
+
+// -------------------- Tabs --------------------
+
+function setLeftTab(name) {
+  const parent = document.getElementById('leftBody');
+  for (const b of document.getElementById('leftTabs').children) {
+    b.classList.toggle('active', b.dataset.tab === name);
+  }
+  for (const c of parent.children) c.hidden = c.dataset.tab !== name;
+}
+function setRightTab(name) {
+  const parent = document.getElementById('rightBody');
+  for (const b of document.getElementById('rightTabs').children) {
+    b.classList.toggle('active', b.dataset.tab === name);
+  }
+  for (const c of parent.children) c.hidden = c.dataset.tab !== name;
+}
+document.getElementById('leftTabs').addEventListener('click', (e) => {
+  if (e.target.dataset?.tab) setLeftTab(e.target.dataset.tab);
+});
+document.getElementById('rightTabs').addEventListener('click', (e) => {
+  if (e.target.dataset?.tab) {
+    setRightTab(e.target.dataset.tab);
+    requestAnimationFrame(() => drawCharts());
+  }
+});
+
+// -------------------- Speed / inputs --------------------
+
+let simSpeed = 1.0;
+function setSpeed(v) {
+  simSpeed = clamp(v, 0, 8);
+  UI.speedSlider.value = simSpeed;
+  UI.speedOut.textContent = simSpeed === 0 ? 'Paused' : `${simSpeed.toFixed(1)}×`;
+  for (const b of document.querySelectorAll('.speed-chips button')) {
+    b.classList.toggle('active', Math.abs(Number(b.dataset.speed) - simSpeed) < 0.05);
+  }
+}
+UI.speedSlider.addEventListener('input', () => setSpeed(Number(UI.speedSlider.value)));
+for (const b of document.querySelectorAll('.speed-chips button')) {
+  b.addEventListener('click', () => setSpeed(Number(b.dataset.speed)));
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.code === 'Space') { e.preventDefault(); setSpeed(simSpeed > 0 ? 0 : 1); }
+  else if (e.key === '1') setSpeed(1);
+  else if (e.key === '2') setSpeed(2);
+  else if (e.key === '3') setSpeed(4);
+  else if (e.key === '4') setSpeed(8);
+  else if (e.key === '5') setSpeed(0.5);
+});
+
+// -------------------- World lifecycle --------------------
+
+function randomSeed() {
+  const adjectives = ['bright', 'hidden', 'humble', 'wild', 'verdant', 'tidal', 'ember', 'salt', 'stone', 'moss'];
+  const nouns = ['atoll', 'drift', 'cove', 'reef', 'isle', 'basin', 'shoal', 'cape', 'shelf', 'bluff'];
+  const rng = mulberry32(Date.now() & 0xfffff);
+  return `${adjectives[Math.floor(rng() * adjectives.length)]}-${nouns[Math.floor(rng() * nouns.length)]}-${(Date.now() % 9000 + 1000).toString().padStart(4, '0')}`;
+}
+
+let currentSeedStr = null;
+function loadWorld(seedStr) {
+  if (world) {
+    world.dispose();
+    world = null;
+  }
+  currentSeedStr = seedStr;
+  document.getElementById('seedInput').placeholder = seedStr;
+  UI.seedCode.textContent = seedStr;
+  world = new World(seedStr);
+  scene.add(world.root);
+  NEXT_ID = 1 + world.organisms.reduce((m, o) => Math.max(m, o.id), 0);
+
+  // Reset history
+  history.time = []; history.grazer = []; history.hunter = []; history.shore = [];
+  history.plants = []; history.births = []; history.deaths = [];
+  for (let s = 0; s < 3; s++) {
+    history.trait[s].size = []; history.trait[s].speed = []; history.trait[s].sense = [];
+    history.trait[s][s === 0 ? 'armor' : s === 1 ? 'aggression' : 'nocturnal'] = [];
+    history.genMax[s] = [];
+  }
+}
+
+document.getElementById('btnNew').addEventListener('click', () => {
+  loadWorld(randomSeed());
+});
+document.getElementById('btnReset').addEventListener('click', () => {
+  loadWorld(currentSeedStr || randomSeed());
+});
+document.getElementById('btnSeed').addEventListener('click', () => {
+  const v = document.getElementById('seedInput').value.trim();
+  if (v) loadWorld(v);
+});
+document.getElementById('seedInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') document.getElementById('btnSeed').click();
+});
+
+document.getElementById('btnHow').addEventListener('click', () => {
+  document.getElementById('howModal').classList.add('open');
+});
+document.getElementById('btnCloseHow').addEventListener('click', () => {
+  document.getElementById('howModal').classList.remove('open');
+});
+document.getElementById('howModal').addEventListener('click', (e) => {
+  if (e.target.id === 'howModal') document.getElementById('howModal').classList.remove('open');
+});
+
+// -------------------- Main loop --------------------
+
+loadWorld(randomSeed());
+
+const clock = new THREE.Clock();
+let hudTimer = 0;
+let histTimer = 0;
+let tipTimer = 0;
+let tipFading = false;
+
+function formatClock(t01) {
+  const mins = Math.floor(t01 * 24 * 60);
+  const h = Math.floor(mins / 60) % 24;
+  const m = mins % 60;
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
+
+function frame() {
+  const dt = Math.min(0.08, clock.getDelta());
+  const simDt = dt * simSpeed;
+
+  // Step simulation (sub-stepped if large)
+  if (world && simDt > 0) {
+    const MAX_STEP = 0.08;
+    let left = simDt;
+    while (left > 0) {
+      const s = Math.min(MAX_STEP, left);
+      world.update(s);
+      left -= s;
+    }
+  }
+
+  // Lighting (always update based on current world state)
+  if (world) {
+    const nightAmt = world.nightAmount();
+    updateLighting(world.dayTime, nightAmt);
+    // Tie hunters' color to night for flair
+    for (const o of world.organisms) o.setHunterColorNight?.(nightAmt > 0.4);
+    if (world.waterMesh) world.waterMesh.material.uniforms.uTime.value = world.time;
+  }
+
+  controls.update();
+  renderer.render(scene, camera);
+
+  // HUD at ~10 Hz
+  hudTimer += dt;
+  if (hudTimer > 0.1 && world) {
+    hudTimer = 0;
+    const counts = world.countSpecies();
+    UI.metrics.day.textContent = world.dayCount;
+    UI.metrics.time.textContent = formatClock(world.dayTime);
+    UI.metrics.grazer.textContent = counts[0];
+    UI.metrics.hunter.textContent = counts[1];
+    UI.metrics.shore.textContent = counts[2];
+    UI.metrics.plants.textContent = world.plantPositions.reduce((n, p) => p.alive ? n + 1 : n, 0);
+    UI.metrics.births.textContent = world.births;
+    UI.genCode.textContent = Math.max(...world.maxGen);
+    document.getElementById('popLegendG').textContent = counts[0];
+    document.getElementById('popLegendH').textContent = counts[1];
+    document.getElementById('popLegendS').textContent = counts[2];
+    renderEvents();
+    renderInspector();
+    renderSnapshot();
+  }
+
+  histTimer += dt;
+  if (histTimer > 0.5 && world) {
+    histTimer = 0;
+    pushHistoryTick();
+    drawCharts();
+  }
+
+  // Fade tip
+  tipTimer += dt;
+  if (!tipFading && tipTimer > 6) {
+    const tip = document.getElementById('tip');
+    tip.style.opacity = '0';
+    tipFading = true;
+    setTimeout(() => tip.remove(), 1200);
+  }
+
+  requestAnimationFrame(frame);
+}
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+frame();
+</script>
+</body>
+</html>
