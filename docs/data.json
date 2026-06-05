@@ -21,6 +21,28 @@
       "createdAt": "2026-06-05",
       "solutions": [
         {
+          "slug": "cursor-opus-4-8-high",
+          "harness": "cursor",
+          "model": "claude-opus-4-8-high",
+          "projectName": "the-soft-stack",
+          "summary": "A self-contained editorial lookbook, 'The Soft Stack', that makes the case to Jay Hack for which high-quality sweats to buy. Opens with a dossier tying his public profile (Head of AI @ ClickUp; founder of Codegen and the Mira AI beauty-personalization company; ex-Palantir; Stanford CS/AI; @mathemagic1an) to a fit/palette/occasion thesis, then presents 7 picks across 6 houses — James Perse (the exact piped suede-jersey track set he linked), Fear of God Essentials, Reigning Champ, Lady White Co. (crew + 18oz hoodie), Auralee, and Sunspel — each with brand, price, link, fabric/construction note, a product image, and a Jay-specific reason. Two hand-built SVG charts (price x fabric weight, and a casual-luxe / slim-relaxed style map) plus a spec table make the picks comparable, and a 'run it back' closer proposes a 3-piece starter rotation.",
+          "tech": [
+            "html",
+            "css",
+            "svg",
+            "research"
+          ],
+          "submittedAt": "2026-06-05",
+          "artifactUrl": "./artifacts/sweats-dossier/cursor-opus-4-8-high.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a self-contained index.html (images load from a local images/ folder, so it renders fully offline) and mirrors a single-file, base64-embedded copy under docs/artifacts and public/artifacts for one-click review. Leads with an opinionated thesis, presents 7 specific products each with a real product image, brand, price, link, fabric note, and a reason grounded in researched facts about Jay, and includes two SVG comparison charts plus a spec table.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `sweats-dossier/cursor-opus-4-8-high/index.html` directly in a desktop browser, or use the mirrored artifact at `./artifacts/sweats-dossier/cursor-opus-4-8-high.html`."
+        },
+        {
           "slug": "codex-gpt-5-5-xhigh",
           "harness": "codex",
           "model": "gpt-5-5-xhigh",
