@@ -1,0 +1,964 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Jay Hack Sweats Dossier</title>
+    <style>
+      :root {
+        --ink: #171818;
+        --muted: #666a64;
+        --line: #d9ddd3;
+        --paper: #f5f6f1;
+        --panel: #ffffff;
+        --forest: #10251d;
+        --moss: #58694b;
+        --rust: #a43f25;
+        --blue: #325d79;
+        --gold: #b88b41;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.55;
+      }
+
+      a {
+        color: inherit;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 0.18em;
+      }
+
+      img {
+        display: block;
+        max-width: 100%;
+      }
+
+      .shell {
+        width: min(1180px, calc(100% - 40px));
+        margin: 0 auto;
+      }
+
+      .eyebrow {
+        color: var(--rust);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      .hero {
+        min-height: 88vh;
+        display: grid;
+        align-items: center;
+        background:
+          linear-gradient(120deg, rgba(16, 37, 29, 0.95), rgba(23, 24, 24, 0.82)),
+          url("images/james-perse.jpg") center / cover;
+        color: white;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+      }
+
+      .hero-inner {
+        display: grid;
+        grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
+        gap: 48px;
+        padding: 56px 0;
+        align-items: center;
+      }
+
+      h1 {
+        margin: 14px 0 18px;
+        max-width: 780px;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(52px, 8vw, 110px);
+        line-height: 0.92;
+        letter-spacing: 0;
+        font-weight: 500;
+      }
+
+      .hero-copy {
+        max-width: 680px;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: clamp(17px, 2vw, 22px);
+      }
+
+      .hero-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 28px;
+      }
+
+      .pill {
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        border-radius: 999px;
+        padding: 7px 12px;
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .mosaic {
+        display: grid;
+        grid-template-columns: 1.05fr 0.95fr;
+        gap: 12px;
+        align-items: stretch;
+      }
+
+      .mosaic figure {
+        margin: 0;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .mosaic figure:first-child {
+        grid-row: span 2;
+      }
+
+      .mosaic img {
+        width: 100%;
+        height: 100%;
+        min-height: 180px;
+        object-fit: cover;
+      }
+
+      section {
+        padding: 72px 0;
+      }
+
+      .section-head {
+        display: grid;
+        grid-template-columns: minmax(220px, 0.42fr) minmax(0, 1fr);
+        gap: 42px;
+        align-items: start;
+        margin-bottom: 34px;
+      }
+
+      h2 {
+        margin: 8px 0 0;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(34px, 4vw, 56px);
+        line-height: 1.02;
+        font-weight: 500;
+        letter-spacing: 0;
+      }
+
+      .lead {
+        margin: 0;
+        font-size: clamp(18px, 2vw, 24px);
+        line-height: 1.38;
+        color: #2b2e2a;
+      }
+
+      .thesis {
+        background: var(--panel);
+        border-top: 5px solid var(--forest);
+        padding: 34px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(260px, 0.52fr);
+        gap: 32px;
+        box-shadow: 0 18px 50px rgba(17, 24, 18, 0.08);
+      }
+
+      .thesis h3,
+      .product h3 {
+        margin: 0;
+        font-size: 25px;
+        line-height: 1.12;
+        letter-spacing: 0;
+      }
+
+      .thesis p {
+        margin: 14px 0 0;
+        color: var(--muted);
+      }
+
+      .rule-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 10px;
+      }
+
+      .rule-list li {
+        padding: 12px 0;
+        border-top: 1px solid var(--line);
+        font-size: 15px;
+      }
+
+      .evidence {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1px;
+        background: var(--line);
+        border: 1px solid var(--line);
+      }
+
+      .evidence div {
+        background: var(--panel);
+        padding: 22px;
+        min-height: 150px;
+      }
+
+      .evidence strong {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 15px;
+      }
+
+      .evidence p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .products {
+        display: grid;
+        gap: 18px;
+      }
+
+      .product {
+        display: grid;
+        grid-template-columns: minmax(250px, 0.42fr) minmax(0, 1fr);
+        gap: 28px;
+        align-items: stretch;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .product-media {
+        background: #ecefe8;
+        min-height: 360px;
+      }
+
+      .product-media img {
+        width: 100%;
+        height: 100%;
+        min-height: 360px;
+        object-fit: cover;
+      }
+
+      .product-body {
+        padding: 30px 32px 30px 0;
+        display: grid;
+        align-content: center;
+        gap: 18px;
+      }
+
+      .topline {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .rank {
+        width: 34px;
+        height: 34px;
+        display: inline-grid;
+        place-items: center;
+        border: 1px solid var(--line);
+        border-radius: 50%;
+        font-size: 13px;
+        font-weight: 900;
+      }
+
+      .label {
+        color: var(--rust);
+        font-size: 12px;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .meta span {
+        background: #f0f2ec;
+        border: 1px solid #dde2d7;
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #43483f;
+      }
+
+      .why {
+        margin: 0;
+        font-size: 17px;
+      }
+
+      .details {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .buy-link {
+        width: fit-content;
+        display: inline-flex;
+        align-items: center;
+        min-height: 40px;
+        border: 1px solid var(--ink);
+        border-radius: 999px;
+        padding: 9px 14px;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 850;
+      }
+
+      .buy-link:hover {
+        background: var(--ink);
+        color: white;
+      }
+
+      .compare-wrap {
+        overflow-x: auto;
+        border: 1px solid var(--line);
+        background: var(--panel);
+      }
+
+      table {
+        width: 100%;
+        min-width: 900px;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 15px 14px;
+        text-align: left;
+        border-bottom: 1px solid var(--line);
+        vertical-align: top;
+        font-size: 14px;
+      }
+
+      th {
+        background: #eef1e9;
+        color: #3c4238;
+        font-size: 12px;
+        text-transform: uppercase;
+      }
+
+      tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .bar {
+        display: grid;
+        gap: 5px;
+        min-width: 130px;
+      }
+
+      .track {
+        height: 7px;
+        border-radius: 999px;
+        background: #dde2d7;
+        overflow: hidden;
+      }
+
+      .fill {
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--moss), var(--rust));
+      }
+
+      .bar small {
+        color: var(--muted);
+        font-size: 11px;
+      }
+
+      .closing {
+        display: grid;
+        grid-template-columns: minmax(0, 0.95fr) minmax(280px, 0.65fr);
+        gap: 36px;
+        align-items: start;
+      }
+
+      .callout {
+        background: var(--forest);
+        color: white;
+        padding: 30px;
+        border-radius: 8px;
+      }
+
+      .callout h3 {
+        margin: 0 0 12px;
+        font-size: 24px;
+      }
+
+      .callout ol {
+        margin: 0;
+        padding-left: 20px;
+      }
+
+      .callout li {
+        margin: 10px 0;
+      }
+
+      .sources {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .sources a {
+        color: var(--blue);
+      }
+
+      @media (max-width: 920px) {
+        .hero-inner,
+        .section-head,
+        .thesis,
+        .closing {
+          grid-template-columns: 1fr;
+        }
+
+        .mosaic {
+          max-width: 660px;
+        }
+
+        .evidence {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .product {
+          grid-template-columns: 1fr;
+        }
+
+        .product-body {
+          padding: 26px;
+        }
+      }
+
+      @media (max-width: 620px) {
+        .shell {
+          width: min(100% - 24px, 1180px);
+        }
+
+        section {
+          padding: 54px 0;
+        }
+
+        .hero {
+          min-height: auto;
+        }
+
+        .hero-inner {
+          gap: 28px;
+          padding: 42px 0;
+        }
+
+        .mosaic {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .mosaic img,
+        .mosaic figure:first-child img {
+          min-height: 150px;
+        }
+
+        .evidence {
+          grid-template-columns: 1fr;
+        }
+
+        .thesis {
+          padding: 24px;
+        }
+
+        .product-media,
+        .product-media img {
+          min-height: 280px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <div class="shell hero-inner">
+        <div>
+          <div class="eyebrow">Personal shopper report - researched June 5, 2026</div>
+          <h1>Jay Hack should buy drape, not hype.</h1>
+          <p class="hero-copy">
+            The best sweats for Jay are not gym sweats. They are founder uniform pieces:
+            black, undyed, dark brown, and heather grey; relaxed straight legs over skinny joggers;
+            fabric-first details that read quiet in a customer call and excellent at 1 a.m. in front
+            of a terminal.
+          </p>
+          <div class="hero-meta">
+            <span class="pill">7 picks</span>
+            <span class="pill">James Perse / Essentials calibrated</span>
+            <span class="pill">No dupes</span>
+            <span class="pill">Images included locally</span>
+          </div>
+        </div>
+        <div class="mosaic" aria-label="Selected product images">
+          <figure><img src="images/lady-white.jpg" alt="Lady White Co. black woven waistband sweatpant" /></figure>
+          <figure><img src="images/auralee.jpg" alt="Auralee dark brown high gauge sweat pullover" /></figure>
+          <figure><img src="images/james-perse.jpg" alt="James Perse black and whiskey piped track pant" /></figure>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <div class="shell">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">Thesis</div>
+              <h2>The target is stealth luxury with product-builder utility.</h2>
+            </div>
+            <p class="lead">
+              Jay's best lane is a small sweats capsule that looks intentional without looking styled:
+              one trouser-like black sweatpant, one exceptional Japanese sweatshirt, one clean travel
+              sweat, one true lounge workhorse, and one indulgent reference piece if he wants the
+              James Perse fall and hand.
+            </p>
+          </div>
+
+          <div class="thesis">
+            <div>
+              <h3>Buy the fabric story first. Let the silhouette do the flex.</h3>
+              <p>
+                Essentials is useful because it sets the oversized, long-drawstring, LA-at-rest shape.
+                But the stronger Jay-specific answer is less logo and more material: cotton that hangs,
+                terry that behaves like a soft trouser, and colors that disappear into a black tee,
+                overshirt, Arc'teryx shell, or old Stanford hoodie without becoming sloppy.
+              </p>
+            </div>
+            <ul class="rule-list" aria-label="Shopping rules">
+              <li><strong>Fit:</strong> relaxed straight or slim-straight, not spray-on jogger.</li>
+              <li><strong>Palette:</strong> black, dark brown, undyed, heather grey, deep green.</li>
+              <li><strong>Occasions:</strong> desk, flight, coffee meeting, podcast, team offsite.</li>
+              <li><strong>Skip:</strong> synthetic scuba, loud logos, bargain fleece that pills fast.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="shell">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">Jay read</div>
+              <h2>Why this is for him</h2>
+            </div>
+            <p class="lead">
+              This is not generic menswear advice. Jay is a builder who has worked across AI agents,
+              shopping, and design-vibe evals. The clothes should carry the same bias: useful, technical
+              in the fabric, a little magical in the hand, and not performative.
+            </p>
+          </div>
+
+          <div class="evidence">
+            <div>
+              <strong>He is a working AI operator.</strong>
+              <p>Jay's site lists him as Head of AI at ClickUp, leading agents for knowledge work.</p>
+            </div>
+            <div>
+              <strong>He founded Codegen.</strong>
+              <p>The uniform needs to survive builder mode, customer mode, and investor mode.</p>
+            </div>
+            <div>
+              <strong>He built AI shopping at Mira.</strong>
+              <p>A fabric and fit argument will land better than affiliate-style hype.</p>
+            </div>
+            <div>
+              <strong>He runs galaxy-brain evals.</strong>
+              <p>The report should have a point of view, not a spreadsheet of obvious brands.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="shell">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">The picks</div>
+              <h2>Seven sweats worth trying</h2>
+            </div>
+            <p class="lead">
+              Ranked by what I would put in Jay's cart first, not by price. The first two are the
+              actual recommendation; the rest are supporting roles depending on how much he wants
+              polish, nostalgia, or the Essentials silhouette.
+            </p>
+          </div>
+
+          <div class="products">
+            <article class="product">
+              <div class="product-media">
+                <img src="images/lady-white.jpg" alt="Lady White Co. Woven WB Sweatpant in black" />
+              </div>
+              <div class="product-body">
+                <div class="topline">
+                  <span class="rank">1</span>
+                  <span class="label">Buy first - black trouser sweat</span>
+                </div>
+                <h3>Lady White Co. Woven WB Sweatpant - Black</h3>
+                <div class="meta">
+                  <span>$260</span>
+                  <span>100% cotton</span>
+                  <span>Los Angeles knit, cut, sewn</span>
+                  <span>Relaxed wide straight</span>
+                </div>
+                <p class="why">
+                  This is the closest thing to Jay's ideal default: a sweatpant that behaves more
+                  like a soft black trouser. It works with a tee, hoodie, overshirt, or knit, and it
+                  is quiet enough for someone who does not need the pants to announce the brand.
+                </p>
+                <p class="details">
+                  Custom midweight French terry with a firm but fluid drape, two trouser pockets
+                  with cupro lining, contrast woven waistband, overlock stitching, elastic waist,
+                  preshrunk.
+                </p>
+                <a class="buy-link" href="https://ladywhiteco.com/products/woven-wb-sweatpant-black">View product</a>
+              </div>
+            </article>
+
+            <article class="product">
+              <div class="product-media">
+                <img src="images/auralee.jpg" alt="Auralee Super High Gauge Sweat P/O in dark brown" />
+              </div>
+              <div class="product-body">
+                <div class="topline">
+                  <span class="rank">2</span>
+                  <span class="label">The fabric nerd sweatshirt</span>
+                </div>
+                <h3>Auralee Super High Gauge Sweat P/O - Dark Brown</h3>
+                <div class="meta">
+                  <span>$390</span>
+                  <span>100% Pima cotton</span>
+                  <span>Made in Japan</span>
+                  <span>Relaxed fit</span>
+                </div>
+                <p class="why">
+                  Jay's site calls him a "mathemagician"; this is the sweatshirt version of that:
+                  plain at first glance, weirdly good once you notice the hand, drape, and surface.
+                  Dark brown is also better for him than another black top - warm, technical, and calm.
+                </p>
+                <p class="details">
+                  High-gauge Pima cotton sweat fabric, treated for a smooth low-fuzz finish. Namu
+                  notes it "feels like a tee but looks like a sweatshirt," which is exactly the
+                  bridge between Zoom polish and late-night comfort.
+                </p>
+                <a class="buy-link" href="https://www.namu-shop.com/products/auralee-super-high-gauge-sweat-p-o-dark-brown">View product</a>
+              </div>
+            </article>
+
+            <article class="product">
+              <div class="product-media">
+                <img src="images/james-perse.jpg" alt="James Perse Brushed Cotton Suede Piped Track Pant" />
+              </div>
+              <div class="product-body">
+                <div class="topline">
+                  <span class="rank">3</span>
+                  <span class="label">The reference splurge</span>
+                </div>
+                <h3>James Perse Brushed Cotton Suede Piped Track Pant - Black/Whiskey</h3>
+                <div class="meta">
+                  <span>$795</span>
+                  <span>Italian brushed cotton blend</span>
+                  <span>Suede piping</span>
+                  <span>Dry clean</span>
+                </div>
+                <p class="why">
+                  This is the original inspiration taken seriously. Buy it if the goal is not value
+                  but "best hand in the room" - a track pant that falls like lounge tailoring and
+                  gives Jay one piece that feels obviously special without becoming loud.
+                </p>
+                <p class="details">
+                  50% cotton, 42% viscose, 7% nylon, 1% elastane; Italian brushed cotton-blend knit
+                  finished to a sueded hand; suede side-seam piping and suede drawcord; elastic hems.
+                </p>
+                <a class="buy-link" href="https://www.jamesperse.com/products/brushed-cotton-suede-piped-track-pant-black-whiskey-mbcb1476">View product</a>
+              </div>
+            </article>
+
+            <article class="product">
+              <div class="product-media">
+                <img src="images/sunspel.jpg" alt="Sunspel Loopback Sweatpants in undyed" />
+              </div>
+              <div class="product-body">
+                <div class="topline">
+                  <span class="rank">4</span>
+                  <span class="label">The travel and home base</span>
+                </div>
+                <h3>Sunspel Loopback Sweatpants - Undyed</h3>
+                <div class="meta">
+                  <span>$170</span>
+                  <span>100% cotton body</span>
+                  <span>Made in Portugal</span>
+                  <span>Slim fit</span>
+                </div>
+                <p class="why">
+                  This is the least theatrical pick and maybe the one he wears most. The undyed color
+                  gives the lookbook a softer neutral than black, and the fit is clean enough for
+                  travel days without getting into athleisure tech-pant territory.
+                </p>
+                <p class="details">
+                  Soft-finish loopback fabric with internal loop stitch; ribbed drawstring waistband;
+                  100% cotton main fabric, 95% cotton / 5% elastane ribs; gentle wash, no tumble dry.
+                </p>
+                <a class="buy-link" href="https://us.sunspel.com/products/men-s-undyed-track-pant-in-undyed-mtrs1518u-nuab">View product</a>
+              </div>
+            </article>
+
+            <article class="product">
+              <div class="product-media">
+                <img src="images/reigning-champ.jpg" alt="Reigning Champ Lightweight Terry Slim Sweatpant" />
+              </div>
+              <div class="product-body">
+                <div class="topline">
+                  <span class="rank">5</span>
+                  <span class="label">The coding-day control</span>
+                </div>
+                <h3>Reigning Champ Lightweight Terry Slim Sweatpant - Heather Grey</h3>
+                <div class="meta">
+                  <span>$118</span>
+                  <span>100% cotton</span>
+                  <span>280 GSM</span>
+                  <span>Made in Canada</span>
+                </div>
+                <p class="why">
+                  This is not the lookbook hero; it is the calibrated control. For mild San Francisco
+                  days, flights, and desk work, Jay gets a slim, durable, pure-cotton sweat that is
+                  better than the average hoodie-bottom combo and easy to machine wash.
+                </p>
+                <p class="details">
+                  Lightweight Terry, modern tapered leg, flatlock seams, jersey-lined pockets, rib
+                  waistband, woven drawcord, rib gusset and cuffs, machine wash cold, tumble dry low.
+                </p>
+                <a class="buy-link" href="https://reigningchamp.com/products/lightweight-terry-slim-sweatpant-hgrey">View product</a>
+              </div>
+            </article>
+
+            <article class="product">
+              <div class="product-media">
+                <img src="images/merz.jpg" alt="Merz b. Schwanen Authentic Fleece Straight Leg Cotton Sweatpants" />
+              </div>
+              <div class="product-body">
+                <div class="topline">
+                  <span class="rank">6</span>
+                  <span class="label">The heritage heavyweight</span>
+                </div>
+                <h3>Merz b. Schwanen Authentic Fleece Straight Leg Cotton Sweatpants - Deep Black</h3>
+                <div class="meta">
+                  <span>EUR 165 (~$180)</span>
+                  <span>100% organic cotton</span>
+                  <span>430 g/qm / 12.7 oz</span>
+                  <span>Garment dyed</span>
+                </div>
+                <p class="why">
+                  If Jay wants the analog, old-world version of "super high quality," Merz is the
+                  pick. It is less sleek than Lady White and less luxe than James Perse, but the
+                  heavy fleece and vintage wash give it a real object quality.
+                </p>
+                <p class="details">
+                  Heavyweight Authentic Fleece, sturdy loopback fleece, straight leg with open hems,
+                  side pockets, back pocket, elastic waistband, cotton drawstring, metal aglets.
+                </p>
+                <a class="buy-link" href="https://www.merzbschwanen.com/products/authentic-fleece-straight-leg-cotton-sweatpants-1">View product</a>
+              </div>
+            </article>
+
+            <article class="product">
+              <div class="product-media">
+                <img src="images/essentials.jpg" alt="Fear of God Essentials black fleece sweatpants" />
+              </div>
+              <div class="product-body">
+                <div class="topline">
+                  <span class="rank">7</span>
+                  <span class="label">The silhouette benchmark</span>
+                </div>
+                <h3>Fear of God ESSENTIALS Black Fleece Sweatpants</h3>
+                <div class="meta">
+                  <span>$88 sale / $110 retail</span>
+                  <span>80% cotton / 20% polyester</span>
+                  <span>Brushed-back fleece</span>
+                  <span>Relaxed cuffed fit</span>
+                </div>
+                <p class="why">
+                  Keep Essentials in the conversation because Jay named it. My advice: buy this only
+                  if he specifically wants the FoG proportion and logo language. It is a good shape
+                  reference, but it is not the fabric-quality winner in this set.
+                </p>
+                <p class="details">
+                  PacSun lists a 13 inch rise, 31 inch inseam, soft fleece lining, side pockets,
+                  long drawstrings, rubber brand label, and soft-touch Essentials graphic at the hip.
+                </p>
+                <a class="buy-link" href="https://www.pacsun.com/fear-of-god-essentials/black-fleece-sweatpants-6813786.html">View product</a>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="shell">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">Trade-offs</div>
+              <h2>Comparison at a glance</h2>
+            </div>
+            <p class="lead">
+              The winning move is not one perfect sweatpant. It is choosing the right lane: polished
+              black drape, Japanese top, travel neutral, true lounge utility, or reference splurge.
+            </p>
+          </div>
+
+          <div class="compare-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Pick</th>
+                  <th>Price</th>
+                  <th>Best role</th>
+                  <th>Fabric note</th>
+                  <th>Fit signal</th>
+                  <th>Casual to luxe</th>
+                  <th>Slim to relaxed</th>
+                  <th>Verdict</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Lady White Woven WB</td>
+                  <td>$260</td>
+                  <td>Default black pant</td>
+                  <td>Custom French terry, 100% cotton, LA made</td>
+                  <td>Wide straight, trouser-like</td>
+                  <td><span class="bar"><span class="track"><span class="fill" style="width: 78%"></span></span><small>Quiet polish</small></span></td>
+                  <td><span class="bar"><span class="track"><span class="fill" style="width: 82%"></span></span><small>Relaxed</small></span></td>
+                  <td>Buy first.</td>
+                </tr>
+                <tr>
+                  <td>Auralee High Gauge P/O</td>
+                  <td>$390</td>
+                  <td>Elevated sweatshirt</td>
+                  <td>High-gauge Pima cotton, Japan made</td>
+                  <td>Relaxed, low-logo, drapey</td>
+                  <td><span class="bar"><span class="track"><span class="fill" style="width: 84%"></span></span><small>Fabric flex</small></span></td>
+                  <td><span class="bar"><span class="track"><span class="fill" style="width: 68%"></span></span><small>Easy</small></span></td>
+                  <td>Best top.</td>
+                </tr>
+                <tr>
+                  <td>James Perse Piped Track</td>
+                  <td>$795</td>
+                  <td>Statement lounge pant</td>
+                  <td>Italian brushed cotton-viscose blend, suede details</td>
+                  <td>Classic track pant, elastic hem</td>
+                  <td><span class="bar"><span class="track"><span class="fill" style="width: 96%"></span></span><small>Most luxe</small></span></td>
+                  <td><span class="bar"><span class="track"><span class="fill" style="width: 62%"></span></span><small>Moderate</small></span></td>
+                  <td>Splurge, not staple.</td>
+                </tr>
+                <tr>
+                  <td>Sunspel Loopback</td>
+                  <td>$170</td>
+                  <td>Travel / home</td>
+                  <td>100% cotton loopback, Portugal made</td>
+                  <td>Slim athletic</td>
+                  <td><span class="bar"><span class="track"><span class="fill" style="width: 58%"></span></span><small>Clean basic</small></span></td>
+                  <td><span class="bar"><span class="track"><span class="fill" style="width: 36%"></span></span><small>Slimmer</small></span></td>
+                  <td>Most wearable neutral.</td>
+                </tr>
+                <tr>
+                  <td>Reigning Champ Terry</td>
+                  <td>$118</td>
+                  <td>Desk workhorse</td>
+                  <td>100% cotton, 280 GSM, Canada made</td>
+                  <td>Slim tapered</td>
+                  <td><span class="bar"><span class="track"><span class="fill" style="width: 42%"></span></span><small>Utility</small></span></td>
+                  <td><span class="bar"><span class="track"><span class="fill" style="width: 31%"></span></span><small>Slim</small></span></td>
+                  <td>Good control pair.</td>
+                </tr>
+                <tr>
+                  <td>Merz Authentic Fleece</td>
+                  <td>EUR 165</td>
+                  <td>Heavy heritage</td>
+                  <td>Organic cotton, 430 g/qm loopback fleece</td>
+                  <td>Straight open hem</td>
+                  <td><span class="bar"><span class="track"><span class="fill" style="width: 65%"></span></span><small>Object quality</small></span></td>
+                  <td><span class="bar"><span class="track"><span class="fill" style="width: 72%"></span></span><small>Relaxed</small></span></td>
+                  <td>Best tactile heft.</td>
+                </tr>
+                <tr>
+                  <td>Essentials Fleece</td>
+                  <td>$88 / $110</td>
+                  <td>FoG silhouette</td>
+                  <td>80/20 brushed-back fleece</td>
+                  <td>Relaxed cuffed, long drawstrings</td>
+                  <td><span class="bar"><span class="track"><span class="fill" style="width: 48%"></span></span><small>Logo casual</small></span></td>
+                  <td><span class="bar"><span class="track"><span class="fill" style="width: 74%"></span></span><small>Relaxed</small></span></td>
+                  <td>Shape reference only.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="shell closing">
+          <div>
+            <div class="eyebrow">Final buy plan</div>
+            <h2>What I would tell Jay to order</h2>
+            <p class="lead">
+              Start with Lady White black pants and the Auralee dark brown pullover. That is the
+              strongest Jay outfit: no obvious logo, high fabric intelligence, useful across founder
+              life. Add Sunspel if he wants a softer travel pair. Add James Perse only if he wants
+              to pay for the original fantasy.
+            </p>
+          </div>
+          <aside class="callout">
+            <h3>Cart sequence</h3>
+            <ol>
+              <li>Lady White Woven WB Sweatpant in black.</li>
+              <li>Auralee Super High Gauge Sweat P/O in dark brown.</li>
+              <li>Sunspel Loopback Sweatpants in undyed.</li>
+              <li>James Perse if he wants the sueded splurge.</li>
+              <li>Essentials only for FoG proportion testing.</li>
+            </ol>
+          </aside>
+        </div>
+      </section>
+
+      <section>
+        <div class="shell sources">
+          <div class="eyebrow">Sources</div>
+          <p>
+            Jay research: <a href="https://jay.ai/">jay.ai</a>, including his current ClickUp role,
+            Codegen background, Mira AI shopping work, Palantir, Stanford, and galaxy-brain context.
+            Product data checked from: <a href="https://www.jamesperse.com/products/brushed-cotton-suede-piped-track-pant-black-whiskey-mbcb1476">James Perse</a>,
+            <a href="https://ladywhiteco.com/products/woven-wb-sweatpant-black">Lady White Co.</a>,
+            <a href="https://www.namu-shop.com/products/auralee-super-high-gauge-sweat-p-o-dark-brown">Namu Shop / Auralee</a>,
+            <a href="https://us.sunspel.com/products/men-s-undyed-track-pant-in-undyed-mtrs1518u-nuab">Sunspel</a>,
+            <a href="https://reigningchamp.com/products/lightweight-terry-slim-sweatpant-hgrey">Reigning Champ</a>,
+            <a href="https://www.merzbschwanen.com/products/authentic-fleece-straight-leg-cotton-sweatpants-1">Merz b. Schwanen</a>,
+            and <a href="https://www.pacsun.com/fear-of-god-essentials/black-fleece-sweatpants-6813786.html">PacSun / Fear of God ESSENTIALS</a>.
+          </p>
+          <p>
+            Prices and availability are current to June 5, 2026. The recommendation intentionally
+            weights fabric, silhouette, and Jay-specific usefulness over resale hype.
+          </p>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
