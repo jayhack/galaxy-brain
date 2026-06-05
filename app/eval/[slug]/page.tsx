@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { GithubIcon } from "@/components/icons";
 import { MarkdownContent } from "@/components/markdown-content";
 import { CopyButton } from "@/components/copy-button";
-import { SolutionRow } from "@/components/solution-row";
+import { SolutionCard } from "@/components/solution-card";
 import { CollapsibleSection } from "@/components/collapsible-section";
 import { EvalArt } from "@/components/eval-art";
 import { Globule } from "@/components/globule";
@@ -125,9 +125,9 @@ export default async function EvalPage({
             No solutions submitted yet.
           </div>
         ) : (
-          <div className="flex w-full flex-col gap-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {ev.solutions.map((s) => (
-              <SolutionRow key={s.slug} ev={ev} sol={s} />
+              <SolutionCard key={s.slug} ev={ev} sol={s} globule={globule} />
             ))}
           </div>
         )}
