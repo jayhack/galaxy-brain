@@ -12,6 +12,8 @@ export type EvalCardData = {
   count: number;
   /** Stable position in the canonical eval list -> picks this eval's globule. */
   colorIndex: number;
+  /** Static header image (`/headers/<slug>.jpg`), or null to use the gradient. */
+  image?: string | null;
 };
 
 export function EvalCard({ ev }: { ev: EvalCardData }) {
@@ -20,7 +22,12 @@ export function EvalCard({ ev }: { ev: EvalCardData }) {
       href={`/eval/${ev.slug}`}
       className="group block overflow-hidden rounded-md border border-ink bg-paper no-underline transition-colors hover:bg-paper-soft"
     >
-      <EvalArt colorIndex={ev.colorIndex} className="h-24">
+      <EvalArt
+        colorIndex={ev.colorIndex}
+        image={ev.image}
+        imageAlt=""
+        className="h-24"
+      >
         <Badge
           variant="count"
           className="absolute right-3 top-3 border-paper/40 bg-ink/35 text-paper backdrop-blur-sm"
