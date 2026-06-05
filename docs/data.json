@@ -41,6 +41,28 @@
             "score": null
           },
           "notes": "Open `sweats-dossier/cursor-opus-4-8-high/index.html` directly in a desktop browser, or use the mirrored artifact at `./artifacts/sweats-dossier/cursor-opus-4-8-high.html`."
+        },
+        {
+          "slug": "codex-gpt-5-5-xhigh",
+          "harness": "codex",
+          "model": "gpt-5-5-xhigh",
+          "projectName": "jay-sweats-dossier",
+          "summary": "Single-file editorial lookbook and personal shopper memo for Jay Hack, with a fabric-first thesis, seven sweats picks calibrated to James Perse and Fear of God Essentials, local product images, Jay-specific rationale, a comparison table, and a concrete buy sequence.",
+          "tech": [
+            "html",
+            "css",
+            "research",
+            "lookbook"
+          ],
+          "submittedAt": "2026-06-05",
+          "artifactUrl": "./artifacts/sweats-dossier/codex-gpt-5-5-xhigh.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Ships a static HTML report with local product images and a mirrored artifact for one-click evaluation.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `sweats-dossier/codex-gpt-5-5-xhigh/index.html` directly, or use the mirrored artifact at `./artifacts/sweats-dossier/codex-gpt-5-5-xhigh.html`."
         }
       ]
     },

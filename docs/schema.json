@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "galaxy-brain registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["repo", "evals"],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "repo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["owner", "name", "branch"],
+      "properties": {
+        "owner": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "branch": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "evals": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/eval"
+      }
+    }
+  },
+  "$defs": {
+    "eval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slug", "title", "solutions"],
+      "properties": {
+        "slug": {
+          "$ref": "#/$defs/slug"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tagline": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/slug"
+          },
+          "uniqueItems": true
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "solutions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/solution"
+          }
+        }
+      }
+    },
+    "solution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slug", "harness", "model"],
+      "properties": {
+        "slug": {
+          "$ref": "#/$defs/slug"
+        },
+        "harness": {
+          "type": "string",
+          "minLength": 1
+        },
+        "harnessShort": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string",
+          "minLength": 1
+        },
+        "projectName": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "tech": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "submittedAt": {
+          "type": "string"
+        },
+        "artifactUrl": {
+          "type": "string",
+          "pattern": "^\\./artifacts/[^/]+/[^/]+\\.html$"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "outcome": {
+          "$ref": "#/$defs/outcome"
+        }
+      }
+    },
+    "outcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "type": ["string", "null"]
+        },
+        "verdict": {
+          "type": ["string", "null"]
+        },
+        "evaluatedAt": {
+          "type": ["string", "null"]
+        },
+        "score": {
+          "type": ["number", "string", "null"]
+        }
+      }
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    }
+  }
+}

@@ -127,7 +127,10 @@ export function renderMarkdown(md: string): string {
 async function readMarkdown(mdPath: string): Promise<string | null> {
   const normalized = String(mdPath || "").replace(/^\/+/, "");
   if (!normalized.endsWith(".md")) return null;
-  const filePath = path.resolve(repoRoot, normalized);
+  const filePath = path.resolve(
+    /*turbopackIgnore: true*/ process.cwd(),
+    normalized
+  );
   const rel = path.relative(repoRoot, filePath);
   if (!rel || rel.startsWith("..") || path.isAbsolute(rel)) return null;
   try {

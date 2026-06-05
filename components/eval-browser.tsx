@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 import { GlobuleDot } from "@/components/globule";
@@ -22,11 +21,16 @@ export function EvalBrowser({
   evals: EvalCardData[];
   allTags: string[];
 }) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [selected, setSelected] = React.useState<string[]>(() =>
-    parseTags(searchParams.get("tags"))
-  );
+  // Start empty so the server-rendered grid (all evals) is part of the static
+  // HTML — no useSearchParams, so this subtree never bails to a client-only
+  // render. Any ?tags= filter from a deep link is applied after mount.
+  const [selected, setSelected] = React.useState<string[]>([]);
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const fromUrl = parseTags(params.get("tags"));
+    if (fromUrl.length) setSelected(fromUrl);
+  }, []);
 
   const selectedSet = new Set(selected);
 
@@ -34,7 +38,8 @@ export function EvalBrowser({
     const qs = next.length
       ? `?tags=${next.map(encodeURIComponent).join(",")}`
       : "";
-    router.replace(`/${qs}`, { scroll: false });
+    // Update the URL in place without a navigation/RSC round trip.
+    window.history.replaceState(null, "", `/${qs}`);
   }
 
   function toggle(tag: string) {

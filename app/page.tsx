@@ -1,5 +1,3 @@
-import { Suspense } from "react";
-
 import { getEvals, getAllTags } from "@/lib/content";
 import { Monogram, HeroCluster } from "@/components/globule";
 import { EvalBrowser } from "@/components/eval-browser";
@@ -50,9 +48,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <Suspense fallback={<div className="mono-label opacity-70">Loading…</div>}>
-        <EvalBrowser evals={evals} allTags={allTags} />
-      </Suspense>
+      <EvalBrowser evals={evals} allTags={allTags} />
     </>
   );
 }
