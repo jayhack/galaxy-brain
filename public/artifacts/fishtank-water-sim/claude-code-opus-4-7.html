@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fish tank — pour &amp; slosh</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      color: #ddd;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    }
+    #hud {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      z-index: 10;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    #hud button {
+      background: #101418;
+      color: #e9eef3;
+      border: 1px solid #2a3340;
+      padding: 9px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      letter-spacing: 0.02em;
+    }
+    #hud button:hover { background: #182028; border-color: #3a4656; }
+    #hud button:active { transform: translateY(1px); }
+    #hint {
+      color: #7d8896;
+      font-size: 12px;
+      max-width: 360px;
+      line-height: 1.45;
+    }
+    #hint b { color: #b8c4d2; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div id="hud">
+    <button id="resetBtn" type="button">Reset pour</button>
+    <span id="hint"><b>Drag</b> to orbit · <b>Scroll</b> to zoom · <b>Move the mouse</b> across the tank to slosh the water</span>
+  </div>
+
+  <script type="module">
+    import * as THREE from "https://esm.sh/three@0.170.0";
+    import { OrbitControls } from "https://esm.sh/three@0.170.0/examples/jsm/controls/OrbitControls.js";
+
+    // ---------- Tank + water sim constants ----------
+    const TANK = 2.0;                  // tank inner edge length
+    const HALF = TANK * 0.5;
+    const N = 56;                      // height-field resolution (N x N)
+    const CELL = TANK / (N - 1);
+
+    const C2 = 3.2 * 3.2;              // wave speed squared
+    const DAMP = 0.62;                 // per-second damping factor (1/s)
+    const MAX_H = 0.28;                // clamp on surface height
+
+    const POUR_DURATION = 4.2;         // seconds of active pour
+    const TARGET_FILL = 0.72;          // fraction of tank filled at end of pour
+    const BASE_WATER_Y = -HALF;        // tank floor in world Y
+    const POUR_START_Y = HALF + 1.6;   // where the pour stream begins above the tank
+
+    // ---------- three.js setup ----------
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000000);
+    scene.fog = new THREE.Fog(0x000000, 8, 18);
+
+    const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.05, 100);
+    camera.position.set(3.3, 2.3, 4.1);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.1;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    document.body.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.minDistance = 2.2;
+    controls.maxDistance = 10;
+    controls.maxPolarAngle = Math.PI * 0.49;
+    controls.target.set(0, 0, 0);
+
+    // ---------- lighting ----------
+    scene.add(new THREE.AmbientLight(0x4d5a6a, 0.35));
+
+    const keyLight = new THREE.DirectionalLight(0xcfe2ff, 1.7);
+    keyLight.position.set(3.5, 6, 2.2);
+    scene.add(keyLight);
+
+    const rimLight = new THREE.DirectionalLight(0x7ab8ff, 0.65);
+    rimLight.position.set(-4, 2, -3);
+    scene.add(rimLight);
+
+    const underGlow = new THREE.PointLight(0x3da8ff, 0.9, 6, 1.8);
+    underGlow.position.set(0, -HALF - 0.6, 0);
+    scene.add(underGlow);
+
+    // ---------- floor (subtle, for orbit context) ----------
+    {
+      const floorGeom = new THREE.CircleGeometry(6.5, 64);
+      floorGeom.rotateX(-Math.PI / 2);
+      const floorMat = new THREE.MeshStandardMaterial({
+        color: 0x0a0f14,
+        roughness: 0.95,
+        metalness: 0.0,
+      });
+      const floor = new THREE.Mesh(floorGeom, floorMat);
+      floor.position.y = -HALF - 0.05;
+      scene.add(floor);
+    }
+
+    // ---------- glass tank ----------
+    function buildTank() {
+      const group = new THREE.Group();
+
+      // Outer glass shell — a thin cube with transmission.
+      const glassGeom = new THREE.BoxGeometry(TANK + 0.02, TANK + 0.02, TANK + 0.02);
+      const glassMat = new THREE.MeshPhysicalMaterial({
+        color: 0xffffff,
+        roughness: 0.05,
+        metalness: 0.0,
+        transmission: 0.95,
+        thickness: 0.35,
+        ior: 1.45,
+        transparent: true,
+        opacity: 0.18,
+        depthWrite: false,
+        side: THREE.DoubleSide,
+      });
+      const shell = new THREE.Mesh(glassGeom, glassMat);
+      shell.renderOrder = 3;
+      group.add(shell);
+
+      // Edge highlight wireframe so the cube reads clearly against black.
+      const edges = new THREE.LineSegments(
+        new THREE.EdgesGeometry(new THREE.BoxGeometry(TANK, TANK, TANK)),
+        new THREE.LineBasicMaterial({ color: 0x9ec8ff, transparent: true, opacity: 0.55 })
+      );
+      edges.renderOrder = 4;
+      group.add(edges);
+
+      // Inner bottom — tinted, so water has something to sit on visually.
+      const floorGeom = new THREE.PlaneGeometry(TANK - 0.02, TANK - 0.02);
+      floorGeom.rotateX(-Math.PI / 2);
+      const floorMat = new THREE.MeshStandardMaterial({
+        color: 0x0e1f2c,
+        roughness: 0.8,
+        metalness: 0.1,
+      });
+      const floor = new THREE.Mesh(floorGeom, floorMat);
+      floor.position.y = -HALF + 0.001;
+      group.add(floor);
+
+      return group;
+    }
+    scene.add(buildTank());
+
+    // ---------- height-field water ----------
+    const heightBufA = new Float32Array(N * N);
+    const heightBufB = new Float32Array(N * N);
+    let hCur = heightBufA;
+    let hPrev = heightBufB;
+
+    function idx(i, j) { return i + j * N; }
+
+    function resetHeightField() {
+      hCur.fill(0);
+      hPrev.fill(0);
+    }
+
+    function stepWater(dt) {
+      // Substep so stiffness stays stable at high dt.
+      const sub = 3;
+      const h = dt / sub;
+      const damp = Math.exp(-DAMP * h);
+      for (let s = 0; s < sub; s++) {
+        for (let j = 1; j < N - 1; j++) {
+          for (let i = 1; i < N - 1; i++) {
+            const k = idx(i, j);
+            const lap =
+              hCur[idx(i + 1, j)] +
+              hCur[idx(i - 1, j)] +
+              hCur[idx(i, j + 1)] +
+              hCur[idx(i, j - 1)] -
+              4 * hCur[k];
+            // h_next = 2*h - h_prev + c² * lap * h²  (discrete wave eqn with damping)
+            let next = (2 * hCur[k] - hPrev[k]) + C2 * h * h * lap / (CELL * CELL);
+            next = (next - hCur[k]) * damp + hCur[k];
+            if (next > MAX_H) next = MAX_H;
+            else if (next < -MAX_H) next = -MAX_H;
+            hPrev[k] = hCur[k];
+            hCur[k] = next;
+          }
+        }
+        // Reflective walls — edge rows/cols mirror neighbor height.
+        for (let i = 0; i < N; i++) {
+          hCur[idx(i, 0)]     = hCur[idx(i, 1)];
+          hCur[idx(i, N - 1)] = hCur[idx(i, N - 2)];
+          hCur[idx(0, i)]     = hCur[idx(1, i)];
+          hCur[idx(N - 1, i)] = hCur[idx(N - 2, i)];
+        }
+      }
+    }
+
+    function splash(x, z, radius, amp) {
+      // Convert world (x,z) to grid coords.
+      const gi = (x + HALF) / CELL;
+      const gj = (z + HALF) / CELL;
+      const r = Math.max(1, radius / CELL);
+      const i0 = Math.max(1, Math.floor(gi - r));
+      const i1 = Math.min(N - 2, Math.ceil(gi + r));
+      const j0 = Math.max(1, Math.floor(gj - r));
+      const j1 = Math.min(N - 2, Math.ceil(gj + r));
+      const r2 = r * r;
+      for (let j = j0; j <= j1; j++) {
+        for (let i = i0; i <= i1; i++) {
+          const dx = i - gi;
+          const dz = j - gj;
+          const d2 = dx * dx + dz * dz;
+          if (d2 > r2) continue;
+          const fall = 1 - d2 / r2;
+          hCur[idx(i, j)] += amp * fall * fall;
+        }
+      }
+    }
+
+    // Surface mesh (drives Y from height field).
+    const waterGeom = new THREE.PlaneGeometry(TANK - 0.004, TANK - 0.004, N - 1, N - 1);
+    waterGeom.rotateX(-Math.PI / 2);
+    const waterMat = new THREE.MeshPhysicalMaterial({
+      color: 0x2ea9d6,
+      roughness: 0.08,
+      metalness: 0.0,
+      transmission: 0.7,
+      thickness: 0.5,
+      ior: 1.33,
+      clearcoat: 0.55,
+      clearcoatRoughness: 0.1,
+      transparent: true,
+      opacity: 0.92,
+      side: THREE.DoubleSide,
+      envMapIntensity: 1.0,
+    });
+    const waterMesh = new THREE.Mesh(waterGeom, waterMat);
+    waterMesh.renderOrder = 2;
+    scene.add(waterMesh);
+
+    // ---------- pour stream (visible column falling in) ----------
+    const STREAM_SEGMENTS = 14;
+    const streamDropsGeom = new THREE.BufferGeometry();
+    const streamPositions = new Float32Array(STREAM_SEGMENTS * 3);
+    streamDropsGeom.setAttribute("position", new THREE.BufferAttribute(streamPositions, 3));
+    const streamMat = new THREE.PointsMaterial({
+      color: 0x9fd8ff,
+      size: 0.11,
+      sizeAttenuation: true,
+      transparent: true,
+      opacity: 0.92,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    });
+    const streamPoints = new THREE.Points(streamDropsGeom, streamMat);
+    scene.add(streamPoints);
+
+    // Thin core of the stream for continuity.
+    const coreGeom = new THREE.CylinderGeometry(0.035, 0.03, 1, 12, 1, true);
+    const coreMat = new THREE.MeshBasicMaterial({
+      color: 0x8cc7ff,
+      transparent: true,
+      opacity: 0.55,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      side: THREE.DoubleSide,
+    });
+    const streamCore = new THREE.Mesh(coreGeom, coreMat);
+    scene.add(streamCore);
+
+    function updateStream(poreX, poreZ, topY, bottomY) {
+      const len = Math.max(0.01, topY - bottomY);
+      streamCore.scale.set(1, len, 1);
+      streamCore.position.set(poreX, (topY + bottomY) * 0.5, poreZ);
+
+      // Drops at jittered positions along the column.
+      for (let i = 0; i < STREAM_SEGMENTS; i++) {
+        const t = i / (STREAM_SEGMENTS - 1);
+        const y = topY - t * len;
+        const jx = (Math.sin(performance.now() * 0.01 + i * 1.7) + Math.sin(i * 3.3)) * 0.012;
+        const jz = (Math.cos(performance.now() * 0.008 + i * 2.1) + Math.cos(i * 2.7)) * 0.012;
+        streamPositions[i * 3]     = poreX + jx;
+        streamPositions[i * 3 + 1] = y;
+        streamPositions[i * 3 + 2] = poreZ + jz;
+      }
+      streamDropsGeom.attributes.position.needsUpdate = true;
+    }
+
+    function hideStream() {
+      streamCore.visible = false;
+      streamPoints.visible = false;
+    }
+    function showStream() {
+      streamCore.visible = true;
+      streamPoints.visible = true;
+    }
+
+    // ---------- sim state ----------
+    let waterLevel = 0;         // absolute Y of the water surface (grows during pour)
+    let pourT = 0;              // elapsed pour time
+    let pouring = true;
+    let pourX = 0, pourZ = 0;   // where stream hits surface (wobbles a little)
+    let pourPhase = Math.random() * Math.PI * 2;
+
+    function resetSim() {
+      resetHeightField();
+      pourT = 0;
+      waterLevel = BASE_WATER_Y;
+      pouring = true;
+      showStream();
+      // Start slightly dry so the pour is visible landing on empty floor.
+    }
+    resetSim();
+
+    document.getElementById("resetBtn").addEventListener("click", resetSim);
+
+    // ---------- mouse sloshing ----------
+    const raycaster = new THREE.Raycaster();
+    const ndc = new THREE.Vector2();
+    const surfacePlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+    const hitPt = new THREE.Vector3();
+    let lastMouse = null;
+
+    window.addEventListener("pointermove", (e) => {
+      ndc.x = (e.clientX / window.innerWidth) * 2 - 1;
+      ndc.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      raycaster.setFromCamera(ndc, camera);
+      surfacePlane.constant = -waterLevel; // plane: y = waterLevel
+      if (!raycaster.ray.intersectPlane(surfacePlane, hitPt)) return;
+      const hx = hitPt.x, hz = hitPt.z;
+      // Ignore hits outside the tank footprint.
+      if (Math.abs(hx) > HALF - 0.02 || Math.abs(hz) > HALF - 0.02) {
+        lastMouse = null;
+        return;
+      }
+      if (lastMouse) {
+        const vx = hx - lastMouse.x;
+        const vz = hz - lastMouse.z;
+        const speed = Math.hypot(vx, vz);
+        if (speed > 0.0008) {
+          // Amplitude scales with drag speed; radius gentle.
+          splash(hx, hz, 0.18, -Math.min(0.18, speed * 2.2));
+        }
+      }
+      lastMouse = { x: hx, z: hz };
+    });
+    window.addEventListener("pointerleave", () => { lastMouse = null; });
+
+    // ---------- per-frame water geometry update ----------
+    const waterPos = waterGeom.attributes.position;
+
+    function syncWaterGeometry() {
+      // Update the plane's per-vertex Y from the height field.
+      for (let j = 0; j < N; j++) {
+        for (let i = 0; i < N; i++) {
+          const k = idx(i, j);
+          waterPos.setY(k, hCur[k]);
+        }
+      }
+      waterPos.needsUpdate = true;
+      waterGeom.computeVertexNormals();
+    }
+
+    // ---------- main loop ----------
+    const clock = new THREE.Clock();
+
+    function tick() {
+      let dt = clock.getDelta();
+      if (dt > 0.05) dt = 0.05;
+
+      // Pour phase: raise water level, punch the surface where the stream hits.
+      if (pouring) {
+        pourT += dt;
+        const prog = Math.min(1, pourT / POUR_DURATION);
+        // Smoothstep for a more natural fill curve.
+        const eased = prog * prog * (3 - 2 * prog);
+        waterLevel = BASE_WATER_Y + eased * TANK * TARGET_FILL;
+
+        // Wobble stream impact a little inside the tank.
+        pourPhase += dt * 1.3;
+        pourX = Math.sin(pourPhase) * 0.18;
+        pourZ = Math.cos(pourPhase * 0.7) * 0.18;
+
+        // Stream visuals
+        updateStream(pourX, pourZ, POUR_START_Y, waterLevel + 0.01);
+
+        // Local surface impact — stronger early, eases as fill completes.
+        const impactAmp = -0.22 * (1 - 0.4 * eased);
+        splash(pourX, pourZ, 0.16, impactAmp * dt * 6);
+
+        if (prog >= 1) {
+          pouring = false;
+          hideStream();
+          // Give a final slosh kick so the water has momentum afterward.
+          splash(0.2 * Math.sign(Math.random() - 0.5), -0.25, 0.5, -0.06);
+          splash(-0.3, 0.2, 0.45, 0.05);
+        }
+      }
+
+      stepWater(dt);
+      syncWaterGeometry();
+
+      waterMesh.position.y = waterLevel;
+
+      controls.update();
+      renderer.render(scene, camera);
+      requestAnimationFrame(tick);
+    }
+    tick();
+
+    // ---------- resize ----------
+    window.addEventListener("resize", () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>

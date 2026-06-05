@@ -1,0 +1,1386 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Heliomall Escape</title>
+  <style>
+    :root {
+      --hud-bg: rgba(10, 18, 26, 0.68);
+      --hud-text: #ebf5ff;
+      --hud-accent: #78f0c8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #04060d;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--hud-text);
+    }
+
+    #hud {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      z-index: 20;
+      min-width: 250px;
+      padding: 10px 12px;
+      border: 1px solid rgba(179, 236, 255, 0.22);
+      border-radius: 10px;
+      background: var(--hud-bg);
+      backdrop-filter: blur(4px);
+      line-height: 1.35;
+      font-size: 14px;
+    }
+
+    #hud strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--hud-accent);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+
+    #phase {
+      margin-top: 6px;
+      font-weight: 700;
+      color: #fff6bd;
+    }
+
+    .hud-row {
+      margin-top: 3px;
+    }
+
+    #status {
+      margin-top: 6px;
+      color: #c0ffd4;
+      font-weight: 700;
+    }
+
+    #overlay {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background: rgba(6, 7, 15, 0.72);
+      z-index: 30;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s ease;
+    }
+
+    #overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    #overlay .panel {
+      width: min(92vw, 420px);
+      padding: 24px 22px;
+      text-align: center;
+      border-radius: 12px;
+      border: 1px solid rgba(190, 151, 255, 0.28);
+      background: rgba(14, 16, 34, 0.9);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    #overlay h2 {
+      margin: 0 0 10px;
+      color: #ff9ea8;
+      font-size: 28px;
+      letter-spacing: 0.02em;
+    }
+
+    #overlay p {
+      margin: 0;
+      line-height: 1.4;
+      color: #dae7ff;
+    }
+  </style>
+</head>
+<body>
+  <div id="hud">
+    <strong>Heliomall Escape</strong>
+    <div id="status">Status: Surviving</div>
+    <div class="hud-row" id="enemyCount">Demons: 0</div>
+    <div class="hud-row" id="timeSurvived">Survival: 0.0s</div>
+    <div>Move: Arrow Keys</div>
+    <div>Jump: Space</div>
+    <div>Restart after death: R</div>
+    <div id="phase">Cycle: Day</div>
+  </div>
+  <div id="overlay">
+    <div class="panel">
+      <h2>You Died</h2>
+      <p id="overlayText">A demon touched you. Press R to restart.</p>
+    </div>
+  </div>
+
+  <script type="module">
+    import * as THREE from "https://unpkg.com/three@0.160.1/build/three.module.js";
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(0x8ec8ec, 42, 210);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    document.body.appendChild(renderer.domElement);
+
+    const camera = new THREE.PerspectiveCamera(
+      60,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      420
+    );
+    camera.position.set(0, 5.5, -10);
+
+    const clock = new THREE.Clock();
+    const phaseLabel = document.getElementById("phase");
+    const statusLabel = document.getElementById("status");
+    const enemyCountLabel = document.getElementById("enemyCount");
+    const survivalLabel = document.getElementById("timeSurvived");
+    const overlay = document.getElementById("overlay");
+    const overlayText = document.getElementById("overlayText");
+
+    const world = {
+      halfWidth: 74,
+      halfDepth: 64,
+      playerRadius: 0.62,
+      colliders: [],
+      cycleSeconds: 85,
+      cycleTime: 21
+    };
+
+    const game = {
+      alive: true,
+      survivalTime: 0,
+      bestTime: 0
+    };
+
+    function addCollider(x, z, width, depth, height) {
+      world.colliders.push({
+        minX: x - width * 0.5,
+        maxX: x + width * 0.5,
+        minZ: z - depth * 0.5,
+        maxZ: z + depth * 0.5,
+        height
+      });
+    }
+
+    const moodMaterials = [];
+
+    function trackMood(material, dayColor, nightColor, dayEmissive, nightEmissive) {
+      moodMaterials.push({
+        material,
+        dayColor: new THREE.Color(dayColor),
+        nightColor: new THREE.Color(nightColor),
+        dayEmissive,
+        nightEmissive
+      });
+    }
+
+    const nightLightConfigs = [];
+
+    function trackLight(light, dayIntensity, nightIntensity) {
+      nightLightConfigs.push({ light, dayIntensity, nightIntensity });
+    }
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+    scene.add(ambientLight);
+
+    const hemiLight = new THREE.HemisphereLight(0xc5f5ff, 0x3a4f49, 0.8);
+    scene.add(hemiLight);
+
+    const sunLight = new THREE.DirectionalLight(0xfff1bc, 1.2);
+    sunLight.castShadow = true;
+    sunLight.shadow.mapSize.set(2048, 2048);
+    sunLight.shadow.camera.left = -95;
+    sunLight.shadow.camera.right = 95;
+    sunLight.shadow.camera.top = 95;
+    sunLight.shadow.camera.bottom = -95;
+    sunLight.shadow.camera.near = 0.5;
+    sunLight.shadow.camera.far = 280;
+    sunLight.shadow.bias = -0.0001;
+    scene.add(sunLight);
+
+    const sunGlow = new THREE.Mesh(
+      new THREE.SphereGeometry(3.3, 24, 24),
+      new THREE.MeshBasicMaterial({ color: 0xffe08a })
+    );
+    scene.add(sunGlow);
+
+    const sceneRoot = new THREE.Group();
+    scene.add(sceneRoot);
+
+    const floorMaterial = new THREE.MeshStandardMaterial({
+      color: 0xd4e4d6,
+      roughness: 0.93,
+      metalness: 0.03
+    });
+    trackMood(floorMaterial, 0xd4e4d6, 0x171c2b);
+
+    const mainFloor = new THREE.Mesh(new THREE.PlaneGeometry(160, 140), floorMaterial);
+    mainFloor.rotation.x = -Math.PI / 2;
+    mainFloor.receiveShadow = true;
+    sceneRoot.add(mainFloor);
+
+    const tileBandMaterial = new THREE.MeshStandardMaterial({
+      color: 0xf3f8f0,
+      roughness: 0.86,
+      metalness: 0.04
+    });
+    trackMood(tileBandMaterial, 0xf3f8f0, 0x232a3d);
+
+    function addTileBand(x, z, width, depth) {
+      const band = new THREE.Mesh(new THREE.BoxGeometry(width, 0.08, depth), tileBandMaterial);
+      band.position.set(x, 0.04, z);
+      band.receiveShadow = true;
+      sceneRoot.add(band);
+    }
+
+    addTileBand(0, 0, 120, 12);
+    addTileBand(0, 0, 12, 96);
+    addTileBand(0, 26, 74, 8);
+    addTileBand(0, -26, 74, 8);
+
+    const grassMaterial = new THREE.MeshStandardMaterial({
+      color: 0x72bf70,
+      roughness: 1,
+      metalness: 0
+    });
+    trackMood(grassMaterial, 0x72bf70, 0x223d33);
+
+    function addGardenPatch(x, z, width, depth) {
+      const patch = new THREE.Mesh(new THREE.BoxGeometry(width, 0.36, depth), grassMaterial);
+      patch.position.set(x, 0.18, z);
+      patch.receiveShadow = true;
+      sceneRoot.add(patch);
+    }
+
+    addGardenPatch(-56, 0, 22, 114);
+    addGardenPatch(56, 0, 22, 114);
+    addGardenPatch(0, -48, 96, 18);
+    addGardenPatch(0, 48, 96, 18);
+
+    const planterMaterial = new THREE.MeshStandardMaterial({
+      color: 0x9aaca0,
+      roughness: 0.75,
+      metalness: 0.18
+    });
+    trackMood(planterMaterial, 0x9aaca0, 0x2f3645);
+
+    const trunkMaterial = new THREE.MeshStandardMaterial({
+      color: 0x8f623f,
+      roughness: 0.95,
+      metalness: 0.02
+    });
+    trackMood(trunkMaterial, 0x8f623f, 0x4f3e4a);
+
+    const leafMaterial = new THREE.MeshStandardMaterial({
+      color: 0x58b266,
+      roughness: 0.9,
+      metalness: 0.04
+    });
+    trackMood(leafMaterial, 0x58b266, 0x275143);
+
+    function addTree(x, y, z, scale = 1) {
+      const tree = new THREE.Group();
+      tree.position.set(x, y, z);
+      const trunk = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.2 * scale, 0.24 * scale, 1.8 * scale, 12),
+        trunkMaterial
+      );
+      trunk.position.y = 0.9 * scale;
+      trunk.castShadow = true;
+      trunk.receiveShadow = true;
+      tree.add(trunk);
+
+      const crown = new THREE.Mesh(
+        new THREE.SphereGeometry(0.95 * scale, 14, 12),
+        leafMaterial
+      );
+      crown.position.y = 2 * scale;
+      crown.castShadow = true;
+      crown.receiveShadow = true;
+      tree.add(crown);
+
+      sceneRoot.add(tree);
+    }
+
+    function addPlanter(x, z, radius = 1.9) {
+      const planter = new THREE.Group();
+      planter.position.set(x, 0, z);
+
+      const basin = new THREE.Mesh(
+        new THREE.CylinderGeometry(radius, radius, 0.8, 20),
+        planterMaterial
+      );
+      basin.position.y = 0.4;
+      basin.castShadow = true;
+      basin.receiveShadow = true;
+      planter.add(basin);
+
+      const soil = new THREE.Mesh(
+        new THREE.CylinderGeometry(radius * 0.88, radius * 0.88, 0.18, 20),
+        new THREE.MeshStandardMaterial({
+          color: 0x6f5d4a,
+          roughness: 0.98,
+          metalness: 0
+        })
+      );
+      soil.position.y = 0.83;
+      soil.receiveShadow = true;
+      planter.add(soil);
+
+      sceneRoot.add(planter);
+      addTree(x, 0.9, z, 0.95);
+      addCollider(x, z, radius * 2.05, radius * 2.05, 1.2);
+    }
+
+    const storeBodyMaterial = new THREE.MeshStandardMaterial({
+      color: 0xb8d3c2,
+      roughness: 0.86,
+      metalness: 0.08
+    });
+    trackMood(storeBodyMaterial, 0xb8d3c2, 0x242f43);
+
+    const storeWindowMaterial = new THREE.MeshStandardMaterial({
+      color: 0xdafaf3,
+      roughness: 0.22,
+      metalness: 0.6,
+      emissive: new THREE.Color(0x53d3a4),
+      emissiveIntensity: 0.07
+    });
+    trackMood(storeWindowMaterial, 0xdafaf3, 0x284866, 0.07, 1.2);
+
+    function addStore(x, z, width, depth, height) {
+      const store = new THREE.Group();
+      store.position.set(x, 0, z);
+
+      const shell = new THREE.Mesh(
+        new THREE.BoxGeometry(width, height, depth),
+        storeBodyMaterial
+      );
+      shell.position.y = height * 0.5;
+      shell.castShadow = true;
+      shell.receiveShadow = true;
+      store.add(shell);
+
+      const frontWindow = new THREE.Mesh(
+        new THREE.BoxGeometry(width * 0.72, height * 0.45, 0.24),
+        storeWindowMaterial
+      );
+      frontWindow.position.set(0, height * 0.57, depth * 0.5 + 0.13);
+      frontWindow.castShadow = true;
+      frontWindow.receiveShadow = true;
+      store.add(frontWindow);
+
+      const roofGarden = new THREE.Mesh(
+        new THREE.BoxGeometry(width * 0.68, 0.34, depth * 0.6),
+        grassMaterial
+      );
+      roofGarden.position.set(0, height + 0.17, 0);
+      roofGarden.receiveShadow = true;
+      store.add(roofGarden);
+
+      sceneRoot.add(store);
+      addCollider(x, z, width * 0.98, depth * 0.98, height + 1.1);
+    }
+
+    for (let x = -44; x <= 44; x += 22) {
+      addStore(x, -55, 16, 11, 7);
+      addStore(x, 55, 16, 11, 7);
+    }
+
+    for (let z = -33; z <= 33; z += 22) {
+      addStore(-68, z, 10, 14, 7);
+      addStore(68, z, 10, 14, 7);
+    }
+
+    const panelMaterial = new THREE.MeshStandardMaterial({
+      color: 0x253f51,
+      roughness: 0.28,
+      metalness: 0.8,
+      emissive: new THREE.Color(0x62c7ef),
+      emissiveIntensity: 0.08
+    });
+    trackMood(panelMaterial, 0x253f51, 0x12283e, 0.08, 0.8);
+
+    const frameMaterial = new THREE.MeshStandardMaterial({
+      color: 0x9db5be,
+      roughness: 0.55,
+      metalness: 0.43
+    });
+    trackMood(frameMaterial, 0x9db5be, 0x3f4d67);
+
+    function addSolarCanopy(x, z, spanX, spanZ) {
+      const canopy = new THREE.Group();
+      canopy.position.set(x, 0, z);
+
+      const postGeometry = new THREE.BoxGeometry(0.35, 3.3, 0.35);
+      const postOffsets = [
+        [-spanX * 0.45, 1.65, -spanZ * 0.45],
+        [spanX * 0.45, 1.65, -spanZ * 0.45],
+        [-spanX * 0.45, 1.65, spanZ * 0.45],
+        [spanX * 0.45, 1.65, spanZ * 0.45]
+      ];
+
+      for (const [px, py, pz] of postOffsets) {
+        const post = new THREE.Mesh(postGeometry, frameMaterial);
+        post.position.set(px, py, pz);
+        post.castShadow = true;
+        post.receiveShadow = true;
+        canopy.add(post);
+      }
+
+      const panel = new THREE.Mesh(
+        new THREE.BoxGeometry(spanX, 0.22, spanZ),
+        panelMaterial
+      );
+      panel.position.y = 3.35;
+      panel.castShadow = true;
+      panel.receiveShadow = true;
+      canopy.add(panel);
+
+      sceneRoot.add(canopy);
+    }
+
+    addSolarCanopy(-25, -8, 14, 9);
+    addSolarCanopy(25, -8, 14, 9);
+    addSolarCanopy(-25, 8, 14, 9);
+    addSolarCanopy(25, 8, 14, 9);
+
+    const benchMaterial = new THREE.MeshStandardMaterial({
+      color: 0xd8aa71,
+      roughness: 0.66,
+      metalness: 0.16
+    });
+    trackMood(benchMaterial, 0xd8aa71, 0x6a5258);
+
+    function addBench(x, z, rotate = 0) {
+      const bench = new THREE.Group();
+      bench.position.set(x, 0, z);
+      bench.rotation.y = rotate;
+
+      const seat = new THREE.Mesh(
+        new THREE.BoxGeometry(3.2, 0.22, 1.04),
+        benchMaterial
+      );
+      seat.position.y = 0.86;
+      seat.castShadow = true;
+      seat.receiveShadow = true;
+      bench.add(seat);
+
+      const back = new THREE.Mesh(
+        new THREE.BoxGeometry(3.2, 0.72, 0.2),
+        benchMaterial
+      );
+      back.position.set(0, 1.2, -0.44);
+      back.castShadow = true;
+      back.receiveShadow = true;
+      bench.add(back);
+
+      const legGeo = new THREE.BoxGeometry(0.22, 0.75, 0.18);
+      for (const legX of [-1.3, 1.3]) {
+        const leg = new THREE.Mesh(legGeo, frameMaterial);
+        leg.position.set(legX, 0.39, 0.34);
+        leg.castShadow = true;
+        leg.receiveShadow = true;
+        bench.add(leg);
+      }
+
+      sceneRoot.add(bench);
+      addCollider(x, z, rotate === 0 ? 3.2 : 1.1, rotate === 0 ? 1.1 : 3.2, 0.95);
+    }
+
+    addBench(-10, 15, 0);
+    addBench(13, -18, 0);
+    addBench(-26, -2, Math.PI / 2);
+    addBench(26, 6, Math.PI / 2);
+
+    const kioskMaterial = new THREE.MeshStandardMaterial({
+      color: 0x96a7cc,
+      roughness: 0.62,
+      metalness: 0.3,
+      emissive: new THREE.Color(0x4359cc),
+      emissiveIntensity: 0.04
+    });
+    trackMood(kioskMaterial, 0x96a7cc, 0x26375a, 0.04, 0.8);
+
+    function addKiosk(x, z) {
+      const kiosk = new THREE.Group();
+      kiosk.position.set(x, 0, z);
+
+      const body = new THREE.Mesh(
+        new THREE.BoxGeometry(3.2, 2.2, 3),
+        kioskMaterial
+      );
+      body.position.y = 1.1;
+      body.castShadow = true;
+      body.receiveShadow = true;
+      kiosk.add(body);
+
+      const top = new THREE.Mesh(
+        new THREE.BoxGeometry(3.7, 0.24, 3.6),
+        frameMaterial
+      );
+      top.position.y = 2.28;
+      top.castShadow = true;
+      top.receiveShadow = true;
+      kiosk.add(top);
+
+      sceneRoot.add(kiosk);
+      addCollider(x, z, 3.3, 3.1, 2.5);
+    }
+
+    addKiosk(-30, -18);
+    addKiosk(31, 19);
+
+    addPlanter(-15, 31, 2);
+    addPlanter(15, 31, 2);
+    addPlanter(-15, -31, 2);
+    addPlanter(15, -31, 2);
+    addPlanter(0, 39, 2.1);
+    addPlanter(0, -39, 2.1);
+
+    const lampStemMaterial = new THREE.MeshStandardMaterial({
+      color: 0x708593,
+      roughness: 0.5,
+      metalness: 0.52
+    });
+    trackMood(lampStemMaterial, 0x708593, 0x3b485f);
+
+    const lampBulbMaterial = new THREE.MeshStandardMaterial({
+      color: 0xfff3d0,
+      emissive: new THREE.Color(0xffc977),
+      emissiveIntensity: 0.18,
+      roughness: 0.2,
+      metalness: 0
+    });
+    trackMood(lampBulbMaterial, 0xfff3d0, 0xffd28a, 0.18, 1.7);
+
+    function addLamp(x, z) {
+      const pole = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.12, 0.12, 3.4, 12),
+        lampStemMaterial
+      );
+      pole.position.set(x, 1.7, z);
+      pole.castShadow = true;
+      pole.receiveShadow = true;
+      sceneRoot.add(pole);
+
+      const bulb = new THREE.Mesh(
+        new THREE.SphereGeometry(0.28, 16, 16),
+        lampBulbMaterial
+      );
+      bulb.position.set(x, 3.52, z);
+      bulb.castShadow = true;
+      bulb.receiveShadow = true;
+      sceneRoot.add(bulb);
+
+      const light = new THREE.PointLight(0xffd8ab, 0.2, 14, 2);
+      light.position.set(x, 3.52, z);
+      scene.add(light);
+      trackLight(light, 0.2, 1.8);
+    }
+
+    addLamp(-6, -8);
+    addLamp(6, -8);
+    addLamp(-6, 8);
+    addLamp(6, 8);
+    addLamp(-36, 0);
+    addLamp(36, 0);
+
+    const starsGeometry = new THREE.BufferGeometry();
+    const starCount = 1800;
+    const starPositions = new Float32Array(starCount * 3);
+
+    for (let i = 0; i < starCount; i += 1) {
+      const i3 = i * 3;
+      const theta = Math.random() * Math.PI * 2;
+      const u = Math.random();
+      const v = Math.random();
+      const phi = Math.acos(1 - 2 * u);
+      const radius = 160 + v * 130;
+
+      const x = radius * Math.sin(phi) * Math.cos(theta);
+      const y = Math.abs(radius * Math.cos(phi)) + 18;
+      const z = radius * Math.sin(phi) * Math.sin(theta);
+
+      starPositions[i3] = x;
+      starPositions[i3 + 1] = y;
+      starPositions[i3 + 2] = z;
+    }
+
+    starsGeometry.setAttribute("position", new THREE.BufferAttribute(starPositions, 3));
+
+    const starsMaterial = new THREE.PointsMaterial({
+      color: 0xbfd9ff,
+      size: 1.3,
+      sizeAttenuation: true,
+      transparent: true,
+      opacity: 0,
+      depthWrite: false
+    });
+
+    const stars = new THREE.Points(starsGeometry, starsMaterial);
+    scene.add(stars);
+
+    const player = new THREE.Group();
+    scene.add(player);
+
+    const playerMaterial = new THREE.MeshStandardMaterial({
+      color: 0x7ee0ba,
+      roughness: 0.7,
+      metalness: 0.1
+    });
+    trackMood(playerMaterial, 0x7ee0ba, 0x5f8bc7);
+
+    const accentMaterial = new THREE.MeshStandardMaterial({
+      color: 0x324148,
+      roughness: 0.75,
+      metalness: 0.12
+    });
+    trackMood(accentMaterial, 0x324148, 0x2b3244);
+
+    const torso = new THREE.Mesh(new THREE.BoxGeometry(0.94, 1.08, 0.58), playerMaterial);
+    torso.position.y = 1.45;
+    torso.castShadow = true;
+    torso.receiveShadow = true;
+    player.add(torso);
+
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.34, 16, 14), accentMaterial);
+    head.position.y = 2.26;
+    head.castShadow = true;
+    head.receiveShadow = true;
+    player.add(head);
+
+    const leftLegPivot = new THREE.Group();
+    leftLegPivot.position.set(-0.24, 0.98, 0);
+    player.add(leftLegPivot);
+
+    const rightLegPivot = new THREE.Group();
+    rightLegPivot.position.set(0.24, 0.98, 0);
+    player.add(rightLegPivot);
+
+    const leftArmPivot = new THREE.Group();
+    leftArmPivot.position.set(-0.58, 1.85, 0);
+    player.add(leftArmPivot);
+
+    const rightArmPivot = new THREE.Group();
+    rightArmPivot.position.set(0.58, 1.85, 0);
+    player.add(rightArmPivot);
+
+    const legGeometry = new THREE.BoxGeometry(0.3, 0.9, 0.3);
+    const armGeometry = new THREE.BoxGeometry(0.24, 0.82, 0.24);
+
+    const leftLeg = new THREE.Mesh(legGeometry, accentMaterial);
+    leftLeg.position.y = -0.46;
+    leftLeg.castShadow = true;
+    leftLeg.receiveShadow = true;
+    leftLegPivot.add(leftLeg);
+
+    const rightLeg = new THREE.Mesh(legGeometry, accentMaterial);
+    rightLeg.position.y = -0.46;
+    rightLeg.castShadow = true;
+    rightLeg.receiveShadow = true;
+    rightLegPivot.add(rightLeg);
+
+    const leftArm = new THREE.Mesh(armGeometry, accentMaterial);
+    leftArm.position.y = -0.42;
+    leftArm.castShadow = true;
+    leftArm.receiveShadow = true;
+    leftArmPivot.add(leftArm);
+
+    const rightArm = new THREE.Mesh(armGeometry, accentMaterial);
+    rightArm.position.y = -0.42;
+    rightArm.castShadow = true;
+    rightArm.receiveShadow = true;
+    rightArmPivot.add(rightArm);
+
+    const playerState = {
+      x: 0,
+      y: 0,
+      z: 0,
+      vy: 0,
+      heading: 0,
+      forwardSpeed: 0,
+      runCycle: 0,
+      grounded: true
+    };
+
+    function resetPlayerState() {
+      playerState.x = 0;
+      playerState.y = 0;
+      playerState.z = 0;
+      playerState.vy = 0;
+      playerState.heading = 0;
+      playerState.forwardSpeed = 0;
+      playerState.runCycle = 0;
+      playerState.grounded = true;
+
+      player.position.set(0, 0, 0);
+      player.rotation.y = 0;
+      torso.position.y = 1.45;
+      leftLegPivot.rotation.x = 0;
+      rightLegPivot.rotation.x = 0;
+      leftArmPivot.rotation.x = 0;
+      rightArmPivot.rotation.x = 0;
+    }
+
+    resetPlayerState();
+
+    function canMoveToRadius(x, z, y, radius) {
+      if (
+        Math.abs(x) > world.halfWidth - radius ||
+        Math.abs(z) > world.halfDepth - radius
+      ) {
+        return false;
+      }
+
+      for (const collider of world.colliders) {
+        if (y > collider.height + 0.2) {
+          continue;
+        }
+
+        const closestX = Math.max(collider.minX, Math.min(x, collider.maxX));
+        const closestZ = Math.max(collider.minZ, Math.min(z, collider.maxZ));
+        const dx = x - closestX;
+        const dz = z - closestZ;
+        if (dx * dx + dz * dz < radius * radius) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    function canMoveTo(x, z, y) {
+      return canMoveToRadius(x, z, y, world.playerRadius);
+    }
+
+    const enemyGroup = new THREE.Group();
+    sceneRoot.add(enemyGroup);
+
+    const demonSkinMaterial = new THREE.MeshStandardMaterial({
+      color: 0x6f2a39,
+      roughness: 0.78,
+      metalness: 0.08
+    });
+    trackMood(demonSkinMaterial, 0x6f2a39, 0x2b1535);
+
+    const demonAccentMaterial = new THREE.MeshStandardMaterial({
+      color: 0x2f3747,
+      roughness: 0.7,
+      metalness: 0.12
+    });
+    trackMood(demonAccentMaterial, 0x2f3747, 0x1a2436);
+
+    const demonEyeMaterial = new THREE.MeshStandardMaterial({
+      color: 0xffb8bc,
+      emissive: new THREE.Color(0xff1c40),
+      emissiveIntensity: 0.55,
+      roughness: 0.2,
+      metalness: 0
+    });
+    trackMood(demonEyeMaterial, 0xffb8bc, 0xff86b4, 0.55, 2.7);
+
+    const demonBodyGeo = new THREE.BoxGeometry(0.9, 1.15, 0.56);
+    const demonHeadGeo = new THREE.SphereGeometry(0.34, 12, 12);
+    const demonLimbGeo = new THREE.BoxGeometry(0.22, 0.82, 0.22);
+    const demonHornGeo = new THREE.ConeGeometry(0.12, 0.34, 10);
+    const demonEyeGeo = new THREE.SphereGeometry(0.06, 8, 8);
+
+    const enemies = [];
+    const enemyConfig = {
+      radius: 0.56,
+      spawnMinDelay: 1.5,
+      spawnMaxDelay: 2.6,
+      spawnTimer: 2.2,
+      maxAlive: 14
+    };
+
+    function createEnemy() {
+      const group = new THREE.Group();
+
+      const body = new THREE.Mesh(demonBodyGeo, demonSkinMaterial);
+      body.position.y = 1.3;
+      body.castShadow = true;
+      body.receiveShadow = true;
+      group.add(body);
+
+      const headMesh = new THREE.Mesh(demonHeadGeo, demonSkinMaterial);
+      headMesh.position.y = 2.12;
+      headMesh.castShadow = true;
+      headMesh.receiveShadow = true;
+      group.add(headMesh);
+
+      const leftHorn = new THREE.Mesh(demonHornGeo, demonAccentMaterial);
+      leftHorn.position.set(-0.16, 2.45, 0.04);
+      leftHorn.rotation.z = 0.3;
+      leftHorn.castShadow = true;
+      group.add(leftHorn);
+
+      const rightHorn = new THREE.Mesh(demonHornGeo, demonAccentMaterial);
+      rightHorn.position.set(0.16, 2.45, 0.04);
+      rightHorn.rotation.z = -0.3;
+      rightHorn.castShadow = true;
+      group.add(rightHorn);
+
+      const leftEye = new THREE.Mesh(demonEyeGeo, demonEyeMaterial);
+      leftEye.position.set(-0.09, 2.12, 0.31);
+      group.add(leftEye);
+
+      const rightEye = new THREE.Mesh(demonEyeGeo, demonEyeMaterial);
+      rightEye.position.set(0.09, 2.12, 0.31);
+      group.add(rightEye);
+
+      const leftLegPivot = new THREE.Group();
+      leftLegPivot.position.set(-0.21, 0.88, 0);
+      group.add(leftLegPivot);
+
+      const rightLegPivot = new THREE.Group();
+      rightLegPivot.position.set(0.21, 0.88, 0);
+      group.add(rightLegPivot);
+
+      const leftArmPivot = new THREE.Group();
+      leftArmPivot.position.set(-0.56, 1.74, 0);
+      group.add(leftArmPivot);
+
+      const rightArmPivot = new THREE.Group();
+      rightArmPivot.position.set(0.56, 1.74, 0);
+      group.add(rightArmPivot);
+
+      const leftLeg = new THREE.Mesh(demonLimbGeo, demonAccentMaterial);
+      leftLeg.position.y = -0.41;
+      leftLeg.castShadow = true;
+      leftLeg.receiveShadow = true;
+      leftLegPivot.add(leftLeg);
+
+      const rightLeg = new THREE.Mesh(demonLimbGeo, demonAccentMaterial);
+      rightLeg.position.y = -0.41;
+      rightLeg.castShadow = true;
+      rightLeg.receiveShadow = true;
+      rightLegPivot.add(rightLeg);
+
+      const leftArm = new THREE.Mesh(demonLimbGeo, demonAccentMaterial);
+      leftArm.position.y = -0.4;
+      leftArm.castShadow = true;
+      leftArm.receiveShadow = true;
+      leftArmPivot.add(leftArm);
+
+      const rightArm = new THREE.Mesh(demonLimbGeo, demonAccentMaterial);
+      rightArm.position.y = -0.4;
+      rightArm.castShadow = true;
+      rightArm.receiveShadow = true;
+      rightArmPivot.add(rightArm);
+
+      return {
+        group,
+        leftLegPivot,
+        rightLegPivot,
+        leftArmPivot,
+        rightArmPivot,
+        x: 0,
+        z: 0,
+        heading: 0,
+        speed: 3.3 + Math.random() * 1.6,
+        radius: enemyConfig.radius,
+        runCycle: Math.random() * Math.PI * 2,
+        slideSign: Math.random() < 0.5 ? -1 : 1
+      };
+    }
+
+    function clearEnemies() {
+      for (const enemy of enemies) {
+        enemyGroup.remove(enemy.group);
+      }
+      enemies.length = 0;
+    }
+
+    function getEnemySpawnPoint() {
+      const edgeX = world.halfWidth - 4;
+      const edgeZ = world.halfDepth - 4;
+
+      for (let attempt = 0; attempt < 36; attempt += 1) {
+        const edge = Math.floor(Math.random() * 4);
+        let x = 0;
+        let z = 0;
+
+        if (edge === 0) {
+          x = -edgeX;
+          z = THREE.MathUtils.randFloatSpread(edgeZ * 2);
+        } else if (edge === 1) {
+          x = edgeX;
+          z = THREE.MathUtils.randFloatSpread(edgeZ * 2);
+        } else if (edge === 2) {
+          x = THREE.MathUtils.randFloatSpread(edgeX * 2);
+          z = -edgeZ;
+        } else {
+          x = THREE.MathUtils.randFloatSpread(edgeX * 2);
+          z = edgeZ;
+        }
+
+        if (!canMoveToRadius(x, z, 0, enemyConfig.radius)) {
+          continue;
+        }
+
+        const px = x - playerState.x;
+        const pz = z - playerState.z;
+        if (px * px + pz * pz < 19 * 19) {
+          continue;
+        }
+
+        let crowded = false;
+        for (const enemy of enemies) {
+          const dx = x - enemy.x;
+          const dz = z - enemy.z;
+          if (dx * dx + dz * dz < 3.2 * 3.2) {
+            crowded = true;
+            break;
+          }
+        }
+
+        if (crowded) {
+          continue;
+        }
+
+        return { x, z };
+      }
+
+      return null;
+    }
+
+    function spawnEnemy() {
+      const spawnPoint = getEnemySpawnPoint();
+      if (!spawnPoint) {
+        return;
+      }
+
+      const enemy = createEnemy();
+      enemy.x = spawnPoint.x;
+      enemy.z = spawnPoint.z;
+      enemy.heading = Math.atan2(playerState.x - enemy.x, playerState.z - enemy.z);
+      enemy.group.position.set(enemy.x, 0, enemy.z);
+      enemy.group.rotation.y = enemy.heading;
+      enemyGroup.add(enemy.group);
+      enemies.push(enemy);
+    }
+
+    function tryMoveWithRadius(entity, dx, dz, radius, y) {
+      let moved = false;
+
+      const nextX = entity.x + dx;
+      if (canMoveToRadius(nextX, entity.z, y, radius)) {
+        entity.x = nextX;
+        moved = true;
+      }
+
+      const nextZ = entity.z + dz;
+      if (canMoveToRadius(entity.x, nextZ, y, radius)) {
+        entity.z = nextZ;
+        moved = true;
+      }
+
+      return moved;
+    }
+
+    function movePlayer(dx, dz) {
+      tryMoveWithRadius(playerState, dx, dz, world.playerRadius, playerState.y);
+    }
+
+    function moveEnemy(enemy, dx, dz) {
+      let moved = tryMoveWithRadius(enemy, dx, dz, enemy.radius, 0);
+      if (moved) {
+        return;
+      }
+
+      const slideX = -dz * enemy.slideSign * 0.8;
+      const slideZ = dx * enemy.slideSign * 0.8;
+      moved = tryMoveWithRadius(enemy, slideX, slideZ, enemy.radius, 0);
+
+      if (!moved) {
+        enemy.slideSign *= -1;
+        tryMoveWithRadius(enemy, -slideX, -slideZ, enemy.radius, 0);
+      }
+    }
+
+    function updateEnemies(delta) {
+      if (game.alive) {
+        enemyConfig.spawnTimer -= delta;
+
+        while (enemyConfig.spawnTimer <= 0 && enemies.length < enemyConfig.maxAlive) {
+          spawnEnemy();
+          enemyConfig.spawnTimer += THREE.MathUtils.lerp(
+            enemyConfig.spawnMinDelay,
+            enemyConfig.spawnMaxDelay,
+            Math.random()
+          );
+        }
+      }
+
+      const killDistance = world.playerRadius + enemyConfig.radius * 0.95;
+      const killDistanceSq = killDistance * killDistance;
+
+      for (let i = 0; i < enemies.length; i += 1) {
+        const enemy = enemies[i];
+        let dirX = playerState.x - enemy.x;
+        let dirZ = playerState.z - enemy.z;
+        const distSq = dirX * dirX + dirZ * dirZ;
+
+        if (game.alive && distSq <= killDistanceSq) {
+          triggerGameOver();
+        }
+
+        const distance = Math.sqrt(Math.max(distSq, 0.0001));
+        dirX /= distance;
+        dirZ /= distance;
+
+        let avoidX = 0;
+        let avoidZ = 0;
+        for (let j = 0; j < enemies.length; j += 1) {
+          if (i === j) {
+            continue;
+          }
+
+          const other = enemies[j];
+          const dx = enemy.x - other.x;
+          const dz = enemy.z - other.z;
+          const d2 = dx * dx + dz * dz;
+          if (d2 > 0 && d2 < 6.25) {
+            const d = Math.sqrt(d2);
+            const repel = (2.5 - d) / 2.5;
+            if (repel > 0) {
+              avoidX += (dx / d) * repel;
+              avoidZ += (dz / d) * repel;
+            }
+          }
+        }
+
+        dirX += avoidX * 0.9;
+        dirZ += avoidZ * 0.9;
+        const dirLength = Math.hypot(dirX, dirZ) || 1;
+        dirX /= dirLength;
+        dirZ /= dirLength;
+
+        const speedScale = game.alive ? 1 : 0.18;
+        moveEnemy(enemy, dirX * enemy.speed * speedScale * delta, dirZ * enemy.speed * speedScale * delta);
+
+        const targetHeading = Math.atan2(dirX, dirZ);
+        enemy.heading = THREE.MathUtils.lerp(
+          enemy.heading,
+          targetHeading,
+          1 - Math.exp(-delta * 9)
+        );
+        enemy.group.rotation.y = enemy.heading;
+
+        enemy.runCycle += delta * (2.8 + enemy.speed * speedScale);
+        const swing = Math.sin(enemy.runCycle * 6.2) * 0.75 * speedScale;
+        enemy.leftLegPivot.rotation.x = swing;
+        enemy.rightLegPivot.rotation.x = -swing;
+        enemy.leftArmPivot.rotation.x = -swing * 0.7;
+        enemy.rightArmPivot.rotation.x = swing * 0.7;
+        enemy.group.position.set(enemy.x, 0, enemy.z);
+      }
+    }
+
+    function triggerGameOver() {
+      if (!game.alive) {
+        return;
+      }
+
+      game.alive = false;
+      game.bestTime = Math.max(game.bestTime, game.survivalTime);
+      statusLabel.textContent = "Status: DEAD";
+      overlayText.textContent = `A demon touched you. Survived ${game.survivalTime.toFixed(1)}s. Press R to restart.`;
+      overlay.classList.add("show");
+
+      controls.ArrowUp = false;
+      controls.ArrowDown = false;
+      controls.ArrowLeft = false;
+      controls.ArrowRight = false;
+      controls.Space = false;
+    }
+
+    function restartRun() {
+      clearEnemies();
+      resetPlayerState();
+
+      game.alive = true;
+      game.survivalTime = 0;
+      enemyConfig.spawnTimer = 1.6;
+
+      statusLabel.textContent = "Status: Surviving";
+      overlay.classList.remove("show");
+      camera.position.set(0, 5.5, -10);
+      cameraLookTarget.set(0, 1.7, 2);
+    }
+
+    const controls = {
+      ArrowUp: false,
+      ArrowDown: false,
+      ArrowLeft: false,
+      ArrowRight: false,
+      Space: false
+    };
+
+    const captureKeys = new Set([
+      "ArrowUp",
+      "ArrowDown",
+      "ArrowLeft",
+      "ArrowRight",
+      "Space",
+      "KeyR"
+    ]);
+
+    window.addEventListener("keydown", (event) => {
+      if (captureKeys.has(event.code)) {
+        event.preventDefault();
+      }
+
+      if (event.code === "KeyR" && !game.alive) {
+        restartRun();
+        return;
+      }
+
+      if (event.code in controls && game.alive) {
+        controls[event.code] = true;
+      }
+    });
+
+    window.addEventListener("keyup", (event) => {
+      if (event.code in controls) {
+        controls[event.code] = false;
+      }
+    });
+
+    const cameraLookTarget = new THREE.Vector3(0, 1.7, 2);
+    const desiredCameraPosition = new THREE.Vector3();
+    const desiredLookTarget = new THREE.Vector3();
+    const playerForward = new THREE.Vector3();
+
+    const tempDayColor = new THREE.Color();
+    const skyDay = new THREE.Color(0x91d8ff);
+    const skyNight = new THREE.Color(0x03040f);
+    const skySunset = new THREE.Color(0xff8b5b);
+    const fogDay = new THREE.Color(0x8ec8ec);
+    const fogNight = new THREE.Color(0x0a101e);
+    const hemiDay = new THREE.Color(0xbeefff);
+    const hemiNight = new THREE.Color(0x2f3a64);
+    const sunDay = new THREE.Color(0xfff0bc);
+    const sunSet = new THREE.Color(0xffb86e);
+
+    function updateLighting(delta) {
+      world.cycleTime += delta;
+      const phase = (world.cycleTime % world.cycleSeconds) / world.cycleSeconds;
+      const sunCurve = Math.sin(phase * Math.PI * 2 - Math.PI * 0.5);
+      const dayAmount = THREE.MathUtils.clamp((sunCurve + 0.15) / 1.15, 0, 1);
+      const nightAmount = 1 - dayAmount;
+
+      const sunsetAmount = THREE.MathUtils.clamp(1 - Math.abs(sunCurve) * 2.1, 0, 1);
+
+      sunLight.position.set(
+        Math.cos(phase * Math.PI * 2) * 82,
+        sunCurve * 90 + 12,
+        Math.sin(phase * Math.PI * 2) * 60
+      );
+      sunLight.intensity = 0.08 + dayAmount * 1.32;
+      sunLight.color.lerpColors(sunSet, sunDay, dayAmount);
+      ambientLight.intensity = 0.18 + dayAmount * 0.84;
+      hemiLight.intensity = 0.18 + dayAmount * 0.72;
+      hemiLight.color.lerpColors(hemiNight, hemiDay, dayAmount);
+
+      sunGlow.position.copy(sunLight.position).multiplyScalar(0.95);
+      sunGlow.material.color.lerpColors(sunSet, sunDay, dayAmount);
+      sunGlow.visible = sunLight.position.y > -10;
+
+      tempDayColor.lerpColors(skyNight, skyDay, dayAmount);
+      tempDayColor.lerp(skySunset, sunsetAmount * 0.27);
+      renderer.setClearColor(tempDayColor);
+
+      scene.fog.color.lerpColors(fogNight, fogDay, dayAmount);
+
+      for (const item of moodMaterials) {
+        item.material.color.lerpColors(item.nightColor, item.dayColor, dayAmount);
+
+        if (
+          typeof item.dayEmissive === "number" &&
+          typeof item.nightEmissive === "number" &&
+          "emissiveIntensity" in item.material
+        ) {
+          item.material.emissiveIntensity = THREE.MathUtils.lerp(
+            item.nightEmissive,
+            item.dayEmissive,
+            dayAmount
+          );
+        }
+      }
+
+      for (const item of nightLightConfigs) {
+        item.light.intensity = THREE.MathUtils.lerp(
+          item.nightIntensity,
+          item.dayIntensity,
+          dayAmount
+        );
+      }
+
+      starsMaterial.opacity = Math.pow(nightAmount, 1.6) * 0.96;
+      stars.rotation.y += delta * 0.01;
+
+      phaseLabel.textContent =
+        dayAmount > 0.34
+          ? "Cycle: Solarpunk Day"
+          : "Cycle: Space Shift Night";
+    }
+
+    function updatePlayer(delta) {
+      if (!game.alive) {
+        playerState.forwardSpeed = THREE.MathUtils.lerp(
+          playerState.forwardSpeed,
+          0,
+          1 - Math.exp(-delta * 9)
+        );
+        leftLegPivot.rotation.x = THREE.MathUtils.lerp(
+          leftLegPivot.rotation.x,
+          0,
+          1 - Math.exp(-delta * 10)
+        );
+        rightLegPivot.rotation.x = THREE.MathUtils.lerp(
+          rightLegPivot.rotation.x,
+          0,
+          1 - Math.exp(-delta * 10)
+        );
+        leftArmPivot.rotation.x = THREE.MathUtils.lerp(
+          leftArmPivot.rotation.x,
+          0,
+          1 - Math.exp(-delta * 10)
+        );
+        rightArmPivot.rotation.x = THREE.MathUtils.lerp(
+          rightArmPivot.rotation.x,
+          0,
+          1 - Math.exp(-delta * 10)
+        );
+        return;
+      }
+
+      const turnInput =
+        (controls.ArrowLeft ? 1 : 0) - (controls.ArrowRight ? 1 : 0);
+      const moveInput =
+        (controls.ArrowUp ? 1 : 0) - (controls.ArrowDown ? 1 : 0);
+
+      const turnSpeed = 2.9;
+      const maxForwardSpeed = 11.5;
+
+      playerState.heading += turnInput * turnSpeed * delta;
+
+      const targetForwardSpeed = moveInput * maxForwardSpeed;
+      const accel = 1 - Math.exp(-delta * 11);
+      playerState.forwardSpeed = THREE.MathUtils.lerp(
+        playerState.forwardSpeed,
+        targetForwardSpeed,
+        accel
+      );
+
+      if (controls.Space && playerState.grounded) {
+        playerState.vy = 7.2;
+        playerState.grounded = false;
+      }
+
+      playerState.vy -= 19 * delta;
+      playerState.y += playerState.vy * delta;
+      if (playerState.y <= 0) {
+        playerState.y = 0;
+        playerState.vy = 0;
+        playerState.grounded = true;
+      }
+
+      const dx = Math.sin(playerState.heading) * playerState.forwardSpeed * delta;
+      const dz = Math.cos(playerState.heading) * playerState.forwardSpeed * delta;
+      movePlayer(dx, dz);
+
+      const runBlend = THREE.MathUtils.clamp(
+        Math.abs(playerState.forwardSpeed) / maxForwardSpeed,
+        0,
+        1
+      );
+      playerState.runCycle += Math.abs(playerState.forwardSpeed) * delta * 0.9;
+
+      const swing = Math.sin(playerState.runCycle * 6.2) * 0.86 * runBlend;
+      const jumpOffset = playerState.grounded ? 0 : 0.08;
+      torso.position.y = 1.45 + Math.sin(playerState.runCycle * 12) * 0.04 * runBlend + jumpOffset;
+      leftLegPivot.rotation.x = swing;
+      rightLegPivot.rotation.x = -swing;
+      leftArmPivot.rotation.x = -swing * 0.65;
+      rightArmPivot.rotation.x = swing * 0.65;
+
+      player.position.set(playerState.x, playerState.y, playerState.z);
+      player.rotation.y = playerState.heading;
+    }
+
+    function updateHud(delta) {
+      if (game.alive) {
+        game.survivalTime += delta;
+      }
+
+      statusLabel.textContent = game.alive ? "Status: Surviving" : "Status: DEAD";
+      enemyCountLabel.textContent = `Demons: ${enemies.length}`;
+
+      const bestSuffix =
+        game.bestTime > 0 ? ` | Best: ${game.bestTime.toFixed(1)}s` : "";
+      survivalLabel.textContent =
+        `Survival: ${game.survivalTime.toFixed(1)}s${bestSuffix}`;
+    }
+
+    function updateCamera(delta) {
+      playerForward.set(Math.sin(playerState.heading), 0, Math.cos(playerState.heading));
+
+      desiredCameraPosition
+        .set(playerState.x, playerState.y + 4.7, playerState.z)
+        .addScaledVector(playerForward, -8.6);
+
+      desiredLookTarget
+        .set(playerState.x, playerState.y + 1.72, playerState.z)
+        .addScaledVector(playerForward, 2.2);
+
+      const cameraLag = 1 - Math.exp(-delta * 7);
+      const lookLag = 1 - Math.exp(-delta * 11);
+      camera.position.lerp(desiredCameraPosition, cameraLag);
+      cameraLookTarget.lerp(desiredLookTarget, lookLag);
+      camera.lookAt(cameraLookTarget);
+    }
+
+    function animate() {
+      const delta = Math.min(clock.getDelta(), 0.05);
+      updatePlayer(delta);
+      updateEnemies(delta);
+      updateCamera(delta);
+      updateLighting(delta);
+      updateHud(delta);
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    }
+
+    window.addEventListener("resize", () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    });
+
+    animate();
+  </script>
+</body>
+</html>

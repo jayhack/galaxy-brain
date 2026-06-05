@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Verdant Bazaar — Demon Rush</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: #000;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #fff;
+    user-select: none;
+  }
+  #hud {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    z-index: 10;
+    pointer-events: none;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+  }
+  #hud .row { margin-bottom: 4px; font-weight: 600; letter-spacing: 0.5px; }
+  #hud .big { font-size: 28px; }
+  #hud .small { font-size: 13px; opacity: 0.9; }
+  #clock {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 10;
+    pointer-events: none;
+    text-align: right;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+  }
+  #clock .time { font-size: 22px; font-weight: 700; }
+  #clock .phase { font-size: 12px; opacity: 0.8; letter-spacing: 2px; text-transform: uppercase; }
+  #stamina-bar {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 280px;
+    height: 10px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.18);
+    overflow: hidden;
+    z-index: 10;
+  }
+  #stamina-fill {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #7be5a4, #f0e68a);
+    transition: width 0.1s linear;
+  }
+  #hint {
+    position: absolute;
+    bottom: 46px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    opacity: 0.7;
+    z-index: 10;
+    pointer-events: none;
+    letter-spacing: 1px;
+  }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background: radial-gradient(ellipse at center, rgba(15,30,25,0.85), rgba(0,0,0,0.96));
+    z-index: 50;
+    text-align: center;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+  }
+  .overlay h1 {
+    font-size: 54px;
+    margin: 0 0 8px;
+    background: linear-gradient(90deg, #b4f3c4, #f7d97c, #f08a6d);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    letter-spacing: 2px;
+  }
+  .overlay h1.dead {
+    background: linear-gradient(90deg, #ff6b6b, #ff2929, #940a0a);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .overlay .sub { font-size: 15px; opacity: 0.85; max-width: 540px; line-height: 1.6; margin-bottom: 24px; }
+  .overlay .controls {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 8px 20px;
+    font-size: 14px;
+    margin-bottom: 28px;
+    opacity: 0.9;
+  }
+  .overlay .key {
+    background: rgba(255,255,255,0.1);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-family: ui-monospace, monospace;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .overlay button {
+    padding: 14px 38px;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #0a1a12;
+    background: linear-gradient(135deg, #a3eab2, #ffd98c);
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    box-shadow: 0 12px 30px rgba(163,234,178,0.35);
+    transition: transform 0.1s;
+  }
+  .overlay button:hover { transform: translateY(-2px); }
+  .overlay.hidden { display: none; }
+  .overlay .stat-line { margin-top: 16px; font-size: 18px; }
+  .overlay .stat-line b { color: #ffd98c; }
+
+  #vignette {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5;
+    box-shadow: inset 0 0 180px 40px rgba(0,0,0,0.55);
+  }
+  #damage-flash {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 6;
+    background: radial-gradient(ellipse at center, transparent 50%, rgba(255,50,50,0.7));
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  #damage-flash.hit { opacity: 1; }
+
+  canvas { display: block; }
+</style>
+</head>
+<body>
+
+<div id="hud">
+  <div class="row big" id="score">✦ 0</div>
+  <div class="row small" id="distance">0 m traveled</div>
+  <div class="row small" id="demon-count">0 demons on your trail</div>
+</div>
+
+<div id="clock">
+  <div class="time" id="time-text">06:00</div>
+  <div class="phase" id="phase-text">Dawn</div>
+</div>
+
+<div id="stamina-bar"><div id="stamina-fill"></div></div>
+<div id="hint">Arrows — move · Space — jump · Shift — sprint · R — restart</div>
+<div id="vignette"></div>
+<div id="damage-flash"></div>
+
+<div class="overlay" id="start-overlay">
+  <h1>VERDANT BAZAAR</h1>
+  <div class="sub">
+    A solarpunk mall blooms under a glass atrium — until the sun falls and the
+    shadows between the shops come alive. Run the arcades, vault the planters,
+    and stay one corridor ahead of the demons.
+  </div>
+  <div class="controls">
+    <div>Forward / Back</div><div><span class="key">↑</span> <span class="key">↓</span></div>
+    <div>Turn Left / Right</div><div><span class="key">←</span> <span class="key">→</span></div>
+    <div>Jump</div><div><span class="key">Space</span></div>
+    <div>Sprint</div><div><span class="key">Shift</span></div>
+    <div>Restart</div><div><span class="key">R</span></div>
+  </div>
+  <button id="start-btn">Begin</button>
+</div>
+
+<div class="overlay hidden" id="dead-overlay">
+  <h1 class="dead">CAUGHT</h1>
+  <div class="sub">
+    A demon has caught you between the dome lanterns. The bazaar closes around your
+    last breath. Brush off the pollen and try again.
+  </div>
+  <div class="stat-line" id="final-stats"></div>
+  <button id="restart-btn">Run Again</button>
+  <div class="sub" style="margin-top:20px;font-size:12px;opacity:0.6">or press <span class="key" style="background:rgba(255,255,255,0.1);padding:2px 8px;border-radius:4px;font-family:ui-monospace,monospace">R</span></div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+
+// ============================================================
+// SCENE, RENDERER, CAMERA
+// ============================================================
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(62, innerWidth / innerHeight, 0.1, 500);
+const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.appendChild(renderer.domElement);
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+// ============================================================
+// SKY (gradient dome, swaps between atrium-day and space-night)
+// ============================================================
+const skyUniforms = {
+  topColor:    { value: new THREE.Color(0x87ceeb) },
+  bottomColor: { value: new THREE.Color(0xffe8b8) },
+  offset:      { value: 20 },
+  exponent:    { value: 0.7 }
+};
+const skyGeo = new THREE.SphereGeometry(280, 32, 16);
+const skyMat = new THREE.ShaderMaterial({
+  uniforms: skyUniforms,
+  side: THREE.BackSide,
+  depthWrite: false,
+  vertexShader: `
+    varying vec3 vWorldPosition;
+    void main() {
+      vec4 worldPos = modelMatrix * vec4(position, 1.0);
+      vWorldPosition = worldPos.xyz;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }`,
+  fragmentShader: `
+    uniform vec3 topColor;
+    uniform vec3 bottomColor;
+    uniform float offset;
+    uniform float exponent;
+    varying vec3 vWorldPosition;
+    void main() {
+      float h = normalize(vWorldPosition + offset).y;
+      gl_FragColor = vec4(mix(bottomColor, topColor, max(pow(max(h,0.0), exponent), 0.0)), 1.0);
+    }`
+});
+scene.add(new THREE.Mesh(skyGeo, skyMat));
+
+// Starfield (appears at night — space-like)
+const starGeo = new THREE.BufferGeometry();
+const starCount = 2000;
+const starPositions = new Float32Array(starCount * 3);
+const starColors = new Float32Array(starCount * 3);
+for (let i = 0; i < starCount; i++) {
+  const r = 260;
+  const theta = Math.random() * Math.PI * 2;
+  const phi = Math.acos(2 * Math.random() - 1);
+  starPositions[i*3]   = r * Math.sin(phi) * Math.cos(theta);
+  starPositions[i*3+1] = r * Math.cos(phi) * 0.6 + 30;
+  starPositions[i*3+2] = r * Math.sin(phi) * Math.sin(theta);
+  // Tint: mostly white, some blue, some warm
+  const pick = Math.random();
+  if (pick < 0.7)      { starColors[i*3]=1; starColors[i*3+1]=1; starColors[i*3+2]=1; }
+  else if (pick < 0.85){ starColors[i*3]=0.7; starColors[i*3+1]=0.85; starColors[i*3+2]=1; }
+  else                 { starColors[i*3]=1; starColors[i*3+1]=0.85; starColors[i*3+2]=0.6; }
+}
+starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+starGeo.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
+const starMat = new THREE.PointsMaterial({
+  size: 1.4, sizeAttenuation: false, transparent: true, opacity: 0,
+  vertexColors: true, depthWrite: false
+});
+const stars = new THREE.Points(starGeo, starMat);
+scene.add(stars);
+
+// Distant planet visible through glass roof at night
+const planetGeo = new THREE.SphereGeometry(14, 32, 20);
+const planetMat = new THREE.MeshBasicMaterial({
+  color: 0x7a5ccf, transparent: true, opacity: 0, depthWrite: false
+});
+// Give it a simple ring-like darker band via a second mesh
+const planet = new THREE.Mesh(planetGeo, planetMat);
+planet.position.set(-80, 160, -120);
+scene.add(planet);
+const planetRingGeo = new THREE.RingGeometry(18, 24, 48);
+const planetRingMat = new THREE.MeshBasicMaterial({
+  color: 0xb8a7ff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false
+});
+const planetRing = new THREE.Mesh(planetRingGeo, planetRingMat);
+planetRing.position.copy(planet.position);
+planetRing.rotation.x = Math.PI / 2.5;
+planetRing.rotation.z = 0.3;
+scene.add(planetRing);
+
+// Nebula cloud (large glowing patch, fades in at night)
+const nebulaGeo = new THREE.PlaneGeometry(220, 140);
+const nebulaCanvas = (() => {
+  const c = document.createElement('canvas');
+  c.width = c.height = 512;
+  const ctx = c.getContext('2d');
+  const g = ctx.createRadialGradient(256,256,10,256,256,256);
+  g.addColorStop(0, 'rgba(180,120,255,0.8)');
+  g.addColorStop(0.3, 'rgba(90,120,220,0.5)');
+  g.addColorStop(0.6, 'rgba(40,30,120,0.2)');
+  g.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,512,512);
+  for (let i = 0; i < 400; i++) {
+    ctx.fillStyle = `rgba(255,255,255,${Math.random()*0.08})`;
+    ctx.beginPath();
+    ctx.arc(Math.random()*512, Math.random()*512, Math.random()*2, 0, Math.PI*2);
+    ctx.fill();
+  }
+  return c;
+})();
+const nebulaTex = new THREE.CanvasTexture(nebulaCanvas);
+const nebulaMat = new THREE.MeshBasicMaterial({
+  map: nebulaTex, transparent: true, opacity: 0, depthWrite: false,
+  blending: THREE.AdditiveBlending
+});
+const nebula = new THREE.Mesh(nebulaGeo, nebulaMat);
+nebula.position.set(50, 120, -180);
+nebula.rotation.y = 0.3;
+scene.add(nebula);
+
+// ============================================================
+// LIGHTS
+// ============================================================
+const hemi = new THREE.HemisphereLight(0xbfe5ff, 0x6a8a4a, 0.55);
+scene.add(hemi);
+
+const sun = new THREE.DirectionalLight(0xfff2d8, 1.3);
+sun.position.set(40, 90, 30);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.camera.left = -70;
+sun.shadow.camera.right = 70;
+sun.shadow.camera.top = 70;
+sun.shadow.camera.bottom = -70;
+sun.shadow.camera.near = 0.5;
+sun.shadow.camera.far = 250;
+sun.shadow.bias = -0.0004;
+scene.add(sun);
+scene.add(sun.target);
+
+const moonLight = new THREE.DirectionalLight(0x9fb8ff, 0.0);
+moonLight.position.set(-30, 50, -40);
+scene.add(moonLight);
+scene.add(moonLight.target);
+
+// Warm fill lights inside the mall (boost day mood)
+const fillLight = new THREE.PointLight(0xffd98c, 0.4, 40, 2);
+fillLight.position.set(0, 8, 0);
+scene.add(fillLight);
+
+scene.fog = new THREE.Fog(0xcde6e0, 40, 180);
+
+// ============================================================
+// MATERIALS — reused so we keep draw calls low
+// ============================================================
+const MAT = {
+  floorTile:  null, // created below (canvas)
+  wallLight:  new THREE.MeshStandardMaterial({ color: 0xeee6d1, roughness: 0.85 }),
+  wallAccent: new THREE.MeshStandardMaterial({ color: 0xd9c7a4, roughness: 0.8 }),
+  wood:       new THREE.MeshStandardMaterial({ color: 0x9a6b3f, roughness: 0.75 }),
+  woodDark:   new THREE.MeshStandardMaterial({ color: 0x5b3a1e, roughness: 0.85 }),
+  column:     new THREE.MeshStandardMaterial({ color: 0xf0e8d4, roughness: 0.6 }),
+  metal:      new THREE.MeshStandardMaterial({ color: 0xc8c8c8, roughness: 0.3, metalness: 0.8 }),
+  glass:      new THREE.MeshStandardMaterial({
+                color: 0xcfeadc, roughness: 0.1, metalness: 0.2,
+                transparent: true, opacity: 0.22, side: THREE.DoubleSide
+              }),
+  glassFrame: new THREE.MeshStandardMaterial({ color: 0xd6cfbc, roughness: 0.6 }),
+  leaf:       new THREE.MeshStandardMaterial({ color: 0x4a8c3f, roughness: 0.8 }),
+  leafLight:  new THREE.MeshStandardMaterial({ color: 0x7bc06c, roughness: 0.8 }),
+  leafDark:   new THREE.MeshStandardMaterial({ color: 0x2f6b34, roughness: 0.8 }),
+  trunk:      new THREE.MeshStandardMaterial({ color: 0x6b4a2b, roughness: 0.9 }),
+  water:      new THREE.MeshStandardMaterial({
+                color: 0x4fb6e0, roughness: 0.1, metalness: 0.7,
+                transparent: true, opacity: 0.85, emissive: 0x0a2c3c, emissiveIntensity: 0.2
+              }),
+  planter:    new THREE.MeshStandardMaterial({ color: 0xc68a5e, roughness: 0.85 }),
+  solarPanel: new THREE.MeshStandardMaterial({ color: 0x1c2b4a, roughness: 0.3, metalness: 0.6, emissive: 0x0a1830 }),
+  bench:      new THREE.MeshStandardMaterial({ color: 0x8c5a36, roughness: 0.8 }),
+  signBase:   new THREE.MeshStandardMaterial({ color: 0x2f1f16, roughness: 0.8 })
+};
+
+// Floor tile texture
+{
+  const c = document.createElement('canvas');
+  c.width = c.height = 512;
+  const ctx = c.getContext('2d');
+  // Light stone with warm undertone
+  ctx.fillStyle = '#e8dec2';
+  ctx.fillRect(0,0,512,512);
+  // Plank / tile grid
+  for (let y = 0; y < 8; y++) {
+    for (let x = 0; x < 8; x++) {
+      const tint = 210 + Math.random()*30;
+      ctx.fillStyle = `rgb(${tint+10},${tint-5},${tint-30})`;
+      ctx.fillRect(x*64+2, y*64+2, 60, 60);
+    }
+  }
+  // Subtle noise
+  for (let i = 0; i < 3000; i++) {
+    ctx.fillStyle = `rgba(120,90,50,${Math.random()*0.1})`;
+    ctx.fillRect(Math.random()*512, Math.random()*512, 1, 1);
+  }
+  // Inlay plants on some tiles
+  for (let i = 0; i < 15; i++) {
+    const cx = Math.floor(Math.random()*8)*64 + 32;
+    const cy = Math.floor(Math.random()*8)*64 + 32;
+    ctx.fillStyle = '#7bc06c';
+    ctx.beginPath();
+    for (let a = 0; a < 6; a++) {
+      const ang = a * Math.PI / 3;
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + Math.cos(ang)*12, cy + Math.sin(ang)*12);
+      ctx.lineTo(cx + Math.cos(ang+0.3)*6, cy + Math.sin(ang+0.3)*6);
+    }
+    ctx.fill();
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(8, 8);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  MAT.floorTile = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.85, metalness: 0.05 });
+}
+
+// Shop signage glow materials (one per color for batching)
+function makeSignMat(colorHex) {
+  return new THREE.MeshStandardMaterial({
+    color: colorHex, emissive: colorHex, emissiveIntensity: 0.6, roughness: 0.5
+  });
+}
+const SIGN_MATS = {
+  green:  makeSignMat(0x6be39b),
+  gold:   makeSignMat(0xffd36b),
+  coral:  makeSignMat(0xff8c7a),
+  rose:   makeSignMat(0xff9fbf),
+  cyan:   makeSignMat(0x8ee0ff)
+};
+
+// Window (shop) glow materials - turn on at night
+const SHOP_WINDOW_MATS = [];
+function makeShopWindowMat(base) {
+  const m = new THREE.MeshStandardMaterial({
+    color: base, emissive: base, emissiveIntensity: 0.0, roughness: 0.6, transparent: true, opacity: 0.92
+  });
+  SHOP_WINDOW_MATS.push(m);
+  return m;
+}
+
+// ============================================================
+// MALL GEOMETRY + OBSTACLES
+// ============================================================
+// Mall: a large rectangular atrium, 80 x 40 inside.
+// Shops line the long sides (N and S). Open ends at E and W (but with low walls to keep play in).
+// Central spine: fountain, kiosks, planters, columns.
+// A glass roof covers the whole thing at height ~14.
+
+const MALL = {
+  innerW: 70,   // along X
+  innerD: 36,   // along Z
+  wallH: 8,
+  roofH: 14
+};
+
+// Obstacles: axis-aligned boxes describing walls and blockers the player must avoid.
+// Format: { x, z, hx, hz, y, hy }  — center + half-extents.
+const obstacles = [];
+function addObstacle(x, z, hx, hz, y = 0, hy = 4) {
+  obstacles.push({ x, z, hx, hz, y, hy });
+}
+
+// Floor
+const floorGeo = new THREE.PlaneGeometry(MALL.innerW + 20, MALL.innerD + 20);
+floorGeo.rotateX(-Math.PI/2);
+const floor = new THREE.Mesh(floorGeo, MAT.floorTile);
+floor.receiveShadow = true;
+scene.add(floor);
+
+// Outer grass ring (seen when player peers past mall edges)
+const outerGeo = new THREE.PlaneGeometry(280, 280);
+outerGeo.rotateX(-Math.PI/2);
+const outerMat = new THREE.MeshStandardMaterial({ color: 0x5a8c45, roughness: 0.95 });
+const outer = new THREE.Mesh(outerGeo, outerMat);
+outer.position.y = -0.02;
+outer.receiveShadow = true;
+scene.add(outer);
+
+// Mall side walls (north and south) with integrated storefronts (shop bays).
+// We build each wall as a series of repeating shop bays with a sign above.
+function buildSideWall(zSide) {
+  // zSide = +1 (south, +Z) or -1 (north, -Z)
+  const wallZ = zSide * (MALL.innerD / 2);
+  const signColors = [SIGN_MATS.green, SIGN_MATS.gold, SIGN_MATS.coral, SIGN_MATS.rose, SIGN_MATS.cyan];
+  const shopW = 10;
+  const bays = Math.floor(MALL.innerW / shopW);
+  const totalW = bays * shopW;
+  const startX = -totalW / 2;
+  for (let i = 0; i < bays; i++) {
+    const cx = startX + shopW * (i + 0.5);
+    // Back wall of the shop bay
+    const back = new THREE.Mesh(new THREE.BoxGeometry(shopW - 0.1, MALL.wallH, 0.6), MAT.wallLight);
+    back.position.set(cx, MALL.wallH / 2, wallZ + zSide * 0.4);
+    back.castShadow = back.receiveShadow = true;
+    scene.add(back);
+    addObstacle(cx, wallZ + zSide * 0.4, (shopW - 0.1)/2, 0.3, MALL.wallH/2, MALL.wallH/2);
+
+    // Storefront window (two panels), emits light at night
+    const windowColor = [0xffe0a0, 0xfff3c7, 0xb8e0ff, 0xffc7b8, 0xd9b8ff][i % 5];
+    const winMat = makeShopWindowMat(windowColor);
+    const win = new THREE.Mesh(new THREE.BoxGeometry(shopW - 1.6, 2.8, 0.15), winMat);
+    win.position.set(cx, 3.2, wallZ + zSide * 0.1);
+    scene.add(win);
+
+    // Window frame
+    const frame = new THREE.Mesh(new THREE.BoxGeometry(shopW - 1.2, 3.2, 0.25), MAT.woodDark);
+    frame.position.set(cx, 3.2, wallZ + zSide * 0.2);
+    scene.add(frame);
+    // Place window in front of frame
+    win.position.z = wallZ + zSide * 0.05;
+
+    // Mullions (little vertical dividers)
+    for (let k = -1; k <= 1; k++) {
+      const mull = new THREE.Mesh(new THREE.BoxGeometry(0.15, 3.0, 0.1), MAT.woodDark);
+      mull.position.set(cx + k * (shopW - 2) / 3, 3.2, wallZ + zSide * 0.02);
+      scene.add(mull);
+    }
+
+    // Awning canopy with solar panel
+    const awn = new THREE.Mesh(new THREE.BoxGeometry(shopW - 0.8, 0.2, 2.2), MAT.solarPanel);
+    awn.position.set(cx, 5.1, wallZ - zSide * 1.1);
+    awn.castShadow = true;
+    scene.add(awn);
+    const awnFrame = new THREE.Mesh(new THREE.BoxGeometry(shopW - 0.8, 0.4, 0.3), MAT.glassFrame);
+    awnFrame.position.set(cx, 5.0, wallZ - zSide * 2.1);
+    scene.add(awnFrame);
+    // Awning brackets
+    for (const off of [-1, 1]) {
+      const br = new THREE.Mesh(new THREE.BoxGeometry(0.15, 1.0, 0.15), MAT.woodDark);
+      br.position.set(cx + off * (shopW/2 - 1), 4.6, wallZ);
+      scene.add(br);
+    }
+
+    // Shop sign plaque
+    const plaque = new THREE.Mesh(new THREE.BoxGeometry(shopW - 3, 0.9, 0.2), MAT.signBase);
+    plaque.position.set(cx, 6.1, wallZ + zSide * 0.02);
+    scene.add(plaque);
+    const signMat = signColors[i % signColors.length];
+    const sign = new THREE.Mesh(new THREE.BoxGeometry(shopW - 3.6, 0.55, 0.1), signMat);
+    sign.position.set(cx, 6.1, wallZ + zSide * -0.05);
+    scene.add(sign);
+
+    // Hanging planter next to each shop front
+    const planter = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.45, 0.5, 10), MAT.planter);
+    planter.position.set(cx + (i % 2 === 0 ? -2.2 : 2.2), 4.7, wallZ - zSide * 0.3);
+    planter.castShadow = true;
+    scene.add(planter);
+    const vines = new THREE.Mesh(new THREE.IcosahedronGeometry(0.55, 0), MAT.leafLight);
+    vines.position.copy(planter.position);
+    vines.position.y += 0.1;
+    scene.add(vines);
+    // Trailing vine
+    const vineTrail = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.5, 6), MAT.leaf);
+    vineTrail.position.copy(planter.position);
+    vineTrail.position.y -= 0.8;
+    scene.add(vineTrail);
+  }
+
+  // End walls between bays and cap — keep player from escaping sideways
+  const cap1 = new THREE.Mesh(new THREE.BoxGeometry(0.6, MALL.wallH, (MALL.innerD/2 - totalW/2 > 0 ? 1.2 : 0.4)), MAT.wallAccent);
+  // Actually just do a clean wall at bay ends:
+  const capL = new THREE.Mesh(new THREE.BoxGeometry(0.6, MALL.wallH, MALL.innerD), MAT.wallAccent);
+  capL.position.set(-totalW/2, MALL.wallH/2, 0);
+  capL.castShadow = capL.receiveShadow = true;
+  scene.add(capL);
+  const capR = capL.clone();
+  capR.position.x = totalW/2;
+  scene.add(capR);
+  // These cap walls double as the east/west mall ends' inner side — but we want full ends too.
+  addObstacle(-totalW/2, 0, 0.3, MALL.innerD/2, MALL.wallH/2, MALL.wallH/2);
+  addObstacle(totalW/2,  0, 0.3, MALL.innerD/2, MALL.wallH/2, MALL.wallH/2);
+}
+buildSideWall(+1);
+buildSideWall(-1);
+
+// East and West ends: big glass-framed arches so the space feels like a mall bazaar
+// with the world beyond visible. Keep player inside via low barrier.
+function buildEndWall(xSide) {
+  const wx = xSide * (MALL.innerW / 2);
+  // Frame beams
+  const beam = new THREE.Mesh(new THREE.BoxGeometry(0.4, MALL.wallH, MALL.innerD + 1), MAT.glassFrame);
+  beam.position.set(wx + xSide * 0.2, MALL.wallH/2, 0);
+  scene.add(beam);
+
+  // Big glass panel
+  const gl = new THREE.Mesh(new THREE.BoxGeometry(0.2, MALL.wallH - 0.6, MALL.innerD - 2), MAT.glass);
+  gl.position.set(wx, (MALL.wallH)/2, 0);
+  scene.add(gl);
+  // Cross mullions
+  for (let k = -1; k <= 1; k++) {
+    const mv = new THREE.Mesh(new THREE.BoxGeometry(0.25, MALL.wallH - 0.6, 0.25), MAT.glassFrame);
+    mv.position.set(wx, MALL.wallH/2, k * (MALL.innerD/3));
+    scene.add(mv);
+  }
+  const mh = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.25, MALL.innerD - 1.5), MAT.glassFrame);
+  mh.position.set(wx, MALL.wallH/2, 0);
+  scene.add(mh);
+
+  // Obstacle: full end wall blocks player from leaving (glass is solid)
+  // but leave a 3m-tall doorway in center so the mall breathes visually? No — the prompt
+  // wants obstacles that shape movement. Keep ends solid.
+  addObstacle(wx, 0, 0.4, MALL.innerD/2, MALL.wallH/2, MALL.wallH/2);
+}
+buildEndWall(+1);
+buildEndWall(-1);
+
+// ============================================================
+// GLASS ROOF (solarpunk — lets day light in; at night, reveals space)
+// ============================================================
+const roofFrameMat = MAT.glassFrame;
+const roofGlassMat = new THREE.MeshStandardMaterial({
+  color: 0xcfeadc, roughness: 0.1, metalness: 0.1,
+  transparent: true, opacity: 0.15, side: THREE.DoubleSide, depthWrite: false
+});
+
+function buildRoof() {
+  // Vaulted frame: a series of arches every 8m
+  const arches = 10;
+  const archStep = MALL.innerW / (arches - 1);
+  for (let i = 0; i < arches; i++) {
+    const x = -MALL.innerW/2 + i * archStep;
+    // Arch: a subtly curved beam built from boxes
+    const arch = new THREE.Group();
+    const segs = 9;
+    const radius = MALL.innerD / 2 + 1.5;
+    for (let s = 0; s < segs; s++) {
+      const t0 = s / segs;
+      const t1 = (s + 1) / segs;
+      const a0 = Math.PI * t0, a1 = Math.PI * t1;
+      const z0 = Math.cos(a0) * radius, y0 = MALL.wallH + Math.sin(a0) * (MALL.roofH - MALL.wallH);
+      const z1 = Math.cos(a1) * radius, y1 = MALL.wallH + Math.sin(a1) * (MALL.roofH - MALL.wallH);
+      const mx = (z0+z1)/2, my = (y0+y1)/2;
+      const dx = z1 - z0, dy = y1 - y0;
+      const len = Math.hypot(dx, dy);
+      const seg = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.25, len + 0.1), roofFrameMat);
+      seg.position.set(0, my, mx);
+      seg.rotation.x = Math.atan2(dy, dx) - Math.PI/2;
+      arch.add(seg);
+    }
+    arch.position.x = x;
+    scene.add(arch);
+
+    // Glass panels between arches
+    if (i < arches - 1) {
+      const panel = new THREE.Mesh(
+        new THREE.CylinderGeometry(radius, radius, archStep, 18, 1, true, -Math.PI/2, Math.PI),
+        roofGlassMat
+      );
+      panel.rotation.z = Math.PI / 2;
+      panel.position.set(x + archStep/2, MALL.wallH, 0);
+      panel.scale.y = (MALL.roofH - MALL.wallH) / radius; // squish vertically
+      scene.add(panel);
+    }
+  }
+
+  // Ridge beam
+  const ridge = new THREE.Mesh(new THREE.BoxGeometry(MALL.innerW + 1, 0.35, 0.35), roofFrameMat);
+  ridge.position.set(0, MALL.roofH, 0);
+  scene.add(ridge);
+}
+buildRoof();
+
+// ============================================================
+// ATRIUM FEATURES — obstacles that matter
+// ============================================================
+
+// Central fountain
+function buildFountain(x, z) {
+  const grp = new THREE.Group();
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.6, 0.7, 28), MAT.column);
+  base.position.y = 0.35; base.castShadow = base.receiveShadow = true;
+  grp.add(base);
+  const lip = new THREE.Mesh(new THREE.TorusGeometry(2.4, 0.12, 8, 28), MAT.glassFrame);
+  lip.rotation.x = Math.PI / 2;
+  lip.position.y = 0.7;
+  grp.add(lip);
+  const water = new THREE.Mesh(new THREE.CylinderGeometry(2.3, 2.3, 0.1, 28), MAT.water);
+  water.position.y = 0.68;
+  grp.add(water);
+  // Stem
+  const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.45, 1.4, 12), MAT.column);
+  stem.position.y = 1.4; stem.castShadow = true;
+  grp.add(stem);
+  const top = new THREE.Mesh(new THREE.SphereGeometry(0.6, 16, 12), MAT.column);
+  top.position.y = 2.2; top.castShadow = true;
+  grp.add(top);
+  // Water plume (tiny cone)
+  const plumeMat = new THREE.MeshStandardMaterial({
+    color: 0x9fd8f0, transparent: true, opacity: 0.55, emissive: 0x2f6f8a, emissiveIntensity: 0.3
+  });
+  const plume = new THREE.Mesh(new THREE.ConeGeometry(0.3, 1.2, 10, 1, true), plumeMat);
+  plume.position.y = 2.85;
+  grp.add(plume);
+  grp.position.set(x, 0, z);
+  scene.add(grp);
+  addObstacle(x, z, 2.5, 2.5, 1.1, 1.1);
+}
+buildFountain(0, 0);
+
+// Planters (round, with trees)
+function buildPlanter(x, z, r = 1.2) {
+  const grp = new THREE.Group();
+  const pot = new THREE.Mesh(new THREE.CylinderGeometry(r, r*0.9, 1.0, 16), MAT.planter);
+  pot.position.y = 0.5; pot.castShadow = pot.receiveShadow = true;
+  grp.add(pot);
+  // Soil + tree
+  const soil = new THREE.Mesh(new THREE.CylinderGeometry(r-0.1, r-0.1, 0.1, 14),
+    new THREE.MeshStandardMaterial({ color: 0x3a2414 }));
+  soil.position.y = 1.02;
+  grp.add(soil);
+  const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.3, 2.2, 8), MAT.trunk);
+  trunk.position.y = 2.1; trunk.castShadow = true;
+  grp.add(trunk);
+  for (let i = 0; i < 3; i++) {
+    const blob = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(0.9 + Math.random()*0.5, 0),
+      [MAT.leaf, MAT.leafDark, MAT.leafLight][i]
+    );
+    blob.position.set((Math.random()-0.5)*1.0, 3.3 + Math.random()*0.8, (Math.random()-0.5)*1.0);
+    blob.castShadow = true;
+    grp.add(blob);
+  }
+  grp.position.set(x, 0, z);
+  scene.add(grp);
+  addObstacle(x, z, r+0.1, r+0.1, 1.0, 1.0);
+}
+// Ring of planters around fountain
+for (let i = 0; i < 6; i++) {
+  const a = i * Math.PI * 2 / 6 + Math.PI/6;
+  buildPlanter(Math.cos(a)*5.5, Math.sin(a)*5.5, 0.9);
+}
+// Row planters down each side of the atrium
+for (const lane of [-11, 11]) {
+  for (const px of [-25, -15, 15, 25]) {
+    buildPlanter(px, lane, 1.1);
+  }
+}
+
+// Columns (structural posts holding up the arches). Player must weave through them.
+function buildColumn(x, z) {
+  const grp = new THREE.Group();
+  const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.65, MALL.wallH - 0.5, 16), MAT.column);
+  shaft.position.y = (MALL.wallH - 0.5)/2;
+  shaft.castShadow = shaft.receiveShadow = true;
+  grp.add(shaft);
+  const capTop = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 0.55, 0.5, 16), MAT.column);
+  capTop.position.y = MALL.wallH - 0.25;
+  capTop.castShadow = true;
+  grp.add(capTop);
+  const baseC = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 0.85, 0.35, 16), MAT.wallAccent);
+  baseC.position.y = 0.175;
+  baseC.castShadow = baseC.receiveShadow = true;
+  grp.add(baseC);
+  // Climbing vine
+  const vine = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, MALL.wallH - 1, 6), MAT.leaf);
+  vine.position.set(0.55, (MALL.wallH - 1)/2 + 0.2, 0);
+  grp.add(vine);
+  const leafBall = new THREE.Mesh(new THREE.IcosahedronGeometry(0.5, 0), MAT.leafLight);
+  leafBall.position.set(0.7, MALL.wallH - 1.2, 0);
+  grp.add(leafBall);
+  grp.position.set(x, 0, z);
+  scene.add(grp);
+  addObstacle(x, z, 0.75, 0.75, MALL.wallH/2, MALL.wallH/2);
+}
+// Two rows of columns along the atrium
+for (const cz of [-9, 9]) {
+  for (const cx of [-30, -20, -10, 10, 20, 30]) {
+    // Avoid putting a column right on fountain
+    if (Math.abs(cx) < 3 && Math.abs(cz) < 3) continue;
+    buildColumn(cx, cz);
+  }
+}
+
+// Kiosks (small food carts / info booths — short obstacles the player can jump over!)
+function buildKiosk(x, z, color = 0xffb347) {
+  const grp = new THREE.Group();
+  const body = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.3, 1.6),
+    new THREE.MeshStandardMaterial({ color: color, roughness: 0.7 }));
+  body.position.y = 0.65; body.castShadow = body.receiveShadow = true;
+  grp.add(body);
+  const counter = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.1, 1.8), MAT.woodDark);
+  counter.position.y = 1.35; counter.castShadow = true;
+  grp.add(counter);
+  // Umbrella / solar panel on top
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 2.2, 6), MAT.metal);
+  pole.position.y = 2.4;
+  grp.add(pole);
+  const umbrella = new THREE.Mesh(new THREE.ConeGeometry(1.6, 0.5, 10),
+    new THREE.MeshStandardMaterial({ color: 0xe8d9b4, roughness: 0.8 }));
+  umbrella.position.y = 3.6;
+  umbrella.castShadow = true;
+  grp.add(umbrella);
+  // Sign lantern
+  const lant = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.7, 0.5),
+    makeSignMat(color));
+  lant.position.y = 2.2;
+  grp.add(lant);
+  grp.position.set(x, 0, z);
+  scene.add(grp);
+  // Kiosk height (1.3m) — player can jump ON/OVER it
+  addObstacle(x, z, 1.3, 0.9, 0.65, 0.65);
+}
+buildKiosk(-22, 0, 0xffb347);
+buildKiosk(22, 0, 0x7fd4b3);
+buildKiosk(-6, -4, 0xffa0b3);
+buildKiosk(6, 4, 0xa8c8ff);
+
+// Benches (low obstacles — easy to jump over)
+function buildBench(x, z, rotY = 0) {
+  const grp = new THREE.Group();
+  const seat = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.15, 0.7), MAT.bench);
+  seat.position.y = 0.55; seat.castShadow = seat.receiveShadow = true;
+  grp.add(seat);
+  const backrest = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.7, 0.1), MAT.bench);
+  backrest.position.set(0, 0.95, -0.3); backrest.castShadow = true;
+  grp.add(backrest);
+  for (const ox of [-1, 1]) {
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.55, 0.6), MAT.woodDark);
+    leg.position.set(ox * 0.9, 0.27, 0);
+    grp.add(leg);
+  }
+  grp.position.set(x, 0, z);
+  grp.rotation.y = rotY;
+  scene.add(grp);
+  // Approximate bench AABB
+  if (Math.abs(rotY) < 0.01) {
+    addObstacle(x, z, 1.1, 0.5, 0.55, 0.55);
+  } else {
+    addObstacle(x, z, 0.5, 1.1, 0.55, 0.55);
+  }
+}
+for (const bx of [-28, -16, 16, 28]) {
+  buildBench(bx, -4);
+  buildBench(bx, 4);
+}
+
+// Lamp posts (thin obstacles — more like decoration, dodge them)
+function buildLamp(x, z) {
+  const grp = new THREE.Group();
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 3.5, 8), MAT.woodDark);
+  pole.position.y = 1.75; pole.castShadow = true;
+  grp.add(pole);
+  const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.28, 12, 10),
+    new THREE.MeshStandardMaterial({ color: 0xfff0a0, emissive: 0xfff0a0, emissiveIntensity: 1.0, roughness: 0.3 }));
+  bulb.position.y = 3.6;
+  grp.add(bulb);
+  grp.userData.bulb = bulb;
+  grp.position.set(x, 0, z);
+  scene.add(grp);
+  LAMPS.push(grp);
+  addObstacle(x, z, 0.18, 0.18, 1.75, 1.75);
+}
+const LAMPS = [];
+for (const lx of [-32, -18, -4, 4, 18, 32]) {
+  buildLamp(lx, 0);
+}
+
+// Hanging plant pendants (purely decorative, float overhead, glow at night)
+const HANGERS = [];
+function buildHanger(x, z) {
+  const grp = new THREE.Group();
+  const cord = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 3, 4), MAT.woodDark);
+  cord.position.y = MALL.roofH - 1.5; grp.add(cord);
+  const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.35, 0.5, 14), MAT.planter);
+  pot.position.y = MALL.roofH - 3.5; grp.add(pot);
+  const leaves = new THREE.Mesh(new THREE.IcosahedronGeometry(0.6, 0), MAT.leafLight);
+  leaves.position.y = MALL.roofH - 3.1; grp.add(leaves);
+  const lantern = new THREE.Mesh(new THREE.SphereGeometry(0.18, 10, 8),
+    new THREE.MeshStandardMaterial({ color: 0xffd36b, emissive: 0xffd36b, emissiveIntensity: 1.0, transparent: true, opacity: 0.95 }));
+  lantern.position.y = MALL.roofH - 4.0; grp.add(lantern);
+  grp.userData.lantern = lantern;
+  grp.position.set(x, 0, z);
+  scene.add(grp);
+  HANGERS.push(grp);
+}
+for (let i = -4; i <= 4; i++) {
+  buildHanger(i * 7, 0);
+}
+
+// Outside decoration: some distant trees beyond the glass
+function buildExteriorTree(x, z, scale = 1) {
+  const grp = new THREE.Group();
+  const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.4, 2.5, 8), MAT.trunk);
+  trunk.position.y = 1.25;
+  grp.add(trunk);
+  for (let i = 0; i < 4; i++) {
+    const m = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(1.1 + Math.random()*0.7, 0),
+      [MAT.leaf, MAT.leafDark, MAT.leafLight][i % 3]
+    );
+    m.position.set((Math.random()-0.5)*1.4, 2.5 + Math.random()*1.6, (Math.random()-0.5)*1.4);
+    grp.add(m);
+  }
+  grp.position.set(x, 0, z);
+  grp.scale.setScalar(scale);
+  scene.add(grp);
+}
+for (let i = 0; i < 25; i++) {
+  const angle = Math.random() * Math.PI * 2;
+  const dist = 50 + Math.random() * 40;
+  buildExteriorTree(Math.cos(angle)*dist, Math.sin(angle)*dist, 1 + Math.random());
+}
+
+// ============================================================
+// PLAYER
+// ============================================================
+const player = new THREE.Group();
+const bodyMat = new THREE.MeshStandardMaterial({ color: 0xffa85c, roughness: 0.7 });
+const headMat = new THREE.MeshStandardMaterial({ color: 0xf5d0a8, roughness: 0.8 });
+const legMat  = new THREE.MeshStandardMaterial({ color: 0x4a6b93, roughness: 0.8 });
+const hairMat = new THREE.MeshStandardMaterial({ color: 0x3d2a1e, roughness: 0.9 });
+
+const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.32, 0.7, 4, 10), bodyMat);
+body.position.y = 0.95; body.castShadow = true;
+player.add(body);
+const headMesh = new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 12), headMat);
+headMesh.position.y = 1.6; headMesh.castShadow = true;
+player.add(headMesh);
+const hair = new THREE.Mesh(new THREE.SphereGeometry(0.3, 16, 10, 0, Math.PI*2, 0, Math.PI/1.7), hairMat);
+hair.position.y = 1.66; hair.castShadow = true;
+player.add(hair);
+
+const legL = new THREE.Mesh(new THREE.CapsuleGeometry(0.12, 0.35, 4, 8), legMat);
+legL.position.set(-0.14, 0.45, 0); legL.castShadow = true;
+player.add(legL);
+const legR = legL.clone(); legR.position.x = 0.14; player.add(legR);
+
+const armL = new THREE.Mesh(new THREE.CapsuleGeometry(0.1, 0.35, 4, 8), bodyMat);
+armL.position.set(-0.42, 1.05, 0); armL.castShadow = true;
+player.add(armL);
+const armR = armL.clone(); armR.position.x = 0.42; player.add(armR);
+
+scene.add(player);
+
+const playerState = {
+  vel: new THREE.Vector3(),
+  onGround: true,
+  stamina: 1.0,
+  alive: true,
+  score: 0,
+  distance: 0,
+  walkPhase: 0
+};
+const PLAYER_RADIUS = 0.45;
+
+// ============================================================
+// DEMONS
+// ============================================================
+const demons = [];
+const demonBodyMat = new THREE.MeshStandardMaterial({
+  color: 0x1a0a18, roughness: 0.6, emissive: 0x220008, emissiveIntensity: 0.2
+});
+const demonEyeMat = new THREE.MeshStandardMaterial({
+  color: 0xff1e1e, emissive: 0xff2020, emissiveIntensity: 2.5
+});
+const demonHornMat = new THREE.MeshStandardMaterial({ color: 0x05000a, roughness: 0.9 });
+const demonTrailMat = new THREE.MeshStandardMaterial({
+  color: 0x1e0012, transparent: true, opacity: 0.65, emissive: 0x330015, emissiveIntensity: 0.6
+});
+
+function spawnDemon() {
+  const g = new THREE.Group();
+
+  // Body
+  const db = new THREE.Mesh(new THREE.CapsuleGeometry(0.48, 0.8, 6, 10), demonBodyMat);
+  db.position.y = 1.1; db.castShadow = true;
+  g.add(db);
+
+  // Horns
+  const hornGeo = new THREE.ConeGeometry(0.12, 0.55, 8);
+  const h1 = new THREE.Mesh(hornGeo, demonHornMat);
+  h1.position.set(-0.25, 1.95, 0.05); h1.rotation.z = 0.3; h1.castShadow = true;
+  g.add(h1);
+  const h2 = h1.clone(); h2.position.x = 0.25; h2.rotation.z = -0.3;
+  g.add(h2);
+
+  // Eyes
+  const e1 = new THREE.Mesh(new THREE.SphereGeometry(0.09, 10, 8), demonEyeMat);
+  e1.position.set(-0.18, 1.7, 0.42);
+  g.add(e1);
+  const e2 = e1.clone(); e2.position.x = 0.18; g.add(e2);
+
+  // Glow
+  const glow = new THREE.PointLight(0xff2a2a, 0.5, 7, 2);
+  glow.position.set(0, 1.6, 0);
+  g.add(glow);
+
+  // Trail
+  for (let i = 0; i < 3; i++) {
+    const w = new THREE.Mesh(new THREE.ConeGeometry(0.25 - i*0.05, 0.4, 8), demonTrailMat);
+    w.position.y = 0.4 - i*0.1;
+    w.rotation.x = Math.PI;
+    g.add(w);
+  }
+
+  // Spawn at mall ends, far from player
+  const spawnX = Math.random() < 0.5 ? -MALL.innerW/2 + 2 : MALL.innerW/2 - 2;
+  const spawnZ = (Math.random() - 0.5) * (MALL.innerD - 4);
+  // If near player, try again offset
+  g.position.set(spawnX, 0, spawnZ);
+
+  scene.add(g);
+  demons.push({
+    group: g,
+    eyes: [e1, e2],
+    glow,
+    speed: 3.1 + Math.random()*0.6,
+    wobble: Math.random() * Math.PI * 2,
+    alive: true
+  });
+}
+
+// ============================================================
+// SUNMOTE COLLECTIBLES
+// ============================================================
+const motes = [];
+function spawnMote(x, z) {
+  const g = new THREE.Group();
+  const core = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(0.3, 1),
+    new THREE.MeshStandardMaterial({
+      color: 0xffe78a, emissive: 0xffd36b, emissiveIntensity: 1.8,
+      roughness: 0.2, metalness: 0.1
+    })
+  );
+  g.add(core);
+  const light = new THREE.PointLight(0xffd36b, 0.9, 6, 2);
+  g.add(light);
+  g.position.set(x, 1.2, z);
+  scene.add(g);
+  motes.push({ group: g, core, light, collected: false, bob: Math.random()*Math.PI*2 });
+}
+
+function spawnInitialMotes() {
+  for (let i = 0; i < 22; i++) {
+    // Scatter across atrium, avoiding fountain center
+    let x, z;
+    do {
+      x = (Math.random() - 0.5) * (MALL.innerW - 6);
+      z = (Math.random() - 0.5) * (MALL.innerD - 6);
+    } while (Math.hypot(x, z) < 3.5);
+    spawnMote(x, z);
+  }
+}
+function respawnMote() {
+  let x, z;
+  do {
+    x = (Math.random() - 0.5) * (MALL.innerW - 6);
+    z = (Math.random() - 0.5) * (MALL.innerD - 6);
+  } while (Math.hypot(x, z) < 3.5);
+  spawnMote(x, z);
+}
+
+// ============================================================
+// INPUT
+// ============================================================
+const keys = {};
+addEventListener('keydown', e => {
+  keys[e.code] = true;
+  // Prevent arrow/space from scrolling the page
+  if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)) e.preventDefault();
+  if (e.code === 'KeyR') {
+    if (gameState === 'over' || gameState === 'playing') {
+      startGame();
+    }
+  }
+});
+addEventListener('keyup', e => { keys[e.code] = false; });
+
+// ============================================================
+// COLLISION: resolve player sphere vs. AABB obstacles (XZ plane only)
+// ============================================================
+function resolveCollisions() {
+  for (const o of obstacles) {
+    // Player XZ sphere vs AABB
+    // vertical check: if player's vertical range doesn't overlap obstacle's, skip
+    const playerBottom = player.position.y;
+    const playerTop = player.position.y + 1.9;
+    const obstBottom = o.y - o.hy;
+    const obstTop = o.y + o.hy;
+    if (playerTop < obstBottom || playerBottom > obstTop) continue;
+
+    const dx = player.position.x - o.x;
+    const dz = player.position.z - o.z;
+    // Closest point on AABB
+    const cx = Math.max(-o.hx, Math.min(o.hx, dx));
+    const cz = Math.max(-o.hz, Math.min(o.hz, dz));
+    const diffX = dx - cx, diffZ = dz - cz;
+    const d2 = diffX*diffX + diffZ*diffZ;
+    const r = PLAYER_RADIUS;
+    if (d2 < r*r) {
+      if (d2 < 1e-6) {
+        // Fully inside: push out along shorter axis
+        const pushX = (o.hx - Math.abs(dx)) * (dx < 0 ? -1 : 1);
+        const pushZ = (o.hz - Math.abs(dz)) * (dz < 0 ? -1 : 1);
+        if (Math.abs(pushX) < Math.abs(pushZ)) {
+          player.position.x += pushX + (dx < 0 ? -r : r);
+          playerState.vel.x = 0;
+        } else {
+          player.position.z += pushZ + (dz < 0 ? -r : r);
+          playerState.vel.z = 0;
+        }
+      } else {
+        const d = Math.sqrt(d2);
+        const nx = diffX / d, nz = diffZ / d;
+        const overlap = r - d;
+        player.position.x += nx * overlap;
+        player.position.z += nz * overlap;
+        // Damp velocity along the normal so we slide along walls
+        const vn = playerState.vel.x * nx + playerState.vel.z * nz;
+        if (vn < 0) {
+          playerState.vel.x -= vn * nx;
+          playerState.vel.z -= vn * nz;
+        }
+      }
+    }
+  }
+}
+
+// Demon collision with obstacles — just push them away so they don't phase through columns.
+function resolveDemonCollisions(d) {
+  const r = 0.55;
+  for (const o of obstacles) {
+    const playerBottom = d.group.position.y;
+    const playerTop = playerBottom + 2;
+    const obstBottom = o.y - o.hy;
+    const obstTop = o.y + o.hy;
+    if (playerTop < obstBottom || playerBottom > obstTop) continue;
+
+    const dx = d.group.position.x - o.x;
+    const dz = d.group.position.z - o.z;
+    const cx = Math.max(-o.hx, Math.min(o.hx, dx));
+    const cz = Math.max(-o.hz, Math.min(o.hz, dz));
+    const diffX = dx - cx, diffZ = dz - cz;
+    const d2 = diffX*diffX + diffZ*diffZ;
+    if (d2 < r*r && d2 > 1e-6) {
+      const dd = Math.sqrt(d2);
+      const nx = diffX/dd, nz = diffZ/dd;
+      const overlap = r - dd;
+      d.group.position.x += nx * overlap;
+      d.group.position.z += nz * overlap;
+    }
+  }
+}
+
+// ============================================================
+// DAY/NIGHT CYCLE
+// ============================================================
+const COLORS = {
+  skyDay:    new THREE.Color(0x87ceeb),
+  skyDusk:   new THREE.Color(0xff8a5c),
+  skyNight:  new THREE.Color(0x050014), // space-like, near black with purple
+  horizDay:  new THREE.Color(0xffe8b8),
+  horizDusk: new THREE.Color(0xff6a3a),
+  horizNight:new THREE.Color(0x0a0520),
+  fogDay:    new THREE.Color(0xcde6e0),
+  fogDusk:   new THREE.Color(0xc37a5a),
+  fogNight:  new THREE.Color(0x030010),
+  sunDay:    new THREE.Color(0xfff2d8),
+  sunDusk:   new THREE.Color(0xff7040),
+  sunNight:  new THREE.Color(0x000000),
+  hemiSkyDay:    new THREE.Color(0xbfe5ff),
+  hemiSkyDusk:   new THREE.Color(0xff9060),
+  hemiSkyNight:  new THREE.Color(0x1a1540),
+  hemiGroundDay: new THREE.Color(0x6a8a4a),
+  hemiGroundDusk:new THREE.Color(0x4a3828),
+  hemiGroundNight: new THREE.Color(0x02030a)
+};
+
+function interpPhase(t) {
+  // t in [0,1). phases:
+  //  0.00 = deep night (space)
+  //  0.22 = pre-dawn -> dawn
+  //  0.32 = dawn -> day
+  //  0.55 = full day
+  //  0.70 = dusk begins
+  //  0.82 = night (space)
+  //  1.00 = night loop
+  const phases = [
+    { t: 0.00, sky: COLORS.skyNight,  horiz: COLORS.horizNight, fog: COLORS.fogNight, sun: COLORS.sunNight, hSky: COLORS.hemiSkyNight, hGround: COLORS.hemiGroundNight, sunI: 0.0, hemiI: 0.22, moonI: 0.55 },
+    { t: 0.22, sky: COLORS.skyNight,  horiz: COLORS.horizNight, fog: COLORS.fogNight, sun: COLORS.sunNight, hSky: COLORS.hemiSkyNight, hGround: COLORS.hemiGroundNight, sunI: 0.0, hemiI: 0.22, moonI: 0.55 },
+    { t: 0.30, sky: COLORS.skyDusk,   horiz: COLORS.horizDusk,  fog: COLORS.fogDusk,  sun: COLORS.sunDusk,  hSky: COLORS.hemiSkyDusk,  hGround: COLORS.hemiGroundDusk,  sunI: 0.8, hemiI: 0.5, moonI: 0.1 },
+    { t: 0.50, sky: COLORS.skyDay,    horiz: COLORS.horizDay,   fog: COLORS.fogDay,   sun: COLORS.sunDay,   hSky: COLORS.hemiSkyDay,   hGround: COLORS.hemiGroundDay,   sunI: 1.4, hemiI: 0.65, moonI: 0.0 },
+    { t: 0.70, sky: COLORS.skyDusk,   horiz: COLORS.horizDusk,  fog: COLORS.fogDusk,  sun: COLORS.sunDusk,  hSky: COLORS.hemiSkyDusk,  hGround: COLORS.hemiGroundDusk,  sunI: 0.9, hemiI: 0.38, moonI: 0.15 },
+    { t: 0.80, sky: COLORS.skyNight,  horiz: COLORS.horizNight, fog: COLORS.fogNight, sun: COLORS.sunNight, hSky: COLORS.hemiSkyNight, hGround: COLORS.hemiGroundNight, sunI: 0.02, hemiI: 0.22, moonI: 0.55 },
+    { t: 1.00, sky: COLORS.skyNight,  horiz: COLORS.horizNight, fog: COLORS.fogNight, sun: COLORS.sunNight, hSky: COLORS.hemiSkyNight, hGround: COLORS.hemiGroundNight, sunI: 0.0, hemiI: 0.22, moonI: 0.55 }
+  ];
+  let a = phases[0], b = phases[1];
+  for (let i = 0; i < phases.length - 1; i++) {
+    if (t >= phases[i].t && t <= phases[i+1].t) { a = phases[i]; b = phases[i+1]; break; }
+  }
+  const k = (t - a.t) / Math.max(0.0001, b.t - a.t);
+  return { a, b, k };
+}
+
+const _sky = new THREE.Color();
+const _horiz = new THREE.Color();
+const _fog = new THREE.Color();
+const _sun = new THREE.Color();
+const _hSky = new THREE.Color();
+const _hGround = new THREE.Color();
+
+function updateDayNight(t) {
+  const { a, b, k } = interpPhase(t);
+  _sky.copy(a.sky).lerp(b.sky, k);
+  _horiz.copy(a.horiz).lerp(b.horiz, k);
+  _fog.copy(a.fog).lerp(b.fog, k);
+  _sun.copy(a.sun).lerp(b.sun, k);
+  _hSky.copy(a.hSky).lerp(b.hSky, k);
+  _hGround.copy(a.hGround).lerp(b.hGround, k);
+  const sunI = a.sunI + (b.sunI - a.sunI) * k;
+  const hemiI = a.hemiI + (b.hemiI - a.hemiI) * k;
+  const moonI = a.moonI + (b.moonI - a.moonI) * k;
+
+  skyUniforms.topColor.value.copy(_sky);
+  skyUniforms.bottomColor.value.copy(_horiz);
+  scene.fog.color.copy(_fog);
+  scene.fog.near = 40 + (1 - sunI / 1.5) * 15;
+  scene.fog.far = 180 - (1 - sunI / 1.5) * 40;
+  renderer.setClearColor(_sky);
+  sun.color.copy(_sun);
+  sun.intensity = sunI;
+  hemi.color.copy(_hSky);
+  hemi.groundColor.copy(_hGround);
+  hemi.intensity = hemiI;
+  moonLight.intensity = moonI;
+
+  // Sun orbit
+  const sunAngle = (t - 0.25) * Math.PI * 2;
+  sun.position.set(
+    Math.cos(sunAngle) * 90 + player.position.x,
+    Math.sin(sunAngle) * 90 + 10,
+    30 + player.position.z
+  );
+  sun.target.position.copy(player.position);
+
+  moonLight.position.set(
+    -Math.cos(sunAngle) * 70 + player.position.x,
+    Math.max(20, Math.sin(sunAngle + Math.PI) * 70 + 20),
+    -40 + player.position.z
+  );
+  moonLight.target.position.copy(player.position);
+
+  // Nightness 0..1
+  let nightness = 0;
+  if (t < 0.22 || t >= 0.82) nightness = 1;
+  else if (t < 0.32) nightness = 1 - (t - 0.22) / 0.1;
+  else if (t < 0.7) nightness = 0;
+  else if (t < 0.82) nightness = (t - 0.7) / 0.12;
+
+  starMat.opacity = nightness * 0.95;
+  planetMat.opacity = nightness * 0.9;
+  planetRingMat.opacity = nightness * 0.55;
+  nebulaMat.opacity = nightness * 0.75;
+
+  // Shop windows glow at night
+  for (const m of SHOP_WINDOW_MATS) {
+    m.emissiveIntensity = nightness * 1.4;
+  }
+  // Lamp bulbs brighter at night
+  for (const lp of LAMPS) {
+    lp.userData.bulb.material.emissiveIntensity = 0.4 + nightness * 2.0;
+  }
+  // Hanging lanterns
+  for (const h of HANGERS) {
+    h.userData.lantern.material.emissiveIntensity = 0.3 + nightness * 1.8;
+  }
+  // Fill light warms during day
+  fillLight.intensity = 0.1 + (1 - nightness) * 0.4;
+  // Demons more vivid at night
+  for (const d of demons) {
+    d.glow.intensity = 0.25 + nightness * 1.8;
+    d.eyes.forEach(e => e.material.emissiveIntensity = 2 + nightness * 2.5);
+  }
+
+  // Phase label
+  let phase = 'Night';
+  if (t > 0.22 && t < 0.35) phase = 'Dawn';
+  else if (t >= 0.35 && t < 0.65) phase = 'Day';
+  else if (t >= 0.65 && t < 0.82) phase = 'Dusk';
+  phaseTextEl.textContent = phase;
+
+  // Clock 0 -> 00:00, 0.5 -> 12:00
+  const hours = (t * 24) % 24;
+  const h = Math.floor(hours);
+  const mm = Math.floor((hours - h) * 60);
+  timeTextEl.textContent = `${String(h).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
+
+  return { nightness };
+}
+
+// ============================================================
+// GAME STATE
+// ============================================================
+let gameState = 'menu'; // menu | playing | over
+let elapsed = 0;
+let timeOfDay = 0.45; // start near day
+let demonSpawnTimer = 0;
+let cameraYaw = 0;
+
+const startOverlay = document.getElementById('start-overlay');
+const deadOverlay = document.getElementById('dead-overlay');
+const startBtn = document.getElementById('start-btn');
+const restartBtn = document.getElementById('restart-btn');
+const scoreEl = document.getElementById('score');
+const distanceEl = document.getElementById('distance');
+const demonCountEl = document.getElementById('demon-count');
+const timeTextEl = document.getElementById('time-text');
+const phaseTextEl = document.getElementById('phase-text');
+const staminaFill = document.getElementById('stamina-fill');
+const damageFlash = document.getElementById('damage-flash');
+const finalStats = document.getElementById('final-stats');
+
+function resetGame() {
+  for (const d of demons) scene.remove(d.group);
+  demons.length = 0;
+  for (const m of motes) scene.remove(m.group);
+  motes.length = 0;
+  spawnInitialMotes();
+
+  playerState.vel.set(0, 0, 0);
+  playerState.stamina = 1;
+  playerState.score = 0;
+  playerState.distance = 0;
+  playerState.alive = true;
+  playerState.walkPhase = 0;
+  player.position.set(0, 0, 14);
+  player.rotation.y = 0;
+  cameraYaw = 0;
+
+  elapsed = 0;
+  timeOfDay = 0.45;
+  demonSpawnTimer = 0;
+  finalStats.innerHTML = '';
+}
+
+function startGame() {
+  resetGame();
+  startOverlay.classList.add('hidden');
+  deadOverlay.classList.add('hidden');
+  gameState = 'playing';
+  for (let i = 0; i < 2; i++) spawnDemon();
+}
+
+function endGame() {
+  gameState = 'over';
+  playerState.alive = false;
+  deadOverlay.classList.remove('hidden');
+  finalStats.innerHTML = `
+    You survived <b>${Math.floor(elapsed)}s</b> and gathered <b>${playerState.score}</b> sunmotes across <b>${Math.floor(playerState.distance)} m</b>.
+  `;
+}
+
+startBtn.addEventListener('click', startGame);
+restartBtn.addEventListener('click', startGame);
+
+// ============================================================
+// MAIN LOOP
+// ============================================================
+const clock = new THREE.Clock();
+const tmpV = new THREE.Vector3();
+
+function update(dt) {
+  elapsed += dt;
+  // Full day cycle in ~110s for fun pacing
+  timeOfDay = (timeOfDay + dt / 110) % 1;
+  const { nightness } = updateDayNight(timeOfDay);
+
+  // Rotate planet / nebula for subtle motion
+  planet.rotation.y += dt * 0.03;
+  planetRing.rotation.z += dt * 0.02;
+
+  // Animate fountain water
+  // (just a gentle bob — material transparency already set)
+
+  if (gameState !== 'playing') {
+    // Menu/death still animates world
+    return;
+  }
+
+  // --- Input ---
+  const turn = (keys['ArrowLeft'] ? 1 : 0) - (keys['ArrowRight'] ? 1 : 0);
+  const forward = (keys['ArrowUp'] ? 1 : 0) - (keys['ArrowDown'] ? 1 : 0);
+  const sprinting = (keys['ShiftLeft'] || keys['ShiftRight']) && playerState.stamina > 0.05;
+  const baseSpeed = sprinting ? 8.5 : 5.0;
+
+  // Turn player
+  player.rotation.y += turn * 2.6 * dt;
+
+  // Move player
+  const fx = -Math.sin(player.rotation.y);
+  const fz = -Math.cos(player.rotation.y);
+  if (forward !== 0) {
+    const sp = baseSpeed * forward * (forward < 0 ? 0.6 : 1);
+    playerState.vel.x = fx * sp;
+    playerState.vel.z = fz * sp;
+    playerState.walkPhase += dt * (sprinting ? 14 : 9);
+  } else {
+    playerState.vel.x *= 0.82;
+    playerState.vel.z *= 0.82;
+    playerState.walkPhase *= 0.9;
+  }
+
+  // Jump
+  if (keys['Space'] && playerState.onGround) {
+    playerState.vel.y = 8.5;
+    playerState.onGround = false;
+  }
+  playerState.vel.y -= 22 * dt;
+
+  // Integrate
+  player.position.x += playerState.vel.x * dt;
+  player.position.y += playerState.vel.y * dt;
+  player.position.z += playerState.vel.z * dt;
+
+  if (player.position.y <= 0) {
+    player.position.y = 0;
+    playerState.vel.y = 0;
+    playerState.onGround = true;
+  }
+
+  resolveCollisions();
+
+  // World clamp (shouldn't hit this if mall walls are solid)
+  const ex = MALL.innerW/2 - 0.5;
+  const ez = MALL.innerD/2 - 0.5;
+  player.position.x = Math.max(-ex, Math.min(ex, player.position.x));
+  player.position.z = Math.max(-ez, Math.min(ez, player.position.z));
+
+  // Walk animation
+  const wp = playerState.walkPhase;
+  const walking = Math.abs(forward) > 0.01;
+  legL.rotation.x = walking ? Math.sin(wp) * 0.9 : 0;
+  legR.rotation.x = walking ? -Math.sin(wp) * 0.9 : 0;
+  armL.rotation.x = walking ? -Math.sin(wp) * 0.7 : 0;
+  armR.rotation.x = walking ? Math.sin(wp) * 0.7 : 0;
+  body.position.y = 0.95 + (walking ? Math.abs(Math.sin(wp*2)) * 0.06 : 0);
+
+  // Distance & stamina
+  const hs = Math.hypot(playerState.vel.x, playerState.vel.z);
+  playerState.distance += hs * dt;
+  if (sprinting && hs > 0.1) playerState.stamina = Math.max(0, playerState.stamina - dt * 0.32);
+  else playerState.stamina = Math.min(1, playerState.stamina + dt * (playerState.onGround ? 0.22 : 0.08));
+
+  // --- Camera chase ---
+  // Place camera behind the player based on player yaw (NOT free-look yaw)
+  const camDist = 6.5;
+  const camHeight = 3.2;
+  const camX = player.position.x - fx * camDist;
+  const camZ = player.position.z - fz * camDist;
+  camera.position.lerp(tmpV.set(camX, player.position.y + camHeight, camZ), Math.min(1, dt * 8));
+  camera.lookAt(player.position.x, player.position.y + 1.2, player.position.z);
+
+  // --- Demons ---
+  demonSpawnTimer += dt;
+  const desired = Math.min(7, 2 + Math.floor(elapsed / 18) + Math.floor(nightness * 3));
+  const spawnInterval = Math.max(2.2, 5.5 - elapsed * 0.04);
+  if (demons.length < desired && demonSpawnTimer > spawnInterval) {
+    spawnDemon();
+    demonSpawnTimer = 0;
+  }
+
+  for (const d of demons) {
+    const dx = player.position.x - d.group.position.x;
+    const dz = player.position.z - d.group.position.z;
+    const dist = Math.hypot(dx, dz);
+    if (dist > 0.01) {
+      const sp = d.speed + nightness * 1.6;
+      d.group.position.x += (dx/dist) * sp * dt;
+      d.group.position.z += (dz/dist) * sp * dt;
+      d.group.rotation.y = Math.atan2(dx, dz);
+    }
+    d.wobble += dt * 2.6;
+    d.group.position.y = Math.sin(d.wobble) * 0.1 + 0.05;
+
+    resolveDemonCollisions(d);
+
+    // Contact kill — strict, even mid-air-ish
+    if (dist < 0.95) {
+      damageFlash.classList.add('hit');
+      setTimeout(() => damageFlash.classList.remove('hit'), 260);
+      endGame();
+      break;
+    }
+  }
+
+  // --- Motes ---
+  for (const m of motes) {
+    if (m.collected) continue;
+    m.bob += dt * 2;
+    m.group.position.y = 1.2 + Math.sin(m.bob) * 0.2;
+    m.core.rotation.y += dt * 1.5;
+    m.core.rotation.x += dt * 0.8;
+    const dx = player.position.x - m.group.position.x;
+    const dz = player.position.z - m.group.position.z;
+    const dy = (player.position.y + 0.9) - m.group.position.y;
+    if (dx*dx + dz*dz + dy*dy < 1.4) {
+      m.collected = true;
+      scene.remove(m.group);
+      playerState.score += 1;
+      respawnMote();
+    }
+  }
+  for (let i = motes.length - 1; i >= 0; i--) if (motes[i].collected) motes.splice(i, 1);
+
+  // Hanger sway
+  HANGERS.forEach((h, i) => {
+    h.rotation.z = Math.sin(elapsed * 0.8 + i) * 0.03;
+  });
+
+  // HUD
+  scoreEl.textContent = `✦ ${playerState.score}`;
+  distanceEl.textContent = `${Math.floor(playerState.distance)} m traveled · ${Math.floor(elapsed)}s`;
+  demonCountEl.textContent = `${demons.length} demon${demons.length === 1 ? '' : 's'} on your trail`;
+  staminaFill.style.width = `${playerState.stamina * 100}%`;
+  staminaFill.style.opacity = playerState.stamina < 0.2 ? 0.5 : 1;
+}
+
+function animate() {
+  const dt = Math.min(clock.getDelta(), 0.05);
+  update(dt);
+  renderer.render(scene, camera);
+  requestAnimationFrame(animate);
+}
+
+// Initial preview render
+resetGame();
+updateDayNight(timeOfDay);
+camera.position.set(0, 4, 22);
+camera.lookAt(0, 1, 0);
+
+animate();
+</script>
+</body>
+</html>
