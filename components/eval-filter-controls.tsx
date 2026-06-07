@@ -20,11 +20,11 @@ function syncUrl(next: string[]) {
 export function EvalFilterControls({
   tags,
   totalCount,
-  collapsedTagCount,
+  featuredTags,
 }: {
   tags: string[];
   totalCount: number;
-  collapsedTagCount: number;
+  featuredTags: readonly string[];
 }) {
   const [selected, setSelected] = React.useState<string[]>([]);
   const [expanded, setExpanded] = React.useState(false);
@@ -53,12 +53,15 @@ export function EvalFilterControls({
   }, [selected]);
 
   const selectedSet = new Set(selected);
-  const hiddenCount = Math.max(0, tags.length - collapsedTagCount);
-  // Keep selected tags visible even when collapsed, so active filters never hide.
-  const visibleTags =
-    expanded || hiddenCount === 0
-      ? tags
-      : tags.filter((tag, i) => i < collapsedTagCount || selectedSet.has(tag));
+  const featuredSet = new Set(featuredTags);
+  const featuredVisible = featuredTags.filter((tag) => tags.includes(tag));
+  const selectedExtra = tags.filter(
+    (tag) => selectedSet.has(tag) && !featuredSet.has(tag)
+  );
+  const collapsedVisible = [...featuredVisible, ...selectedExtra];
+  const collapsedVisibleSet = new Set(collapsedVisible);
+  const hiddenCount = tags.filter((tag) => !collapsedVisibleSet.has(tag)).length;
+  const visibleTags = expanded || hiddenCount === 0 ? tags : collapsedVisible;
 
   function toggle(tag: string) {
     const next = new Set(selected);
@@ -109,7 +112,7 @@ export function EvalFilterControls({
                 aria-expanded={expanded}
                 className="inline-flex shrink-0 cursor-pointer items-center gap-2 whitespace-nowrap rounded-full border border-dashed border-ink/30 bg-transparent px-6 py-3 font-sans text-sm font-medium leading-none text-ink/70 transition-colors hover:bg-paper-soft hover:text-ink"
               >
-                {expanded ? "Show fewer" : `+${hiddenCount} more …`}
+                {expanded ? "Show fewer" : "View all"}
               </button>
             )}
 
