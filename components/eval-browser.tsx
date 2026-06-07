@@ -3,8 +3,8 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
-import { GlobuleDot } from "@/components/globule";
-import { globuleForIndex } from "@/lib/globules";
+import { orderTagsByFrequency } from "@/lib/tags";
+import { TagChip } from "@/components/tag-chip";
 import { EvalCard, type EvalCardData } from "@/components/eval-card";
 
 function parseTags(value: string | null): string[] {
@@ -41,15 +41,10 @@ export function EvalBrowser({
   // Order tags by how often they appear (most common first), so the collapsed
   // view surfaces the most useful filters. Alphabetical breaks ties for a
   // stable, deterministic order (and stable globule colors).
-  const orderedTags = React.useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const ev of evals)
-      for (const t of ev.tags) counts.set(t, (counts.get(t) || 0) + 1);
-    return [...allTags].sort((a, b) => {
-      const diff = (counts.get(b) || 0) - (counts.get(a) || 0);
-      return diff !== 0 ? diff : a.localeCompare(b);
-    });
-  }, [evals, allTags]);
+  const orderedTags = React.useMemo(
+    () => orderTagsByFrequency(evals, allTags),
+    [evals, allTags]
+  );
 
   const hiddenCount = Math.max(0, orderedTags.length - COLLAPSED_TAG_COUNT);
   // Keep selected tags visible even when collapsed, so active filters never hide.
@@ -103,21 +98,17 @@ export function EvalBrowser({
             {visibleTags.map((t) => {
               const on = selectedSet.has(t);
               return (
-                <button
+                <TagChip
                   key={t}
-                  type="button"
+                  as="button"
+                  tag={t}
+                  colorIndex={orderedTags.indexOf(t)}
+                  size="filter"
+                  selected={on}
                   aria-pressed={on}
                   onClick={() => toggle(t)}
-                  className={cn(
-                    "inline-flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 font-mono text-[11px] font-medium uppercase tracking-[0.12em] leading-none transition-colors",
-                    on
-                      ? "border-ink bg-ink text-paper"
-                      : "border-ink/10 bg-paper-soft text-ink hover:bg-paper-3"
-                  )}
-                >
-                  <GlobuleDot globule={globuleForIndex(orderedTags.indexOf(t))} />
-                  {t}
-                </button>
+                  className="cursor-pointer"
+                />
               );
             })}
 
@@ -126,7 +117,7 @@ export function EvalBrowser({
                 type="button"
                 onClick={() => setExpanded((v) => !v)}
                 aria-expanded={expanded}
-                className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-dashed border-ink/30 bg-transparent px-4 py-2 font-mono text-[11px] font-medium uppercase tracking-[0.12em] leading-none text-ink/70 transition-colors hover:bg-paper-soft hover:text-ink"
+                className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-dashed border-ink/30 bg-transparent px-5 py-2.5 font-sans text-xs font-medium uppercase tracking-[0.08em] leading-none text-ink/70 transition-colors hover:bg-paper-soft hover:text-ink"
               >
                 {expanded ? "Show fewer" : `+${hiddenCount} more …`}
               </button>
@@ -164,7 +155,7 @@ export function EvalBrowser({
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {filtered.map((ev) => (
-          <EvalCard key={ev.slug} ev={ev} />
+          <EvalCard key={ev.slug} ev={ev} orderedTags={orderedTags} />
         ))}
       </div>
     </section>

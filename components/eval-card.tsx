@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import { EvalArt } from "@/components/eval-art";
+import { TagChip } from "@/components/tag-chip";
 
 export type EvalCardData = {
   slug: string;
@@ -16,7 +17,13 @@ export type EvalCardData = {
   image?: string | null;
 };
 
-export function EvalCard({ ev }: { ev: EvalCardData }) {
+export function EvalCard({
+  ev,
+  orderedTags,
+}: {
+  ev: EvalCardData;
+  orderedTags: string[];
+}) {
   return (
     <Link
       href={`/eval/${ev.slug}`}
@@ -40,14 +47,17 @@ export function EvalCard({ ev }: { ev: EvalCardData }) {
         <h3 className="font-sans text-xl font-semibold leading-tight tracking-tight text-ink">
           {ev.title}
         </h3>
-        <p className="mt-2.5 text-sm leading-relaxed text-ink">
+        <p className="mt-2.5 line-clamp-2 min-h-[2.625rem] text-sm leading-snug text-ink">
           {ev.tagline || ev.description || ""}
         </p>
-        <div className="mt-3.5 flex flex-wrap gap-1.5">
+        <div className="mt-3.5 flex flex-nowrap gap-1.5 overflow-hidden">
           {ev.tags.map((t) => (
-            <Badge key={t} variant="soft">
-              {t}
-            </Badge>
+            <TagChip
+              key={t}
+              tag={t}
+              colorIndex={orderedTags.indexOf(t)}
+              size="card"
+            />
           ))}
         </div>
       </div>

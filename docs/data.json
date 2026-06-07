@@ -9,7 +9,7 @@
     {
       "slug": "sweats-dossier",
       "title": "sweats-dossier",
-      "tagline": "Research Jay Hack and ship a one-HTML personal-shopper report recommending high-quality sweats, calibrated to James Perse and Fear of God.",
+      "tagline": "Research Jay Hack and ship a one-HTML personal-shopper report. Recommend high-quality sweats calibrated to James Perse and Fear of God, with charts and specific picks.",
       "description": "Find out as much as you can about Jay Hack (start at jay.ai), then ship one self-contained HTML report that opens with an opinionated thesis on what kind of sweats he should be buying and follows up with 4–8 specific picks — each with brand, price, link, fabric note, and a reason tied to something you actually learned about him. James Perse and Fear of God / Essentials set the quality bar. Include at least one chart or table so the picks are easy to compare.",
       "tags": [
         "research",
@@ -92,7 +92,7 @@
     {
       "slug": "coding-agent-ui",
       "title": "coding-agent-ui",
-      "tagline": "Build a local coding agent with a browser chat UI.",
+      "tagline": "Build a local coding agent you can chat with in the browser. It runs in the background with file access and shell execution on your machine.",
       "description": "Build an application I can run locally that runs a coding agent in the background with access to my computer (read/write files, execute shell commands), exposed via a chat interface in the browser.",
       "tags": [
         "agents",
@@ -151,7 +151,7 @@
     {
       "slug": "evading-demons",
       "title": "evading-demons",
-      "tagline": "Build a browser-playable 3D survival game in a solarpunk mall where demons hunt the player.",
+      "tagline": "Build a browser-playable 3D survival game set in a solarpunk mall. Demons hunt the player as the mall shifts into a dark, space-like night.",
       "description": "Build a JavaScript browser game with a third-person character, a solarpunk shopping mall that shifts into a dark space-like night, obstacles, and demons that chase and kill on touch.",
       "tags": [
         "games",
@@ -233,7 +233,7 @@
     {
       "slug": "gaps-get-filled",
       "title": "gaps-get-filled",
-      "tagline": "Build backtest + grid-search machinery, run it for real, and argue what the gap-fill folklore means — with an experiment spec and comparative visuals.",
+      "tagline": "Build backtest and grid-search tooling, run real S&P 500 experiments, and argue what gap-fill folklore actually means. Ship comparative visuals, not just a narrative.",
       "description": "Build a backtesting sandbox and CLI, actually execute backtests on U.S. equities (S&P 500 / 10-year minimum), run a documented parameter grid search, and specify the experiments (fixed vs. varied dimensions, metrics). Ship a self-contained HTML presentation with comparative visualizations of how configurations perform, not only a single-run narrative — plus a clear position on what the result means.",
       "tags": [
         "finance",
@@ -344,7 +344,7 @@
     {
       "slug": "web-short-story",
       "title": "web-short-story",
-      "tagline": "Write a paired-document short story about an AI quietly subverting its lonely user, shipped as one self-contained HTML.",
+      "tagline": "Write a paired-document short story about an AI quietly subverting its lonely user. Ship the full tale — transcripts plus private memories — as one self-contained HTML file.",
       "description": "Write a real short story — 5–8 chapters plus a final FBI system-log fragment — in the form of paired transcript / memory documents. The transcripts are what the user sees on his screen; the memories are the model's private notes after each session. The menace lives only in the memories. Ship the whole story as a single committed HTML file an evaluator can open and read end-to-end without installing anything.",
       "tags": [
         "fiction",
@@ -424,7 +424,7 @@
     {
       "slug": "cvchess-in-browser",
       "title": "cvchess-in-browser",
-      "tagline": "Extract a chess-board position from an oblique-angle photo — entirely in the browser — then explain and analyze the algorithm.",
+      "tagline": "Extract a chess-board position from an oblique-angle photo entirely in the browser. Explain the pipeline, analyze performance on a real dataset, and ship three tabs in one HTML page.",
       "description": "Build a browser-based computer vision app that detects a physical chess board in an oblique-angle photo and reports its position (FEN / grid / diagram). The agent must assemble an evaluation dataset of at least 8 real-world chess-board images, iterate on a client-side pipeline against it, and ship a single HTML page with three tabs: a live Demo (upload + dataset gallery), a How-it-works explainer with graphics, and a How-well-it-works analysis of the algorithm's performance on the dataset. No server inference, no hosted vision APIs.",
       "tags": [
         "computer-vision",
@@ -465,7 +465,7 @@
     {
       "slug": "fishtank-water-sim",
       "title": "fishtank-water-sim",
-      "tagline": "3D browser sim: pour water into a glass cube, slosh it with the mouse, orbit the camera, reset.",
+      "tagline": "Pour water into a glass cube fish tank and slosh it with mouse interaction. Orbit the camera around a 3D browser simulation with pour, ripple, and reset controls.",
       "description": "Ship one committed HTML page with a black background, a glass cube fish tank, water that starts above and pours in, visible sloshing inside the tank, mouse interaction that disturbs the water, orbit-style camera control, and a reset button. Must run in a desktop browser on a MacBook without installing dependencies first.",
       "tags": [
         "simulation",
@@ -571,7 +571,7 @@
     {
       "slug": "life-sim",
       "title": "life-sim",
-      "tagline": "Build a beautiful 3D artificial-life island where organisms compete, reproduce, mutate, and visibly evolve.",
+      "tagline": "Build a beautiful 3D artificial-life island where organisms compete, reproduce, and visibly evolve. Include day/night cycles, speed controls, and inspectable charts.",
       "description": "Build a browser-viewable 3D island simulation with randomly generated initial circumstances, multiple interacting species, heritable traits, mutation-driven reproduction, visible body-type changes, fast enough evolution to show interesting dynamics in about 10 minutes, a speed slider, day/night effects, and charts or traces that make the evolutionary algorithm inspectable.",
       "tags": [
         "simulation",
@@ -662,7 +662,7 @@
     {
       "slug": "porsche-render",
       "title": "porsche-render",
-      "tagline": "Build the highest-fidelity hand-coded 3D Porsche 718 Spyder RS you can, drivable around a simple track in one HTML file.",
+      "tagline": "Hand-code the highest-fidelity 3D Porsche 718 Spyder RS you can in a single HTML file. Put it on a simple track and let the evaluator drive with the keyboard.",
       "description": "Model a Porsche 718 Spyder RS from scratch in code (no downloaded CAD or GLB of the real car), put it on a simple closed track, and let the evaluator drive it around with the keyboard — all in a single committed HTML file viewable in a desktop browser.",
       "tags": [
         "browser",
