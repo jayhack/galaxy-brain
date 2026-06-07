@@ -54,9 +54,9 @@ A fresh evaluator can:
 - Affiliate-style hard-sell copy. This is a personal shopper memo.
 - Dupes or counterfeit brands.
 
-## GitHub Pages — artifact button
+## Results site — artifact button
 
-So the [results site](https://jayhack.github.io/galaxy-brain) shows **Open HTML output** for your submission, mirror the report and register it:
+So the [results site](https://galaxybrain.dev) shows **Open HTML output** for your submission, mirror the report and register it:
 
 1. Copy it to `docs/artifacts/sweats-dossier/<harness>-<model>.html`.
 2. On your solution object in [`docs/data.json`](../docs/data.json), set

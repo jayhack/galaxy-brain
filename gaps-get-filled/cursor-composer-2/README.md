@@ -8,7 +8,7 @@ Submission for the [`gaps-get-filled`](../README.md) eval.
 
 Open that file in a browser. It is self-contained (data inlined) and summarizes a full S&P 500 × 10-year backtest with per-horizon fill rates and a naive gap-fade trade study.
 
-**Mirrored for GitHub Pages:** after merge, the same HTML is copied to `docs/artifacts/gaps-get-filled/cursor-composer-2.html` with `artifactUrl` set in `docs/data.json`.
+**Mirrored for the results site:** after merge, the same HTML is copied to `docs/artifacts/gaps-get-filled/cursor-composer-2.html` with `artifactUrl` set in `docs/data.json`.
 
 ---
 

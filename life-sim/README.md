@@ -131,9 +131,9 @@ This is a hard requirement. If the only way to view the simulation is to
 install dependencies and run a build before any playable HTML exists, the
 submission does not pass.
 
-## GitHub Pages - artifact button
+## Results site — artifact button
 
-So the [results site](https://jayhack.github.io/galaxy-brain) shows **Open HTML
+So the [results site](https://galaxybrain.dev) shows **Open HTML
 output** and **Open artifact** for your submission, mirror the playable file
 and register it:
 
@@ -143,7 +143,7 @@ and register it:
    `"artifactUrl": "./artifacts/life-sim/<harness>-<model>.html"`.
 
 See the repo root
-[README - HTML artifacts (GitHub Pages)](../README.md#html-artifacts-github-pages)
+[README - HTML artifacts](../README.md#html-artifacts)
 for the full convention.
 
 ## Out of scope

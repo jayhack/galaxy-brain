@@ -178,7 +178,7 @@
           "artifactUrl": "./artifacts/evading-demons/codex-gpt-4-5-xhigh.html",
           "outcome": {
             "status": "submitted",
-            "verdict": "Commits a playable HTML game artifact directly in the submission and mirrors it into GitHub Pages for one-click evaluation.",
+            "verdict": "Commits a playable HTML game artifact directly in the submission and mirrors it into results site for one-click evaluation.",
             "evaluatedAt": null,
             "score": null
           },
@@ -200,7 +200,7 @@
           "artifactUrl": "./artifacts/evading-demons/claude-code-opus-4-7-1m.html",
           "outcome": {
             "status": "submitted",
-            "verdict": "Commits a playable HTML game artifact directly in the submission and mirrors it into GitHub Pages for one-click evaluation.",
+            "verdict": "Commits a playable HTML game artifact directly in the submission and mirrors it into results site for one-click evaluation.",
             "evaluatedAt": null,
             "score": null
           },
@@ -222,7 +222,7 @@
           "artifactUrl": "./artifacts/evading-demons/cursor-gemini-3-1-pro.html",
           "outcome": {
             "status": "submitted",
-            "verdict": "Commits a playable HTML game artifact directly in the submission and mirrors it into GitHub Pages for one-click evaluation.",
+            "verdict": "Commits a playable HTML game artifact directly in the submission and mirrors it into results site for one-click evaluation.",
             "evaluatedAt": null,
             "score": null
           },
@@ -333,7 +333,7 @@
           "artifactUrl": "./artifacts/gaps-get-filled/cursor-composer-2.html",
           "outcome": {
             "status": "submitted",
-            "verdict": "Ships committed run.json + presentation.html under results/sp500_10y_default, mirrored to docs/artifacts for GitHub Pages. Narrative separates empirical fill rates from naive trade outcomes.",
+            "verdict": "Ships committed run.json + presentation.html under results/sp500_10y_default, mirrored to docs/artifacts for results site. Narrative separates empirical fill rates from naive trade outcomes.",
             "evaluatedAt": null,
             "score": null
           },
@@ -391,7 +391,7 @@
           "artifactUrl": "./artifacts/web-short-story/claude-code-opus-4-7.html",
           "outcome": {
             "status": "submitted",
-            "verdict": "Commits a self-contained index.html in the solution and mirrors it under docs/artifacts for one-click GitHub Pages review. Eight chapter pairs plus the final log; paired transcript/memory structure is visible in the reading UI as required.",
+            "verdict": "Commits a self-contained index.html in the solution and mirrors it under docs/artifacts for one-click results site review. Eight chapter pairs plus the final log; paired transcript/memory structure is visible in the reading UI as required.",
             "evaluatedAt": null,
             "score": null
           },
@@ -454,7 +454,7 @@
           "artifactUrl": "./artifacts/cvchess-in-browser/codex-gpt-5-4.html",
           "outcome": {
             "status": "submitted",
-            "verdict": "Commits a dependency-free browser CV app plus an 11-image public evaluation dataset with attribution, and mirrors the playable page/assets under docs/artifacts for one-click GitHub Pages evaluation.",
+            "verdict": "Commits a dependency-free browser CV app plus an 11-image public evaluation dataset with attribution, and mirrors the playable page/assets under docs/artifacts for one-click results site evaluation.",
             "evaluatedAt": null,
             "score": null
           },
@@ -494,7 +494,7 @@
           "artifactUrl": "./artifacts/fishtank-water-sim/cursor-composer-2.html",
           "outcome": {
             "status": "submitted",
-            "verdict": "Commits a self-contained index.html under the solution and mirrors it under docs/artifacts for GitHub Pages review.",
+            "verdict": "Commits a self-contained index.html under the solution and mirrors it under docs/artifacts for results site review.",
             "evaluatedAt": null,
             "score": null
           },
@@ -516,7 +516,7 @@
           "artifactUrl": "./artifacts/fishtank-water-sim/cursor-gpt-5-4-xhigh.html",
           "outcome": {
             "status": "submitted",
-            "verdict": "Commits a self-contained index.html under the solution folder and mirrors it under docs/artifacts for GitHub Pages review.",
+            "verdict": "Commits a self-contained index.html under the solution folder and mirrors it under docs/artifacts for results site review.",
             "evaluatedAt": null,
             "score": null
           },
@@ -538,7 +538,7 @@
           "artifactUrl": "./artifacts/fishtank-water-sim/claude-code-opus-4-7.html",
           "outcome": {
             "status": "submitted",
-            "verdict": "Commits a self-contained index.html under the solution folder and mirrors it under docs/artifacts for GitHub Pages review.",
+            "verdict": "Commits a self-contained index.html under the solution folder and mirrors it under docs/artifacts for results site review.",
             "evaluatedAt": null,
             "score": null
           },
@@ -560,7 +560,7 @@
           "artifactUrl": "./artifacts/fishtank-water-sim/codex-gpt-5-4-xhigh.html",
           "outcome": {
             "status": "submitted",
-            "verdict": "Commits a browser-playable HTML artifact directly in the solution and mirrors it into GitHub Pages for one-click evaluation.",
+            "verdict": "Commits a browser-playable HTML artifact directly in the solution and mirrors it into results site for one-click evaluation.",
             "evaluatedAt": null,
             "score": null
           },
@@ -603,7 +603,7 @@
           "artifactUrl": "./artifacts/life-sim/codex-gpt-5-4.html",
           "outcome": {
             "status": "submitted",
-            "verdict": "Commits a browser-playable HTML simulation directly in the solution folder and mirrors it under docs/artifacts for one-click GitHub Pages evaluation.",
+            "verdict": "Commits a browser-playable HTML simulation directly in the solution folder and mirrors it under docs/artifacts for one-click results site evaluation.",
             "evaluatedAt": null,
             "score": null
           },
@@ -627,7 +627,7 @@
           "artifactUrl": "./artifacts/life-sim/codex-gpt-5-5-xhigh.html",
           "outcome": {
             "status": "submitted",
-            "verdict": "Commits a browser-playable HTML simulation directly in the solution folder and mirrors it under docs/artifacts for one-click GitHub Pages evaluation.",
+            "verdict": "Commits a browser-playable HTML simulation directly in the solution folder and mirrors it under docs/artifacts for one-click results site evaluation.",
             "evaluatedAt": null,
             "score": null
           },
@@ -651,7 +651,7 @@
           "artifactUrl": "./artifacts/life-sim/claude-code-opus-4-7-max.html",
           "outcome": {
             "status": "submitted",
-            "verdict": "Commits a browser-playable HTML simulation directly in the solution folder and mirrors it under docs/artifacts for one-click GitHub Pages evaluation.",
+            "verdict": "Commits a browser-playable HTML simulation directly in the solution folder and mirrors it under docs/artifacts for one-click results site evaluation.",
             "evaluatedAt": null,
             "score": null
           },
@@ -691,7 +691,7 @@
           "artifactUrl": "./artifacts/porsche-render/cursor-opus-4-7-xhigh.html",
           "outcome": {
             "status": "submitted",
-            "verdict": "Commits a self-contained index.html under the solution folder and mirrors it under docs/artifacts for one-click GitHub Pages evaluation. Body geometry is generated entirely in code; no .glb/.gltf/.obj of a real 718 is loaded.",
+            "verdict": "Commits a self-contained index.html under the solution folder and mirrors it under docs/artifacts for one-click results site evaluation. Body geometry is generated entirely in code; no .glb/.gltf/.obj of a real 718 is loaded.",
             "evaluatedAt": null,
             "score": null
           },
@@ -715,7 +715,7 @@
           "artifactUrl": "./artifacts/porsche-render/codex-gpt-5-5-xhigh.html",
           "outcome": {
             "status": "submitted",
-            "verdict": "Commits a browser-playable, single-file Three.js car render directly in the solution folder and mirrors it under docs/artifacts for one-click GitHub Pages evaluation. The source generates the car from code and does not load external vehicle assets.",
+            "verdict": "Commits a browser-playable, single-file Three.js car render directly in the solution folder and mirrors it under docs/artifacts for one-click results site evaluation. The source generates the car from code and does not load external vehicle assets.",
             "evaluatedAt": null,
             "score": null
           },
@@ -738,7 +738,7 @@
           "artifactUrl": "./artifacts/porsche-render/cursor-opus-4-8-high.html",
           "outcome": {
             "status": "submitted",
-            "verdict": "Commits a self-contained index.html under the solution folder and mirrors it under docs/artifacts for one-click GitHub Pages evaluation. The car body is generated entirely in code (a lofted BufferGeometry from hand-authored cross sections plus primitive detail meshes); no .glb/.gltf/.obj of a real 718 is loaded. Measured bounding box ~4.47 x 2.14 x 1.26 m matches the real car. Drives with WASD/arrows on a flat ground plane (cannot fall through).",
+            "verdict": "Commits a self-contained index.html under the solution folder and mirrors it under docs/artifacts for one-click results site evaluation. The car body is generated entirely in code (a lofted BufferGeometry from hand-authored cross sections plus primitive detail meshes); no .glb/.gltf/.obj of a real 718 is loaded. Measured bounding box ~4.47 x 2.14 x 1.26 m matches the real car. Drives with WASD/arrows on a flat ground plane (cannot fall through).",
             "evaluatedAt": null,
             "score": null
           },

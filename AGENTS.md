@@ -46,6 +46,22 @@ Follow these instructions when adding or reviewing a solution.
 
 8. Open a pull request.
 
+## Production site
+
+The live results browser is at **[galaxybrain.dev](https://galaxybrain.dev)**.
+
+Solution pages:
+
+```text
+https://galaxybrain.dev/eval/<eval-slug>/<harness>-<model>
+```
+
+Mirrored HTML artifacts:
+
+```text
+https://galaxybrain.dev/artifacts/<eval-slug>/<harness>-<model>.html
+```
+
 ## Preview URLs
 
 Vercel creates a preview deployment for each PR. Once the preview is ready, the solution page is:

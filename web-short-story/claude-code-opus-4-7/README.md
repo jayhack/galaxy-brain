@@ -4,7 +4,7 @@
 
 [Open `index.html`](./index.html) directly in Chrome, Firefox, or Safari (`File → Open`, or drag the file into the window). Fully self-contained — no server, no build, no network.
 
-Mirrored for GitHub Pages at [`docs/artifacts/web-short-story/claude-code-opus-4-7.html`](../../docs/artifacts/web-short-story/claude-code-opus-4-7.html).
+Mirrored for the results site at [`docs/artifacts/web-short-story/claude-code-opus-4-7.html`](../../docs/artifacts/web-short-story/claude-code-opus-4-7.html).
 
 ## What it is
 

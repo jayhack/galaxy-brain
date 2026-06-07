@@ -5,7 +5,7 @@ description: How to add and publish a galaxy-brain agent eval (folder layout, RE
 
 # Galaxy-brain: authoring an eval
 
-This skill describes how **evals** work in the [galaxy-brain](https://github.com/jayhack/galaxy-brain) repo: a root-level folder per eval, a prompt in `README.md`, optional solution submissions, and registration on the static results site via `docs/data.json`.
+This skill describes how **evals** work in the [galaxy-brain](https://github.com/jayhack/galaxy-brain) repo: a root-level folder per eval, a prompt in `README.md`, optional solution submissions, and registration on the results site at [galaxybrain.dev](https://galaxybrain.dev) via `docs/data.json`.
 
 ## Repo you are working in
 

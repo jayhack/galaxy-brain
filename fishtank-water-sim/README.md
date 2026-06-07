@@ -11,15 +11,15 @@ Ship **one self-contained HTML file** (local open is fine) for a **3D fish-tank 
 
 Stack is open (vanilla / WebGL / Three.js from CDN, etc.). Approximate fluid is fine.
 
-## GitHub Pages — artifact button
+## Results site — artifact button
 
-So the [results site](https://jayhack.github.io/galaxy-brain) shows **Open HTML output** and **Open artifact** for your submission, mirror the playable file and register it:
+So the [results site](https://galaxybrain.dev) shows **Open HTML output** and **Open artifact** for your submission, mirror the playable file and register it:
 
 1. Copy it to `docs/artifacts/fishtank-water-sim/<harness>-<model>.html` (same name as your solution folder under this eval).
 2. On your solution object in [`docs/data.json`](../docs/data.json), set  
    `"artifactUrl": "./artifacts/fishtank-water-sim/<harness>-<model>.html"`.
 
-See the repo root [README — HTML artifacts (GitHub Pages)](../README.md#html-artifacts-github-pages) for the full convention.
+See the repo root [README — HTML artifacts](../README.md#html-artifacts) for the full convention.
 
 ## Acceptance criteria
 

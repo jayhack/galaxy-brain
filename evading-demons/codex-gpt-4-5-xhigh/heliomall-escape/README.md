@@ -6,8 +6,8 @@ Submission for the [`evading-demons`](../../README.md) galaxy-brain eval.
 
 **➡ [`index.html`](./index.html)** (committed in the repo, browser-playable)
 
-> Also mirrored for GitHub Pages at
-> [jayhack.github.io/galaxy-brain/artifacts/evading-demons/codex-gpt-4-5-xhigh.html](https://jayhack.github.io/galaxy-brain/artifacts/evading-demons/codex-gpt-4-5-xhigh.html)
+> Also mirrored at
+> [galaxybrain.dev/artifacts/evading-demons/codex-gpt-4-5-xhigh.html](https://galaxybrain.dev/artifacts/evading-demons/codex-gpt-4-5-xhigh.html)
 > via `docs/artifacts/`.
 
 No build step. No install step. Open `index.html` directly in a browser and
