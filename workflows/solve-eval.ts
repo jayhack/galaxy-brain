@@ -554,6 +554,7 @@ ${evalReadme}${suffix}
 function sandboxEnv(): Record<string, string> {
   const names = [
     "OPENAI_API_KEY",
+    "CODEX_API_KEY",
     "CURSOR_API_KEY",
     "ANTHROPIC_API_KEY",
     "GITHUB_TOKEN",
@@ -566,6 +567,10 @@ function sandboxEnv(): Record<string, string> {
   for (const name of names) {
     const value = process.env[name];
     if (value) env[name] = value;
+  }
+
+  if (!env.CODEX_API_KEY && env.OPENAI_API_KEY) {
+    env.CODEX_API_KEY = env.OPENAI_API_KEY;
   }
 
   env.GIT_AUTHOR_NAME = process.env.GIT_AUTHOR_NAME ?? "galaxy-brain solver";
