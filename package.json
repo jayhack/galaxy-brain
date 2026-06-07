@@ -10,7 +10,8 @@
     "build": "next build",
     "start": "next start",
     "validate:content": "node scripts/validate-content.mjs",
-    "new:solution": "node scripts/new-solution.mjs"
+    "new:solution": "node scripts/new-solution.mjs",
+    "gen:headers": "node scripts/gen-header-placeholders.mjs"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
@@ -40,6 +41,7 @@
     "@types/react": "^19.2.16",
     "@types/react-dom": "^19.2.3",
     "@types/sanitize-html": "^2.16.1",
+    "sharp": "^0.34.5",
     "tailwindcss": "^4.3.0",
     "typescript": "^6.0.3"
   }

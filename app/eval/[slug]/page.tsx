@@ -7,6 +7,7 @@ import {
   getEval,
   getEvalPrompt,
   headerImage,
+  headerPlaceholder,
   repoUrls,
 } from "@/lib/content";
 import { Button } from "@/components/ui/button";
@@ -53,6 +54,7 @@ export default async function EvalPage({
   const colorIndex = getEvals().findIndex((e) => e.slug === ev.slug);
   const globule = globuleForIndex(colorIndex);
   const image = headerImage(ev.slug);
+  const placeholder = headerPlaceholder(ev.slug);
   const urls = repoUrls();
   const promptPath = `${ev.slug}/README.md`;
   const prompt = await getEvalPrompt(ev);
@@ -62,6 +64,7 @@ export default async function EvalPage({
       <EvalArt
         globule={globule}
         image={image}
+        placeholder={placeholder}
         imageAlt={`${ev.title} header`}
         className="mb-6 h-44 rounded-md border border-ink sm:h-56"
       >
