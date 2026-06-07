@@ -256,7 +256,7 @@ async function startSandboxSolve(
     cmd: "bash",
     args: ["/vercel/sandbox/setup.sh"],
     cwd: "/vercel/sandbox",
-    env: {
+    env: sandboxCommandEnv({
       REPO_URL: input.repoUrl,
       BASE_BRANCH: input.baseBranch,
       BRANCH_NAME: branchName,
@@ -268,7 +268,7 @@ async function startSandboxSolve(
       PROMPT_PATH: promptPath,
       EXIT_CODE_PATH: exitCodePath,
       DONE_PATH: donePath,
-    },
+    }),
   });
 
   if (setup.exitCode !== 0) {
@@ -280,7 +280,7 @@ async function startSandboxSolve(
     args: ["/vercel/sandbox/agent-runner.sh"],
     cwd: repoDir,
     detached: true,
-    env: {
+    env: sandboxCommandEnv({
       REPO_DIR: repoDir,
       EVAL_SLUG: input.evalSlug,
       SOLUTION_SLUG: config.solutionSlug,
@@ -289,7 +289,7 @@ async function startSandboxSolve(
       PROMPT_PATH: promptPath,
       EXIT_CODE_PATH: exitCodePath,
       DONE_PATH: donePath,
-    },
+    }),
   });
 
   const started: StartedSolve = {
@@ -366,12 +366,12 @@ async function finalizeSandboxSolve(
     cmd: "bash",
     args: ["-lc", finalizeScript()],
     cwd: started.repoDir,
-    env: {
+    env: sandboxCommandEnv({
       REPO_DIR: started.repoDir,
       EVAL_SLUG: input.evalSlug,
       SOLUTION_SLUG: config.solutionSlug,
       BRANCH_NAME: started.branchName,
-    },
+    }),
   });
 
   const output = await finalize.output("both");
@@ -575,6 +575,16 @@ function sandboxEnv(): Record<string, string> {
   env.GIT_COMMITTER_EMAIL = env.GIT_AUTHOR_EMAIL;
   env.CLAUDE_CODE_SKIP_PROMPT_HISTORY = "1";
   env.CI = "1";
+
+  return env;
+}
+
+function sandboxCommandEnv(extra: Record<string, string | undefined>): Record<string, string> {
+  const env = sandboxEnv();
+
+  for (const [name, value] of Object.entries(extra)) {
+    if (value) env[name] = value;
+  }
 
   return env;
 }
