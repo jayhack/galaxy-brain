@@ -1,6 +1,6 @@
 import {
   Archivo_Black,
-  Space_Grotesk,
+  Inter,
   JetBrains_Mono,
 } from "next/font/google";
 
@@ -16,11 +16,10 @@ export const fontLogo = Archivo_Black({
   display: "swap",
 });
 
-// Space Grotesk for body copy, headings, and eval titles (replaces Inter).
-export const fontDisplay = Space_Grotesk({
+// Inter for body + UI (Linear/Cursor-style neutral sans).
+export const fontSans = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-space",
+  variable: "--font-inter",
   display: "swap",
 });
 
@@ -33,6 +32,6 @@ export const fontMono = JetBrains_Mono({
 
 export const fontVariables = [
   fontLogo.variable,
-  fontDisplay.variable,
+  fontSans.variable,
   fontMono.variable,
 ].join(" ");
