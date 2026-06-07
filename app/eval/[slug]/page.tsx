@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Pencil } from "lucide-react";
 
 import {
   getEvals,
@@ -73,13 +72,26 @@ export default async function EvalPage({
           />
         )}
         <div className="eval-art-scrim" />
-        <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
-          <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-paper/80">
-            Eval
-          </span>
-          <h1 className="mt-1.5 font-display text-4xl font-semibold leading-none tracking-tight text-paper drop-shadow-[0_1px_10px_rgba(0,0,0,0.35)] sm:text-5xl">
-            {ev.title}
-          </h1>
+        <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-6 sm:p-8">
+          <div>
+            <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-paper/80">
+              Eval
+            </span>
+            <h1 className="mt-1.5 font-display text-4xl font-semibold leading-none tracking-tight text-paper drop-shadow-[0_1px_10px_rgba(0,0,0,0.35)] sm:text-5xl">
+              {ev.title}
+            </h1>
+          </div>
+          <Button asChild variant="paper" size="sm" className="shrink-0">
+            <a
+              href={urls.tree(ev.slug)}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="View this eval's files on GitHub"
+            >
+              <GithubIcon />
+              View on Github
+            </a>
+          </Button>
         </div>
       </EvalArt>
 
@@ -94,29 +106,6 @@ export default async function EvalPage({
         <p className="mt-3 max-w-3xl text-ink/90">
           {ev.description || ev.tagline || ""}
         </p>
-        <div className="mt-5 flex flex-wrap items-center gap-2.5">
-          <Button asChild variant="ink" size="sm">
-            <a
-              href={urls.tree(ev.slug)}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="View this eval's files on GitHub"
-            >
-              <GithubIcon />
-              View on Github
-            </a>
-          </Button>
-          <Button asChild variant="ghost" size="sm">
-            <a
-              href={urls.blob(promptPath)}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Pencil className="size-3.5" />
-              Edit prompt
-            </a>
-          </Button>
-        </div>
       </header>
 
       <section className="mb-10 w-full min-w-0 max-w-full">
