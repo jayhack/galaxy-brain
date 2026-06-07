@@ -42,8 +42,14 @@
   --sun: #f2d24a;
   --sun-d: #8e6a0c;
 
-  /* Global corner radius. Small + soft (not sharp). Bump to round more. */
-  --radius: 0.375rem;
+  /* Global corner radius. Soft (not sharp). Bump to round more. */
+  --radius: 0.625rem;
+
+  /* Frame line: a softened ink hairline used for borders site-wide, so the
+     pervasive black frames read as structure instead of a hard grid. Ink
+     itself stays max-contrast for text. */
+  --line: color-mix(in srgb, var(--ink) 26%, var(--paper));
+  --line-strong: color-mix(in srgb, var(--ink) 42%, var(--paper));
 }
 
 /* ===== shadcn SEMANTIC TOKENS -> mapped onto brand tokens ========= */
@@ -64,8 +70,8 @@
   --secondary-foreground: var(--ink);
 
   --muted: var(--paper-soft);
-  /* Secondary copy: ink dimmed to ~72% — still dark, never washed-out gray. */
-  --muted-foreground: color-mix(in srgb, var(--ink) 72%, transparent);
+  /* Secondary copy: ink dimmed to ~80% — still dark, never washed-out gray. */
+  --muted-foreground: color-mix(in srgb, var(--ink) 80%, transparent);
 
   --accent: var(--paper-soft);
   --accent-foreground: var(--ink);
@@ -73,8 +79,8 @@
   --destructive: var(--magenta-d);
   --destructive-foreground: var(--paper);
 
-  --border: var(--ink);
-  --input: var(--ink);
+  --border: var(--line);
+  --input: var(--line-strong);
   --ring: var(--indigo);
 
   --chart-1: var(--cyan);
@@ -89,7 +95,7 @@
   --sidebar-primary-foreground: var(--paper);
   --sidebar-accent: var(--paper);
   --sidebar-accent-foreground: var(--ink);
-  --sidebar-border: var(--ink);
+  --sidebar-border: var(--line);
   --sidebar-ring: var(--indigo);
 }
 
@@ -169,8 +175,8 @@
     @apply bg-background text-foreground font-sans antialiased;
     font-feature-settings: "cv01", "ss03";
     overscroll-behavior-y: none;
-    background-image: radial-gradient(rgba(10, 9, 8, 0.03) 1px, transparent 1px);
-    background-size: 8px 8px;
+    background-image: radial-gradient(rgba(10, 9, 8, 0.016) 1px, transparent 1px);
+    background-size: 10px 10px;
     background-position: 0 0;
   }
   /* No timed fades on chrome; snap immediately. */
@@ -186,11 +192,24 @@
    GLOBULE BRAND LAYER — visual primitives that sit on top of shadcn.
    ================================================================== */
 
+/* Soften the pervasive ink frames. Components hardcode `border-ink`, so this
+   unlayered rule remaps that single utility to the softened hairline (--line),
+   turning hard black grids into quiet structure. Opacity variants
+   (border-ink/10, border-ink/65, ...) are separate utilities and keep their
+   intentional values; ink TEXT and FILLS are untouched (still max contrast).
+   A `.border-ink-hard` escape hatch restores a strong frame where needed. */
+.border-ink {
+  border-color: var(--line);
+}
+.border-ink-hard {
+  border-color: var(--line-strong);
+}
+
 /* ===== SURFACES =================================================== */
 .paper {
   background-color: var(--paper);
-  background-image: radial-gradient(rgba(10, 9, 8, 0.03) 1px, transparent 1px);
-  background-size: 8px 8px;
+  background-image: radial-gradient(rgba(10, 9, 8, 0.016) 1px, transparent 1px);
+  background-size: 10px 10px;
   background-position: 0 0;
 }
 .paper-soft {
@@ -215,7 +234,13 @@
   letter-spacing: -0.02em;
   line-height: 1;
   color: var(--ink);
-  font-size: clamp(4.2rem, 8.5vw, 6.2rem);
+  /* Always one line: never break (incl. at the hyphen), and scale the size
+     fluidly so the wordmark fits its grid cell from narrow phones up to wide
+     desktops without wrapping, overflowing, or being clipped. */
+  font-size: clamp(1.7rem, 5.6vw, 5rem);
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: keep-all;
 }
 .g-display {
   font-family: var(--font-display);
@@ -233,15 +258,15 @@
   font-family: var(--font-mono);
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.22em;
-  font-size: 10px;
+  letter-spacing: 0.12em;
+  font-size: 10.5px;
   line-height: 1.4;
   color: var(--ink);
 }
 .masthead-caps {
   font-family: var(--font-mono);
   font-weight: 500;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--ink);
 }
@@ -249,7 +274,7 @@
   font-family: var(--font-mono);
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.09em;
   font-size: 9.5px;
   line-height: 1.7;
   color: var(--ink);
@@ -261,12 +286,12 @@
   border-radius: 999px;
   flex: 0 0 auto;
   background:
-    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0) 24%),
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 26%),
     radial-gradient(circle at 38% 32%, var(--g-color), var(--g-shade) 92%);
   box-shadow:
-    inset -10px -14px 24px rgba(0, 0, 0, 0.42),
-    inset 6px 4px 18px rgba(255, 255, 255, 0.18),
-    0 8px 18px rgba(10, 9, 8, 0.22);
+    inset -7px -10px 20px rgba(0, 0, 0, 0.3),
+    inset 5px 3px 14px rgba(255, 255, 255, 0.13),
+    0 5px 13px rgba(10, 9, 8, 0.15);
 }
 .globule.zebra {
   background:
@@ -302,9 +327,9 @@
   border-radius: 999px;
   flex: 0 0 auto;
   background:
-    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.9) 0%, transparent 40%),
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.7) 0%, transparent 42%),
     radial-gradient(circle at 50% 50%, var(--g-color, var(--cyan)), var(--g-shade, var(--cyan-d)) 100%);
-  box-shadow: inset -2px -2px 3px rgba(0, 0, 0, 0.4);
+  box-shadow: inset -2px -2px 3px rgba(0, 0, 0, 0.28);
 }
 
 /* ===== LOGO / WORDMARK ============================================ */
@@ -579,9 +604,9 @@ details.section:not([open]) .section-chevron {
   position: absolute;
   inset: -1px;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
-  background-size: 22px 22px;
+    linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+  background-size: 26px 26px;
   mask-image: radial-gradient(120% 120% at 70% 120%, #000 0%, transparent 75%);
   -webkit-mask-image: radial-gradient(120% 120% at 70% 120%, #000 0%, transparent 75%);
 }
