@@ -2,9 +2,7 @@
 
 import * as React from "react";
 
-import { GlobuleDot } from "@/components/globule";
-import { cn } from "@/lib/utils";
-import { globuleForIndex } from "@/lib/globules";
+import { TagChip } from "@/components/tag-chip";
 
 function parseTags(value: string | null): string[] {
   return (value || "")
@@ -95,21 +93,17 @@ export function EvalFilterControls({
             {visibleTags.map((tag) => {
               const on = selectedSet.has(tag);
               return (
-                <button
+                <TagChip
                   key={tag}
-                  type="button"
+                  as="button"
+                  tag={tag}
+                  colorIndex={tags.indexOf(tag)}
+                  size="filter"
+                  selected={on}
                   aria-pressed={on}
                   onClick={() => toggle(tag)}
-                  className={cn(
-                    "inline-flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 font-mono text-[11px] font-medium uppercase tracking-[0.12em] leading-none transition-colors",
-                    on
-                      ? "border-ink bg-ink text-paper"
-                      : "border-ink/10 bg-paper-soft text-ink hover:bg-paper-3"
-                  )}
-                >
-                  <GlobuleDot globule={globuleForIndex(tags.indexOf(tag))} />
-                  {tag}
-                </button>
+                  className="cursor-pointer"
+                />
               );
             })}
 
@@ -118,9 +112,9 @@ export function EvalFilterControls({
                 type="button"
                 onClick={() => setExpanded((value) => !value)}
                 aria-expanded={expanded}
-                className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-dashed border-ink/30 bg-transparent px-4 py-2 font-mono text-[11px] font-medium uppercase tracking-[0.12em] leading-none text-ink/70 transition-colors hover:bg-paper-soft hover:text-ink"
+                className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-dashed border-ink/30 bg-transparent px-6 py-3 font-sans text-sm font-medium leading-none text-ink/70 transition-colors hover:bg-paper-soft hover:text-ink"
               >
-                {expanded ? "Show fewer" : `+${hiddenCount} more ...`}
+                {expanded ? "Show fewer" : `+${hiddenCount} more …`}
               </button>
             )}
 
@@ -128,7 +122,7 @@ export function EvalFilterControls({
               <button
                 type="button"
                 onClick={clearAll}
-                className="inline-flex cursor-pointer items-center rounded-full px-3 py-2 font-mono text-[11px] font-medium uppercase tracking-[0.12em] leading-none text-ink/70 underline-offset-2 transition-colors hover:text-ink hover:underline"
+                className="inline-flex cursor-pointer items-center rounded-full px-3 py-2 font-sans text-sm font-medium leading-none text-ink/70 underline-offset-2 transition-colors hover:text-ink hover:underline"
               >
                 Clear
               </button>

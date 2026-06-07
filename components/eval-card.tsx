@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { Badge } from "@/components/ui/badge";
 import { EvalArt } from "@/components/eval-art";
 import { TagRow } from "@/components/tag-row";
 
@@ -19,7 +18,13 @@ export type EvalCardData = {
   placeholder?: string | null;
 };
 
-export function EvalCard({ ev }: { ev: EvalCardData }) {
+export function EvalCard({
+  ev,
+  orderedTags,
+}: {
+  ev: EvalCardData;
+  orderedTags: string[];
+}) {
   return (
     <Link
       href={`/eval/${ev.slug}`}
@@ -32,24 +37,30 @@ export function EvalCard({ ev }: { ev: EvalCardData }) {
         image={ev.image}
         placeholder={ev.placeholder}
         imageAlt=""
-        className="h-32"
-      >
-        <Badge
-          variant="count"
-          className="absolute right-3 top-3 border-paper/40 bg-ink/35 text-paper backdrop-blur-sm"
-          title={`${ev.count} solution${ev.count === 1 ? "" : "s"}`}
-        >
-          {ev.count}
-        </Badge>
-      </EvalArt>
+        className="h-36"
+      />
       <div className="flex flex-1 flex-col p-5">
-        <h3 className="font-sans text-xl font-semibold leading-tight tracking-tight text-ink">
-          {ev.title}
-        </h3>
-        <p className="mt-2.5 text-sm leading-relaxed text-ink">
+        <div className="flex items-baseline justify-between gap-3">
+          <h3 className="min-w-0 font-sans text-xl font-semibold leading-tight tracking-tight text-ink">
+            {ev.title}
+          </h3>
+          <span
+            className="shrink-0 font-sans text-sm font-medium tabular-nums text-ink/55"
+            title={`${ev.count} solution${ev.count === 1 ? "" : "s"}`}
+          >
+            {ev.count}
+          </span>
+        </div>
+        <p className="mt-2.5 line-clamp-2 h-[2.75rem] text-sm leading-[1.375] text-ink">
           {ev.tagline || ev.description || ""}
         </p>
-        {ev.tags.length > 0 && <TagRow tags={ev.tags} className="mt-auto pt-3.5" />}
+        {ev.tags.length > 0 && (
+          <TagRow
+            tags={ev.tags}
+            orderedTags={orderedTags}
+            className="mt-auto pt-3.5"
+          />
+        )}
       </div>
     </Link>
   );

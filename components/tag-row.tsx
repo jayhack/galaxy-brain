@@ -3,7 +3,7 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
-import { Badge, badgeVariants } from "@/components/ui/badge";
+import { TagChip } from "@/components/tag-chip";
 import {
   Tooltip,
   TooltipContent,
@@ -13,6 +13,9 @@ import {
 // Matches the `gap-1.5` (0.375rem) between chips.
 const GAP = 6;
 
+const overflowChipClass =
+  "inline-flex shrink-0 cursor-pointer select-none items-center rounded-full border border-ink/10 bg-paper-soft px-2 py-1 font-sans text-xs font-medium leading-none text-ink transition-colors hover:border-ink hover:bg-ink hover:text-paper";
+
 /**
  * Renders eval tags on a single row. Tags that don't fit are collapsed behind
  * a "…" trigger; hovering (or focusing) it reveals a popover listing every
@@ -21,9 +24,11 @@ const GAP = 6;
  */
 export function TagRow({
   tags,
+  orderedTags,
   className,
 }: {
   tags: string[];
+  orderedTags: string[];
   className?: string;
 }) {
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -85,9 +90,13 @@ export function TagRow({
     <div ref={containerRef} className={cn("relative w-full", className)}>
       <div className="flex w-full items-center gap-1.5 overflow-hidden">
         {visible.map((t) => (
-          <Badge key={t} variant="soft" className="shrink-0">
-            {t}
-          </Badge>
+          <TagChip
+            key={t}
+            tag={t}
+            colorIndex={orderedTags.indexOf(t)}
+            size="card"
+            data-tag-chip
+          />
         ))}
         {hiddenCount > 0 && (
           <Tooltip>
@@ -103,10 +112,7 @@ export function TagRow({
                   e.preventDefault();
                   e.stopPropagation();
                 }}
-                className={cn(
-                  badgeVariants({ variant: "soft" }),
-                  "shrink-0 cursor-pointer select-none transition-colors hover:bg-ink hover:text-paper"
-                )}
+                className={overflowChipClass}
               >
                 &hellip;
               </span>
@@ -114,9 +120,12 @@ export function TagRow({
             <TooltipContent>
               <div className="flex flex-wrap gap-1.5">
                 {tags.map((t) => (
-                  <Badge key={t} variant="soft">
-                    {t}
-                  </Badge>
+                  <TagChip
+                    key={t}
+                    tag={t}
+                    colorIndex={orderedTags.indexOf(t)}
+                    size="card"
+                  />
                 ))}
               </div>
             </TooltipContent>
@@ -132,14 +141,15 @@ export function TagRow({
         className="pointer-events-none invisible absolute left-0 top-0 flex items-center gap-1.5"
       >
         {tags.map((t) => (
-          <Badge key={t} variant="soft" data-tag-chip className="shrink-0">
-            {t}
-          </Badge>
+          <TagChip
+            key={t}
+            tag={t}
+            colorIndex={orderedTags.indexOf(t)}
+            size="card"
+            data-tag-chip
+          />
         ))}
-        <span
-          data-tag-more
-          className={cn(badgeVariants({ variant: "soft" }), "shrink-0")}
-        >
+        <span data-tag-more className={overflowChipClass}>
           &hellip;
         </span>
       </div>
