@@ -34,7 +34,7 @@ export function HeaderImage({
         <div
           aria-hidden
           className={cn(
-            "pointer-events-none absolute inset-0 bg-cover bg-center transition-opacity duration-700",
+            "pointer-events-none absolute inset-0 bg-cover bg-center transition-opacity duration-200",
             loaded ? "opacity-0" : "opacity-100"
           )}
           style={{ backgroundImage: `url("${placeholder}")` }}
@@ -50,7 +50,7 @@ export function HeaderImage({
         decoding="async"
         onLoad={() => setLoaded(true)}
         className={cn(
-          "absolute inset-0 h-full w-full object-cover transition-[opacity,filter] duration-700 ease-out",
+          "absolute inset-0 h-full w-full object-cover transition-[opacity,filter] duration-200 ease-out",
           loaded ? "opacity-100 blur-0" : "opacity-0 blur-md"
         )}
       />
