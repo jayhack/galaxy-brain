@@ -357,19 +357,20 @@ export async function getRunWithJobs(id: string): Promise<
   | {
       run: AgentRunRecord;
       jobs: AgentRunJobRecord[];
+      selectedJobId: string | null;
     }
   | null
 > {
-  const run = await getRunRecord(id);
-  if (!run) return null;
+  const resolved = await resolveRunRecord(id);
+  if (!resolved) return null;
 
   const params = new URLSearchParams({
-    tracking_id: `eq.${run.tracking_id}`,
+    tracking_id: `eq.${resolved.run.tracking_id}`,
     order: "created_at.asc",
     select: "*",
   });
   const jobs = await supabaseRequest<AgentRunJobRecord[]>(`/rest/v1/agent_run_jobs?${params}`);
-  return { run, jobs };
+  return { run: resolved.run, jobs, selectedJobId: resolved.selectedJobId };
 }
 
 export async function getRunRecord(id: string): Promise<AgentRunRecord | null> {
@@ -390,8 +391,9 @@ export async function getRunEvents(
     }
   | null
 > {
-  const run = await getRunRecord(id);
-  if (!run) return null;
+  const resolved = await resolveRunRecord(id);
+  if (!resolved) return null;
+  const { run } = resolved;
 
   const limit = Math.min(Math.max(options.limit ?? 500, 1), maxEventLimit);
   const params = new URLSearchParams({
@@ -415,6 +417,20 @@ export async function getRunEvents(
   return { run, events };
 }
 
+async function resolveRunRecord(
+  id: string
+): Promise<{ run: AgentRunRecord; selectedJobId: string | null } | null> {
+  const run = await getRunRecord(id);
+  if (run) return { run, selectedJobId: null };
+
+  const job = await getJobById(id);
+  if (!job) return null;
+
+  const runForJob = await getRunRecord(job.tracking_id);
+  if (!runForJob) return null;
+  return { run: runForJob, selectedJobId: job.id };
+}
+
 async function getRunByTrackingId(trackingId: string): Promise<AgentRunRecord | null> {
   if (!isUuid(trackingId)) return null;
   const params = new URLSearchParams({
@@ -433,6 +449,19 @@ async function getRunByWorkflowRunId(workflowRunId: string): Promise<AgentRunRec
     select: "*",
   });
   const rows = await supabaseRequest<AgentRunRecord[]>(`/rest/v1/agent_runs?${params}`);
+  return rows[0] ?? null;
+}
+
+async function getJobById(id: string): Promise<AgentRunJobRecord | null> {
+  if (!isUuid(id)) return null;
+  const params = new URLSearchParams({
+    id: `eq.${id}`,
+    limit: "1",
+    select: "*",
+  });
+  const rows = await supabaseRequest<AgentRunJobRecord[]>(
+    `/rest/v1/agent_run_jobs?${params}`
+  );
   return rows[0] ?? null;
 }
 

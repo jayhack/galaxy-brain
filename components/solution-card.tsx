@@ -43,9 +43,10 @@ export function SolutionCard({
 
   return (
     <Link
+      id={`solution-${sol.slug}`}
       href={`/eval/${ev.slug}/${sol.slug}`}
       aria-label={`${sol.slug} solution`}
-      className="group relative flex aspect-[16/9] w-full flex-col overflow-hidden rounded-md border border-ink bg-ink no-underline"
+      className="group relative flex aspect-[16/9] w-full scroll-mt-24 flex-col overflow-hidden rounded-md border border-ink bg-ink no-underline"
     >
       {artifact ? (
         <iframe

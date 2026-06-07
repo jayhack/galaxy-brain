@@ -8,8 +8,10 @@ import { GlobuleDot } from "@/components/globule";
 import { Badge } from "@/components/ui/badge";
 import { HarnessIcon } from "@/components/icons";
 import { harnessLogoKind, type Globule } from "@/lib/globules";
+import { cacheAgentRunDetail } from "@/components/agent-run-client-cache";
 
 type AgentRunJob = {
+  id: string;
   tracking_id: string;
   workflow_run_id: string | null;
   eval_slug: string;
@@ -18,11 +20,20 @@ type AgentRunJob = {
   solution_slug: string;
   status: "queued" | "running" | "dry-run" | "success" | "failed" | "timed-out";
   pull_request_url: string | null;
+  branch_name: string | null;
+  files: string[];
+  elapsed_ms: number | null;
+  error_message: string | null;
   created_at: string;
   agent_started_at: string | null;
   agent_completed_at: string | null;
   agent_runs?: {
     status?: string | null;
+    dry_run?: boolean | null;
+    started_at?: string | null;
+    completed_at?: string | null;
+    elapsed_ms?: number | null;
+    error_message?: string | null;
     created_at?: string | null;
   } | null;
 };
@@ -32,17 +43,24 @@ type LoadState =
   | { status: "ready"; jobs: AgentRunJob[] }
   | { status: "error"; jobs: AgentRunJob[] };
 
-const visibleStatuses = new Set(["queued", "running"]);
+type MergedSolution = {
+  slug: string;
+  submittedAt?: string | null;
+};
 
 export function AgentRunsPanel({
   evalSlug,
-  mergedSolutionSlugs,
+  evalTitle,
+  mergedSolutions,
 }: {
   evalSlug: string;
-  mergedSolutionSlugs: string[];
+  evalTitle: string;
+  mergedSolutions: MergedSolution[];
 }) {
   const [state, setState] = useState<LoadState>({ status: "loading", jobs: [] });
-  const merged = useMemo(() => new Set(mergedSolutionSlugs), [mergedSolutionSlugs]);
+  const merged = useMemo(() => {
+    return new Map(mergedSolutions.map((solution) => [solution.slug, solution]));
+  }, [mergedSolutions]);
 
   useEffect(() => {
     let disposed = false;
@@ -71,17 +89,9 @@ export function AgentRunsPanel({
 
   const jobs = useMemo(() => {
     return state.jobs
-      .filter((job) => {
-        if (visibleStatuses.has(job.status)) return true;
-        return Boolean(
-          job.status === "success" &&
-            job.pull_request_url &&
-            !merged.has(job.solution_slug)
-        );
-      })
       .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at))
       .slice(0, 3);
-  }, [merged, state.jobs]);
+  }, [state.jobs]);
 
   if (state.status === "loading") return <AgentRunsSkeleton />;
   if (state.status === "error" || jobs.length === 0) return null;
@@ -94,25 +104,77 @@ export function AgentRunsPanel({
       </div>
       <div className="flex flex-col divide-y divide-ink/20">
         {jobs.map((job) => (
-          <AgentRunRow key={`${job.tracking_id}:${job.solution_slug}`} job={job} />
+          <AgentRunRow
+            key={job.id}
+            job={job}
+            evalTitle={evalTitle}
+            mergedSolution={merged.get(job.solution_slug) ?? null}
+          />
         ))}
       </div>
     </section>
   );
 }
 
-function AgentRunRow({ job }: { job: AgentRunJob }) {
+function AgentRunRow({
+  job,
+  evalTitle,
+  mergedSolution,
+}: {
+  job: AgentRunJob;
+  evalTitle: string;
+  mergedSolution: MergedSolution | null;
+}) {
   const hasIcon = harnessLogoKind(job.harness) != null;
   const short = job.harness.split("-")[0] || job.harness;
-  const status = displayStatus(job);
-  const href = `/eval/${job.eval_slug}/runs/${job.tracking_id}?solution=${encodeURIComponent(
-    job.solution_slug
-  )}`;
+  const status = displayStatus(job, mergedSolution);
+  const href = `/eval/${job.eval_slug}/runs/${job.id}`;
+  const mergedDate = formatDate(mergedSolution?.submittedAt);
+  const cachePreview = () => {
+    cacheAgentRunDetail({
+      evalSlug: job.eval_slug,
+      evalTitle,
+      runId: job.id,
+      selectedJobId: job.id,
+      run: {
+        tracking_id: job.tracking_id,
+        workflow_run_id: job.workflow_run_id,
+        eval_slug: job.eval_slug,
+        status: job.agent_runs?.status ?? job.status,
+        dry_run: job.agent_runs?.dry_run ?? false,
+        started_at: job.agent_runs?.started_at ?? job.agent_started_at ?? job.created_at,
+        completed_at: job.agent_runs?.completed_at ?? job.agent_completed_at,
+        elapsed_ms: job.agent_runs?.elapsed_ms ?? job.elapsed_ms,
+        error_message: job.agent_runs?.error_message ?? job.error_message,
+      },
+      jobs: [
+        {
+          id: job.id,
+          tracking_id: job.tracking_id,
+          workflow_run_id: job.workflow_run_id,
+          eval_slug: job.eval_slug,
+          harness: job.harness,
+          model: job.model,
+          solution_slug: job.solution_slug,
+          status: job.status,
+          branch_name: job.branch_name,
+          pull_request_url: job.pull_request_url,
+          files: job.files ?? [],
+          agent_started_at: job.agent_started_at,
+          agent_completed_at: job.agent_completed_at,
+          elapsed_ms: job.elapsed_ms,
+          error_message: job.error_message,
+        },
+      ],
+    });
+  };
 
   return (
     <div className="group flex min-w-0 flex-row items-stretch bg-paper hover:bg-paper-soft">
       <Link
         href={href}
+        onClick={cachePreview}
+        onPointerDown={cachePreview}
         className="flex min-w-0 flex-1 items-center gap-3 px-4 py-3 no-underline"
       >
         <span
@@ -134,6 +196,7 @@ function AgentRunRow({ job }: { job: AgentRunJob }) {
           </span>
           <span className="mt-0.5 block truncate font-mono text-[11px] text-ink/65">
             {job.workflow_run_id ?? job.tracking_id}
+            {mergedDate ? ` · merged ${mergedDate}` : ""}
           </span>
         </span>
       </Link>
@@ -150,6 +213,16 @@ function AgentRunRow({ job }: { job: AgentRunJob }) {
               <ExternalLink className="size-3.5" />
               PR
             </a>
+          </Badge>
+        ) : null}
+        {mergedSolution ? (
+          <Badge
+            asChild
+            variant="outline"
+            className="gap-1.5 no-underline"
+            title="Jump to merged solution"
+          >
+            <Link href={`#solution-${job.solution_slug}`}>Solution</Link>
           </Badge>
         ) : null}
       </div>
@@ -180,7 +253,10 @@ function AgentRunsSkeleton() {
   );
 }
 
-function displayStatus(job: AgentRunJob): string {
+function displayStatus(job: AgentRunJob, mergedSolution: MergedSolution | null): string {
+  if (job.status === "success" && job.pull_request_url && mergedSolution) {
+    return "merged";
+  }
   if (job.status === "success" && job.pull_request_url) return "submitted";
   return job.status;
 }
@@ -198,8 +274,19 @@ function statusGlobule(status: string): Globule {
   if (status === "running") return { color: "var(--lime)", shade: "var(--lime-d)" };
   if (status === "queued") return { color: "var(--sun)", shade: "var(--sun-d)" };
   if (status === "submitted") return { color: "var(--cobalt)", shade: "var(--cobalt-d)" };
+  if (status === "merged") return { color: "var(--lime)", shade: "var(--lime-d)" };
   if (status === "failed" || status === "timed-out") {
     return { color: "var(--magenta)", shade: "var(--magenta-d)" };
   }
   return { color: "var(--paper-3)", shade: "#9a8b5e" };
+}
+
+function formatDate(value: string | null | undefined): string | null {
+  if (!value) return null;
+  const dateOnly = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const date = dateOnly
+    ? new Date(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3]))
+    : new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString([], { month: "short", day: "numeric" });
 }
