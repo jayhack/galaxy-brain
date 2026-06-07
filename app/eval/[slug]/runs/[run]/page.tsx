@@ -49,7 +49,14 @@ export default async function AgentRunPage({
         </Link>
       </header>
 
-      <AgentRunDetail runId={run} initialSolution={solution} />
+      <AgentRunDetail
+        runId={run}
+        initialSolution={solution}
+        mergedSolutions={ev.solutions.map((solution) => ({
+          slug: solution.slug,
+          submittedAt: solution.submittedAt ?? null,
+        }))}
+      />
     </ContentContainer>
   );
 }

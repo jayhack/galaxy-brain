@@ -51,12 +51,19 @@ type RunDetail =
   | { status: "ready"; run: AgentRun; jobs: AgentRunJob[]; error?: string }
   | { status: "error"; run: null; jobs: AgentRunJob[]; error: string };
 
+type MergedSolution = {
+  slug: string;
+  submittedAt?: string | null;
+};
+
 export function AgentRunDetail({
   runId,
   initialSolution,
+  mergedSolutions = [],
 }: {
   runId: string;
   initialSolution?: string;
+  mergedSolutions?: MergedSolution[];
 }) {
   const [detail, setDetail] = useState<RunDetail>({
     status: "loading",
@@ -150,6 +157,9 @@ export function AgentRunDetail({
       null
     );
   }, [detail.jobs, selectedSolution]);
+  const merged = useMemo(() => {
+    return new Map(mergedSolutions.map((solution) => [solution.slug, solution]));
+  }, [mergedSolutions]);
 
   const activeStatus =
     detail.status === "ready" ? selectedJob?.status ?? detail.run.status : "";
@@ -169,7 +179,8 @@ export function AgentRunDetail({
     );
   }
 
-  const selectedStatus = displayStatus(selectedJob, detail.run.status);
+  const selectedMerged = selectedJob ? merged.get(selectedJob.solution_slug) ?? null : null;
+  const selectedStatus = displayStatus(selectedJob, detail.run.status, selectedMerged);
   const runIdentifier =
     selectedJob?.workflow_run_id ??
     detail.run.workflow_run_id ??
@@ -351,7 +362,14 @@ function PrBadge({ href }: { href: string }) {
   );
 }
 
-function displayStatus(job: AgentRunJob | null, runStatus: string): string {
+function displayStatus(
+  job: AgentRunJob | null,
+  runStatus: string,
+  mergedSolution: MergedSolution | null
+): string {
+  if (job?.status === "success" && job.pull_request_url && mergedSolution) {
+    return "merged";
+  }
   if (job?.status === "success" && job.pull_request_url) return "submitted";
   return job?.status ?? runStatus;
 }
@@ -375,6 +393,7 @@ function statusGlobule(status: string): Globule {
   if (status === "submitted" || status === "success" || status === "dry-run") {
     return { color: "var(--cobalt)", shade: "var(--cobalt-d)" };
   }
+  if (status === "merged") return { color: "var(--lime)", shade: "var(--lime-d)" };
   if (status === "failed" || status === "timed-out") {
     return { color: "var(--magenta)", shade: "var(--magenta-d)" };
   }

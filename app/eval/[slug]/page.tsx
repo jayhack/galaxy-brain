@@ -141,7 +141,10 @@ export default async function EvalPage({
 
       <AgentRunsPanel
         evalSlug={ev.slug}
-        mergedSolutionSlugs={ev.solutions.map((solution) => solution.slug)}
+        mergedSolutions={ev.solutions.map((solution) => ({
+          slug: solution.slug,
+          submittedAt: solution.submittedAt ?? null,
+        }))}
       />
 
       <CollapsibleSection

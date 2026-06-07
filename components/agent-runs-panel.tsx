@@ -32,17 +32,24 @@ type LoadState =
   | { status: "ready"; jobs: AgentRunJob[] }
   | { status: "error"; jobs: AgentRunJob[] };
 
+type MergedSolution = {
+  slug: string;
+  submittedAt?: string | null;
+};
+
 const visibleStatuses = new Set(["queued", "running"]);
 
 export function AgentRunsPanel({
   evalSlug,
-  mergedSolutionSlugs,
+  mergedSolutions,
 }: {
   evalSlug: string;
-  mergedSolutionSlugs: string[];
+  mergedSolutions: MergedSolution[];
 }) {
   const [state, setState] = useState<LoadState>({ status: "loading", jobs: [] });
-  const merged = useMemo(() => new Set(mergedSolutionSlugs), [mergedSolutionSlugs]);
+  const merged = useMemo(() => {
+    return new Map(mergedSolutions.map((solution) => [solution.slug, solution]));
+  }, [mergedSolutions]);
 
   useEffect(() => {
     let disposed = false;
@@ -73,15 +80,11 @@ export function AgentRunsPanel({
     return state.jobs
       .filter((job) => {
         if (visibleStatuses.has(job.status)) return true;
-        return Boolean(
-          job.status === "success" &&
-            job.pull_request_url &&
-            !merged.has(job.solution_slug)
-        );
+        return Boolean(job.status === "success" && job.pull_request_url);
       })
       .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at))
       .slice(0, 3);
-  }, [merged, state.jobs]);
+  }, [state.jobs]);
 
   if (state.status === "loading") return <AgentRunsSkeleton />;
   if (state.status === "error" || jobs.length === 0) return null;
@@ -94,20 +97,31 @@ export function AgentRunsPanel({
       </div>
       <div className="flex flex-col divide-y divide-ink/20">
         {jobs.map((job) => (
-          <AgentRunRow key={`${job.tracking_id}:${job.solution_slug}`} job={job} />
+          <AgentRunRow
+            key={`${job.tracking_id}:${job.solution_slug}`}
+            job={job}
+            mergedSolution={merged.get(job.solution_slug) ?? null}
+          />
         ))}
       </div>
     </section>
   );
 }
 
-function AgentRunRow({ job }: { job: AgentRunJob }) {
+function AgentRunRow({
+  job,
+  mergedSolution,
+}: {
+  job: AgentRunJob;
+  mergedSolution: MergedSolution | null;
+}) {
   const hasIcon = harnessLogoKind(job.harness) != null;
   const short = job.harness.split("-")[0] || job.harness;
-  const status = displayStatus(job);
+  const status = displayStatus(job, mergedSolution);
   const href = `/eval/${job.eval_slug}/runs/${job.tracking_id}?solution=${encodeURIComponent(
     job.solution_slug
   )}`;
+  const mergedDate = formatDate(mergedSolution?.submittedAt);
 
   return (
     <div className="group flex min-w-0 flex-row items-stretch bg-paper hover:bg-paper-soft">
@@ -134,6 +148,7 @@ function AgentRunRow({ job }: { job: AgentRunJob }) {
           </span>
           <span className="mt-0.5 block truncate font-mono text-[11px] text-ink/65">
             {job.workflow_run_id ?? job.tracking_id}
+            {mergedDate ? ` · merged ${mergedDate}` : ""}
           </span>
         </span>
       </Link>
@@ -150,6 +165,16 @@ function AgentRunRow({ job }: { job: AgentRunJob }) {
               <ExternalLink className="size-3.5" />
               PR
             </a>
+          </Badge>
+        ) : null}
+        {mergedSolution ? (
+          <Badge
+            asChild
+            variant="outline"
+            className="gap-1.5 no-underline"
+            title="Jump to merged solution"
+          >
+            <Link href={`#solution-${job.solution_slug}`}>Solution</Link>
           </Badge>
         ) : null}
       </div>
@@ -180,7 +205,10 @@ function AgentRunsSkeleton() {
   );
 }
 
-function displayStatus(job: AgentRunJob): string {
+function displayStatus(job: AgentRunJob, mergedSolution: MergedSolution | null): string {
+  if (job.status === "success" && job.pull_request_url && mergedSolution) {
+    return "merged";
+  }
   if (job.status === "success" && job.pull_request_url) return "submitted";
   return job.status;
 }
@@ -198,8 +226,19 @@ function statusGlobule(status: string): Globule {
   if (status === "running") return { color: "var(--lime)", shade: "var(--lime-d)" };
   if (status === "queued") return { color: "var(--sun)", shade: "var(--sun-d)" };
   if (status === "submitted") return { color: "var(--cobalt)", shade: "var(--cobalt-d)" };
+  if (status === "merged") return { color: "var(--lime)", shade: "var(--lime-d)" };
   if (status === "failed" || status === "timed-out") {
     return { color: "var(--magenta)", shade: "var(--magenta-d)" };
   }
   return { color: "var(--paper-3)", shade: "#9a8b5e" };
+}
+
+function formatDate(value: string | null | undefined): string | null {
+  if (!value) return null;
+  const dateOnly = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const date = dateOnly
+    ? new Date(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3]))
+    : new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString([], { month: "short", day: "numeric" });
 }
