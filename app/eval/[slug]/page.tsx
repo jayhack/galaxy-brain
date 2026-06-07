@@ -93,15 +93,15 @@ export default async function EvalPage({
               {ev.title}
             </h1>
           </div>
-          <Button asChild variant="paper" size="sm" className="shrink-0">
+          <Button asChild variant="ghostPaper" size="sm" className="shrink-0">
             <a
               href={urls.tree(ev.slug)}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="View this eval's files on GitHub"
             >
-              <GithubIcon />
-              View on Github
+              <GithubIcon className="size-3.5 opacity-80" />
+              github
             </a>
           </Button>
         </div>

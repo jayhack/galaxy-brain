@@ -13,6 +13,8 @@ const buttonVariants = cva(
         ink: "bg-primary text-primary-foreground border-ink hover:bg-[#211f1c]",
         paper: "bg-paper text-ink border-ink hover:bg-paper-soft",
         ghost: "bg-transparent border-transparent text-ink hover:bg-paper-soft",
+        ghostPaper:
+          "bg-transparent border border-paper/30 text-paper/75 hover:border-paper/45 hover:bg-paper/10 hover:text-paper",
         cta: "rounded-full border-0 bg-[var(--magenta-d)] text-paper tracking-[0.04em] shadow-[inset_-4px_-6px_12px_rgba(0,0,0,0.24),0_4px_11px_rgba(10,9,8,0.18)] hover:brightness-110",
       },
       size: {
