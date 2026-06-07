@@ -112,29 +112,6 @@ export default function RootLayout({
             <main className="mx-auto w-full flex-1 px-4 py-8 sm:px-6 lg:px-10">
               {children}
             </main>
-
-            <footer className="mt-4 border-t border-ink">
-              <div className="mx-auto flex w-full max-w-5xl flex-col items-center justify-between gap-3 px-4 py-6 sm:flex-row sm:px-6 lg:px-10">
-                <div className="flex items-center gap-2.5">
-                  <Monogram modifier="logo-monogram--sm" />
-                  <span className="stamp-block">
-                    galaxy-brain
-                    <br />
-                    agent x evals - next/vercel
-                  </span>
-                </div>
-                <p className="mono-label opacity-60">
-                  <a
-                    className="g-link"
-                    href={repo}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    view source on github -&gt;
-                  </a>
-                </p>
-              </div>
-            </footer>
           </div>
         </div>
       </body>

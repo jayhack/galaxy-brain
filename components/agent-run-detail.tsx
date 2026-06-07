@@ -1,12 +1,13 @@
 "use client";
 
 import { ChevronDown, Clock, ExternalLink, Terminal } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { GlobuleDot } from "@/components/globule";
 import { Badge } from "@/components/ui/badge";
 import { HarnessIcon } from "@/components/icons";
 import { harnessLogoKind, type Globule } from "@/lib/globules";
+import { readCachedAgentRunDetail } from "@/components/agent-run-client-cache";
 
 type AgentRun = {
   tracking_id: string;
@@ -21,6 +22,7 @@ type AgentRun = {
 };
 
 type AgentRunJob = {
+  id: string;
   tracking_id: string;
   workflow_run_id: string | null;
   eval_slug: string;
@@ -56,22 +58,41 @@ type MergedSolution = {
   submittedAt?: string | null;
 };
 
+type InitialRunDetail = {
+  run: AgentRun;
+  jobs: AgentRunJob[];
+  selectedJobId?: string | null;
+};
+
 export function AgentRunDetail({
   runId,
-  initialSolution,
+  initialDetail,
   mergedSolutions = [],
 }: {
   runId: string;
-  initialSolution?: string;
+  initialDetail?: InitialRunDetail;
   mergedSolutions?: MergedSolution[];
 }) {
-  const [detail, setDetail] = useState<RunDetail>({
-    status: "loading",
-    run: null,
-    jobs: [],
-  });
-  const [selectedSolution, setSelectedSolution] = useState(initialSolution ?? "");
+  const resolvedInitialDetail =
+    initialDetail ?? readCachedAgentRunDetail(runId) ?? undefined;
+  const [detail, setDetail] = useState<RunDetail>(() =>
+    resolvedInitialDetail
+      ? {
+          status: "ready",
+          run: resolvedInitialDetail.run,
+          jobs: resolvedInitialDetail.jobs,
+        }
+      : {
+          status: "loading",
+          run: null,
+          jobs: [],
+        }
+  );
+  const [selectedSolution, setSelectedSolution] = useState(() =>
+    selectedSolutionFromDetail(resolvedInitialDetail)
+  );
   const [events, setEvents] = useState<AgentRunEvent[]>([]);
+  const [eventsStatus, setEventsStatus] = useState<"loading" | "ready">("loading");
   const [now, setNow] = useState(() => Date.now());
   const terminalRef = useRef<HTMLDivElement | null>(null);
 
@@ -87,9 +108,11 @@ export function AgentRunDetail({
         const data = (await response.json()) as {
           run: AgentRun;
           jobs: AgentRunJob[];
+          selectedJobId?: string | null;
         };
         if (!disposed) {
           setDetail({ status: "ready", run: data.run, jobs: data.jobs ?? [] });
+          setSelectedSolution((current) => current || selectedSolutionFromDetail(data));
         }
       } catch (error) {
         if (!disposed) {
@@ -118,6 +141,8 @@ export function AgentRunDetail({
 
   useEffect(() => {
     let disposed = false;
+    setEvents([]);
+    setEventsStatus("loading");
 
     async function loadEvents() {
       const params = new URLSearchParams({ limit: "500" });
@@ -130,9 +155,15 @@ export function AgentRunDetail({
         );
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = (await response.json()) as { events?: AgentRunEvent[] };
-        if (!disposed) setEvents(data.events ?? []);
+        if (!disposed) {
+          setEvents(data.events ?? []);
+          setEventsStatus("ready");
+        }
       } catch {
-        if (!disposed) setEvents([]);
+        if (!disposed) {
+          setEvents([]);
+          setEventsStatus("ready");
+        }
       }
     }
 
@@ -144,11 +175,11 @@ export function AgentRunDetail({
     };
   }, [runId, selectedSolution]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const node = terminalRef.current;
     if (!node) return;
     node.scrollTop = node.scrollHeight;
-  }, [events]);
+  }, [events, eventsStatus]);
 
   const selectedJob = useMemo(() => {
     return (
@@ -255,13 +286,17 @@ export function AgentRunDetail({
             <Terminal className="size-4" />
             Terminal
           </h2>
-          <span className="font-mono text-[11px] text-paper/55">{events.length} events</span>
+          <span className="font-mono text-[11px] text-paper/55">
+            {eventsStatus === "loading" ? "loading" : `${events.length} events`}
+          </span>
         </div>
         <div
           ref={terminalRef}
           className="max-h-[62vh] min-h-[360px] overflow-auto px-4 py-3 font-mono text-xs leading-relaxed"
         >
-          {events.length === 0 ? (
+          {eventsStatus === "loading" ? (
+            <TerminalLoadingRows />
+          ) : events.length === 0 ? (
             <div className="py-8 text-paper/55">No terminal output yet.</div>
           ) : (
             events.map((event) => <TerminalEvent key={event.id} event={event} />)
@@ -269,6 +304,28 @@ export function AgentRunDetail({
         </div>
       </section>
 
+    </div>
+  );
+}
+
+function selectedSolutionFromDetail(detail: InitialRunDetail | undefined): string {
+  if (!detail) return "";
+  const selectedJob = detail.selectedJobId
+    ? detail.jobs.find((job) => job.id === detail.selectedJobId)
+    : null;
+  return selectedJob?.solution_slug ?? detail.jobs[0]?.solution_slug ?? "";
+}
+
+function TerminalLoadingRows() {
+  return (
+    <div className="flex min-h-[336px] flex-col justify-end space-y-3">
+      {Array.from({ length: 10 }).map((_, index) => (
+        <div
+          key={index}
+          className="h-3 animate-pulse rounded bg-paper/10"
+          style={{ width: `${90 - (index % 4) * 12}%` }}
+        />
+      ))}
     </div>
   );
 }

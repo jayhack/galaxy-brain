@@ -8,8 +8,10 @@ import { GlobuleDot } from "@/components/globule";
 import { Badge } from "@/components/ui/badge";
 import { HarnessIcon } from "@/components/icons";
 import { harnessLogoKind, type Globule } from "@/lib/globules";
+import { cacheAgentRunDetail } from "@/components/agent-run-client-cache";
 
 type AgentRunJob = {
+  id: string;
   tracking_id: string;
   workflow_run_id: string | null;
   eval_slug: string;
@@ -18,11 +20,20 @@ type AgentRunJob = {
   solution_slug: string;
   status: "queued" | "running" | "dry-run" | "success" | "failed" | "timed-out";
   pull_request_url: string | null;
+  branch_name: string | null;
+  files: string[];
+  elapsed_ms: number | null;
+  error_message: string | null;
   created_at: string;
   agent_started_at: string | null;
   agent_completed_at: string | null;
   agent_runs?: {
     status?: string | null;
+    dry_run?: boolean | null;
+    started_at?: string | null;
+    completed_at?: string | null;
+    elapsed_ms?: number | null;
+    error_message?: string | null;
     created_at?: string | null;
   } | null;
 };
@@ -37,13 +48,13 @@ type MergedSolution = {
   submittedAt?: string | null;
 };
 
-const visibleStatuses = new Set(["queued", "running"]);
-
 export function AgentRunsPanel({
   evalSlug,
+  evalTitle,
   mergedSolutions,
 }: {
   evalSlug: string;
+  evalTitle: string;
   mergedSolutions: MergedSolution[];
 }) {
   const [state, setState] = useState<LoadState>({ status: "loading", jobs: [] });
@@ -78,10 +89,6 @@ export function AgentRunsPanel({
 
   const jobs = useMemo(() => {
     return state.jobs
-      .filter((job) => {
-        if (visibleStatuses.has(job.status)) return true;
-        return Boolean(job.status === "success" && job.pull_request_url);
-      })
       .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at))
       .slice(0, 3);
   }, [state.jobs]);
@@ -98,8 +105,9 @@ export function AgentRunsPanel({
       <div className="flex flex-col divide-y divide-ink/20">
         {jobs.map((job) => (
           <AgentRunRow
-            key={`${job.tracking_id}:${job.solution_slug}`}
+            key={job.id}
             job={job}
+            evalTitle={evalTitle}
             mergedSolution={merged.get(job.solution_slug) ?? null}
           />
         ))}
@@ -110,23 +118,63 @@ export function AgentRunsPanel({
 
 function AgentRunRow({
   job,
+  evalTitle,
   mergedSolution,
 }: {
   job: AgentRunJob;
+  evalTitle: string;
   mergedSolution: MergedSolution | null;
 }) {
   const hasIcon = harnessLogoKind(job.harness) != null;
   const short = job.harness.split("-")[0] || job.harness;
   const status = displayStatus(job, mergedSolution);
-  const href = `/eval/${job.eval_slug}/runs/${job.tracking_id}?solution=${encodeURIComponent(
-    job.solution_slug
-  )}`;
+  const href = `/eval/${job.eval_slug}/runs/${job.id}`;
   const mergedDate = formatDate(mergedSolution?.submittedAt);
+  const cachePreview = () => {
+    cacheAgentRunDetail({
+      evalSlug: job.eval_slug,
+      evalTitle,
+      runId: job.id,
+      selectedJobId: job.id,
+      run: {
+        tracking_id: job.tracking_id,
+        workflow_run_id: job.workflow_run_id,
+        eval_slug: job.eval_slug,
+        status: job.agent_runs?.status ?? job.status,
+        dry_run: job.agent_runs?.dry_run ?? false,
+        started_at: job.agent_runs?.started_at ?? job.agent_started_at ?? job.created_at,
+        completed_at: job.agent_runs?.completed_at ?? job.agent_completed_at,
+        elapsed_ms: job.agent_runs?.elapsed_ms ?? job.elapsed_ms,
+        error_message: job.agent_runs?.error_message ?? job.error_message,
+      },
+      jobs: [
+        {
+          id: job.id,
+          tracking_id: job.tracking_id,
+          workflow_run_id: job.workflow_run_id,
+          eval_slug: job.eval_slug,
+          harness: job.harness,
+          model: job.model,
+          solution_slug: job.solution_slug,
+          status: job.status,
+          branch_name: job.branch_name,
+          pull_request_url: job.pull_request_url,
+          files: job.files ?? [],
+          agent_started_at: job.agent_started_at,
+          agent_completed_at: job.agent_completed_at,
+          elapsed_ms: job.elapsed_ms,
+          error_message: job.error_message,
+        },
+      ],
+    });
+  };
 
   return (
     <div className="group flex min-w-0 flex-row items-stretch bg-paper hover:bg-paper-soft">
       <Link
         href={href}
+        onClick={cachePreview}
+        onPointerDown={cachePreview}
         className="flex min-w-0 flex-1 items-center gap-3 px-4 py-3 no-underline"
       >
         <span
