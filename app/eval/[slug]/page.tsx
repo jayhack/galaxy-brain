@@ -16,6 +16,7 @@ import { MarkdownContent } from "@/components/markdown-content";
 import { CopyButton } from "@/components/copy-button";
 import { SolutionCard } from "@/components/solution-card";
 import { CollapsibleSection } from "@/components/collapsible-section";
+import { SectionCard } from "@/components/section-card";
 import { EvalArt } from "@/components/eval-art";
 import { Globule } from "@/components/globule";
 import { globuleForIndex } from "@/lib/globules";
@@ -111,13 +112,15 @@ export default async function EvalPage({
         </p>
       </header>
 
-      <section className="mb-10 w-full min-w-0 max-w-full">
-        <div className="mb-3 flex w-full items-center justify-between border-b border-ink pb-2">
-          <h2 className="g-display text-2xl">Solutions</h2>
+      <SectionCard
+        title="Solutions"
+        meta={
           <span className="mono-label opacity-70">
             {ev.solutions.length} total
           </span>
-        </div>
+        }
+        className="mb-10 w-full min-w-0 max-w-full"
+      >
         {ev.solutions.length === 0 ? (
           <div className="rounded-md border border-ink bg-paper-soft px-4 py-3 text-sm text-ink">
             No solutions submitted yet.
@@ -129,7 +132,7 @@ export default async function EvalPage({
             ))}
           </div>
         )}
-      </section>
+      </SectionCard>
 
       <CollapsibleSection
         title="Prompt"
