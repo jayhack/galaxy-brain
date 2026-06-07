@@ -129,12 +129,13 @@ function normalizeConfig(config: RawHarnessConfig, index: number): HarnessConfig
   }
 
   const harness = config.harness as Harness;
-  const model = slugify(config.model);
-  if (!model) throw new Error(`configs[${index}].model must contain slug characters`);
+  const model = config.model.trim();
+  const modelSlug = slugify(model);
+  if (!modelSlug) throw new Error(`configs[${index}].model must contain slug characters`);
 
   const solutionSlug = config.solutionSlug
     ? requireSlug(config.solutionSlug, `configs[${index}].solutionSlug`)
-    : `${harness}-${model}`;
+    : `${harness}-${modelSlug}`;
 
   return {
     harness,
