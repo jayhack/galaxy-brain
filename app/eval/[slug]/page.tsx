@@ -15,6 +15,7 @@ import { GithubIcon } from "@/components/icons";
 import { MarkdownContent } from "@/components/markdown-content";
 import { SolutionCard } from "@/components/solution-card";
 import { CollapsibleSection } from "@/components/collapsible-section";
+import { ContentContainer } from "@/components/content-container";
 import { SectionCard } from "@/components/section-card";
 import { EvalArt } from "@/components/eval-art";
 import { Globule } from "@/components/globule";
@@ -67,7 +68,7 @@ export default async function EvalPage({
   const prompt = await getEvalPrompt(ev);
 
   return (
-    <>
+    <ContentContainer>
       <EvalArt
         globule={globule}
         image={image}
@@ -165,6 +166,6 @@ export default async function EvalPage({
           )}
         </div>
       </CollapsibleSection>
-    </>
+    </ContentContainer>
   );
 }

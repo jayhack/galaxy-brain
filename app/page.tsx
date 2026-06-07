@@ -5,6 +5,7 @@ import {
   headerPlaceholder,
 } from "@/lib/content";
 import { Monogram, HeroCluster } from "@/components/globule";
+import { ContentContainer } from "@/components/content-container";
 import { EvalBrowser } from "@/components/eval-browser";
 import type { EvalCardData } from "@/components/eval-card";
 
@@ -23,7 +24,7 @@ export default function HomePage() {
   const allTags = getAllTags();
 
   return (
-    <>
+    <ContentContainer width="wide">
       <section className="paper-soft relative mb-8 overflow-hidden border border-ink">
         <div className="grid grid-cols-12 items-center gap-6 p-6 sm:gap-7 sm:p-7">
           <div className="col-span-12 max-w-3xl md:col-span-8">
@@ -50,6 +51,6 @@ export default function HomePage() {
       </section>
 
       <EvalBrowser evals={evals} allTags={allTags} />
-    </>
+    </ContentContainer>
   );
 }

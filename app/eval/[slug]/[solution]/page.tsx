@@ -17,6 +17,7 @@ import { MarkdownContent } from "@/components/markdown-content";
 import { SolutionRow } from "@/components/solution-row";
 import { ArtifactPreview } from "@/components/artifact-preview";
 import { CollapsibleSection } from "@/components/collapsible-section";
+import { ContentContainer } from "@/components/content-container";
 
 type Params = { slug: string; solution: string };
 
@@ -63,7 +64,7 @@ export default async function SolutionPage({
   const hasLogo = harnessLogoKind(sol.harness) != null;
 
   return (
-    <>
+    <ContentContainer>
       <header className="mb-8 flex items-center gap-4">
         {hasLogo ? (
           <span className="flex size-12 shrink-0 items-center justify-center rounded-md border border-ink bg-paper-soft sm:size-14">
@@ -190,6 +191,6 @@ export default async function SolutionPage({
           </div>
         )}
       </section>
-    </>
+    </ContentContainer>
   );
 }
