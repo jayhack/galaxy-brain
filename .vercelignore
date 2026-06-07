@@ -4,3 +4,6 @@ out
 
 # Runtime artifacts are served from public/artifacts; this mirror is for docs/history.
 docs/artifacts
+
+# Local-only tooling: spins up Daytona sandboxes to run agent solvers. Not part of the site.
+solver
