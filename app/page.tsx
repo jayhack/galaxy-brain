@@ -31,10 +31,13 @@ export default function HomePage() {
             <div className="grid max-w-4xl grid-cols-[auto_minmax(0,1fr)] items-center gap-4 md:gap-6">
               <Monogram modifier="logo-monogram--hero" />
               <div className="flex min-w-0 flex-col gap-2 sm:gap-3">
-                <h1 className="hero-title min-w-0">
-                  curated agent evals with submissions
+                <h1 className="hero-title min-w-0 whitespace-nowrap">
+                  galaxy-brain
                 </h1>
-                <p className="lede max-w-xl text-base leading-snug text-ink/75 sm:text-lg">
+                <p className="lede max-w-xl text-base leading-snug text-ink/85 sm:text-lg">
+                  curated agent evals with submissions
+                </p>
+                <p className="max-w-xl text-xs leading-snug text-ink/55 sm:text-sm">
                   Each eval is a prompt; each solution is one harness/model
                   pair&apos;s attempt.
                 </p>
