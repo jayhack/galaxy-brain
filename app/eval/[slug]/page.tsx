@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { GithubIcon } from "@/components/icons";
 import { MarkdownContent } from "@/components/markdown-content";
-import { CopyButton } from "@/components/copy-button";
 import { SolutionCard } from "@/components/solution-card";
 import { CollapsibleSection } from "@/components/collapsible-section";
 import { SectionCard } from "@/components/section-card";
@@ -136,16 +135,11 @@ export default async function EvalPage({
 
       <CollapsibleSection
         title="Prompt"
-        meta={
-          <span className="font-mono text-xs text-ink/60">{promptPath}</span>
-        }
+        filePath={promptPath}
+        fileHref={urls.blob(promptPath)}
+        copyText={prompt?.raw}
       >
         <div className="relative">
-          {prompt ? (
-            <div className="absolute -right-1 -top-1 z-10">
-              <CopyButton text={prompt.raw} />
-            </div>
-          ) : null}
           {prompt ? (
             <MarkdownContent html={prompt.html} />
           ) : (

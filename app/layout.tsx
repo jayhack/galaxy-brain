@@ -102,12 +102,12 @@ export default function RootLayout({
               </Button>
             </header>
 
-            <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 lg:px-10">
+            <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:px-6 lg:px-10">
               {children}
             </main>
 
             <footer className="mt-4 border-t border-ink">
-              <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-3 px-4 py-6 sm:flex-row sm:px-6 lg:px-10">
+              <div className="mx-auto flex w-full max-w-5xl flex-col items-center justify-between gap-3 px-4 py-6 sm:flex-row sm:px-6 lg:px-10">
                 <div className="flex items-center gap-2.5">
                   <Monogram modifier="logo-monogram--sm" />
                   <span className="stamp-block">
