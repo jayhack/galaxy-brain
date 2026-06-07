@@ -55,7 +55,7 @@ export function SolutionCard({
           tabIndex={-1}
           aria-hidden
           className="pointer-events-none absolute inset-0 size-full border-0"
-          sandbox="allow-scripts allow-same-origin"
+          sandbox="allow-same-origin"
         />
       ) : (
         <div className="absolute inset-0" style={placeholderStyle} />

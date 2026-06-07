@@ -63,7 +63,7 @@ export function ArtifactPreview({
           tabIndex={-1}
           aria-hidden
           className="pointer-events-none absolute inset-0 size-full border-0"
-          sandbox="allow-scripts allow-same-origin"
+          sandbox="allow-same-origin"
         />
         <button
           type="button"
