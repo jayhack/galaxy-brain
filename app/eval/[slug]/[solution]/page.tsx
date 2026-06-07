@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { ExternalLink } from "lucide-react";
 
 import {
   getEvals,
@@ -12,12 +11,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
-import { GithubIcon } from "@/components/icons";
+import { GithubIcon, HarnessIcon } from "@/components/icons";
 import { StatusBadge } from "@/components/status-badge";
-import { HarnessModelBadges } from "@/components/harness-model-badges";
+import { harnessLogoKind } from "@/lib/globules";
 import { MarkdownContent } from "@/components/markdown-content";
 import { SolutionRow } from "@/components/solution-row";
-import { CollapsibleSection } from "@/components/collapsible-section";
 import { ArtifactPreview } from "@/components/artifact-preview";
 
 type Params = { slug: string; solution: string };
@@ -57,71 +55,30 @@ export default async function SolutionPage({
 
   const urls = repoUrls();
   const dirPath = `${ev.slug}/${sol.slug}`;
-  const inner = sol.projectName ? `${dirPath}/${sol.projectName}` : dirPath;
   const oc = sol.outcome || {};
   const artifact = artifactHref(sol.artifactUrl);
   const readme = await getSolutionReadme(ev, sol);
   const others = ev.solutions.filter((s) => s.slug !== sol.slug);
 
+  const hasLogo = harnessLogoKind(sol.harness) != null;
+
   return (
     <>
-      <header className="mb-8">
-        <div className="mb-3 flex flex-wrap items-center gap-2">
-          <StatusBadge status={oc.status} />
-          <HarnessModelBadges sol={sol} />
-        </div>
-        <h1 className="break-words font-mono text-2xl font-bold tracking-tight sm:text-3xl">
-          {sol.slug}
-        </h1>
-        {sol.projectName ? (
-          <p className="mt-1 text-ink/90">
-            project: <span className="font-mono">{sol.projectName}</span>
-          </p>
+      <header className="mb-8 flex items-center gap-4">
+        {hasLogo ? (
+          <span className="flex size-12 shrink-0 items-center justify-center rounded-md border border-ink bg-paper-soft sm:size-14">
+            <HarnessIcon harness={sol.harness} className="size-7 sm:size-8" />
+          </span>
         ) : null}
-        <p className="mt-3 max-w-3xl text-ink/90">{sol.summary || ""}</p>
-        <div className="mt-5 flex flex-wrap items-center gap-2.5">
-          <Button asChild variant="ink" size="sm">
-            <a
-              href={urls.tree(dirPath)}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="View this solution's source files on GitHub"
-            >
-              <GithubIcon />
-              View on Github
-            </a>
-          </Button>
-          {artifact ? (
-            <Button asChild variant="paper" size="sm">
-              <a href={artifact} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="size-4" />
-                Open HTML output
-              </a>
-            </Button>
-          ) : null}
-          <Button asChild variant="ghost" size="sm">
-            <a
-              href={urls.blob(`${inner}/README.md`)}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Open README
-            </a>
-          </Button>
+        <div className="min-w-0">
+          <h1 className="break-words font-mono text-2xl font-bold leading-tight tracking-tight sm:text-3xl">
+            {sol.slug}
+          </h1>
+          <p className="mt-1 font-mono text-sm text-ink/70">{sol.model}</p>
         </div>
       </header>
 
-      <CollapsibleSection
-        title="Solution"
-        className="mb-10"
-        meta={
-          artifact ? (
-            <span className="font-mono text-xs text-ink/70">
-              click to open full-screen
-            </span>
-          ) : undefined
-        }
-      >
+      <section className="mb-10">
         {artifact ? (
           <ArtifactPreview src={artifact} title={sol.slug} />
         ) : (
@@ -137,17 +94,23 @@ export default async function SolutionPage({
             </a>
           </div>
         )}
-      </CollapsibleSection>
+      </section>
 
-      <CollapsibleSection
-        title="README"
-        className="mb-10"
-        meta={
-          readme ? (
-            <span className="font-mono text-xs text-ink/70">{readme.path}</span>
-          ) : undefined
-        }
-      >
+      <section className="mb-10">
+        <div className="mb-3 flex items-center justify-between gap-3 border-b border-ink pb-2">
+          <h2 className="g-display text-2xl">README</h2>
+          <Button asChild variant="ghost" size="sm">
+            <a
+              href={urls.tree(dirPath)}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="View this solution's source files on GitHub"
+            >
+              <GithubIcon />
+              View on Github
+            </a>
+          </Button>
+        </div>
         <div className="rounded-md border border-ink bg-paper-soft p-5">
           {readme ? (
             <MarkdownContent html={readme.html} />
@@ -165,7 +128,7 @@ export default async function SolutionPage({
             </p>
           )}
         </div>
-      </CollapsibleSection>
+      </section>
 
       {oc.verdict || oc.score != null || (sol.tech || []).length > 0 || sol.notes ? (
         <section className="mb-10 grid grid-cols-1 gap-5 lg:grid-cols-3">

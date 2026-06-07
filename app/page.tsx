@@ -1,4 +1,9 @@
-import { getEvals, getAllTags, headerImage } from "@/lib/content";
+import {
+  getEvals,
+  getAllTags,
+  headerImage,
+  headerPlaceholder,
+} from "@/lib/content";
 import { Monogram, HeroCluster } from "@/components/globule";
 import { EvalBrowser } from "@/components/eval-browser";
 import type { EvalCardData } from "@/components/eval-card";
@@ -13,6 +18,7 @@ export default function HomePage() {
     count: ev.solutions.length,
     colorIndex: i,
     image: headerImage(ev.slug),
+    placeholder: headerPlaceholder(ev.slug),
   }));
   const allTags = getAllTags();
 

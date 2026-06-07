@@ -3,6 +3,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { globuleForIndex, type Globule } from "@/lib/globules";
 import { Globule as GlobuleSphere } from "@/components/globule";
+import { HeaderImage } from "@/components/header-image";
 
 type GlobuleVars = React.CSSProperties & {
   "--g-color"?: string;
@@ -15,10 +16,12 @@ function vars(g: Globule): GlobuleVars {
 
 /**
  * Per-eval header band. When `image` is supplied it is served statically and
- * covers the band, with a dark tint so overlaid text/badges stay legible; the
- * eval's globule gradient remains as the loading/fallback background. Without
- * an image it falls back to the gradient placeholder coloured by the globule.
- * Pass `colorIndex` (the eval's stable position) or an explicit `globule`.
+ * covers the band, with a dark tint so overlaid text/badges stay legible. A
+ * blurred SVG approximation of the photo (`placeholder`) is painted underneath
+ * as the loading background, and the real photo blurs in once it decodes.
+ * Without an image it falls back to the gradient placeholder coloured by the
+ * globule. Pass `colorIndex` (the eval's stable position) or an explicit
+ * `globule`.
  */
 export function EvalArt({
   colorIndex,
@@ -26,6 +29,7 @@ export function EvalArt({
   className,
   showSphere = false,
   image,
+  placeholder,
   imageAlt = "",
   children,
 }: {
@@ -34,6 +38,7 @@ export function EvalArt({
   className?: string;
   showSphere?: boolean;
   image?: string | null;
+  placeholder?: string | null;
   imageAlt?: string;
   children?: React.ReactNode;
 }) {
@@ -45,15 +50,7 @@ export function EvalArt({
     >
       {image ? (
         <>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={image}
-            alt={imageAlt}
-            aria-hidden={imageAlt ? undefined : true}
-            loading="lazy"
-            decoding="async"
-            className="absolute inset-0 h-full w-full object-cover"
-          />
+          <HeaderImage src={image} placeholder={placeholder} alt={imageAlt} />
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/65 via-ink/15 to-ink/30"
