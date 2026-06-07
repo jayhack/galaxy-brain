@@ -20,6 +20,8 @@ export function EvalCard({ ev }: { ev: EvalCardData }) {
   return (
     <Link
       href={`/eval/${ev.slug}`}
+      data-eval-card
+      data-tags={ev.tags.join(",")}
       className="group block overflow-hidden rounded-md border border-ink bg-paper no-underline transition-colors hover:bg-paper-soft"
     >
       <EvalArt
