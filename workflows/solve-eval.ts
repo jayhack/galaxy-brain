@@ -3,6 +3,14 @@ import path from "node:path";
 import { Sandbox } from "@vercel/sandbox";
 import { FatalError, getWritable, sleep } from "workflow";
 import type { HarnessConfig, SolveWorkflowInput } from "@/lib/solve-request";
+import {
+  markDryRunCompleted,
+  markJobCompleted,
+  markJobFailed,
+  markJobStarted,
+  markWorkflowFinished,
+  markWorkflowStarted,
+} from "@/lib/run-store";
 
 type SolveEvent =
   | { type: "workflow_started"; eval: string; dryRun: boolean; configs: string[] }
@@ -51,6 +59,7 @@ type StartedSolve = {
   promptPath: string;
   exitCodePath: string;
   donePath: string;
+  startedAt: string;
 };
 
 type PollStatus = {
@@ -92,6 +101,8 @@ export type SolveWorkflowResult = {
 export async function solveEvalWorkflow(input: SolveWorkflowInput): Promise<SolveWorkflowResult> {
   "use workflow";
 
+  await recordWorkflowStarted(input);
+
   await emitEvent({
     type: "workflow_started",
     eval: input.evalSlug,
@@ -103,6 +114,7 @@ export async function solveEvalWorkflow(input: SolveWorkflowInput): Promise<Solv
     input.configs.map(async (config) => solveOneConfig(input, config))
   );
 
+  await recordWorkflowFinished(input, results);
   await closeEventStream();
 
   return {
@@ -119,6 +131,7 @@ async function solveOneConfig(input: SolveWorkflowInput, config: HarnessConfig) 
   try {
     if (input.dryRun) {
       const prompt = await buildDryRunPrompt(input, config);
+      await recordDryRunCompleted(input, config);
       return {
         status: "dry-run" as const,
         harness: config.harness,
@@ -140,6 +153,14 @@ async function solveOneConfig(input: SolveWorkflowInput, config: HarnessConfig) 
         }
 
         const finalized = await finalizeSandboxSolve(input, config, started);
+        await recordJobCompleted(input, config, {
+          branchName: started.branchName,
+          pullRequestUrl: finalized.pullRequestUrl,
+          files: finalized.files,
+          exitCode: status.exitCode,
+          agentStartedAt: started.startedAt,
+          output: status.output,
+        });
         return {
           status: "success" as const,
           harness: config.harness,
@@ -165,6 +186,11 @@ async function solveOneConfig(input: SolveWorkflowInput, config: HarnessConfig) 
       message,
     });
 
+    await recordJobFailed(input, config, {
+      message,
+      agentStartedAt: started?.startedAt,
+    });
+
     if (started) {
       await stopSandbox(started, "failed");
     }
@@ -188,6 +214,76 @@ async function emitEvent(event: SolveEvent): Promise<void> {
   } finally {
     writer.releaseLock();
   }
+}
+
+async function recordWorkflowStarted(input: SolveWorkflowInput): Promise<void> {
+  "use step";
+
+  await markWorkflowStarted(input);
+}
+
+async function recordWorkflowFinished(
+  input: SolveWorkflowInput,
+  results: Awaited<ReturnType<typeof solveOneConfig>>[]
+): Promise<void> {
+  "use step";
+
+  await markWorkflowFinished(input, results);
+}
+
+async function recordDryRunCompleted(
+  input: SolveWorkflowInput,
+  config: HarnessConfig
+): Promise<void> {
+  "use step";
+
+  await markDryRunCompleted(input, config);
+}
+
+async function recordJobStarted(
+  input: SolveWorkflowInput,
+  config: HarnessConfig,
+  started: StartedSolve
+): Promise<void> {
+  "use step";
+
+  await markJobStarted(input, config, {
+    sandboxName: started.sandboxName,
+    commandId: started.commandId,
+    branchName: started.branchName,
+    startedAt: started.startedAt,
+  });
+}
+
+async function recordJobCompleted(
+  input: SolveWorkflowInput,
+  config: HarnessConfig,
+  completed: {
+    branchName?: string;
+    pullRequestUrl?: string;
+    files?: string[];
+    exitCode?: number | null;
+    agentStartedAt?: string;
+    output?: string;
+  }
+): Promise<void> {
+  "use step";
+
+  await markJobCompleted(input, config, completed);
+}
+
+async function recordJobFailed(
+  input: SolveWorkflowInput,
+  config: HarnessConfig,
+  failed: {
+    message: string;
+    exitCode?: number | null;
+    agentStartedAt?: string;
+  }
+): Promise<void> {
+  "use step";
+
+  await markJobFailed(input, config, failed);
 }
 
 async function closeEventStream(): Promise<void> {
@@ -304,7 +400,10 @@ async function startSandboxSolve(
     promptPath,
     exitCodePath,
     donePath,
+    startedAt: new Date().toISOString(),
   };
+
+  await recordJobStarted(input, config, started);
 
   await writeStepEvent({
     type: "sandbox_started",
@@ -351,7 +450,7 @@ async function finalizeSandboxSolve(
   input: SolveWorkflowInput,
   config: HarnessConfig,
   started: StartedSolve
-): Promise<{ pullRequestUrl: string }> {
+): Promise<{ pullRequestUrl: string; files: string[] }> {
   "use step";
 
   if (!process.env.GITHUB_TOKEN) {
@@ -380,6 +479,7 @@ async function finalizeSandboxSolve(
   }
 
   const pullRequestUrl = await createDraftPullRequest(input, config, started.branchName);
+  const files = await listCommittedFiles(sandbox, started);
 
   await writeStepEvent({
     type: "finalized",
@@ -390,7 +490,25 @@ async function finalizeSandboxSolve(
   });
 
   await sandbox.stop();
-  return { pullRequestUrl };
+  return { pullRequestUrl, files };
+}
+
+async function listCommittedFiles(
+  sandbox: Awaited<ReturnType<typeof Sandbox.get>>,
+  started: StartedSolve
+): Promise<string[]> {
+  const result = await sandbox.runCommand({
+    cmd: "bash",
+    args: ["-lc", "git diff-tree --no-commit-id --name-only -r HEAD"],
+    cwd: started.repoDir,
+  });
+
+  if (result.exitCode !== 0) return [];
+  const output = await result.output("stdout");
+  return output
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
 }
 
 async function stopSandbox(started: StartedSolve, reason: string): Promise<void> {

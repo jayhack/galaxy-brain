@@ -10,6 +10,7 @@ export type HarnessConfig = {
 };
 
 export type SolveWorkflowInput = {
+  trackingId?: string;
   evalSlug: string;
   configs: HarnessConfig[];
   dryRun: boolean;
