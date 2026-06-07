@@ -52,6 +52,33 @@ export type AgentRunJobWithRun = AgentRunJobRecord & {
   agent_runs?: AgentRunRecord | null;
 };
 
+export type AgentRunEventRecord = {
+  id: number;
+  tracking_id: string;
+  workflow_run_id: string | null;
+  eval_slug: string;
+  solution_slug: string | null;
+  event_type: string;
+  stream: "stdout" | "stderr" | null;
+  message: string;
+  payload: JsonObject;
+  created_at: string;
+};
+
+type RunEventPayload = JsonObject & {
+  type?: unknown;
+  eval?: unknown;
+  solution?: unknown;
+  stream?: unknown;
+  data?: unknown;
+  message?: unknown;
+};
+
+type RunEventContext = {
+  trackingId?: string;
+  evalSlug: string;
+};
+
 type StartedJob = {
   sandboxName: string;
   commandId: string;
@@ -84,6 +111,7 @@ type ListFilters = {
 };
 
 const maxLimit = 100;
+const maxEventLimit = 1000;
 
 export function isRunStoreConfigured(): boolean {
   return Boolean(getSupabaseUrl() && process.env.SUPABASE_SERVICE_ROLE_KEY);
@@ -272,6 +300,29 @@ export async function markWorkflowFinished(
   });
 }
 
+export async function appendRunEvent(
+  context: RunEventContext,
+  event: RunEventPayload
+): Promise<void> {
+  if (!context.trackingId) return;
+
+  await writeBestEffort("appendRunEvent", async () => {
+    const type = typeof event.type === "string" ? event.type : "event";
+    const solution = typeof event.solution === "string" ? event.solution : null;
+    const stream = event.stream === "stdout" || event.stream === "stderr" ? event.stream : null;
+
+    await insert("agent_run_events", {
+      tracking_id: context.trackingId,
+      eval_slug: context.evalSlug,
+      solution_slug: solution,
+      event_type: type,
+      stream,
+      message: eventMessage(event),
+      payload: event,
+    });
+  });
+}
+
 export async function listRunJobs(filters: ListFilters): Promise<AgentRunJobWithRun[]> {
   const limit = Math.min(Math.max(filters.limit ?? 25, 1), maxLimit);
   const params = new URLSearchParams({
@@ -309,7 +360,7 @@ export async function getRunWithJobs(id: string): Promise<
     }
   | null
 > {
-  const run = await getRunByTrackingId(id) ?? (await getRunByWorkflowRunId(id));
+  const run = await getRunRecord(id);
   if (!run) return null;
 
   const params = new URLSearchParams({
@@ -319,6 +370,49 @@ export async function getRunWithJobs(id: string): Promise<
   });
   const jobs = await supabaseRequest<AgentRunJobRecord[]>(`/rest/v1/agent_run_jobs?${params}`);
   return { run, jobs };
+}
+
+export async function getRunRecord(id: string): Promise<AgentRunRecord | null> {
+  return (await getRunByTrackingId(id)) ?? (await getRunByWorkflowRunId(id));
+}
+
+export async function getRunEvents(
+  id: string,
+  options: {
+    solutionSlug?: string;
+    limit?: number;
+    afterId?: number;
+  } = {}
+): Promise<
+  | {
+      run: AgentRunRecord;
+      events: AgentRunEventRecord[];
+    }
+  | null
+> {
+  const run = await getRunRecord(id);
+  if (!run) return null;
+
+  const limit = Math.min(Math.max(options.limit ?? 500, 1), maxEventLimit);
+  const params = new URLSearchParams({
+    tracking_id: `eq.${run.tracking_id}`,
+    select: "*",
+    order: "id.asc",
+    limit: String(limit),
+  });
+
+  if (options.afterId != null) params.set("id", `gt.${options.afterId}`);
+  if (options.solutionSlug) {
+    params.set(
+      "or",
+      `(solution_slug.is.null,solution_slug.eq.${options.solutionSlug})`
+    );
+  }
+
+  const events = await supabaseRequest<AgentRunEventRecord[]>(
+    `/rest/v1/agent_run_events?${params}`
+  );
+  return { run, events };
 }
 
 async function getRunByTrackingId(trackingId: string): Promise<AgentRunRecord | null> {
@@ -340,6 +434,16 @@ async function getRunByWorkflowRunId(workflowRunId: string): Promise<AgentRunRec
   });
   const rows = await supabaseRequest<AgentRunRecord[]>(`/rest/v1/agent_runs?${params}`);
   return rows[0] ?? null;
+}
+
+async function insert(table: string, body: unknown): Promise<void> {
+  await supabaseRequest(`/rest/v1/${table}`, {
+    method: "POST",
+    headers: {
+      Prefer: "return=minimal",
+    },
+    body: JSON.stringify(body),
+  });
 }
 
 async function upsert(table: string, onConflict: string, body: unknown): Promise<void> {
@@ -425,6 +529,21 @@ function parseUsage(output: string | undefined): JsonObject {
   return {
     ...(totalTokens ? { totalTokens } : {}),
   };
+}
+
+function eventMessage(event: RunEventPayload): string {
+  if (event.type === "agent_log") return String(event.data ?? "");
+  if (typeof event.message === "string") return event.message;
+  if (event.type === "agent_status") {
+    return `poll ${String(event.poll ?? "?")}: done=${String(event.done ?? false)}, exit=${String(
+      event.exitCode ?? "-"
+    )}`;
+  }
+  if (event.type === "sandbox_started") return `sandbox started: ${String(event.sandboxId ?? "")}`;
+  if (event.type === "finalized") return `finalized: ${String(event.pullRequestUrl ?? "")}`;
+  if (event.type === "workflow_started") return "workflow started";
+  if (event.type === "dry_run_prompt") return "dry-run prompt built";
+  return JSON.stringify(event);
 }
 
 function estimateCostUsd(usage: JsonObject, model: string): number | null {
