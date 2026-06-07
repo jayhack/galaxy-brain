@@ -65,6 +65,28 @@
           "notes": "Open `sweats-dossier/codex-gpt-5-5-xhigh/index.html` directly, or use the mirrored artifact at `./artifacts/sweats-dossier/codex-gpt-5-5-xhigh.html`."
         },
         {
+          "slug": "codex-gpt-5-4-mini",
+          "harness": "codex",
+          "model": "gpt-5-4-mini",
+          "projectName": "jay-soft-stack",
+          "summary": "Single-file editorial lookbook and personal shopper memo for Jay Hack with a fabric-first thesis, six sweats picks, local product images, a comparison table, and a practical starter rotation.",
+          "tech": [
+            "html",
+            "css",
+            "research",
+            "lookbook"
+          ],
+          "submittedAt": "2026-06-07",
+          "artifactUrl": "./artifacts/sweats-dossier/codex-gpt-5-4-mini.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Ships a static HTML lookbook with local product images and a mirrored artifact for one-click evaluation.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `sweats-dossier/codex-gpt-5-4-mini/index.html` directly, or use the mirrored artifact at `./artifacts/sweats-dossier/codex-gpt-5-4-mini.html`."
+        },
+        {
           "slug": "cursor-composer-2-5",
           "harness": "cursor",
           "model": "composer-2-5",
