@@ -100,17 +100,21 @@ export function headerPlaceholder(slug: string): string | null {
   return (headerPlaceholders as Record<string, string>)[slug] ?? null;
 }
 
-/** `./artifacts/<eval>/<harness-model>.html` -> `/artifacts/<eval>/<harness-model>` (served from /public). */
+/** `./artifacts/<eval>/<harness-model>.html` -> `/artifacts/<eval>/<harness-model>.html` (served from /public), or null. */
 export function artifactHref(artifactUrl?: string | null): string | null {
   if (!artifactUrl) return null;
-  // The deployed site uses clean URLs (Next.js static export on Vercel), the
-  // same way `/eval/<slug>/<solution>` is served. A request to the artifact
-  // *with* a `.html` suffix 404s; the file is exposed at the extension-less
-  // path. Strip a trailing `.html` so the "Open HTML output" link and the
-  // inline preview resolve in production.
-  return (
-    "/" + String(artifactUrl).replace(/^\.?\//, "").replace(/\.html$/i, "")
-  );
+  // Point at the real file in /public, e.g.
+  // "./artifacts/<eval>/<harness-model>.html" -> "/artifacts/<eval>/<harness-model>.html".
+  // The literal `.html` path resolves in every environment: served directly by
+  // `next dev` and plain static hosting, and 308-redirected to the clean URL by
+  // Vercel/`serve`. Stripping the extension (the previous behavior) only worked
+  // under clean-URL hosting and hard-404'd in dev and any non-clean-URL serve.
+  const rel = String(artifactUrl).replace(/^\.?\//, "");
+  // Only surface artifacts that were actually mirrored into /public; a missing
+  // file would otherwise render as a broken 404 iframe. Returning null lets the
+  // UI fall back to its graceful "no artifact" placeholder instead.
+  if (!existsSync(path.join(repoRoot, "public", rel))) return null;
+  return "/" + rel;
 }
 
 /* ----- Markdown (rendered at build, sanitized) ----- */

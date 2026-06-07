@@ -5,21 +5,23 @@ import {
   getEvals,
   getEval,
   getEvalPrompt,
+  getAllTags,
   headerImage,
   headerPlaceholder,
   repoUrls,
 } from "@/lib/content";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { GithubIcon } from "@/components/icons";
 import { MarkdownContent } from "@/components/markdown-content";
-import { CopyButton } from "@/components/copy-button";
 import { SolutionCard } from "@/components/solution-card";
 import { CollapsibleSection } from "@/components/collapsible-section";
+import { ContentContainer } from "@/components/content-container";
+import { SectionCard } from "@/components/section-card";
 import { EvalArt } from "@/components/eval-art";
 import { Globule } from "@/components/globule";
+import { TagRow } from "@/components/tag-row";
 import { globuleForIndex } from "@/lib/globules";
-import Link from "next/link";
+import { orderTagsByFrequency } from "@/lib/tags";
 
 type Params = { slug: string };
 
@@ -50,8 +52,15 @@ export default async function EvalPage({
   const ev = getEval(slug);
   if (!ev) notFound();
 
-  const colorIndex = getEvals().findIndex((e) => e.slug === ev.slug);
+  const allEvals = getEvals();
+  const colorIndex = allEvals.findIndex((e) => e.slug === ev.slug);
   const globule = globuleForIndex(colorIndex);
+  // Same tag ordering as the homepage cards, so each tag keeps a consistent
+  // globule color across the site.
+  const orderedTags = orderTagsByFrequency(
+    allEvals.map((e) => ({ tags: e.tags || [] })),
+    getAllTags()
+  );
   const image = headerImage(ev.slug);
   const placeholder = headerPlaceholder(ev.slug);
   const urls = repoUrls();
@@ -59,7 +68,7 @@ export default async function EvalPage({
   const prompt = await getEvalPrompt(ev);
 
   return (
-    <>
+    <ContentContainer>
       <EvalArt
         globule={globule}
         image={image}
@@ -77,7 +86,7 @@ export default async function EvalPage({
         <div className="eval-art-scrim" />
         <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-6 sm:p-8">
           <div>
-            <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-paper/80">
+            <span className="font-sans text-[11px] font-medium uppercase tracking-[0.22em] text-paper/80">
               Eval
             </span>
             <h1 className="mt-1.5 font-display text-4xl font-semibold leading-none tracking-tight text-paper drop-shadow-[0_1px_10px_rgba(0,0,0,0.35)] sm:text-5xl">
@@ -99,25 +108,23 @@ export default async function EvalPage({
       </EvalArt>
 
       <header className="mb-6">
-        <div className="flex flex-wrap items-center gap-2">
-          {(ev.tags || []).map((t) => (
-            <Badge key={t} asChild variant="outline">
-              <Link href={`/?tags=${encodeURIComponent(t)}`}>{t}</Link>
-            </Badge>
-          ))}
-        </div>
+        {(ev.tags || []).length > 0 && (
+          <TagRow tags={ev.tags || []} orderedTags={orderedTags} />
+        )}
         <p className="mt-3 max-w-3xl text-ink/90">
           {ev.description || ev.tagline || ""}
         </p>
       </header>
 
-      <section className="mb-10 w-full min-w-0 max-w-full">
-        <div className="mb-3 flex w-full items-center justify-between border-b border-ink pb-2">
-          <h2 className="g-display text-2xl">Solutions</h2>
+      <SectionCard
+        title="Solutions"
+        meta={
           <span className="mono-label opacity-70">
             {ev.solutions.length} total
           </span>
-        </div>
+        }
+        className="mb-10 w-full min-w-0 max-w-full"
+      >
         {ev.solutions.length === 0 ? (
           <div className="rounded-md border border-ink bg-paper-soft px-4 py-3 text-sm text-ink">
             No solutions submitted yet.
@@ -129,41 +136,36 @@ export default async function EvalPage({
             ))}
           </div>
         )}
-      </section>
+      </SectionCard>
 
       <CollapsibleSection
         title="Prompt"
-        meta={<span className="font-mono text-xs text-ink/70">{promptPath}</span>}
+        filePath={promptPath}
+        fileHref={urls.blob(promptPath)}
+        copyText={prompt?.raw}
       >
-        <div className="relative rounded-md border border-ink bg-paper-soft">
+        <div className="relative">
           {prompt ? (
-            <div className="absolute right-2 top-2 z-10">
-              <CopyButton text={prompt.raw} />
-            </div>
-          ) : null}
-          <div className="p-5">
-            {prompt ? (
-              <MarkdownContent html={prompt.html} />
-            ) : (
-              <p className="text-ink/90">
-                Couldn&apos;t load{" "}
-                <code className="rounded border border-paper-3 bg-paper px-1.5 py-0.5 font-mono text-xs">
-                  {promptPath}
-                </code>
-                .{" "}
-                <a
-                  className="g-link"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href={urls.blob(promptPath)}
-                >
-                  Open on GitHub.
-                </a>
-              </p>
-            )}
-          </div>
+            <MarkdownContent html={prompt.html} />
+          ) : (
+            <p className="text-ink/90">
+              Couldn&apos;t load{" "}
+              <code className="rounded border border-paper-3 bg-paper px-1.5 py-0.5 font-mono text-xs">
+                {promptPath}
+              </code>
+              .{" "}
+              <a
+                className="g-link"
+                target="_blank"
+                rel="noopener noreferrer"
+                href={urls.blob(promptPath)}
+              >
+                Open on GitHub.
+              </a>
+            </p>
+          )}
         </div>
       </CollapsibleSection>
-    </>
+    </ContentContainer>
   );
 }

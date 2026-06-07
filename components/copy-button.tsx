@@ -42,7 +42,11 @@ export function CopyButton({
 }) {
   const [state, setState] = React.useState<"idle" | "ok" | "err">("idle");
 
-  async function onClick() {
+  async function onClick(e: React.MouseEvent<HTMLButtonElement>) {
+    // The button may live inside a <summary>; keep the click from toggling
+    // the surrounding <details>.
+    e.preventDefault();
+    e.stopPropagation();
     const ok = await copyText(text);
     setState(ok ? "ok" : "err");
     window.setTimeout(() => setState("idle"), 2000);

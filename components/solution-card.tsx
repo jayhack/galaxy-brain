@@ -1,6 +1,5 @@
 import * as React from "react";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { HarnessIcon } from "@/components/icons";
@@ -13,10 +12,11 @@ type GlobuleVars = React.CSSProperties & {
 };
 
 /**
- * Gallery card for a single solution. The HTML artifact renders as a lightly
- * frosted backdrop (it clears a little on hover), while the model identity —
- * a large logo plate and the model name — is the hero of the card. The whole
- * card links to the solution page (where it opens full-screen).
+ * Gallery card for a single solution. A black surface letterboxes the HTML
+ * artifact, which renders front-and-center under only a whisper of blur (it
+ * clears entirely on hover). The model identity — harness logo + name — sits in
+ * a bottom bar over a dark gradient so it stays legible against any artifact.
+ * The whole card links to the solution page.
  */
 export function SolutionCard({
   ev,
@@ -45,7 +45,7 @@ export function SolutionCard({
     <Link
       href={`/eval/${ev.slug}/${sol.slug}`}
       aria-label={`${sol.slug} solution`}
-      className="group relative flex aspect-[16/9] w-full flex-col items-center justify-center overflow-hidden rounded-md border border-ink bg-ink/[0.04] no-underline"
+      className="group relative flex aspect-[16/9] w-full flex-col overflow-hidden rounded-md border border-ink bg-ink no-underline"
     >
       {artifact ? (
         <iframe
@@ -61,40 +61,36 @@ export function SolutionCard({
         <div className="absolute inset-0" style={placeholderStyle} />
       )}
 
-      {/* Frosted backdrop over the artifact. Clears a touch on hover. */}
-      <div className="absolute inset-0 bg-paper/60 backdrop-blur-md transition duration-300 group-hover:bg-paper/35 group-hover:backdrop-blur-sm group-focus-visible:bg-paper/35" />
+      {/* Whisper of blur over the artifact so it reads as the hero; clears on hover. */}
+      {artifact ? (
+        <div className="absolute inset-0 backdrop-blur-[2px] transition duration-300 group-hover:backdrop-blur-0 group-focus-visible:backdrop-blur-0" />
+      ) : null}
 
       {type ? (
-        <Badge variant="soft" className="absolute right-3 top-3 z-10">
+        <Badge variant="soft" className="absolute right-3 top-3 z-10 shadow-sm">
           {type}
         </Badge>
       ) : null}
 
-      {/* Model identity — the hero of the card. */}
-      <div className="relative z-10 flex flex-col items-center gap-3.5 px-6 text-center">
+      {/* Model identity, anchored to the bottom over a dark gradient. */}
+      <div className="absolute inset-x-0 bottom-0 z-10 flex items-center gap-2.5 bg-gradient-to-t from-ink via-ink/80 to-transparent px-3.5 pb-3 pt-10">
         <span
-          className="flex size-16 items-center justify-center rounded-full border border-ink bg-paper text-ink shadow-[0_6px_20px_rgba(10,9,8,0.16)] transition-transform duration-300 group-hover:-translate-y-0.5"
+          className="flex size-8 shrink-0 items-center justify-center rounded-full border border-paper/20 bg-paper text-ink shadow-[0_2px_10px_rgba(0,0,0,0.45)] transition-transform duration-300 group-hover:-translate-y-0.5"
           title={short}
           aria-label={short}
         >
           {hasIcon ? (
-            <HarnessIcon harness={sol.harness} className="size-9" />
+            <HarnessIcon harness={sol.harness} className="size-5" />
           ) : (
-            <span className="font-mono text-lg font-semibold uppercase">
+            <span className="font-sans text-[11px] font-semibold uppercase">
               {short.slice(0, 2)}
             </span>
           )}
         </span>
-        <span className="max-w-full truncate font-mono text-xl font-semibold tracking-tight text-ink">
+        <span className="min-w-0 truncate font-sans text-sm font-semibold tracking-tight text-paper drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]">
           {sol.slug}
         </span>
       </div>
-
-      {/* View hint, revealed on hover. */}
-      <span className="absolute bottom-3.5 z-10 inline-flex items-center gap-1 font-sans text-[10.5px] font-semibold uppercase tracking-[0.16em] text-ink/0 transition-colors duration-300 group-hover:text-ink/75 group-focus-visible:text-ink/75">
-        View solution
-        <ArrowUpRight className="size-3.5" />
-      </span>
     </Link>
   );
 }

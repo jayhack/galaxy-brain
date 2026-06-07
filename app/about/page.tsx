@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { repoUrls } from "@/lib/content";
+import { ContentContainer } from "@/components/content-container";
 
 export const metadata: Metadata = { title: "About - galaxy-brain" };
 
@@ -53,7 +54,8 @@ export default function AboutPage() {
   const urls = repoUrls();
 
   return (
-    <article className="max-w-none">
+    <ContentContainer>
+      <article className="max-w-none">
       <h1 className="g-display text-4xl">About galaxy-brain</h1>
       <p className="mt-4 max-w-3xl leading-relaxed text-ink/90">
         This repo is a <strong>personal</strong> set of evals: prompts and tasks
@@ -112,6 +114,7 @@ export default function AboutPage() {
         </code>{" "}
         for the browser.
       </p>
-    </article>
+      </article>
+    </ContentContainer>
   );
 }

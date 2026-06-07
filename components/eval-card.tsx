@@ -30,16 +30,16 @@ export function EvalCard({
       href={`/eval/${ev.slug}`}
       data-eval-card
       data-tags={ev.tags.join(",")}
-      className="group flex h-full flex-col overflow-hidden rounded-md border border-ink bg-paper no-underline transition-colors hover:bg-paper-soft"
+      className="group flex h-full flex-row overflow-hidden rounded-md border border-ink bg-paper no-underline transition-colors hover:bg-paper-soft sm:flex-col"
     >
       <EvalArt
         colorIndex={ev.colorIndex}
         image={ev.image}
         placeholder={ev.placeholder}
         imageAlt=""
-        className="h-36"
+        className="w-36 shrink-0 self-stretch sm:h-36 sm:w-auto sm:self-auto"
       />
-      <div className="flex flex-1 flex-col p-5">
+      <div className="flex min-w-0 flex-1 flex-col p-4 sm:p-5">
         <div className="flex items-baseline justify-between gap-3">
           <h3 className="min-w-0 font-sans text-xl font-semibold leading-tight tracking-tight text-ink">
             {ev.title}

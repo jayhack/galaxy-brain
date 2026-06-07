@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 // GLOBULE pill: square, mono, uppercase, ink-bordered.
 const badgeVariants = cva(
-  "inline-flex items-center gap-1.5 rounded-md border font-mono font-medium uppercase tracking-[0.14em] text-[10px] leading-[1.3] whitespace-nowrap px-[11px] py-1 transition-colors [&_svg]:shrink-0",
+  "inline-flex items-center gap-1.5 rounded-md border font-sans font-semibold uppercase tracking-[0.05em] text-[10px] leading-[1.3] whitespace-nowrap px-[11px] py-1 transition-colors [&_svg]:shrink-0",
   {
     variants: {
       variant: {

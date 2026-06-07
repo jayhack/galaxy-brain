@@ -82,14 +82,9 @@ export function EvalFilterControls({
 
   return (
     <>
-      <div className="mb-4 flex items-baseline justify-between border-b border-ink pb-2">
-        <h2 className="g-display text-2xl">Evals</h2>
-        {summary && <span className="mono-label opacity-70">{summary}</span>}
-      </div>
-
       {tags.length > 0 && (
         <div className="mb-6" role="group" aria-label="Filter evals by tag">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="tag-scroller -mx-4 flex flex-nowrap items-center gap-2 overflow-x-auto px-4 sm:-mx-6 sm:px-6 md:mx-0 md:flex-wrap md:overflow-visible md:px-0">
             {visibleTags.map((tag) => {
               const on = selectedSet.has(tag);
               return (
@@ -112,7 +107,7 @@ export function EvalFilterControls({
                 type="button"
                 onClick={() => setExpanded((value) => !value)}
                 aria-expanded={expanded}
-                className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-dashed border-ink/30 bg-transparent px-6 py-3 font-sans text-sm font-medium leading-none text-ink/70 transition-colors hover:bg-paper-soft hover:text-ink"
+                className="inline-flex shrink-0 cursor-pointer items-center gap-2 whitespace-nowrap rounded-full border border-dashed border-ink/30 bg-transparent px-6 py-3 font-sans text-sm font-medium leading-none text-ink/70 transition-colors hover:bg-paper-soft hover:text-ink"
               >
                 {expanded ? "Show fewer" : `+${hiddenCount} more …`}
               </button>
@@ -122,12 +117,18 @@ export function EvalFilterControls({
               <button
                 type="button"
                 onClick={clearAll}
-                className="inline-flex cursor-pointer items-center rounded-full px-3 py-2 font-sans text-sm font-medium leading-none text-ink/70 underline-offset-2 transition-colors hover:text-ink hover:underline"
+                className="inline-flex shrink-0 cursor-pointer items-center whitespace-nowrap rounded-full px-3 py-2 font-sans text-sm font-medium leading-none text-ink/70 underline-offset-2 transition-colors hover:text-ink hover:underline"
               >
                 Clear
               </button>
             )}
           </div>
+
+          {summary && (
+            <div className="mt-2 text-right">
+              <span className="mono-label opacity-70">{summary}</span>
+            </div>
+          )}
         </div>
       )}
 

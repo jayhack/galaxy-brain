@@ -6,19 +6,19 @@ import { cn } from "@/lib/utils";
 
 // GLOBULE button: square, ink-bordered, uppercase editorial type.
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-sans font-semibold uppercase tracking-[0.16em] leading-none border cursor-pointer select-none transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:shrink-0 [&_svg]:pointer-events-none",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-sans font-semibold uppercase tracking-[0.05em] leading-none border cursor-pointer select-none transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:shrink-0 [&_svg]:pointer-events-none",
   {
     variants: {
       variant: {
         ink: "bg-primary text-primary-foreground border-ink hover:bg-[#211f1c]",
         paper: "bg-paper text-ink border-ink hover:bg-paper-soft",
         ghost: "bg-transparent border-transparent text-ink hover:bg-paper-soft",
-        cta: "rounded-full border-0 bg-[var(--magenta-d)] text-paper tracking-[0.13em] shadow-[inset_-6px_-8px_14px_rgba(0,0,0,0.32),0_6px_14px_rgba(10,9,8,0.25)] hover:brightness-110",
+        cta: "rounded-full border-0 bg-[var(--magenta-d)] text-paper tracking-[0.04em] shadow-[inset_-4px_-6px_12px_rgba(0,0,0,0.24),0_4px_11px_rgba(10,9,8,0.18)] hover:brightness-110",
       },
       size: {
         default: "h-10 px-5 text-xs",
         sm: "h-9 px-4 text-[11.5px]",
-        xs: "h-7 px-[11px] text-[10.5px] tracking-[0.14em]",
+        xs: "h-7 px-[11px] text-[11px] tracking-[0.05em]",
       },
     },
     defaultVariants: {

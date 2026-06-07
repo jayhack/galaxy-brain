@@ -8,15 +8,16 @@ import {
   repoUrls,
   artifactHref,
 } from "@/lib/content";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
-import { GithubIcon, HarnessIcon } from "@/components/icons";
+import { HarnessIcon } from "@/components/icons";
 import { StatusBadge } from "@/components/status-badge";
 import { harnessLogoKind } from "@/lib/globules";
 import { MarkdownContent } from "@/components/markdown-content";
 import { SolutionRow } from "@/components/solution-row";
 import { ArtifactPreview } from "@/components/artifact-preview";
+import { CollapsibleSection } from "@/components/collapsible-section";
+import { ContentContainer } from "@/components/content-container";
 
 type Params = { slug: string; solution: string };
 
@@ -63,7 +64,7 @@ export default async function SolutionPage({
   const hasLogo = harnessLogoKind(sol.harness) != null;
 
   return (
-    <>
+    <ContentContainer>
       <header className="mb-8 flex items-center gap-4">
         {hasLogo ? (
           <span className="flex size-12 shrink-0 items-center justify-center rounded-md border border-ink bg-paper-soft sm:size-14">
@@ -71,10 +72,10 @@ export default async function SolutionPage({
           </span>
         ) : null}
         <div className="min-w-0">
-          <h1 className="break-words font-mono text-2xl font-bold leading-tight tracking-tight sm:text-3xl">
+          <h1 className="break-words font-sans text-2xl font-bold leading-tight tracking-tight sm:text-3xl">
             {sol.slug}
           </h1>
-          <p className="mt-1 font-mono text-sm text-ink/70">{sol.model}</p>
+          <p className="mt-1 font-sans text-sm text-ink/70">{sol.model}</p>
         </div>
       </header>
 
@@ -96,39 +97,29 @@ export default async function SolutionPage({
         )}
       </section>
 
-      <section className="mb-10">
-        <div className="mb-3 flex items-center justify-between gap-3 border-b border-ink pb-2">
-          <h2 className="g-display text-2xl">README</h2>
-          <Button asChild variant="ghost" size="sm">
+      <CollapsibleSection
+        title="README"
+        className="mb-10"
+        filePath={readme?.path ?? `${dirPath}/README.md`}
+        fileHref={urls.blob(readme?.path ?? `${dirPath}/README.md`)}
+        copyText={readme?.raw}
+      >
+        {readme ? (
+          <MarkdownContent html={readme.html} />
+        ) : (
+          <p className="text-ink/90">
+            No README found for this solution.{" "}
             <a
-              href={urls.tree(dirPath)}
+              className="g-link"
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="View this solution's source files on GitHub"
+              href={urls.tree(dirPath)}
             >
-              <GithubIcon />
-              View on Github
+              Browse the directory.
             </a>
-          </Button>
-        </div>
-        <div className="rounded-md border border-ink bg-paper-soft p-5">
-          {readme ? (
-            <MarkdownContent html={readme.html} />
-          ) : (
-            <p className="text-ink/90">
-              No README found for this solution.{" "}
-              <a
-                className="g-link"
-                target="_blank"
-                rel="noopener noreferrer"
-                href={urls.tree(dirPath)}
-              >
-                Browse the directory.
-              </a>
-            </p>
-          )}
-        </div>
-      </section>
+          </p>
+        )}
+      </CollapsibleSection>
 
       {oc.verdict || oc.score != null || (sol.tech || []).length > 0 || sol.notes ? (
         <section className="mb-10 grid grid-cols-1 gap-5 lg:grid-cols-3">
@@ -200,6 +191,6 @@ export default async function SolutionPage({
           </div>
         )}
       </section>
-    </>
+    </ContentContainer>
   );
 }

@@ -60,7 +60,7 @@ export function SidebarNav({
             <span
               aria-label={`${ev.count} solution${ev.count === 1 ? "" : "s"}`}
               className={cn(
-                "min-w-[1.4rem] shrink-0 border border-ink px-1.5 py-0.5 text-center font-mono text-[0.65rem] font-medium tabular-nums",
+                "min-w-[1.4rem] shrink-0 border border-ink px-1.5 py-0.5 text-center font-sans text-[0.65rem] font-semibold tabular-nums",
                 active ? "bg-ink text-paper" : "bg-paper-soft text-ink"
               )}
             >
