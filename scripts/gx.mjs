@@ -31,6 +31,16 @@ async function main() {
     return;
   }
 
+  if (command === "runs") {
+    await runsCommand(args);
+    return;
+  }
+
+  if (command === "run-info") {
+    await runInfoCommand(args);
+    return;
+  }
+
   if (command === "status") {
     await statusCommand(args);
     return;
@@ -47,6 +57,8 @@ async function main() {
 function printHelp() {
   console.log(`Usage:
   gx run <eval-slug> [options]
+  gx runs [options]
+  gx run-info <tracking-id|workflow-run-id> [--api-url <url>]
   gx status <run-id> [--api-url <url>]
   gx events <run-id> [--api-url <url>]
 
@@ -55,6 +67,8 @@ Examples:
   gx run porsche-render --dry-run
   gx run porsche-render --model gpt-5.4-mini
   gx run evading-demons --config codex:gpt-5.4-mini --config claude:sonnet-4.5
+  gx runs --eval fishtank-water-sim --model gpt-5.4-mini
+  gx run-info wrun_...
 
 Run options:
   --harness <codex|cursor|claude>       Harness for the default single config.
@@ -129,9 +143,114 @@ async function statusCommand(args) {
   if (response.completedAt) console.log(`Completed: ${response.completedAt}`);
 }
 
+async function runsCommand(args) {
+  const options = parseRunsArgs(args);
+  const apiUrl = normalizeApiUrl(options.apiUrl);
+  const params = new URLSearchParams();
+  if (options.evalSlug) params.set("eval", options.evalSlug);
+  if (options.harness) params.set("harness", options.harness);
+  if (options.model) params.set("model", options.model);
+  if (options.status) params.set("status", options.status);
+  if (options.q) params.set("q", options.q);
+  if (options.limit) params.set("limit", String(options.limit));
+
+  const suffix = params.size ? `?${params}` : "";
+  const response = await getJson(`${apiUrl}/api/agent-runs${suffix}`);
+  if (options.json) {
+    console.log(JSON.stringify(response, null, 2));
+    return;
+  }
+
+  const jobs = response.jobs ?? [];
+  if (jobs.length === 0) {
+    console.log("No tracked agent runs found.");
+    return;
+  }
+
+  for (const job of jobs) {
+    const run = job.agent_runs ?? {};
+    const elapsed = formatElapsed(job.elapsed_ms ?? run.elapsed_ms);
+    const pr = job.pull_request_url ? ` ${job.pull_request_url}` : "";
+    console.log(
+      `${job.created_at} ${job.status.padEnd(9)} ${job.eval_slug}/${job.solution_slug} ${job.harness}:${job.model} ${elapsed}${pr}`
+    );
+  }
+}
+
+async function runInfoCommand(args) {
+  const { runId, apiUrl, json } = parseRunIdArgs(args, "run-info");
+  const response = await getJson(`${normalizeApiUrl(apiUrl)}/api/agent-runs/${runId}`);
+  if (json) {
+    console.log(JSON.stringify(response, null, 2));
+    return;
+  }
+
+  const { run, jobs } = response;
+  console.log(`${run.workflow_run_id ?? run.tracking_id}: ${run.status}`);
+  console.log(`Eval: ${run.eval_slug}`);
+  console.log(`Dry run: ${run.dry_run}`);
+  if (run.started_at) console.log(`Started: ${run.started_at}`);
+  if (run.completed_at) console.log(`Completed: ${run.completed_at}`);
+  if (run.elapsed_ms) console.log(`Elapsed: ${formatElapsed(run.elapsed_ms)}`);
+  if (run.error_message) console.log(`Error: ${run.error_message}`);
+
+  for (const job of jobs ?? []) {
+    console.log("");
+    console.log(`${job.solution_slug}: ${job.status} (${job.harness}:${job.model})`);
+    if (job.branch_name) console.log(`Branch: ${job.branch_name}`);
+    if (job.pull_request_url) console.log(`PR: ${job.pull_request_url}`);
+    if (job.elapsed_ms) console.log(`Elapsed: ${formatElapsed(job.elapsed_ms)}`);
+    if (job.cost_usd) console.log(`Cost: $${job.cost_usd}`);
+    if (job.error_message) console.log(`Error: ${job.error_message}`);
+    if (Array.isArray(job.files) && job.files.length > 0) {
+      console.log("Files:");
+      for (const file of job.files) console.log(`  ${file}`);
+    }
+  }
+}
+
 async function eventsCommand(args) {
   const { runId, apiUrl } = parseRunIdArgs(args, "events");
   await streamEvents(normalizeApiUrl(apiUrl), runId, { showPrompt: true });
+}
+
+function parseRunsArgs(args) {
+  if (args.includes("-h") || args.includes("--help")) {
+    printHelp();
+    process.exit(0);
+  }
+
+  const options = {
+    apiUrl: process.env.GX_API_URL ?? process.env.SOLVER_API_URL ?? defaultApiUrl,
+    json: false,
+    limit: 25,
+  };
+
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index];
+    if (arg === "--json") {
+      options.json = true;
+      continue;
+    }
+
+    const value = args[index + 1];
+    if (!value || value.startsWith("--")) {
+      throw new Error(`Missing value for ${arg}`);
+    }
+
+    if (arg === "--api-url") options.apiUrl = value;
+    else if (arg === "--eval") options.evalSlug = value;
+    else if (arg === "--harness") options.harness = value;
+    else if (arg === "--model") options.model = value;
+    else if (arg === "--status") options.status = value;
+    else if (arg === "--q") options.q = value;
+    else if (arg === "--limit") options.limit = parsePositiveInt(value, arg);
+    else throw new Error(`Unknown option: ${arg}`);
+
+    index += 1;
+  }
+
+  return options;
 }
 
 function parseRunArgs(args) {
@@ -333,6 +452,15 @@ function normalizeApiUrl(value) {
   return (value || defaultApiUrl).replace(/\/+$/, "");
 }
 
+function formatElapsed(ms) {
+  if (!Number.isFinite(ms) || ms === null || ms === undefined) return "-";
+  const seconds = Math.round(ms / 1000);
+  if (seconds < 60) return `${seconds}s`;
+  const minutes = Math.floor(seconds / 60);
+  const remainder = seconds % 60;
+  return `${minutes}m${remainder.toString().padStart(2, "0")}s`;
+}
+
 async function postJson(url, body) {
   let response;
   try {
@@ -374,9 +502,22 @@ async function getJson(url) {
     throw new Error(`${connectionMessage(url)}\n${error.message}`);
   }
 
-  const parsed = await response.json();
+  const text = await response.text();
+  let parsed;
+  try {
+    parsed = text ? JSON.parse(text) : {};
+  } catch {
+    parsed = { raw: text };
+  }
+
   if (!response.ok) {
-    throw new Error(`Request failed: ${response.status} ${response.statusText}`);
+    throw new Error(
+      `Request failed: ${response.status} ${response.statusText}\n${JSON.stringify(
+        parsed,
+        null,
+        2
+      )}`
+    );
   }
   return parsed;
 }

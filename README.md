@@ -154,9 +154,34 @@ gx run porsche-render --dry-run
 gx run evading-demons --config codex:gpt-5.4-mini --config claude:sonnet-4.5
 gx status <run-id>
 gx events <run-id>
+gx runs --eval fishtank-water-sim --model gpt-5.4-mini
+gx run-info <workflow-run-id>
 ```
 
 `gx` sends `localRepoPath: "."` for dry runs so prompt generation uses the checked-out repo. It does not send API keys in the request body. For real local runs, the local Next.js process must be running from this repo so it can load the same `.env` secrets before the workflow creates a sandbox.
+
+#### Run history
+
+When `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are configured on the server, solve requests are tracked in Supabase:
+
+- `agent_runs`: one row per workflow run, including eval, dry-run flag, branches, status, timestamps, elapsed time, and top-level error.
+- `agent_run_jobs`: one row per requested harness/model config, including model, harness, solution slug, sandbox/command ids, branch, PR URL/number, changed files, status, elapsed time, exit code, token-usage metadata when detectable, and optional estimated cost.
+
+History APIs:
+
+```bash
+curl 'http://127.0.0.1:3000/api/agent-runs?eval=fishtank-water-sim&model=gpt-5.4-mini'
+curl 'http://127.0.0.1:3000/api/agent-runs/<workflow-run-id>'
+```
+
+Cost is nullable by default. If the agent CLI output includes total token usage, the store records it in `usage.totalTokens`; setting `SOLVER_COST_USD_PER_1M_TOKENS` or a model-specific `SOLVER_COST_USD_PER_1M_TOKENS_<MODEL>` enables a coarse estimate.
+
+Apply the database schema with the Supabase CLI after linking an active project:
+
+```bash
+supabase link --project-ref <project-ref>
+supabase db push
+```
 
 ### HTML artifacts
 
