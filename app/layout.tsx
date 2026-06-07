@@ -18,6 +18,10 @@ const socialDescription =
   "A chromatic quarterly of agent evals - each eval is a prompt, each solution one harness/model pair's attempt at it.";
 const favicon =
   "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Cdefs%3E%3CradialGradient%20id='g'%20cx='34%25'%20cy='30%25'%20r='75%25'%3E%3Cstop%20offset='0%25'%20stop-color='%23ffffff'/%3E%3Cstop%20offset='12%25'%20stop-color='%23bdeef5'/%3E%3Cstop%20offset='52%25'%20stop-color='%232DC4D8'/%3E%3Cstop%20offset='100%25'%20stop-color='%23126974'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect%20width='100'%20height='100'%20fill='%23F2EAD0'/%3E%3Ccircle%20cx='50'%20cy='52'%20r='33'%20fill='url(%23g)'/%3E%3C/svg%3E";
+const initialPageStyle = {
+  backgroundColor: "#edebe4",
+  color: "#0a0908",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -63,8 +67,11 @@ export default function RootLayout({
   const repo = repoUrls().repo;
 
   return (
-    <html lang="en" className={fontVariables}>
-      <body className="paper min-h-screen font-sans text-foreground antialiased">
+    <html lang="en" className={fontVariables} style={initialPageStyle}>
+      <body
+        className="paper min-h-screen font-sans text-foreground antialiased"
+        style={initialPageStyle}
+      >
         <HashRedirect />
         <div className="min-h-screen lg:grid lg:grid-cols-[18rem_minmax(0,1fr)]">
           <aside className="paper-soft sticky top-0 hidden h-screen flex-col border-r border-ink lg:flex">
