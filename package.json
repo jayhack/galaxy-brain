@@ -2,6 +2,9 @@
   "name": "galaxy-brain",
   "private": true,
   "packageManager": "npm@10.9.7",
+  "bin": {
+    "gx": "./scripts/gx.mjs"
+  },
   "engines": {
     "node": ">=22 <25"
   },

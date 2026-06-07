@@ -139,6 +139,25 @@ curl -X POST http://127.0.0.1:3000/api/solve \
 
 Real runs need the variables documented in [`.env.example`](./.env.example), including Vercel Sandbox auth, the relevant agent provider key, and `GITHUB_TOKEN` for pushing branches and opening draft PRs. In local development, run `npx workflow web` in another terminal to inspect Workflow runs.
 
+For local runs without hand-writing JSON, use the `gx` CLI. It reads `.env`/`.env.local` for request defaults and preflight checks, then calls the local Next API:
+
+```bash
+npm link
+npm run dev
+gx run porsche-render --model gpt-5.4-mini
+```
+
+Useful variants:
+
+```bash
+gx run porsche-render --dry-run
+gx run evading-demons --config codex:gpt-5.4-mini --config claude:sonnet-4.5
+gx status <run-id>
+gx events <run-id>
+```
+
+`gx` sends `localRepoPath: "."` for dry runs so prompt generation uses the checked-out repo. It does not send API keys in the request body. For real local runs, the local Next.js process must be running from this repo so it can load the same `.env` secrets before the workflow creates a sandbox.
+
 ### HTML artifacts
 
 Many evals ask for a **browsable deliverable** (often a single `.html` file). To link that output directly from the site without asking visitors to hunt through GitHub:
