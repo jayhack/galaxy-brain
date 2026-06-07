@@ -3,6 +3,7 @@ import { loadEnv } from "../src/env.mjs";
 import { run } from "../src/run.mjs";
 import { listEvals } from "../src/evals.mjs";
 import { listHarnesses } from "../src/harness.mjs";
+import { serve } from "../src/server.mjs";
 
 loadEnv();
 
@@ -10,6 +11,7 @@ const HELP = `galaxy-brain solver — run a coding agent in a Daytona sandbox an
 
 Usage:
   solve run --eval <slug> --harness <codex|cursor|claude> [options]
+  solve serve [--port <n>] [--host <h>]
   solve evals
   solve harnesses
 
@@ -42,7 +44,12 @@ Environment (put these in the repo-root .env):
   GITHUB_TOKEN / GH_TOKEN         to push the branch and open the PR
   GIT_AUTHOR_NAME / GIT_AUTHOR_EMAIL   (optional) commit identity
 
+Serve options (live browser dashboard):
+  --port <n>               Port for the dashboard (default: 4505)
+  --host <h>               Host to bind (default: 127.0.0.1)
+
 Examples:
+  solve serve
   solve run --eval evading-demons --harness codex --model gpt-5-codex
   solve run --eval sweats-dossier --harness claude --model opus --no-draft
   solve run --eval life-sim --harness cursor --dry-run
@@ -132,6 +139,13 @@ async function main() {
 
   if (command === "evals") return cmdEvals();
   if (command === "harnesses") return cmdHarnesses();
+  if (command === "serve") {
+    const port = options["--port"] ? Number(options["--port"]) : 4505;
+    const host = options["--host"] || "127.0.0.1";
+    if (Number.isNaN(port) || port <= 0) fail("--port must be a positive number.");
+    await serve({ port, host });
+    return new Promise(() => {}); // keep the process alive until killed
+  }
   if (command !== "run") fail(`Unknown command "${command}".`);
 
   if (!options["--eval"]) fail("--eval <slug> is required.");

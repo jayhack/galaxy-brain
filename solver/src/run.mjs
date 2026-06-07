@@ -11,6 +11,7 @@ import {
   writeFileInSandbox,
 } from "./daytona.mjs";
 import { githubToken, authedRemote, createPullRequest } from "./github.mjs";
+import { createConsoleReporter } from "./reporter.mjs";
 
 function shortId() {
   return Math.random().toString(36).slice(2, 8);
@@ -38,6 +39,7 @@ async function resolveRepo(options) {
 }
 
 export async function run(options) {
+  const emit = options.emit ?? createConsoleReporter();
   const harness = getHarness(options.harness);
   const model = options.model ?? harness.defaultModel;
 
@@ -71,19 +73,24 @@ export async function run(options) {
     repoDir: "<repo>", // replaced below once we know the absolute path
   });
 
+  const planLines = [
+    "─".repeat(60),
+    `Eval:        ${ev.slug}`,
+    `Harness:     ${harness.id} (${harness.label})`,
+    `Model:       ${model || "(harness default)"}`,
+    `Solution:    ${ev.slug}/${solutionSlug}`,
+    `Repo:        ${repo.owner}/${repo.name} (base: ${repo.base})`,
+    `Branch:      ${branch}`,
+  ];
+
   // --- Dry run: print plan + prompt and bail before touching any secrets ---
   if (options.dryRun) {
-    console.log("─".repeat(60));
-    console.log(`Eval:        ${ev.slug}`);
-    console.log(`Harness:     ${harness.id} (${harness.label})`);
-    console.log(`Model:       ${model || "(harness default)"}`);
-    console.log(`Solution:    ${ev.slug}/${solutionSlug}`);
-    console.log(`Repo:        ${repo.owner}/${repo.name} (base: ${repo.base})`);
-    console.log(`Branch:      ${branch}`);
-    console.log("─".repeat(60));
-    console.log("\n[dry-run] Sandbox will NOT be created. Prompt preview:\n");
-    console.log(prompt.replace(/<repo>/g, "~/galaxy-brain"));
-    return { dryRun: true };
+    for (const line of [...planLines, "─".repeat(60)]) emit("info", line);
+    emit("info", "\n[dry-run] Sandbox will NOT be created. Prompt preview:\n");
+    emit("plan", prompt.replace(/<repo>/g, "~/galaxy-brain") + "\n");
+    const result = { dryRun: true, eval: ev.slug, solutionSlug, branch };
+    emit("result", result);
+    return result;
   }
 
   // --- Credentials --------------------------------------------------------
@@ -94,20 +101,15 @@ export async function run(options) {
   const token = githubToken();
   const wantPush = options.push !== false && Boolean(token);
   if (options.push !== false && !token) {
-    console.warn(
-      "Warning: no GITHUB_TOKEN/GH_TOKEN found — the solution will be built in the sandbox but NOT pushed. The sandbox will be kept for inspection."
+    emit(
+      "warn",
+      "no GITHUB_TOKEN/GH_TOKEN found — the solution will be built in the sandbox but NOT pushed. The sandbox will be kept for inspection."
     );
   }
 
-  console.log("─".repeat(60));
-  console.log(`Eval:        ${ev.slug}`);
-  console.log(`Harness:     ${harness.id} (${harness.label})`);
-  console.log(`Model:       ${model || "(harness default)"}`);
-  console.log(`Solution:    ${ev.slug}/${solutionSlug}`);
-  console.log(`Repo:        ${repo.owner}/${repo.name} (base: ${repo.base})`);
-  console.log(`Branch:      ${branch}`);
-  console.log(`Push + PR:   ${wantPush ? (options.draft ? "yes (draft)" : "yes") : "no"}`);
-  console.log("─".repeat(60));
+  for (const line of planLines) emit("info", line);
+  emit("info", `Push + PR:   ${wantPush ? (options.draft ? "yes (draft)" : "yes") : "no"}`);
+  emit("info", "─".repeat(60));
 
   // --- Sandbox env --------------------------------------------------------
   const gitName = firstEnv("GIT_AUTHOR_NAME") || "galaxy-brain-solver";
@@ -130,10 +132,11 @@ export async function run(options) {
   }
 
   const daytona = makeDaytona();
-  console.log("\nCreating Daytona sandbox (full internet access)…");
+  emit("step", "Creating Daytona sandbox (full internet access)…");
   const sandbox = await createSandbox(daytona, {
     envVars: sandboxEnv,
     snapshot: options.snapshot,
+    emit,
     labels: {
       purpose: "galaxy-brain-solver",
       eval: ev.slug,
@@ -141,7 +144,8 @@ export async function run(options) {
       solution: solutionSlug,
     },
   });
-  console.log(`Sandbox created: ${sandbox.id}`);
+  emit("info", `Sandbox created: ${sandbox.id}`);
+  emit("status", { phase: "sandbox", sandboxId: sandbox.id });
 
   let keepSandbox = options.keepSandbox;
   let pushed = false;
@@ -153,17 +157,20 @@ export async function run(options) {
     const promptPath = `${workDir}/solver-prompt.md`;
 
     // 1. Install the agent CLI.
-    console.log(`\n▸ Installing ${harness.label}…`);
+    emit("step", `Installing ${harness.label}…`);
+    emit("status", { phase: "install" });
     for (const step of harness.install) {
-      await exec(sandbox, step, { timeoutSec: 600 });
+      await exec(sandbox, step, { timeoutSec: 600, emit });
     }
     await exec(sandbox, harness.versionCommand, {
       allowFailure: true,
       display: `${harness.bin} --version`,
+      emit,
     });
 
     // 2. Clone the repo (authenticated if we have a token; read-only HTTPS otherwise).
-    console.log("\n▸ Cloning galaxy-brain…");
+    emit("step", "Cloning galaxy-brain…");
+    emit("status", { phase: "clone" });
     const cloneUrl = token
       ? authedRemote({ owner: repo.owner, name: repo.name, token })
       : `https://github.com/${repo.owner}/${repo.name}.git`;
@@ -173,6 +180,7 @@ export async function run(options) {
       {
         display: `git clone https://github.com/${repo.owner}/${repo.name}.git (base: ${repo.base})`,
         timeoutSec: 300,
+        emit,
       }
     );
 
@@ -180,38 +188,44 @@ export async function run(options) {
     await exec(
       sandbox,
       `git config user.name "${gitName}" && git config user.email "${gitEmail}" && git checkout -b "${branch}"`,
-      { cwd: repoDir, display: `git checkout -b ${branch}` }
+      { cwd: repoDir, display: `git checkout -b ${branch}`, emit }
     );
 
     // 4. Drop the prompt (outside the repo so it never gets committed).
     const finalPrompt = prompt.replace(/<repo>/g, repoDir);
-    await writeFileInSandbox(sandbox, promptPath, finalPrompt);
+    await writeFileInSandbox(sandbox, promptPath, finalPrompt, { emit });
 
     // 5. Run the agent.
-    console.log(`\n▸ Running ${harness.label} on "${ev.slug}"…\n`);
+    emit("step", `Running ${harness.label} on "${ev.slug}"…`);
+    emit("status", { phase: "agent" });
     const runCommand = harness.buildRunCommand({ model, promptPath });
     const agentExit = await execStream(sandbox, runCommand, {
       cwd: repoDir,
       timeoutSec: options.timeout,
       display: `${harness.bin} (headless) — eval ${ev.slug}`,
+      emit,
     });
     if (agentExit !== 0) {
-      console.warn(
-        `\nWarning: agent exited with code ${agentExit}. Continuing to inspect/commit whatever it produced.`
+      emit(
+        "warn",
+        `agent exited with code ${agentExit}. Continuing to inspect/commit whatever it produced.`
       );
     }
 
     // 6. Best-effort content validation (informational).
-    console.log("\n▸ Validating content registry…");
+    emit("step", "Validating content registry…");
+    emit("status", { phase: "validate" });
     await exec(sandbox, "node scripts/validate-content.mjs", {
       cwd: repoDir,
       allowFailure: true,
+      emit,
     });
 
     // 7. What changed?
     const status = await exec(sandbox, "git status --porcelain", {
       cwd: repoDir,
       display: "git status --porcelain",
+      emit,
     });
     const changedFiles = status.output
       .split("\n")
@@ -219,16 +233,21 @@ export async function run(options) {
       .filter(Boolean);
 
     if (changedFiles.length === 0) {
-      console.warn(
-        "\nWarning: the agent produced no file changes. Nothing to commit or push."
+      emit(
+        "warn",
+        "the agent produced no file changes. Nothing to commit or push."
       );
       keepSandbox = true;
-      return {
+      const result = {
         sandboxId: sandbox.id,
         branch,
         changedFiles: [],
         pushed: false,
+        eval: ev.slug,
+        solutionSlug,
       };
+      emit("result", result);
+      return result;
     }
 
     // 8. Commit.
@@ -238,21 +257,24 @@ export async function run(options) {
     await exec(
       sandbox,
       `git add -A && git commit -m "${commitMessage.replace(/"/g, '\\"')}"`,
-      { cwd: repoDir, display: `git commit -m "${commitMessage}"`, allowFailure: true }
+      { cwd: repoDir, display: `git commit -m "${commitMessage}"`, allowFailure: true, emit }
     );
 
     // 9. Push + PR.
     if (wantPush) {
-      console.log("\n▸ Pushing branch…");
+      emit("step", "Pushing branch…");
+      emit("status", { phase: "push" });
       await exec(sandbox, `git push -u origin "${branch}"`, {
         cwd: repoDir,
         display: `git push -u origin ${branch}`,
         timeoutSec: 300,
+        emit,
       });
       pushed = true;
 
       if (options.openPr !== false) {
-        console.log("\n▸ Opening pull request…");
+        emit("step", "Opening pull request…");
+        emit("status", { phase: "pr" });
         const body = [
           `Automated solution for the \`${ev.slug}\` eval.`,
           "",
@@ -281,17 +303,15 @@ export async function run(options) {
             body,
             draft: options.draft !== false,
           });
-          console.log(`Pull request opened: ${prResult.url}`);
+          emit("info", `Pull request opened: ${prResult.url}`);
         } catch (error) {
-          console.warn(`Warning: ${error.message}`);
-          console.warn(
-            `Branch "${branch}" is pushed; open a PR manually if needed.`
-          );
+          emit("warn", error.message);
+          emit("warn", `Branch "${branch}" is pushed; open a PR manually if needed.`);
         }
       }
     }
 
-    return {
+    const result = {
       sandboxId: sandbox.id,
       branch,
       changedFiles,
@@ -300,18 +320,21 @@ export async function run(options) {
       solutionSlug,
       eval: ev.slug,
     };
+    emit("result", result);
+    return result;
   } catch (error) {
     keepSandbox = true; // keep for debugging on failure
     throw error;
   } finally {
     if (keepSandbox) {
-      console.log(
+      emit(
+        "info",
         `\nSandbox kept for inspection: ${sandbox.id} (delete it from the Daytona dashboard or with the SDK when done).`
       );
     } else {
-      console.log("\nCleaning up sandbox…");
+      emit("step", "Cleaning up sandbox…");
       await sandbox.delete().catch((e) => {
-        console.warn(`Warning: failed to delete sandbox ${sandbox.id}: ${e.message}`);
+        emit("warn", `failed to delete sandbox ${sandbox.id}: ${e.message}`);
       });
     }
   }

@@ -63,6 +63,30 @@ node bin/solve.mjs --help
 node bin/solve.mjs run --eval evading-demons --harness codex --dry-run
 ```
 
+## Live dashboard (`serve`)
+
+To **watch a run in the browser** — every orchestration step plus the agent's
+live stdout/stderr — start the local dashboard:
+
+```bash
+node bin/solve.mjs serve            # http://127.0.0.1:4505
+node bin/solve.mjs serve --port 8080
+```
+
+Then open the URL, pick an eval + harness + model, toggle options (dry run is on
+by default), and press **Run**. Output streams in real time over
+[Server-Sent Events](https://developer.mozilla.org/docs/Web/API/Server-sent_events);
+when the run finishes you get the branch, sandbox id, changed-file count, and a
+link to the PR.
+
+This is a **separate local-only server** — it is intentionally *not* part of the
+statically-exported Next.js results site (which has no server runtime). The same
+run logic powers both the CLI and the dashboard: all output flows through a small
+event "reporter" (`src/reporter.mjs`), rendered to the terminal for the CLI and
+pushed over SSE for the dashboard.
+
+Dry runs need no keys, so you can exercise the whole UI before adding credentials.
+
 ### Key options
 
 | Flag | Description |

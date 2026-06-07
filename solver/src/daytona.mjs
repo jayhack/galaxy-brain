@@ -1,7 +1,9 @@
 import { Daytona } from "@daytona/sdk";
 import { firstEnv } from "./env.mjs";
+import { createConsoleReporter } from "./reporter.mjs";
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const defaultEmit = createConsoleReporter();
 
 /** Construct a Daytona client from environment variables. */
 export function makeDaytona() {
@@ -24,7 +26,10 @@ export function makeDaytona() {
 /**
  * Create a sandbox with full outbound internet access and the given env vars.
  */
-export async function createSandbox(daytona, { envVars, snapshot, labels }) {
+export async function createSandbox(
+  daytona,
+  { envVars, snapshot, labels, emit = defaultEmit }
+) {
   const createParams = {
     language: "typescript", // ensures node + npm are available out of the box
     envVars: envVars ?? {},
@@ -40,9 +45,7 @@ export async function createSandbox(daytona, { envVars, snapshot, labels }) {
   try {
     await sandbox.updateNetworkSettings({ networkBlockAll: false });
   } catch (error) {
-    console.warn(
-      `Warning: could not explicitly clear network restrictions: ${error.message}`
-    );
+    emit("warn", `could not explicitly clear network restrictions: ${error.message}`);
   }
 
   return sandbox;
@@ -68,9 +71,16 @@ export async function getWorkDir(sandbox) {
 export async function exec(
   sandbox,
   command,
-  { cwd, timeoutSec = 900, display, quiet = false, allowFailure = false } = {}
+  {
+    cwd,
+    timeoutSec = 900,
+    display,
+    quiet = false,
+    allowFailure = false,
+    emit = defaultEmit,
+  } = {}
 ) {
-  if (!quiet) console.log(`\n$ ${display ?? command}`);
+  if (!quiet) emit("cmd", display ?? command);
   const res = await sandbox.process.executeCommand(
     command,
     cwd,
@@ -78,7 +88,7 @@ export async function exec(
     timeoutSec
   );
   const output = res.result ?? res.artifacts?.stdout ?? "";
-  if (output && !quiet) process.stdout.write(output.endsWith("\n") ? output : output + "\n");
+  if (output && !quiet) emit("stdout", output.endsWith("\n") ? output : output + "\n");
   if (res.exitCode !== 0 && !allowFailure) {
     throw new Error(
       `Command failed (exit ${res.exitCode}): ${display ?? command}`
@@ -91,14 +101,19 @@ export async function exec(
  * Write a UTF-8 file into the sandbox without any shell-escaping headaches by
  * base64-encoding the content locally and decoding it inside the sandbox.
  */
-export async function writeFileInSandbox(sandbox, remotePath, content, { cwd } = {}) {
+export async function writeFileInSandbox(
+  sandbox,
+  remotePath,
+  content,
+  { cwd, emit = defaultEmit } = {}
+) {
   const b64 = Buffer.from(content, "utf8").toString("base64");
   const dir = remotePath.replace(/\/[^/]*$/, "");
   const mkdir = dir && dir !== remotePath ? `mkdir -p "${dir}" && ` : "";
   await exec(
     sandbox,
     `${mkdir}printf '%s' '${b64}' | base64 -d > "${remotePath}"`,
-    { cwd, display: `write ${remotePath}`, quiet: true }
+    { cwd, display: `write ${remotePath}`, quiet: true, emit }
   );
 }
 
@@ -109,9 +124,9 @@ export async function writeFileInSandbox(sandbox, remotePath, content, { cwd } =
 export async function execStream(
   sandbox,
   command,
-  { cwd, timeoutSec = 3600, display } = {}
+  { cwd, timeoutSec = 3600, display, emit = defaultEmit } = {}
 ) {
-  console.log(`\n$ ${display ?? command}`);
+  emit("cmd", display ?? command);
   const sessionId = `solve-${Date.now().toString(36)}-${Math.random()
     .toString(36)
     .slice(2, 8)}`;
@@ -131,11 +146,11 @@ export async function execStream(
       .getSessionCommandLogs(
         sessionId,
         cmdId,
-        (chunk) => process.stdout.write(chunk),
-        (chunk) => process.stderr.write(chunk)
+        (chunk) => emit("stdout", chunk),
+        (chunk) => emit("stderr", chunk)
       )
       .catch((error) => {
-        console.warn(`\n(log stream interrupted: ${error.message})`);
+        emit("warn", `log stream interrupted: ${error.message}`);
       });
 
     const deadline = Date.now() + timeoutSec * 1000;
@@ -151,7 +166,7 @@ export async function execStream(
     }
 
     await streaming;
-    process.stdout.write("\n");
+    emit("stdout", "\n");
     return cmd.exitCode;
   } finally {
     await sandbox.process.deleteSession(sessionId).catch(() => {});
