@@ -8,8 +8,12 @@ import { cn } from "@/lib/utils";
  * Header photo with a blur-up reveal. The blurred SVG `placeholder` (a tiny
  * approximation of the photo) is painted immediately as the band background;
  * the full-resolution photo loads on top starting blurred + transparent and
- * sharpens/fades in once it decodes. Falls back gracefully if the image is
- * already cached (onLoad may not fire) by checking `complete` on mount.
+ * sharpens/fades in once it decodes.
+ *
+ * The reveal plays even when the photo is already in the browser cache (e.g.
+ * navigating to an eval page after it loaded on the homepage). In that case
+ * `onLoad` never fires, so we detect `complete` on mount and defer the reveal
+ * one paint — the blurred placeholder shows first, then transitions in.
  */
 export function HeaderImage({
   src,
@@ -25,8 +29,20 @@ export function HeaderImage({
 
   React.useEffect(() => {
     const img = ref.current;
-    if (img?.complete && img.naturalWidth > 0) setLoaded(true);
-  }, []);
+    if (!img || loaded) return;
+    if (img.complete && img.naturalWidth > 0) {
+      // Cached: paint the blurred state for a frame, then transition in so the
+      // blur-up is visible instead of popping instantly.
+      let inner = 0;
+      const outer = requestAnimationFrame(() => {
+        inner = requestAnimationFrame(() => setLoaded(true));
+      });
+      return () => {
+        cancelAnimationFrame(outer);
+        cancelAnimationFrame(inner);
+      };
+    }
+  }, [loaded]);
 
   return (
     <>
@@ -34,7 +50,7 @@ export function HeaderImage({
         <div
           aria-hidden
           className={cn(
-            "pointer-events-none absolute inset-0 bg-cover bg-center transition-opacity duration-700",
+            "pointer-events-none absolute inset-0 bg-cover bg-center transition-opacity duration-200",
             loaded ? "opacity-0" : "opacity-100"
           )}
           style={{ backgroundImage: `url("${placeholder}")` }}
@@ -50,7 +66,7 @@ export function HeaderImage({
         decoding="async"
         onLoad={() => setLoaded(true)}
         className={cn(
-          "absolute inset-0 h-full w-full object-cover transition-[opacity,filter] duration-700 ease-out",
+          "absolute inset-0 h-full w-full object-cover transition-[opacity,filter] duration-200 ease-out",
           loaded ? "opacity-100 blur-0" : "opacity-0 blur-md"
         )}
       />
