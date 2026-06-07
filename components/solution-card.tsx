@@ -13,7 +13,7 @@ type GlobuleVars = React.CSSProperties & {
 };
 
 /**
- * Gallery card for a single solution. The HTML artifact renders as a heavily
+ * Gallery card for a single solution. The HTML artifact renders as a lightly
  * frosted backdrop (it clears a little on hover), while the model identity —
  * a large logo plate and the model name — is the hero of the card. The whole
  * card links to the solution page (where it opens full-screen).
@@ -61,8 +61,8 @@ export function SolutionCard({
         <div className="absolute inset-0" style={placeholderStyle} />
       )}
 
-      {/* Heavy frost: the artifact is just a textured backdrop. Clears a touch on hover. */}
-      <div className="absolute inset-0 bg-paper/70 backdrop-blur-lg transition duration-300 group-hover:bg-paper/40 group-hover:backdrop-blur-md group-focus-visible:bg-paper/40" />
+      {/* Frosted backdrop over the artifact. Clears a touch on hover. */}
+      <div className="absolute inset-0 bg-paper/60 backdrop-blur-md transition duration-300 group-hover:bg-paper/35 group-hover:backdrop-blur-sm group-focus-visible:bg-paper/35" />
 
       {type ? (
         <Badge variant="soft" className="absolute right-3 top-3 z-10">
