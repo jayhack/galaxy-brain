@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { GithubIcon } from "@/components/icons";
 import { MarkdownContent } from "@/components/markdown-content";
 import { CopyButton } from "@/components/copy-button";
-import { SolutionCard } from "@/components/solution-card";
+import { SolutionTable } from "@/components/solution-table";
 import { CollapsibleSection } from "@/components/collapsible-section";
 import { EvalArt } from "@/components/eval-art";
 import { Globule } from "@/components/globule";
@@ -123,11 +123,7 @@ export default async function EvalPage({
             No solutions submitted yet.
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {ev.solutions.map((s) => (
-              <SolutionCard key={s.slug} ev={ev} sol={s} globule={globule} />
-            ))}
-          </div>
+          <SolutionTable ev={ev} />
         )}
       </section>
 
