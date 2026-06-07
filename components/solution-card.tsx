@@ -1,7 +1,7 @@
 import * as React from "react";
 import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import { HarnessIcon } from "@/components/icons";
 import { artifactHref, type Eval, type Solution } from "@/lib/content";
 import { harnessLogoKind, type Globule } from "@/lib/globules";
@@ -13,9 +13,9 @@ type GlobuleVars = React.CSSProperties & {
 
 /**
  * Gallery card for a single solution. A black surface letterboxes the HTML
- * artifact, which renders front-and-center under only a whisper of blur (it
- * clears entirely on hover). The model identity — harness logo + name — sits in
- * a bottom bar over a dark gradient so it stays legible against any artifact.
+ * artifact, which renders front-and-center. The model identity — harness logo
+ * + name — sits in a solid black bottom bar so it stays legible against any
+ * artifact.
  * The whole card links to the solution page.
  */
 export function SolutionCard({
@@ -30,7 +30,6 @@ export function SolutionCard({
   const artifact = artifactHref(sol.artifactUrl);
   const hasIcon = harnessLogoKind(sol.harness) != null;
   const short = sol.harnessShort || sol.harness.split("-")[0];
-  const type = sol.tech?.[0] || (sol.artifactUrl ? "html" : "");
 
   const placeholderStyle: GlobuleVars | undefined = globule
     ? {
@@ -47,6 +46,7 @@ export function SolutionCard({
       href={`/eval/${ev.slug}/${sol.slug}`}
       aria-label={`${sol.slug} solution`}
       className="group relative flex aspect-[16/9] w-full scroll-mt-24 flex-col overflow-hidden rounded-md border border-ink bg-ink no-underline"
+      style={{ clipPath: "inset(0 round 10px)" }}
     >
       {artifact ? (
         <iframe
@@ -62,21 +62,14 @@ export function SolutionCard({
         <div className="absolute inset-0" style={placeholderStyle} />
       )}
 
-      {/* Whisper of blur over the artifact so it reads as the hero; clears on hover. */}
       {artifact ? (
-        <div className="absolute inset-0 backdrop-blur-[2px] transition duration-300 group-hover:backdrop-blur-0 group-focus-visible:backdrop-blur-0" />
+        <div className="absolute inset-0 z-[1] transition duration-200 group-hover:backdrop-blur-[1px] group-focus-visible:backdrop-blur-[1px]" />
       ) : null}
 
-      {type ? (
-        <Badge variant="soft" className="absolute right-3 top-3 z-10 shadow-sm">
-          {type}
-        </Badge>
-      ) : null}
-
-      {/* Model identity, anchored to the bottom over a dark gradient. */}
-      <div className="absolute inset-x-0 bottom-0 z-10 flex items-center gap-2.5 bg-gradient-to-t from-ink via-ink/80 to-transparent px-3.5 pb-3 pt-10">
+      {/* Model identity, anchored to the bottom over a solid black footer. */}
+      <div className="absolute inset-x-0 bottom-0 z-10 flex items-center gap-2.5 border-t border-paper/10 bg-ink px-3.5 py-3">
         <span
-          className="flex size-8 shrink-0 items-center justify-center rounded-full border border-paper/20 bg-paper text-ink shadow-[0_2px_10px_rgba(0,0,0,0.45)] transition-transform duration-300 group-hover:-translate-y-0.5"
+          className="flex size-8 shrink-0 items-center justify-center rounded-full border border-paper/20 bg-paper text-ink shadow-[0_2px_10px_rgba(0,0,0,0.45)]"
           title={short}
           aria-label={short}
         >
@@ -90,6 +83,10 @@ export function SolutionCard({
         </span>
         <span className="min-w-0 truncate font-sans text-sm font-semibold tracking-tight text-paper drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]">
           {sol.slug}
+        </span>
+        <span className="ml-auto hidden shrink-0 items-center gap-1.5 font-sans text-[11px] font-semibold uppercase tracking-[0.08em] text-paper/80 group-hover:flex group-focus-visible:flex">
+          open
+          <ArrowUpRight className="size-3.5" aria-hidden />
         </span>
       </div>
     </Link>
