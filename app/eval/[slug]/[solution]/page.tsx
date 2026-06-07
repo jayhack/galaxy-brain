@@ -71,10 +71,10 @@ export default async function SolutionPage({
           </span>
         ) : null}
         <div className="min-w-0">
-          <h1 className="break-words font-mono text-2xl font-bold leading-tight tracking-tight sm:text-3xl">
+          <h1 className="break-words font-sans text-2xl font-bold leading-tight tracking-tight sm:text-3xl">
             {sol.slug}
           </h1>
-          <p className="mt-1 font-mono text-sm text-ink/70">{sol.model}</p>
+          <p className="mt-1 font-sans text-sm text-ink/70">{sol.model}</p>
         </div>
       </header>
 

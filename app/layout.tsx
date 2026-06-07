@@ -9,6 +9,7 @@ import { MobileDrawer } from "@/components/mobile-drawer";
 import { SiteSidebar } from "@/components/site-sidebar";
 import { HashRedirect } from "@/components/hash-redirect";
 import { HeaderBreadcrumb } from "@/components/header-breadcrumb";
+import { GithubIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 
 const siteTitle = "galaxy-brain - agent evals";
@@ -95,9 +96,15 @@ export default function RootLayout({
                 evalTitles={evalTitles}
                 className="hidden min-w-0 lg:flex"
               />
-              <Button asChild variant="paper" size="xs">
-                <a href={repo} target="_blank" rel="noopener noreferrer">
-                  Source -&gt;
+              <Button asChild variant="ghost" size="xs" className="text-ink/70">
+                <a
+                  href={repo}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="View source on GitHub"
+                >
+                  <GithubIcon className="size-3.5" />
+                  GitHub
                 </a>
               </Button>
             </header>

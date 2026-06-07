@@ -82,12 +82,12 @@ export function SolutionCard({
           {hasIcon ? (
             <HarnessIcon harness={sol.harness} className="size-5" />
           ) : (
-            <span className="font-mono text-[11px] font-semibold uppercase">
+            <span className="font-sans text-[11px] font-semibold uppercase">
               {short.slice(0, 2)}
             </span>
           )}
         </span>
-        <span className="min-w-0 truncate font-mono text-sm font-semibold tracking-tight text-paper drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]">
+        <span className="min-w-0 truncate font-sans text-sm font-semibold tracking-tight text-paper drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]">
           {sol.slug}
         </span>
       </div>

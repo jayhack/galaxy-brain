@@ -27,12 +27,12 @@ export function SolutionRow({ ev, sol }: { ev: Eval; sol: Solution }) {
           {hasIcon ? (
             <HarnessIcon harness={sol.harness} className="size-[18px]" />
           ) : (
-            <span className="font-mono text-[11px] font-semibold uppercase">
+            <span className="font-sans text-[11px] font-semibold uppercase">
               {short.slice(0, 2)}
             </span>
           )}
         </span>
-        <span className="shrink-0 truncate font-mono text-sm font-semibold text-ink">
+        <span className="shrink-0 truncate font-sans text-sm font-semibold text-ink">
           {sol.slug}
         </span>
         <span

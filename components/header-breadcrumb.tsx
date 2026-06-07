@@ -53,7 +53,7 @@ export function HeaderBreadcrumb({
 
   return (
     <Breadcrumb className={cn("min-w-0", className)}>
-      <BreadcrumbList className="flex-nowrap gap-1.5 font-mono text-xs tracking-[0.06em] sm:gap-2">
+      <BreadcrumbList className="flex-nowrap gap-1.5 font-sans text-xs tracking-[0.02em] sm:gap-2">
         {crumbs.map((c, i) => {
           const isLast = i === crumbs.length - 1;
           return (

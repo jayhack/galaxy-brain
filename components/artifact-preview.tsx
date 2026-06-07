@@ -86,7 +86,7 @@ export function ArtifactPreview({
           aria-label={`${title} (full screen)`}
         >
           <div className="flex items-center justify-between gap-3">
-            <span className="min-w-0 truncate font-mono text-xs uppercase tracking-[0.16em] text-paper/90">
+            <span className="min-w-0 truncate font-sans text-xs font-semibold uppercase tracking-[0.12em] text-paper/90">
               {title}
             </span>
             <div className="flex shrink-0 items-center gap-2">

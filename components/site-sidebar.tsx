@@ -15,7 +15,7 @@ export function SiteSidebar({ evals }: { evals: EvalNavItem[] }) {
           <span className="flex min-w-0 flex-1 flex-col">
             <span className="logo-wordmark truncate">galaxy-brain</span>
             <span className="mono-label truncate opacity-70">
-              A collection of agent evals
+              curated agent evals
             </span>
           </span>
         </Link>
