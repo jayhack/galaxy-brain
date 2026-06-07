@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Glass Current</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #000;
+      --text: #effafc;
+      --muted: #92a8b2;
+      --accent: #75efff;
+      --panel: rgba(6, 12, 18, 0.72);
+      --line: rgba(123, 215, 243, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 40%, rgba(23, 41, 52, 0.38), rgba(0, 0, 0, 0) 42%),
+        linear-gradient(180deg, #020407 0%, #000 55%, #000 100%);
+      color: var(--text);
+      font-family: Inter, "Avenir Next", "Trebuchet MS", system-ui, sans-serif;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 50% 35%, rgba(122, 237, 255, 0.06), transparent 22%),
+        radial-gradient(circle at 50% 80%, rgba(61, 173, 207, 0.08), transparent 32%);
+      mix-blend-mode: screen;
+    }
+
+    #stage {
+      position: fixed;
+      inset: 0;
+      cursor: grab;
+    }
+
+    #stage.dragging {
+      cursor: grabbing;
+    }
+
+    .hud {
+      position: fixed;
+      left: 18px;
+      top: 18px;
+      z-index: 10;
+      width: min(390px, calc(100vw - 36px));
+      padding: 16px 16px 14px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: linear-gradient(180deg, rgba(10, 20, 29, 0.86), rgba(4, 8, 12, 0.72));
+      backdrop-filter: blur(16px);
+      box-shadow:
+        0 24px 54px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      color: var(--accent);
+      font-size: 11px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 24px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent));
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(29px, 4vw, 39px);
+      line-height: 0.94;
+      letter-spacing: 0.01em;
+    }
+
+    .copy {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+      max-width: 34ch;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .card {
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      background: rgba(4, 10, 16, 0.52);
+    }
+
+    .label {
+      margin: 0 0 4px;
+      color: #86aebd;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .value {
+      margin: 0;
+      font-size: 14px;
+      color: #f2fdff;
+      line-height: 1.35;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 16px;
+      color: #001018;
+      background: linear-gradient(135deg, #c3f8ff, #56dcf4);
+      box-shadow:
+        0 10px 30px rgba(86, 220, 244, 0.26),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:hover {
+      filter: brightness(1.05);
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(125, 228, 255, 0.22);
+      background: rgba(2, 10, 16, 0.62);
+      color: #d9fbff;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .pill::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, #fff, #7cecff 50%, #0684b7 100%);
+      box-shadow: 0 0 12px rgba(124, 236, 255, 0.75);
+    }
+
+    .error {
+      position: fixed;
+      inset: auto 18px 18px;
+      z-index: 20;
+      max-width: 460px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(248, 113, 113, 0.34);
+      background: rgba(38, 9, 11, 0.9);
+      color: #fee2e2;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 760px) {
+      .hud {
+        left: 12px;
+        top: 12px;
+        width: calc(100vw - 24px);
+      }
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+</head>
+<body>
+  <div id="stage" aria-label="3D fish tank water simulation"></div>
+  <section class="hud">
+    <div class="eyebrow">Reactive fluid study</div>
+    <h1>Glass Current</h1>
+    <p class="copy">
+      A black-stage fish tank: water starts above the cube, streams in, fills a visible volume,
+      then keeps sloshing when you disturb it with the mouse.
+    </p>
+    <div class="grid">
+      <div class="card">
+        <p class="label">Camera</p>
+        <p class="value">Drag orbit, wheel zoom</p>
+      </div>
+      <div class="card">
+        <p class="label">Water</p>
+        <p class="value">Pour, fill, slosh, and bounce</p>
+      </div>
+    </div>
+    <div class="actions">
+      <button id="resetButton" type="button">Reset</button>
+      <span id="statusPill" class="pill">Pouring</span>
+    </div>
+  </section>
+
+  <script>
+    (() => {
+      function showError(message) {
+        const node = document.createElement("div");
+        node.className = "error";
+        node.textContent = message;
+        document.body.appendChild(node);
+      }
+
+      if (!window.THREE) {
+        showError("Three.js failed to load from the CDN. Reload with network access to view the simulation.");
+        return;
+      }
+
+      const stage = document.getElementById("stage");
+      const resetButton = document.getElementById("resetButton");
+      const statusPill = document.getElementById("statusPill");
+
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x000000);
+      scene.fog = new THREE.Fog(0x000000, 6.5, 13);
+
+      const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.05, 50);
+      camera.position.set(4.2, 1.7, 4.1);
+
+      const renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        powerPreference: "high-performance",
+      });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.physicallyCorrectLights = true;
+      if ("outputColorSpace" in renderer) {
+        renderer.outputColorSpace = THREE.SRGBColorSpace;
+      } else {
+        renderer.outputEncoding = THREE.sRGBEncoding;
+      }
+      stage.appendChild(renderer.domElement);
+
+      const root = new THREE.Group();
+      scene.add(root);
+
+      const ambient = new THREE.AmbientLight(0xa8dff5, 0.22);
+      scene.add(ambient);
+
+      const key = new THREE.DirectionalLight(0xb9efff, 2.2);
+      key.position.set(-2.4, 4.4, 2.8);
+      scene.add(key);
+
+      const fill = new THREE.PointLight(0x56dcf4, 3.2, 12, 2);
+      fill.position.set(0.2, 0.45, 0.15);
+      scene.add(fill);
+
+      const rim = new THREE.PointLight(0xcafaff, 1.5, 10, 2);
+      rim.position.set(0, 2.4, -2.2);
+      scene.add(rim);
+
+      const tank = new THREE.Group();
+      root.add(tank);
+
+      const INNER = 2.0;
+      const OUTER = 2.44;
+      const WALL = (OUTER - INNER) * 0.5;
+      const HEIGHT = 2.16;
+      const BOTTOM = -HEIGHT * 0.5;
+      const TOP = HEIGHT * 0.5;
+      const INNER_HALF = INNER * 0.5;
+      const TANK_Y = -0.02;
+
+      tank.position.y = TANK_Y;
+
+      function makeGlassMaterial(extraOpacity) {
+        return new THREE.MeshPhysicalMaterial({
+          color: 0xffffff,
+          metalness: 0,
+          roughness: 0.03,
+          transmission: 0.98,
+          thickness: 0.18,
+          ior: 1.52,
+          transparent: true,
+          opacity: extraOpacity,
+          depthWrite: false,
+          side: THREE.DoubleSide,
+        });
+      }
+
+      function addPanel(width, height, x, y, z, rx, ry, rz, opacity) {
+        const mesh = new THREE.Mesh(
+          new THREE.PlaneGeometry(width, height),
+          makeGlassMaterial(opacity)
+        );
+        mesh.position.set(x, y, z);
+        mesh.rotation.set(rx, ry, rz);
+        mesh.renderOrder = 30;
+        tank.add(mesh);
+        return mesh;
+      }
+
+      addPanel(INNER, HEIGHT, 0, 0, -INNER_HALF - WALL * 0.46, 0, 0, 0, 0.08);
+      addPanel(INNER, HEIGHT, 0, 0, INNER_HALF + WALL * 0.46, 0, Math.PI, 0, 0.08);
+      addPanel(INNER, HEIGHT, -INNER_HALF - WALL * 0.46, 0, 0, 0, Math.PI / 2, 0, 0.08);
+      addPanel(INNER, HEIGHT, INNER_HALF + WALL * 0.46, 0, 0, 0, -Math.PI / 2, 0, 0.08);
+      addPanel(INNER, INNER, 0, BOTTOM, 0, -Math.PI / 2, 0, 0, 0.07);
+
+      const frameGeo = new THREE.EdgesGeometry(new THREE.BoxGeometry(OUTER, HEIGHT, OUTER));
+      const frame = new THREE.LineSegments(
+        frameGeo,
+        new THREE.LineBasicMaterial({
+          color: 0xbdedff,
+          transparent: true,
+          opacity: 0.82,
+        })
+      );
+      frame.renderOrder = 40;
+      tank.add(frame);
+
+      const basePad = new THREE.Mesh(
+        new THREE.BoxGeometry(OUTER + 0.35, 0.08, OUTER + 0.35),
+        new THREE.MeshStandardMaterial({
+          color: 0x050505,
+          roughness: 0.95,
+          metalness: 0.15,
+        })
+      );
+      basePad.position.y = BOTTOM - 0.05;
+      root.add(basePad);
+
+      const baseGlow = new THREE.Mesh(
+        new THREE.CylinderGeometry(1.55, 1.8, 0.06, 48),
+        new THREE.MeshBasicMaterial({
+          color: 0x144455,
+          transparent: true,
+          opacity: 0.18,
+        })
+      );
+      baseGlow.position.y = BOTTOM - 0.07;
+      root.add(baseGlow);
+
+      const GRID = 58;
+      const waterWidth = INNER * 0.965;
+      const waterDepth = INNER * 0.965;
+      const waterGeo = new THREE.PlaneGeometry(waterWidth, waterDepth, GRID - 1, GRID - 1);
+      const waterPos = waterGeo.attributes.position;
+
+      const waveH = new Float32Array(GRID * GRID);
+      const waveV = new Float32Array(GRID * GRID);
+      const tempForce = new Float32Array(GRID * GRID);
+
+      const waterSurface = new THREE.Mesh(
+        waterGeo,
+        new THREE.MeshPhysicalMaterial({
+          color: 0x38d9ff,
+          roughness: 0.05,
+          metalness: 0.03,
+          transmission: 0.18,
+          thickness: 0.18,
+          ior: 1.33,
+          transparent: true,
+          opacity: 0.76,
+          clearcoat: 0.1,
+          clearcoatRoughness: 0.2,
+          side: THREE.DoubleSide,
+          depthWrite: false,
+        })
+      );
+      waterSurface.rotation.x = -Math.PI / 2;
+      waterSurface.renderOrder = 10;
+      tank.add(waterSurface);
+
+      const waterBody = new THREE.Mesh(
+        new THREE.BoxGeometry(INNER * 0.965, 1, INNER * 0.965),
+        new THREE.MeshStandardMaterial({
+          color: 0x1098c2,
+          roughness: 0.12,
+          metalness: 0.02,
+          transparent: true,
+          opacity: 0.26,
+          emissive: 0x0a4052,
+          emissiveIntensity: 0.3,
+          depthWrite: false,
+        })
+      );
+      waterBody.renderOrder = 8;
+      tank.add(waterBody);
+
+      const caustic = new THREE.Mesh(
+        new THREE.PlaneGeometry(INNER * 0.93, INNER * 0.93, 1, 1),
+        new THREE.MeshBasicMaterial({
+          color: 0x71f2ff,
+          transparent: true,
+          opacity: 0.1,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+        })
+      );
+      caustic.position.y = BOTTOM + 0.06;
+      caustic.rotation.x = -Math.PI / 2;
+      caustic.renderOrder = 5;
+      tank.add(caustic);
+
+      const streamTube = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.06, 0.03, HEIGHT + 1.55, 14, 1, true),
+        new THREE.MeshPhysicalMaterial({
+          color: 0x90f2ff,
+          transmission: 0.56,
+          roughness: 0.08,
+          thickness: 0.26,
+          transparent: true,
+          opacity: 0.96,
+          depthWrite: false,
+        })
+      );
+      streamTube.visible = true;
+      streamTube.renderOrder = 12;
+      streamTube.position.y = TOP - 0.02;
+      tank.add(streamTube);
+
+      const dropCount = 240;
+      const dropPositions = new Float32Array(dropCount * 3);
+      const dropGeo = new THREE.BufferGeometry();
+      dropGeo.setAttribute("position", new THREE.BufferAttribute(dropPositions, 3));
+      const drops = new THREE.Points(
+        dropGeo,
+        new THREE.PointsMaterial({
+          color: 0xb7f8ff,
+          size: 0.04,
+          transparent: true,
+          opacity: 0.88,
+          depthWrite: false,
+          sizeAttenuation: true,
+          blending: THREE.AdditiveBlending,
+        })
+      );
+      drops.renderOrder = 13;
+      tank.add(drops);
+
+      const pointer = new THREE.Vector2();
+      const raycaster = new THREE.Raycaster();
+      const hitPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+      const hitPoint = new THREE.Vector3();
+      const localHit = new THREE.Vector3();
+      const prevHit = new THREE.Vector3();
+      const scratch = new THREE.Vector3();
+
+      const cameraTarget = new THREE.Vector3(0, 0.08, 0);
+      let cameraRadius = 5.0;
+      let cameraYaw = 0.86;
+      let cameraPitch = 0.44;
+      let drag = false;
+      let dragStartX = 0;
+      let dragStartY = 0;
+      let dragStartYaw = 0;
+      let dragStartPitch = 0;
+
+      const state = {
+        time: 0,
+        fill: 0,
+        pourActive: true,
+        pointerArmed: false,
+        lastPointerX: 0,
+        lastPointerY: 0,
+        lastPointerHitX: 0,
+        lastPointerHitZ: 0,
+        status: "Pouring",
+      };
+
+      const WAVE_SPEED = 2.8;
+      const WAVE_DAMP = 1.28;
+      const POUR_DURATION = 4.45;
+      const FINAL_FILL = 0.84;
+      const SOURCE_RADIUS = 0.28;
+      const SOURCE_FORCE = 2.25;
+      const MOUSE_FORCE = 3.5;
+
+      function index(i, j) {
+        return i + j * GRID;
+      }
+
+      function setStatus(text) {
+        state.status = text;
+        statusPill.textContent = text;
+      }
+
+      function resetSimulation() {
+        state.time = 0;
+        state.fill = 0;
+        state.pourActive = true;
+        state.pointerArmed = false;
+        setStatus("Pouring");
+
+        for (let i = 0; i < waveH.length; i += 1) {
+          waveH[i] = 0;
+          waveV[i] = 0;
+          tempForce[i] = 0;
+        }
+
+        for (let i = 0; i < dropCount; i += 1) {
+          const base = i * 3;
+          dropPositions[base] = 0;
+          dropPositions[base + 1] = TOP + 0.9 + (i % 9) * 0.02;
+          dropPositions[base + 2] = 0;
+        }
+        drops.geometry.attributes.position.needsUpdate = true;
+        waterSurface.visible = false;
+        waterBody.visible = false;
+        streamTube.visible = true;
+        caustic.visible = false;
+      }
+
+      function applyImpulse(x, z, force, radius) {
+        const minX = -INNER_HALF;
+        const minZ = -INNER_HALF;
+        const spanX = INNER;
+        const spanZ = INNER;
+        const cx = (x - minX) / spanX;
+        const cz = (z - minZ) / spanZ;
+        const centerI = Math.round(cx * (GRID - 1));
+        const centerJ = Math.round(cz * (GRID - 1));
+        const cells = Math.ceil((radius / INNER) * GRID * 1.35);
+
+        for (let j = Math.max(1, centerJ - cells); j < Math.min(GRID - 1, centerJ + cells); j += 1) {
+          for (let i = Math.max(1, centerI - cells); i < Math.min(GRID - 1, centerI + cells); i += 1) {
+            const dx = (i - centerI) / cells;
+            const dz = (j - centerJ) / cells;
+            const falloff = Math.exp(-(dx * dx + dz * dz) * 2.9);
+            const k = index(i, j);
+            const wobble = (Math.sin((i + j) * 0.45 + state.time * 5) * 0.2 + 0.8);
+            waveV[k] += force * falloff * wobble;
+            tempForce[k] += force * falloff * 0.22;
+          }
+        }
+      }
+
+      function updateWaveField(dt) {
+        const stiffness = WAVE_SPEED * WAVE_SPEED;
+        for (let j = 1; j < GRID - 1; j += 1) {
+          for (let i = 1; i < GRID - 1; i += 1) {
+            const k = index(i, j);
+            const lap =
+              waveH[index(i - 1, j)] +
+              waveH[index(i + 1, j)] +
+              waveH[index(i, j - 1)] +
+              waveH[index(i, j + 1)] -
+              4 * waveH[k];
+            waveV[k] += lap * stiffness * dt * 1.18;
+            waveV[k] += tempForce[k] * dt;
+            waveV[k] *= Math.exp(-WAVE_DAMP * dt);
+            waveH[k] += waveV[k] * dt;
+            waveH[k] *= 0.995;
+            tempForce[k] *= Math.exp(-4.2 * dt);
+          }
+        }
+
+        for (let i = 0; i < GRID; i += 1) {
+          waveH[index(i, 0)] = 0;
+          waveH[index(i, GRID - 1)] = 0;
+          waveV[index(i, 0)] = 0;
+          waveV[index(i, GRID - 1)] = 0;
+        }
+        for (let j = 0; j < GRID; j += 1) {
+          waveH[index(0, j)] = 0;
+          waveH[index(GRID - 1, j)] = 0;
+          waveV[index(0, j)] = 0;
+          waveV[index(GRID - 1, j)] = 0;
+        }
+      }
+
+      function updateSurfaceGeometry(fillLevel) {
+        const positions = waterGeo.attributes.position;
+        const halfWidth = waterWidth * 0.5;
+        const halfDepth = waterDepth * 0.5;
+        const topY = BOTTOM + HEIGHT * fillLevel;
+        const level = THREE.MathUtils.clamp(fillLevel, 0.01, 0.995);
+        const amplitude = 0.18 * level * (1 - level * 0.35);
+
+        for (let j = 0; j < GRID; j += 1) {
+          for (let i = 0; i < GRID; i += 1) {
+            const k = index(i, j);
+            const x = -halfWidth + (i / (GRID - 1)) * waterWidth;
+            const z = -halfDepth + (j / (GRID - 1)) * waterDepth;
+            positions.setXYZ(k, x, z, topY + waveH[k] * amplitude);
+          }
+        }
+
+        positions.needsUpdate = true;
+        waterGeo.computeVertexNormals();
+      }
+
+      function updateBody(fillLevel) {
+        const bodyScale = Math.max(fillLevel, 0.01);
+        const bodyHeight = HEIGHT * bodyScale;
+        waterBody.scale.set(1, bodyHeight, 1);
+        waterBody.position.y = BOTTOM + bodyHeight * 0.5;
+        waterBody.visible = fillLevel > 0.02;
+
+        const capY = BOTTOM + HEIGHT * fillLevel;
+        waterSurface.position.y = 0;
+        waterSurface.visible = fillLevel > 0.02;
+        waterSurface.material.opacity = THREE.MathUtils.clamp(0.2 + fillLevel * 0.72, 0.18, 0.82);
+        caustic.position.y = BOTTOM + 0.06 + Math.sin(state.time * 2.6) * 0.01;
+        caustic.material.opacity = 0.05 + fillLevel * 0.06;
+        caustic.visible = fillLevel > 0.08;
+        fill.position.y = BOTTOM + bodyHeight * 0.5;
+        rim.intensity = 1.2 + fillLevel * 0.8;
+        return capY;
+      }
+
+      function updatePourVisual(capY, dt) {
+        const sourceTop = TOP + 1.45;
+        const sourceBottom = Math.max(capY + 0.05, BOTTOM + 0.28);
+        const t = Math.min(state.time / POUR_DURATION, 1);
+        const swirl = Math.sin(state.time * 5.3) * 0.025;
+        streamTube.position.set(swirl * 0.32, (sourceTop + sourceBottom) * 0.5, -swirl * 0.24);
+        streamTube.scale.y = Math.max(0.2, (sourceTop - sourceBottom) / (HEIGHT + 1.55));
+        streamTube.scale.x = 1 + Math.sin(state.time * 9.4) * 0.08;
+        streamTube.scale.z = 1 + Math.cos(state.time * 8.1) * 0.05;
+        streamTube.material.opacity = 0.65 + t * 0.33;
+        streamTube.visible = state.pourActive;
+
+        const points = drops.geometry.attributes.position.array;
+        for (let i = 0; i < dropCount; i += 1) {
+          const phase = (i / dropCount + state.time * 1.85) % 1;
+          const curveT = phase;
+          const y = THREE.MathUtils.lerp(sourceTop, sourceBottom, curveT);
+          const sway = Math.sin(i * 0.57 + state.time * 10.5) * 0.05;
+          const flutter = Math.cos(i * 1.31 + state.time * 7.2) * 0.035;
+          points[i * 3] = sway;
+          points[i * 3 + 1] = y;
+          points[i * 3 + 2] = flutter;
+        }
+        drops.geometry.attributes.position.needsUpdate = true;
+
+        if (state.pourActive) {
+          const force = (0.5 + t * 0.5) * dt * SOURCE_FORCE;
+          applyImpulse(0, 0, force * 0.58, SOURCE_RADIUS);
+        }
+      }
+
+      function updateMouseDisturbance(event) {
+        pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+        pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        raycaster.setFromCamera(pointer, camera);
+        hitPlane.set(new THREE.Vector3(0, 1, 0), -(BOTTOM + HEIGHT * Math.max(state.fill, 0.02)));
+        if (!raycaster.ray.intersectPlane(hitPlane, hitPoint)) {
+          state.pointerArmed = false;
+          return;
+        }
+
+        localHit.copy(hitPoint);
+        if (Math.abs(localHit.x) <= INNER_HALF && Math.abs(localHit.z) <= INNER_HALF) {
+          const dx = localHit.x - state.lastPointerHitX;
+          const dz = localHit.z - state.lastPointerHitZ;
+          const speed = Math.min(1.2, Math.sqrt(dx * dx + dz * dz) * 18);
+          if (state.pointerArmed) {
+            applyImpulse(localHit.x, localHit.z, (0.26 + speed * 0.38) * MOUSE_FORCE, 0.24 + speed * 0.18);
+          }
+          state.lastPointerHitX = localHit.x;
+          state.lastPointerHitZ = localHit.z;
+          state.pointerArmed = true;
+        } else {
+          state.pointerArmed = false;
+        }
+      }
+
+      stage.addEventListener("pointerdown", (event) => {
+        drag = true;
+        stage.classList.add("dragging");
+        dragStartX = event.clientX;
+        dragStartY = event.clientY;
+        dragStartYaw = cameraYaw;
+        dragStartPitch = cameraPitch;
+        stage.setPointerCapture(event.pointerId);
+      });
+
+      stage.addEventListener("pointermove", (event) => {
+        if (drag) {
+          const dx = (event.clientX - dragStartX) / Math.min(window.innerWidth, window.innerHeight);
+          const dy = (event.clientY - dragStartY) / Math.min(window.innerWidth, window.innerHeight);
+          cameraYaw = dragStartYaw - dx * Math.PI * 1.4;
+          cameraPitch = THREE.MathUtils.clamp(dragStartPitch - dy * Math.PI * 1.1, -0.06, 1.16);
+        } else {
+          updateMouseDisturbance(event);
+        }
+      });
+
+      stage.addEventListener("pointerup", (event) => {
+        drag = false;
+        stage.classList.remove("dragging");
+        try {
+          stage.releasePointerCapture(event.pointerId);
+        } catch (error) {
+          void error;
+        }
+      });
+
+      stage.addEventListener("pointerleave", () => {
+        state.pointerArmed = false;
+      });
+
+      stage.addEventListener("wheel", (event) => {
+        event.preventDefault();
+        const zoom = Math.sign(event.deltaY);
+        cameraRadius = THREE.MathUtils.clamp(cameraRadius * (zoom > 0 ? 1.08 : 0.94), 2.9, 8.6);
+      }, { passive: false });
+
+      window.addEventListener("resize", () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+      });
+
+      resetButton.addEventListener("click", resetSimulation);
+
+      resetSimulation();
+
+      const clock = new THREE.Clock();
+      let last = performance.now();
+
+      function updateCamera() {
+        const pitch = cameraPitch;
+        const yaw = cameraYaw;
+        const radius = cameraRadius;
+        const cosPitch = Math.cos(pitch);
+        camera.position.set(
+          cameraTarget.x + Math.cos(yaw) * cosPitch * radius,
+          cameraTarget.y + Math.sin(pitch) * radius + 0.1,
+          cameraTarget.z + Math.sin(yaw) * cosPitch * radius
+        );
+        camera.lookAt(cameraTarget);
+      }
+
+      function animate(now) {
+        requestAnimationFrame(animate);
+        const rawDt = Math.min(0.033, (now - last) / 1000 || clock.getDelta());
+        last = now;
+
+        state.time += rawDt;
+
+        const pourT = Math.min(state.time / POUR_DURATION, 1);
+        const targetFill = THREE.MathUtils.lerp(0.02, FINAL_FILL, 1 - Math.pow(1 - pourT, 2.1));
+        state.fill += (targetFill - state.fill) * (1 - Math.exp(-rawDt * 0.9));
+
+        if (state.time >= POUR_DURATION && state.pourActive) {
+          state.pourActive = false;
+          setStatus("Sloshing");
+        }
+
+        updatePourVisual(BOTTOM + HEIGHT * state.fill, rawDt);
+        updateWaveField(rawDt);
+        updateSurfaceGeometry(state.fill);
+        const capY = updateBody(state.fill);
+        updateCamera();
+
+        if (!state.pourActive) {
+          applyImpulse(0, 0, Math.sin(state.time * 2.4) * 0.003, 0.18);
+          applyImpulse(Math.sin(state.time * 0.7) * 0.18, Math.cos(state.time * 0.6) * 0.12, 0.0025, 0.08);
+        }
+
+        frame.material.opacity = 0.72 - state.fill * 0.08;
+        rim.position.y = 0;
+        baseGlow.material.opacity = 0.16 + state.fill * 0.05;
+        drops.position.y = 0;
+
+        renderer.render(scene, camera);
+      }
+
+      requestAnimationFrame(animate);
+    })();
+  </script>
+</body>
+</html>
