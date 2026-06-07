@@ -63,6 +63,29 @@
             "score": null
           },
           "notes": "Open `sweats-dossier/codex-gpt-5-5-xhigh/index.html` directly, or use the mirrored artifact at `./artifacts/sweats-dossier/codex-gpt-5-5-xhigh.html`."
+        },
+        {
+          "slug": "cursor-composer-2-5",
+          "harness": "cursor",
+          "model": "composer-2-5",
+          "projectName": "fabric-os",
+          "summary": "A self-contained editorial lookbook, 'Fabric OS', that frames high-quality sweats as modular wardrobe infrastructure for Jay Hack. Opens with a dossier tying his public profile (Head of AI @ ClickUp; founder of Codegen and Mira AI; ex-Palantir; Stanford CS/AI; @mathemagic1an) to a composable-stack thesis, then presents 7 picks across 7 houses — James Perse (the exact piped track pant he linked), Fear of God Essentials, Reigning Champ, Lady White Co., Merz b. Schwanen, Auralee, and Sunspel — each with brand, price, link, fabric/construction note, a product image, and a Jay-specific reason. Two hand-built SVG charts plus a role-labeled spec table make the picks comparable, and a 'deploy' closer proposes a 3-module starter stack.",
+          "tech": [
+            "html",
+            "css",
+            "svg",
+            "research",
+            "lookbook"
+          ],
+          "submittedAt": "2026-06-05",
+          "artifactUrl": "./artifacts/sweats-dossier/cursor-composer-2-5.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a self-contained index.html (images load from a local images/ folder, so it renders fully offline) and mirrors a single-file, base64-embedded copy under docs/artifacts and public/artifacts for one-click review. Leads with an opinionated thesis, presents 7 specific products each with a real product image, brand, price, link, fabric note, and a reason grounded in researched facts about Jay, and includes two SVG comparison charts plus a spec table.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `sweats-dossier/cursor-composer-2-5/index.html` directly in a desktop browser, or use the mirrored artifact at `./artifacts/sweats-dossier/cursor-composer-2-5.html`."
         }
       ]
     },
