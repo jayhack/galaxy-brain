@@ -228,19 +228,18 @@
 }
 
 /* ===== TYPOGRAPHY ================================================= */
-.hero-wordmark {
+.hero-title {
   font-family: var(--font-display);
   font-weight: 600;
   letter-spacing: -0.02em;
-  line-height: 1;
+  line-height: 1.08;
   color: var(--ink);
-  /* Always one line: never break (incl. at the hyphen), and scale the size
-     fluidly so the wordmark fits its grid cell from narrow phones up to wide
-     desktops without wrapping, overflowing, or being clipped. */
-  font-size: clamp(1.7rem, 5.6vw, 5rem);
-  white-space: nowrap;
-  overflow-wrap: normal;
-  word-break: keep-all;
+  /* Descriptive section title (not the literal brand wordmark): noticeably
+     smaller than the old "galaxy-brain" mark, and allowed to wrap naturally
+     across 1-2 lines. The clamp keeps it from overflowing or being clipped at
+     any width from narrow phones to wide desktops. */
+  font-size: clamp(1.55rem, 3.2vw, 2.6rem);
+  overflow-wrap: break-word;
 }
 .g-display {
   font-family: var(--font-display);

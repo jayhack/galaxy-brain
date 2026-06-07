@@ -66,17 +66,31 @@ export function Monogram({ modifier }: { modifier?: string }) {
   );
 }
 
-/** Decorative hero cluster of globules. */
-export function HeroCluster() {
-  const items = [
-    { i: 3, size: 78, pos: { right: 8, top: 0 }, extra: "" },
-    { i: 1, size: 56, pos: { right: 88, top: 34 }, extra: "zebra" },
-    { i: 2, size: 64, pos: { right: 18, top: 96 }, extra: "" },
-    { i: 4, size: 40, pos: { right: 96, top: 120 }, extra: "halftone" },
-    { i: 0, size: 30, pos: { right: 74, top: 8 }, extra: "" },
-  ];
+/**
+ * Decorative hero cluster of globules. The `compact` variant is a smaller,
+ * self-contained lockup tuned for narrow (mobile) layouts.
+ */
+export function HeroCluster({ compact = false }: { compact?: boolean }) {
+  const items = compact
+    ? [
+        { i: 3, size: 54, pos: { right: 14, top: 0 }, extra: "" },
+        { i: 1, size: 40, pos: { right: 76, top: 24 }, extra: "zebra" },
+        { i: 2, size: 46, pos: { right: 24, top: 58 }, extra: "" },
+        { i: 4, size: 28, pos: { right: 82, top: 76 }, extra: "halftone" },
+        { i: 0, size: 22, pos: { right: 62, top: 4 }, extra: "" },
+      ]
+    : [
+        { i: 3, size: 78, pos: { right: 8, top: 0 }, extra: "" },
+        { i: 1, size: 56, pos: { right: 88, top: 34 }, extra: "zebra" },
+        { i: 2, size: 64, pos: { right: 18, top: 96 }, extra: "" },
+        { i: 4, size: 40, pos: { right: 96, top: 120 }, extra: "halftone" },
+        { i: 0, size: 30, pos: { right: 74, top: 8 }, extra: "" },
+      ];
   return (
-    <div className="relative h-[190px] w-full" aria-hidden>
+    <div
+      className={cn("relative", compact ? "h-[116px] w-[136px]" : "h-[190px] w-full")}
+      aria-hidden
+    >
       {items.map(({ i, size, pos, extra }) => (
         <Globule
           key={i}
