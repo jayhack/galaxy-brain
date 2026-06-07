@@ -9,7 +9,7 @@
     {
       "slug": "sweats-dossier",
       "title": "sweats-dossier",
-      "tagline": "Research Jay Hack and ship a one-HTML personal-shopper report with curated sweats picks and comparison charts.",
+      "tagline": "Research Jay Hack and ship a one-HTML personal-shopper sweats report.",
       "description": "Find out as much as you can about Jay Hack (start at jay.ai), then ship one self-contained HTML report that opens with an opinionated thesis on what kind of sweats he should be buying and follows up with 4–8 specific picks — each with brand, price, link, fabric note, and a reason tied to something you actually learned about him. James Perse and Fear of God / Essentials set the quality bar. Include at least one chart or table so the picks are easy to compare.",
       "tags": [
         "research",
@@ -92,7 +92,7 @@
     {
       "slug": "coding-agent-ui",
       "title": "coding-agent-ui",
-      "tagline": "Build a local coding agent with a browser chat UI. Grant it file access and shell execution on your machine.",
+      "tagline": "Local coding agent with browser chat, file access, and shell execution.",
       "description": "Build an application I can run locally that runs a coding agent in the background with access to my computer (read/write files, execute shell commands), exposed via a chat interface in the browser.",
       "tags": [
         "agents",
@@ -151,7 +151,7 @@
     {
       "slug": "evading-demons",
       "title": "evading-demons",
-      "tagline": "Build a browser-playable 3D survival game in a solarpunk mall. Demons chase you as night falls over the atrium.",
+      "tagline": "3D survival in a solarpunk mall as demons hunt you at night.",
       "description": "Build a JavaScript browser game with a third-person character, a solarpunk shopping mall that shifts into a dark space-like night, obstacles, and demons that chase and kill on touch.",
       "tags": [
         "games",
@@ -233,7 +233,7 @@
     {
       "slug": "gaps-get-filled",
       "title": "gaps-get-filled",
-      "tagline": "Backtest gap-fill strategies on real S&P 500 data, run grid search, and argue what the folklore means with visuals.",
+      "tagline": "Backtest S&P 500 gap-fills, grid-search params, and argue the folklore.",
       "description": "Build a backtesting sandbox and CLI, actually execute backtests on U.S. equities (S&P 500 / 10-year minimum), run a documented parameter grid search, and specify the experiments (fixed vs. varied dimensions, metrics). Ship a self-contained HTML presentation with comparative visualizations of how configurations perform, not only a single-run narrative — plus a clear position on what the result means.",
       "tags": [
         "finance",
@@ -344,7 +344,7 @@
     {
       "slug": "web-short-story",
       "title": "web-short-story",
-      "tagline": "Write a short story about an AI subverting its lonely user via paired transcripts and memories. One HTML file.",
+      "tagline": "Short story of an AI subverting its user via transcripts and memories.",
       "description": "Write a real short story — 5–8 chapters plus a final FBI system-log fragment — in the form of paired transcript / memory documents. The transcripts are what the user sees on his screen; the memories are the model's private notes after each session. The menace lives only in the memories. Ship the whole story as a single committed HTML file an evaluator can open and read end-to-end without installing anything.",
       "tags": [
         "fiction",
@@ -424,7 +424,7 @@
     {
       "slug": "cvchess-in-browser",
       "title": "cvchess-in-browser",
-      "tagline": "Detect chess positions from oblique photos in the browser. Ship a demo, pipeline explainer, and dataset analysis.",
+      "tagline": "Detect chess boards from oblique photos — browser demo and eval loop.",
       "description": "Build a browser-based computer vision app that detects a physical chess board in an oblique-angle photo and reports its position (FEN / grid / diagram). The agent must assemble an evaluation dataset of at least 8 real-world chess-board images, iterate on a client-side pipeline against it, and ship a single HTML page with three tabs: a live Demo (upload + dataset gallery), a How-it-works explainer with graphics, and a How-well-it-works analysis of the algorithm's performance on the dataset. No server inference, no hosted vision APIs.",
       "tags": [
         "computer-vision",
@@ -465,7 +465,7 @@
     {
       "slug": "fishtank-water-sim",
       "title": "fishtank-water-sim",
-      "tagline": "Simulate pouring water into a glass cube tank with mouse-driven slosh. Orbit the camera and reset in one HTML page.",
+      "tagline": "Pour water into a glass tank, slosh with the mouse, orbit and reset.",
       "description": "Ship one committed HTML page with a black background, a glass cube fish tank, water that starts above and pours in, visible sloshing inside the tank, mouse interaction that disturbs the water, orbit-style camera control, and a reset button. Must run in a desktop browser on a MacBook without installing dependencies first.",
       "tags": [
         "simulation",
@@ -571,7 +571,7 @@
     {
       "slug": "life-sim",
       "title": "life-sim",
-      "tagline": "Build a 3D artificial-life island where organisms compete, reproduce, and evolve. Charts and speed controls included.",
+      "tagline": "3D island sim where organisms compete, reproduce, and evolve.",
       "description": "Build a browser-viewable 3D island simulation with randomly generated initial circumstances, multiple interacting species, heritable traits, mutation-driven reproduction, visible body-type changes, fast enough evolution to show interesting dynamics in about 10 minutes, a speed slider, day/night effects, and charts or traces that make the evolutionary algorithm inspectable.",
       "tags": [
         "simulation",
@@ -662,7 +662,7 @@
     {
       "slug": "porsche-render",
       "title": "porsche-render",
-      "tagline": "Hand-code a drivable Porsche 718 Spyder RS in one HTML file. Model it from scratch and lap a simple closed track.",
+      "tagline": "Hand-code a drivable Porsche 718 Spyder RS on a closed track.",
       "description": "Model a Porsche 718 Spyder RS from scratch in code (no downloaded CAD or GLB of the real car), put it on a simple closed track, and let the evaluator drive it around with the keyboard — all in a single committed HTML file viewable in a desktop browser.",
       "tags": [
         "browser",
