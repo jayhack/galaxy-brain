@@ -1,13 +1,16 @@
 "use client";
 
 import * as React from "react";
-import { Maximize2, X, ExternalLink } from "lucide-react";
+import { ArrowUpRight, X, ExternalLink } from "lucide-react";
 
 /**
  * Live preview of an HTML artifact in a MacBook-ish (16:10) iframe.
- * The inline frame is non-interactive (so the whole tile is a click target);
- * hovering frosts it and reveals "Open full-screen", which opens an in-app
- * full-screen modal where the artifact is fully interactive.
+ * The inline frame is non-interactive (so the whole tile is a click target).
+ * Hovering applies only a light frost — the output stays readable — and
+ * reveals an "Open" highlight bar along the bottom, which opens an in-app
+ * full-screen modal where the artifact is fully interactive. The light frost
+ * matters because the cursor naturally lands on this tile right after a user
+ * clicks through to the page, so it must not blot out the preview.
  */
 export function ArtifactPreview({
   src,
@@ -66,11 +69,11 @@ export function ArtifactPreview({
           type="button"
           onClick={() => setOpen(true)}
           aria-label="Open solution full-screen"
-          className="absolute inset-0 flex items-center justify-center bg-transparent outline-none transition hover:bg-paper/30 hover:backdrop-blur-md focus-visible:bg-paper/30 focus-visible:backdrop-blur-md"
+          className="absolute inset-0 flex items-end justify-stretch bg-transparent outline-none transition hover:bg-paper/10 hover:backdrop-blur-[2px] focus-visible:bg-paper/10 focus-visible:backdrop-blur-[2px]"
         >
-          <span className="pointer-events-none flex items-center gap-2 rounded-md border border-ink bg-paper px-4 py-2.5 font-sans text-xs font-semibold uppercase tracking-[0.16em] text-ink opacity-0 shadow-[0_8px_24px_rgba(10,9,8,0.18)] transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
-            <Maximize2 className="size-4" />
-            Open full-screen
+          <span className="pointer-events-none flex w-full items-center justify-center gap-2 border-t border-ink bg-ink px-4 py-2.5 font-sans text-xs font-semibold uppercase tracking-[0.16em] text-paper opacity-0 shadow-[0_-8px_24px_rgba(10,9,8,0.22)] transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+            Open
+            <ArrowUpRight className="size-4" />
           </span>
         </button>
       </div>
