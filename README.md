@@ -73,11 +73,13 @@ Do not modify other solutions or the eval prompts in your PR — only add files 
 | [`sweats-dossier`](./sweats-dossier) | Research Jay Hack (start at jay.ai), then ship a one-HTML personal-shopper report recommending high-quality sweats — thesis up top, 4–8 specific picks below, James Perse and Fear of God set the bar. |
 | [`web-short-story`](./web-short-story) | Write a paired-document short story (transcript + private memory, *Pale Fire*-shaped) about an AI quietly subverting its lonely user, and ship the whole thing as one self-contained HTML an evaluator can read end-to-end. |
 
-## Results site
+## Results Site
 
 A Next.js (App Router, React 19) results browser is served from [`app/`](./app) and deployed on Vercel. It uses [shadcn/ui](https://ui.shadcn.com/) on a local Tailwind v4 build, with the bespoke "globule" visual identity layered on top as a theme (see [`app/globals.css`](./app/globals.css)).
 
-Every page is **statically generated** at build time — the home/overview, about, each `/eval/<slug>`, and each `/eval/<slug>/<solution>` — and eval prompts / solution READMEs are rendered to HTML at build. There are **no runtime data fetches or CDN dependencies**: fonts are self-hosted via `next/font`, and the registry is embedded at build, so navigating the site is instant.
+Every result page is **statically generated** at build time — the home/overview, about, each `/eval/<slug>`, and each `/eval/<slug>/<solution>` — and eval prompts / solution READMEs are rendered to HTML at build. There are **no runtime data fetches or CDN dependencies** for the browsing experience: fonts are self-hosted via `next/font`, and the registry is embedded at build, so navigating the site is instant.
+
+The app also includes Vercel Workflow route handlers for agent-solver jobs. This means the deployment is a normal Vercel-hosted Next.js app, not a pure `next export`: the content pages are still prerendered/static, while `/api/solve` and the generated Workflow routes run as server functions.
 
 The site is driven by [`docs/data.json`](./docs/data.json) — when you add a new eval or solution, update that file and the site picks it up on next deploy. Data and markdown are read at build time by [`lib/content.ts`](./lib/content.ts).
 
@@ -110,6 +112,51 @@ Validate eval/solution registry conventions:
 Agent-specific submission instructions live in [`AGENTS.md`](./AGENTS.md). To create a solution skeleton:
 
 `npm run new:solution -- <eval-slug> <solution-slug> --harness <harness> --model <model> [--artifact]`
+
+### Workflow solver backend
+
+`POST /api/solve` starts a Vercel Workflow run that can fan out one solver job per harness config. Each real job creates a `node24` Vercel Sandbox, clones the repo, builds a prompt from `AGENTS.md` plus the eval `README.md`, starts the selected agent command detached, polls an exit-code sentinel with `sleep()`, validates content, commits allowlisted changes, pushes a branch, and opens a draft PR.
+
+Supported harnesses:
+
+- `codex`: `codex exec --dangerously-bypass-approvals-and-sandbox`
+- `cursor`: `cursor-agent -p --force --trust`
+- `claude`: `claude -p --dangerously-skip-permissions`
+
+Dry-run request, which builds the prompt without creating a sandbox:
+
+```bash
+curl -X POST http://127.0.0.1:3000/api/solve \
+  -H 'content-type: application/json' \
+  --data '{
+    "eval": "evading-demons",
+    "dryRun": true,
+    "configs": [
+      { "harness": "codex", "model": "gpt-5-codex" }
+    ]
+  }'
+```
+
+Real runs need the variables documented in [`.env.example`](./.env.example), including Vercel Sandbox auth, the relevant agent provider key, and `GITHUB_TOKEN` for pushing branches and opening draft PRs. In local development, run `npx workflow web` in another terminal to inspect Workflow runs.
+
+For local runs without hand-writing JSON, use the `gx` CLI. It reads `.env`/`.env.local` for request defaults and preflight checks, then calls the local Next API:
+
+```bash
+npm link
+npm run dev
+gx run porsche-render --model gpt-5.4-mini
+```
+
+Useful variants:
+
+```bash
+gx run porsche-render --dry-run
+gx run evading-demons --config codex:gpt-5.4-mini --config claude:sonnet-4.5
+gx status <run-id>
+gx events <run-id>
+```
+
+`gx` sends `localRepoPath: "."` for dry runs so prompt generation uses the checked-out repo. It does not send API keys in the request body. For real local runs, the local Next.js process must be running from this repo so it can load the same `.env` secrets before the workflow creates a sandbox.
 
 ### HTML artifacts
 

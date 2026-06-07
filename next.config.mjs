@@ -1,9 +1,10 @@
+import { withWorkflow } from "workflow/next";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "export",
   experimental: {
     optimizePackageImports: ["lucide-react"],
   },
 };
 
-export default nextConfig;
+export default withWorkflow(nextConfig);
