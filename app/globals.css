@@ -146,9 +146,9 @@
   --radius-xl: var(--radius);
 
   /* Fonts come from next/font (app/fonts.ts) via these CSS vars. */
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-space), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
-  /* Modern grotesk for headings/display; Archivo Black is logo-only. */
+  /* Space Grotesk for display + body (matches eval titles); Archivo Black is logo-only. */
   --font-display: var(--font-space), ui-sans-serif, system-ui, sans-serif;
   --font-logo: var(--font-archivo), "Helvetica Neue", Arial, sans-serif;
 }

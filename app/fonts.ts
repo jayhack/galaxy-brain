@@ -1,7 +1,6 @@
 import {
   Archivo_Black,
   Space_Grotesk,
-  Inter,
   JetBrains_Mono,
 } from "next/font/google";
 
@@ -17,18 +16,11 @@ export const fontLogo = Archivo_Black({
   display: "swap",
 });
 
-// Modern grotesk for display/headings + the hero tagline (replaces Playfair).
+// Space Grotesk for body copy, headings, and eval titles (replaces Inter).
 export const fontDisplay = Space_Grotesk({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-space",
-  display: "swap",
-});
-
-export const fontSans = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-inter",
   display: "swap",
 });
 
@@ -42,6 +34,5 @@ export const fontMono = JetBrains_Mono({
 export const fontVariables = [
   fontLogo.variable,
   fontDisplay.variable,
-  fontSans.variable,
   fontMono.variable,
 ].join(" ");
