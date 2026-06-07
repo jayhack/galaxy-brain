@@ -14,4 +14,4 @@ Single self-contained HTML. Black scene, a transparent **glass cube** with glowi
 - **Move the mouse** across the tank — the cursor is raycast onto the water surface and drag-speed-scaled impulses push the wave equation around.
 - **Reset pour** button replays the pour-and-slosh from an empty tank.
 
-Mirrored for GitHub Pages at `docs/artifacts/fishtank-water-sim/claude-code-opus-4-7.html`.
+Mirrored for the results site at `docs/artifacts/fishtank-water-sim/claude-code-opus-4-7.html`.

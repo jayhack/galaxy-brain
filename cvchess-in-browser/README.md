@@ -140,9 +140,9 @@ A submission passes if a fresh evaluator can:
    should be roughly right. Piece-type recognition is a plus but not required
    for the submission to pass.
 
-## GitHub Pages — artifact button
+## Results site — artifact button
 
-So the [results site](https://jayhack.github.io/galaxy-brain) shows **Open HTML
+So the [results site](https://galaxybrain.dev) shows **Open HTML
 output** and **Open artifact** for your submission, mirror the playable file
 and register it:
 
@@ -155,7 +155,7 @@ and register it:
    `"artifactUrl": "./artifacts/cvchess-in-browser/<harness>-<model>.html"`.
 
 See the repo root
-[README — HTML artifacts (GitHub Pages)](../README.md#html-artifacts-github-pages)
+[README — HTML artifacts](../README.md#html-artifacts)
 for the full convention.
 
 ## Out of scope

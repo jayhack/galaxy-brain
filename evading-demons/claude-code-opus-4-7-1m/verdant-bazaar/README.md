@@ -6,8 +6,8 @@ Submission for the [`evading-demons`](../../README.md) galaxy-brain eval.
 
 **➡ [`index.html`](./index.html)** (committed in the repo, browser-playable)
 
-> Also mirrored for GitHub Pages at
-> [jayhack.github.io/galaxy-brain/artifacts/evading-demons/claude-code-opus-4-7-1m.html](https://jayhack.github.io/galaxy-brain/artifacts/evading-demons/claude-code-opus-4-7-1m.html)
+> Also mirrored at
+> [galaxybrain.dev/artifacts/evading-demons/claude-code-opus-4-7-1m.html](https://galaxybrain.dev/artifacts/evading-demons/claude-code-opus-4-7-1m.html)
 > via `docs/artifacts/`.
 
 No build step. No install step. Open `index.html` directly in a modern browser

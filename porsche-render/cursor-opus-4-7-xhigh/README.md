@@ -40,7 +40,7 @@ Orbit camera supports drag-to-rotate and scroll-to-zoom; the chase and cinematic
 
 ## Mirror
 
-The same playable file is mirrored under [`docs/artifacts/porsche-render/cursor-opus-4-7-xhigh.html`](../../docs/artifacts/porsche-render/cursor-opus-4-7-xhigh.html) for the GitHub Pages results site's **Open HTML output** button.
+The same playable file is mirrored under [`docs/artifacts/porsche-render/cursor-opus-4-7-xhigh.html`](../../docs/artifacts/porsche-render/cursor-opus-4-7-xhigh.html) for the results site's **Open HTML output** button.
 
 ## Notes for evaluators
 

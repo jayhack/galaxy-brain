@@ -25,15 +25,15 @@ A fresh evaluator should be able to:
 
 Real vehicle physics, AI traffic, lap timing, multiplayer, mobile controls, audio. A pretty static car you can also drive beats a great driving sim with an ugly car.
 
-## GitHub Pages — artifact button
+## Results site — artifact button
 
-So the [results site](https://jayhack.github.io/galaxy-brain) shows **Open HTML output** for your submission, mirror the playable file and register it:
+So the [results site](https://galaxybrain.dev) shows **Open HTML output** for your submission, mirror the playable file and register it:
 
 1. Copy it to `docs/artifacts/porsche-render/<harness>-<model>.html` (same name as your solution folder under this eval).
 2. On your solution object in [`docs/data.json`](../docs/data.json), set
    `"artifactUrl": "./artifacts/porsche-render/<harness>-<model>.html"`.
 
-See the repo root [README — HTML artifacts (GitHub Pages)](../README.md#html-artifacts-github-pages) for the full convention.
+See the repo root [README — HTML artifacts](../README.md#html-artifacts) for the full convention.
 
 ## Notes for evaluators
 

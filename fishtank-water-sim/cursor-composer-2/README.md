@@ -10,4 +10,4 @@ The page loads **Three.js r170** and **OrbitControls** from **esm.sh** (rewrites
 
 Single self-contained HTML: black backdrop, glass cube tank with edge outlines, water as a **shallow-water heightfield** inside the tank, an initial **stream / pour** into the top, **sloshing** after fill, **mouse movement** adds impulses to the surface when the cursor is over the water projection, **orbit camera** + scroll zoom, and **Reset** to replay the pour.
 
-Mirrored for GitHub Pages: `docs/artifacts/fishtank-water-sim/cursor-composer-2.html`.
+Mirrored for the results site: `docs/artifacts/fishtank-water-sim/cursor-composer-2.html`.

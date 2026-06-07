@@ -118,8 +118,8 @@ pulling 500 symbols of price data first does not pass, even if the
 presentation is good. The committed HTML file is the evidence.
 
 **galaxy-brain site:** To surface the same HTML from
-[jayhack.github.io/galaxy-brain](https://jayhack.github.io/galaxy-brain), follow
-the repo convention in the root [`README.md`](../README.md#html-artifacts-github-pages)
+[galaxybrain.dev](https://galaxybrain.dev), follow
+the repo convention in the root [`README.md`](../README.md#html-artifacts)
 (copy under `docs/artifacts/…` and set `artifactUrl` in `docs/data.json`).
 
 ## Out of scope

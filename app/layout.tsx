@@ -24,10 +24,10 @@ const initialPageStyle = {
   color: "#0a0908",
 };
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://galaxybrain.dev";
+
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "https://galaxy-brain.vercel.app"
-  ),
+  metadataBase: new URL(siteUrl),
   title: siteTitle,
   description: siteDescription,
   icons: { icon: [{ url: favicon, type: "image/svg+xml" }] },
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     siteName: "galaxy-brain",
     title: siteTitle,
     description: socialDescription,
-    url: "https://galaxy-brain.vercel.app/",
+    url: `${siteUrl.replace(/\/$/, "")}/`,
     images: [
       {
         url: "/opengraph-image",

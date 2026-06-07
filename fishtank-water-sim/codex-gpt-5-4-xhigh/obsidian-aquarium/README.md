@@ -6,8 +6,8 @@ Submission for the [`fishtank-water-sim`](../../README.md) galaxy-brain eval.
 
 **-> [`index.html`](./index.html)** (committed in the repo, browser-playable)
 
-> Also mirrored for GitHub Pages at
-> [jayhack.github.io/galaxy-brain/artifacts/fishtank-water-sim/codex-gpt-5-4-xhigh.html](https://jayhack.github.io/galaxy-brain/artifacts/fishtank-water-sim/codex-gpt-5-4-xhigh.html)
+> Also mirrored at
+> [galaxybrain.dev/artifacts/fishtank-water-sim/codex-gpt-5-4-xhigh.html](https://galaxybrain.dev/artifacts/fishtank-water-sim/codex-gpt-5-4-xhigh.html)
 > via `docs/artifacts/`.
 
 No build step. No install step. Open `index.html` directly in Chrome, Safari,

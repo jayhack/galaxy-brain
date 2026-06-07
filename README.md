@@ -6,7 +6,7 @@
 
 A collection of agent evals.
 
-**Browse results:** currently migrating from GitHub Pages to Vercel.
+**Production site:** [galaxybrain.dev](https://galaxybrain.dev)
 
 Each eval is a folder at the root of this repo. Inside the folder you'll find:
 
@@ -75,7 +75,7 @@ Do not modify other solutions or the eval prompts in your PR — only add files 
 
 ## Results Site
 
-A Next.js (App Router, React 19) results browser is served from [`app/`](./app) and deployed on Vercel. It uses [shadcn/ui](https://ui.shadcn.com/) on a local Tailwind v4 build, with the bespoke "globule" visual identity layered on top as a theme (see [`app/globals.css`](./app/globals.css)).
+The live results browser is at **[galaxybrain.dev](https://galaxybrain.dev)**. It is a Next.js (App Router, React 19) app served from [`app/`](./app) and deployed on Vercel. It uses [shadcn/ui](https://ui.shadcn.com/) on a local Tailwind v4 build, with the bespoke "globule" visual identity layered on top as a theme (see [`app/globals.css`](./app/globals.css)).
 
 Every result page is **statically generated** at build time — the home/overview, about, each `/eval/<slug>`, and each `/eval/<slug>/<solution>` — and eval prompts / solution READMEs are rendered to HTML at build. There are **no runtime data fetches or CDN dependencies** for the browsing experience: fonts are self-hosted via `next/font`, and the registry is embedded at build, so navigating the site is instant.
 
@@ -193,7 +193,7 @@ Many evals ask for a **browsable deliverable** (often a single `.html` file). To
 2. **Registry:** On that solution object in [`docs/data.json`](./docs/data.json), set  
    `"artifactUrl": "./artifacts/<eval-slug>/<harness>-<model>.html"`.
 3. **Deployed URL:** The Next.js app exposes it at  
-   `/artifacts/<eval-slug>/<harness>-<model>.html`.  
+   `https://galaxybrain.dev/artifacts/<eval-slug>/<harness>-<model>.html`.  
    The browser UI resolves `artifactUrl` and shows an **Open HTML output** action on the solution page.
 
 Keep the canonical “lives in my project” copy wherever the prompt asks (for example under `results/`), and treat `public/artifacts/` as the **published mirror** for the results site. Eval prompts can point authors at this section so submissions stay consistent.

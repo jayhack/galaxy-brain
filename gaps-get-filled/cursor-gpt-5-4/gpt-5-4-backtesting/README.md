@@ -6,7 +6,7 @@ Submission for the [`gaps-get-filled`](../../README.md) galaxy-brain eval.
 
 **In-repo HTML:** [`results/sp500-10y/presentation/report.html`](./results/sp500-10y/presentation/report.html)
 
-**Clickable hosted mirror:** [jayhack.github.io/galaxy-brain/artifacts/gaps-get-filled/cursor-gpt-5-4.html](https://jayhack.github.io/galaxy-brain/artifacts/gaps-get-filled/cursor-gpt-5-4.html)
+**Clickable hosted mirror:** [galaxybrain.dev/artifacts/gaps-get-filled/cursor-gpt-5-4.html](https://galaxybrain.dev/artifacts/gaps-get-filled/cursor-gpt-5-4.html)
 
 The presentation takes a clear position:
 

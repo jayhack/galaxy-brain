@@ -8,6 +8,6 @@ Project name: **lumina-atrium** — a single-file Three.js third-person survival
 
 Open `lumina-atrium/index.html` in a desktop browser (file:// or any static host). No build step.
 
-Mirrored artifact (when deployed with the repo’s GitHub Pages setup):
+Mirrored artifact ([galaxybrain.dev](https://galaxybrain.dev)):
 
 `docs/artifacts/evading-demons/cursor-gemini-3-1-pro.html`
