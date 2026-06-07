@@ -133,35 +133,35 @@ export default async function EvalPage({
 
       <CollapsibleSection
         title="Prompt"
-        meta={<span className="font-mono text-xs text-ink/70">{promptPath}</span>}
+        meta={
+          <span className="font-mono text-xs text-ink/60">{promptPath}</span>
+        }
       >
-        <div className="relative rounded-md border border-ink bg-paper-soft">
+        <div className="relative">
           {prompt ? (
-            <div className="absolute right-2 top-2 z-10">
+            <div className="absolute -right-1 -top-1 z-10">
               <CopyButton text={prompt.raw} />
             </div>
           ) : null}
-          <div className="p-5">
-            {prompt ? (
-              <MarkdownContent html={prompt.html} />
-            ) : (
-              <p className="text-ink/90">
-                Couldn&apos;t load{" "}
-                <code className="rounded border border-paper-3 bg-paper px-1.5 py-0.5 font-mono text-xs">
-                  {promptPath}
-                </code>
-                .{" "}
-                <a
-                  className="g-link"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href={urls.blob(promptPath)}
-                >
-                  Open on GitHub.
-                </a>
-              </p>
-            )}
-          </div>
+          {prompt ? (
+            <MarkdownContent html={prompt.html} />
+          ) : (
+            <p className="text-ink/90">
+              Couldn&apos;t load{" "}
+              <code className="rounded border border-paper-3 bg-paper px-1.5 py-0.5 font-mono text-xs">
+                {promptPath}
+              </code>
+              .{" "}
+              <a
+                className="g-link"
+                target="_blank"
+                rel="noopener noreferrer"
+                href={urls.blob(promptPath)}
+              >
+                Open on GitHub.
+              </a>
+            </p>
+          )}
         </div>
       </CollapsibleSection>
     </>

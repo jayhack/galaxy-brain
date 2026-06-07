@@ -442,6 +442,19 @@ details.section:not([open]) .section-chevron {
   transform: rotate(-90deg);
 }
 
+/* ===== TAG FILTER SCROLLER ======================================= */
+/* On mobile the tag chips are a single horizontally-scrolling row that runs
+   off the screen edge; the scrollbar is hidden for cleanliness (scroll still
+   works). On md+ the row wraps normally (see utilities on the element). */
+.tag-scroller {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+.tag-scroller::-webkit-scrollbar {
+  display: none;
+}
+
 /* ===== PROSE (markdown prompts / READMEs) ======================== */
 .markdown-target {
   line-height: 1.7;
