@@ -14,6 +14,9 @@ function parseTags(value: string | null): string[] {
     .filter(Boolean);
 }
 
+// How many of the most common tags to show before collapsing the rest.
+const COLLAPSED_TAG_COUNT = 8;
+
 export function EvalBrowser({
   evals,
   allTags,
@@ -25,6 +28,7 @@ export function EvalBrowser({
   // HTML — no useSearchParams, so this subtree never bails to a client-only
   // render. Any ?tags= filter from a deep link is applied after mount.
   const [selected, setSelected] = React.useState<string[]>([]);
+  const [expanded, setExpanded] = React.useState(false);
 
   React.useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -33,6 +37,26 @@ export function EvalBrowser({
   }, []);
 
   const selectedSet = new Set(selected);
+
+  // Order tags by how often they appear (most common first), so the collapsed
+  // view surfaces the most useful filters. Alphabetical breaks ties for a
+  // stable, deterministic order (and stable globule colors).
+  const orderedTags = React.useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const ev of evals)
+      for (const t of ev.tags) counts.set(t, (counts.get(t) || 0) + 1);
+    return [...allTags].sort((a, b) => {
+      const diff = (counts.get(b) || 0) - (counts.get(a) || 0);
+      return diff !== 0 ? diff : a.localeCompare(b);
+    });
+  }, [evals, allTags]);
+
+  const hiddenCount = Math.max(0, orderedTags.length - COLLAPSED_TAG_COUNT);
+  // Keep selected tags visible even when collapsed, so active filters never hide.
+  const visibleTags =
+    expanded || hiddenCount === 0
+      ? orderedTags
+      : orderedTags.filter((t, i) => i < COLLAPSED_TAG_COUNT || selectedSet.has(t));
 
   function syncUrl(next: string[]) {
     const qs = next.length
@@ -64,25 +88,19 @@ export function EvalBrowser({
   const summary =
     selectedSet.size > 0
       ? `${filtered.length}/${evals.length} eval${evals.length === 1 ? "" : "s"} shown`
-      : `${evals.length} eval${evals.length === 1 ? "" : "s"}`;
+      : "";
 
   return (
     <section>
       <div className="mb-4 flex items-baseline justify-between border-b border-ink pb-2">
         <h2 className="g-display text-2xl">Evals</h2>
-        <span className="mono-label opacity-70">{summary}</span>
+        {summary && <span className="mono-label opacity-70">{summary}</span>}
       </div>
 
       {allTags.length > 0 && (
         <div className="mb-6" role="group" aria-label="Filter evals by tag">
-          <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <span className="mono-label">&#9671; Filter by tag</span>
-            <span className="mono-label opacity-70">
-              Match <strong>any</strong> selected tag
-            </span>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {allTags.map((t, i) => {
+          <div className="flex flex-wrap items-center gap-2">
+            {visibleTags.map((t) => {
               const on = selectedSet.has(t);
               return (
                 <button
@@ -91,29 +109,39 @@ export function EvalBrowser({
                   aria-pressed={on}
                   onClick={() => toggle(t)}
                   className={cn(
-                    "inline-flex cursor-pointer items-center gap-1.5 rounded-md border px-[11px] py-1 font-mono text-[10px] font-medium uppercase tracking-[0.14em] leading-[1.3] transition-colors",
+                    "inline-flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 font-mono text-[11px] font-medium uppercase tracking-[0.12em] leading-none transition-colors",
                     on
                       ? "border-ink bg-ink text-paper"
-                      : "border-ink bg-paper text-ink hover:bg-paper-soft"
+                      : "border-ink/10 bg-paper-soft text-ink hover:bg-paper-3"
                   )}
                 >
-                  <GlobuleDot globule={globuleForIndex(i)} />
+                  <GlobuleDot globule={globuleForIndex(orderedTags.indexOf(t))} />
                   {t}
                 </button>
               );
             })}
-          </div>
-          {selectedSet.size > 0 && (
-            <div className="mt-3 flex flex-wrap items-center gap-2">
+
+            {hiddenCount > 0 && (
+              <button
+                type="button"
+                onClick={() => setExpanded((v) => !v)}
+                aria-expanded={expanded}
+                className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-dashed border-ink/30 bg-transparent px-4 py-2 font-mono text-[11px] font-medium uppercase tracking-[0.12em] leading-none text-ink/70 transition-colors hover:bg-paper-soft hover:text-ink"
+              >
+                {expanded ? "Show fewer" : `+${hiddenCount} more …`}
+              </button>
+            )}
+
+            {selectedSet.size > 0 && (
               <button
                 type="button"
                 onClick={clearAll}
-                className="cursor-pointer border border-transparent px-2 py-1 font-sans text-[10.5px] font-semibold uppercase tracking-[0.14em] text-ink hover:bg-paper-soft"
+                className="inline-flex cursor-pointer items-center rounded-full px-3 py-2 font-mono text-[11px] font-medium uppercase tracking-[0.12em] leading-none text-ink/70 underline-offset-2 transition-colors hover:text-ink hover:underline"
               >
-                Clear all filters
+                Clear
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       )}
 
