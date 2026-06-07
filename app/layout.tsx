@@ -109,7 +109,7 @@ export default function RootLayout({
               </Button>
             </header>
 
-            <main className="mx-auto w-full flex-1 px-4 py-8 sm:px-6 lg:px-10">
+            <main className="mx-auto w-full flex-1 px-4 py-4 sm:px-6 sm:py-8 lg:px-10">
               {children}
             </main>
 
