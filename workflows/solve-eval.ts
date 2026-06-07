@@ -4,6 +4,7 @@ import { Sandbox } from "@vercel/sandbox";
 import { FatalError, getWritable, sleep } from "workflow";
 import type { HarnessConfig, SolveWorkflowInput } from "@/lib/solve-request";
 import {
+  appendRunEvent,
   markDryRunCompleted,
   markJobCompleted,
   markJobFailed,
@@ -48,6 +49,7 @@ type SolveEvent =
   | { type: "failed"; eval: string; solution: string; message: string };
 
 type StartedSolve = {
+  trackingId?: string;
   sandboxName: string;
   commandId: string;
   evalSlug: string;
@@ -66,6 +68,11 @@ type PollStatus = {
   done: boolean;
   exitCode: number | null;
   output?: string;
+};
+
+type RunEventContext = {
+  trackingId?: string;
+  evalSlug: string;
 };
 
 export type SolveWorkflowResult = {
@@ -103,7 +110,7 @@ export async function solveEvalWorkflow(input: SolveWorkflowInput): Promise<Solv
 
   await recordWorkflowStarted(input);
 
-  await emitEvent({
+  await emitEvent(input, {
     type: "workflow_started",
     eval: input.evalSlug,
     dryRun: input.dryRun,
@@ -179,7 +186,7 @@ async function solveOneConfig(input: SolveWorkflowInput, config: HarnessConfig) 
     );
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    await emitEvent({
+    await emitEvent(input, {
       type: "failed",
       eval: input.evalSlug,
       solution: config.solutionSlug,
@@ -205,15 +212,10 @@ async function solveOneConfig(input: SolveWorkflowInput, config: HarnessConfig) 
   }
 }
 
-async function emitEvent(event: SolveEvent): Promise<void> {
+async function emitEvent(input: SolveWorkflowInput, event: SolveEvent): Promise<void> {
   "use step";
 
-  const writer = getWritable<SolveEvent>().getWriter();
-  try {
-    await writer.write(event);
-  } finally {
-    writer.releaseLock();
-  }
+  await writeStepEvent(input, event);
 }
 
 async function recordWorkflowStarted(input: SolveWorkflowInput): Promise<void> {
@@ -299,7 +301,7 @@ async function buildDryRunPrompt(
   "use step";
 
   const prompt = await loadPromptText(input, config);
-  await writeStepEvent({
+  await writeStepEvent(input, {
     type: "dry_run_prompt",
     eval: input.evalSlug,
     solution: config.solutionSlug,
@@ -389,6 +391,7 @@ async function startSandboxSolve(
   });
 
   const started: StartedSolve = {
+    trackingId: input.trackingId,
     sandboxName: sandbox.name,
     commandId: command.cmdId,
     evalSlug: input.evalSlug,
@@ -405,7 +408,7 @@ async function startSandboxSolve(
 
   await recordJobStarted(input, config, started);
 
-  await writeStepEvent({
+  await writeStepEvent(input, {
     type: "sandbox_started",
     eval: input.evalSlug,
     solution: config.solutionSlug,
@@ -430,7 +433,7 @@ async function pollSandboxSolve(started: StartedSolve, poll: number): Promise<Po
     exitCodeBuffer === null ? null : Number.parseInt(exitCodeBuffer.toString("utf8").trim(), 10);
   const done = Number.isInteger(exitCode);
 
-  await writeStepEvent({
+  await writeStepEvent(started, {
     type: "agent_status",
     eval: started.evalSlug,
     solution: started.solutionSlug,
@@ -481,7 +484,7 @@ async function finalizeSandboxSolve(
   const pullRequestUrl = await createDraftPullRequest(input, config, started.branchName);
   const files = await listCommittedFiles(sandbox, started);
 
-  await writeStepEvent({
+  await writeStepEvent(input, {
     type: "finalized",
     eval: input.evalSlug,
     solution: config.solutionSlug,
@@ -523,7 +526,9 @@ async function stopSandbox(started: StartedSolve, reason: string): Promise<void>
   }
 }
 
-async function writeStepEvent(event: SolveEvent): Promise<void> {
+async function writeStepEvent(context: RunEventContext, event: SolveEvent): Promise<void> {
+  await appendRunEvent(context, event);
+
   const writer = getWritable<SolveEvent>().getWriter();
   try {
     await writer.write(event);
@@ -543,7 +548,7 @@ async function streamCommandLogs(
 
   try {
     for await (const log of command.logs({ signal: controller.signal })) {
-      await writeStepEvent({
+      await writeStepEvent(started, {
         type: "agent_log",
         eval: started.evalSlug,
         solution: started.solutionSlug,

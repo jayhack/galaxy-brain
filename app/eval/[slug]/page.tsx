@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { GithubIcon } from "@/components/icons";
 import { MarkdownContent } from "@/components/markdown-content";
 import { SolutionCard } from "@/components/solution-card";
+import { AgentRunsPanel } from "@/components/agent-runs-panel";
 import { CollapsibleSection } from "@/components/collapsible-section";
 import { ContentContainer } from "@/components/content-container";
 import { SectionCard } from "@/components/section-card";
@@ -137,6 +138,11 @@ export default async function EvalPage({
           </div>
         )}
       </SectionCard>
+
+      <AgentRunsPanel
+        evalSlug={ev.slug}
+        mergedSolutionSlugs={ev.solutions.map((solution) => solution.slug)}
+      />
 
       <CollapsibleSection
         title="Prompt"
