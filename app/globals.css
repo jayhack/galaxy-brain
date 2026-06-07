@@ -209,6 +209,14 @@
 }
 
 /* ===== TYPOGRAPHY ================================================= */
+.hero-wordmark {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--ink);
+  font-size: clamp(4.2rem, 8.5vw, 6.2rem);
+}
 .g-display {
   font-family: var(--font-display);
   font-weight: 600;
