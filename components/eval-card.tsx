@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { Badge } from "@/components/ui/badge";
 import { EvalArt } from "@/components/eval-art";
 import { TagChip } from "@/components/tag-chip";
 
@@ -33,21 +32,21 @@ export function EvalCard({
         colorIndex={ev.colorIndex}
         image={ev.image}
         imageAlt=""
-        className="h-24"
-      >
-        <Badge
-          variant="count"
-          className="absolute right-3 top-3 border-paper/40 bg-ink/35 text-paper backdrop-blur-sm"
-          title={`${ev.count} solution${ev.count === 1 ? "" : "s"}`}
-        >
-          {ev.count}
-        </Badge>
-      </EvalArt>
+        className="h-36"
+      />
       <div className="p-5">
-        <h3 className="font-sans text-xl font-semibold leading-tight tracking-tight text-ink">
-          {ev.title}
-        </h3>
-        <p className="mt-2.5 line-clamp-2 min-h-[2.625rem] text-sm leading-snug text-ink">
+        <div className="flex items-baseline justify-between gap-3">
+          <h3 className="min-w-0 font-sans text-xl font-semibold leading-tight tracking-tight text-ink">
+            {ev.title}
+          </h3>
+          <span
+            className="shrink-0 font-sans text-sm font-medium tabular-nums text-ink/55"
+            title={`${ev.count} solution${ev.count === 1 ? "" : "s"}`}
+          >
+            {ev.count}
+          </span>
+        </div>
+        <p className="mt-2.5 line-clamp-2 h-[2.75rem] text-sm leading-[1.375] text-ink">
           {ev.tagline || ev.description || ""}
         </p>
         <div className="mt-3.5 flex flex-nowrap gap-1.5 overflow-hidden">

@@ -117,7 +117,7 @@ export function EvalBrowser({
                 type="button"
                 onClick={() => setExpanded((v) => !v)}
                 aria-expanded={expanded}
-                className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-dashed border-ink/30 bg-transparent px-5 py-2.5 font-sans text-xs font-medium uppercase tracking-[0.08em] leading-none text-ink/70 transition-colors hover:bg-paper-soft hover:text-ink"
+                className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-dashed border-ink/30 bg-transparent px-6 py-3 font-sans text-sm font-medium leading-none text-ink/70 transition-colors hover:bg-paper-soft hover:text-ink"
               >
                 {expanded ? "Show fewer" : `+${hiddenCount} more …`}
               </button>
@@ -127,7 +127,7 @@ export function EvalBrowser({
               <button
                 type="button"
                 onClick={clearAll}
-                className="inline-flex cursor-pointer items-center rounded-full px-3 py-2 font-mono text-[11px] font-medium uppercase tracking-[0.12em] leading-none text-ink/70 underline-offset-2 transition-colors hover:text-ink hover:underline"
+                className="inline-flex cursor-pointer items-center rounded-full px-3 py-2 font-sans text-sm font-medium leading-none text-ink/70 underline-offset-2 transition-colors hover:text-ink hover:underline"
               >
                 Clear
               </button>

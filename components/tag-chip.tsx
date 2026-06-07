@@ -5,12 +5,11 @@ import { GlobuleDot } from "@/components/globule";
 import { globuleForIndex } from "@/lib/globules";
 
 const chipBase =
-  "inline-flex shrink-0 items-center rounded-full border font-sans font-medium uppercase leading-none transition-colors";
+  "inline-flex shrink-0 items-center rounded-full border font-sans font-medium leading-none transition-colors";
 
 const chipSizes = {
-  filter:
-    "gap-2 px-5 py-2.5 text-xs tracking-[0.08em]",
-  card: "gap-1.5 px-2 py-1 text-[10px] tracking-[0.06em]",
+  filter: "gap-2.5 px-6 py-3 text-sm",
+  card: "gap-1.5 px-2 py-1 text-xs",
 } as const;
 
 type TagChipProps = {
