@@ -1,0 +1,1095 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Wayfinders' Atlas — A Voyaging Model of the Polynesian Spread</title>
+<style>
+  :root{
+    --bg:#07111c; --bg2:#0a1726; --panel:#0f1f31; --panel2:#13283d; --panelhi:#173249;
+    --ink:#e9f1f7; --dim:#9db4c6; --faint:#637d92; --line:#1f3b54;
+    --sea:#0b2034; --grid:#163049;
+    --teal:#3fc7cf; --gold:#ecc15c; --coral:#f0876c; --green:#5fd08a;
+    --red:#ef6f63; --amber:#e7b657; --violet:#9d8be0; --blue:#5aa9e6;
+    --hit:#5fd08a; --miss:#ef6f63; --early:#5aa9e6; --never:#637d92;
+    --mono:"SFMono-Regular",ui-monospace,Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.5}
+  a{color:var(--teal);text-decoration:none}
+  a:hover{text-decoration:underline}
+  h1,h2,h3,h4{margin:0 0 .35em;line-height:1.2}
+  h1{font-size:20px;letter-spacing:.2px}
+  h2{font-size:15px}
+  h3{font-size:12px;text-transform:uppercase;letter-spacing:.09em;color:var(--teal);margin:0 0 .5em}
+  h4{font-size:12.5px;color:var(--gold)}
+  p{margin:.4em 0}
+  .wrap{max-width:1640px;margin:0 auto;padding:14px 16px 80px}
+  header.top{border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:12px}
+  header.top .row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between}
+  header.top .lede{max-width:880px}
+  .thesis{color:var(--dim);font-size:13px;margin-top:4px}
+  .thesis b{color:var(--ink)}
+  .badge{display:inline-block;background:var(--panel2);color:var(--teal);border:1px solid var(--line);border-radius:999px;padding:2px 9px;font-size:10.5px;font-family:var(--mono);margin:2px 5px 2px 0}
+  .grid{display:grid;grid-template-columns:312px minmax(0,1fr) 360px;gap:13px;align-items:start}
+  .col{display:flex;flex-direction:column;gap:13px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:13px}
+  .card.pad0{padding:0;overflow:hidden}
+  .sub{color:var(--dim);font-size:11.5px}
+  .faint{color:var(--faint)}
+  .mono{font-family:var(--mono)}
+  /* presets */
+  .presets{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+  .preset{cursor:pointer;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:11.5px;color:var(--ink);transition:.12s;max-width:230px}
+  .preset:hover{border-color:var(--teal);background:var(--panelhi)}
+  .preset .pt{font-weight:600;font-size:12px}
+  .preset .pd{color:var(--faint);font-size:10.5px;margin-top:2px;line-height:1.35}
+  .preset.active{border-color:var(--teal);box-shadow:0 0 0 1px var(--teal) inset}
+  /* controls */
+  .ctrl{margin-bottom:12px}
+  .ctrl label{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;margin-bottom:2px}
+  .ctrl label .val{font-family:var(--mono);color:var(--gold);font-size:11.5px}
+  .ctrl .hint{font-size:10.5px;color:var(--faint);margin-top:1px;line-height:1.35}
+  input[type=range]{width:100%;accent-color:var(--teal);margin:3px 0 0}
+  .toggle{display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;margin-bottom:7px}
+  .toggle input{accent-color:var(--teal);width:15px;height:15px}
+  .btnrow{display:flex;gap:7px;flex-wrap:wrap;margin-top:4px}
+  button.act{cursor:pointer;background:var(--teal);color:#04212a;border:none;border-radius:7px;padding:7px 11px;font-size:12px;font-weight:600}
+  button.act.ghost{background:var(--panel2);color:var(--ink);border:1px solid var(--line);font-weight:500}
+  button.act:hover{filter:brightness(1.08)}
+  /* map */
+  .mapwrap{position:relative;background:var(--sea);border-radius:10px}
+  canvas{display:block;width:100%;border-radius:10px}
+  .maptools{position:absolute;top:9px;left:9px;display:flex;flex-direction:column;gap:5px;z-index:5}
+  .maptools .tt{display:flex;align-items:center;gap:6px;background:rgba(8,18,30,.78);border:1px solid var(--line);border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;backdrop-filter:blur(3px)}
+  .maptools .tt input{accent-color:var(--teal)}
+  .legend{position:absolute;bottom:9px;left:9px;background:rgba(8,18,30,.82);border:1px solid var(--line);border-radius:7px;padding:7px 9px;font-size:10.5px;backdrop-filter:blur(3px);max-width:330px}
+  .legend .lr{display:flex;align-items:center;gap:6px;margin:2px 0}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex:0 0 auto}
+  /* transport / scrubber */
+  .transport{display:flex;align-items:center;gap:10px;padding:10px 12px;border-top:1px solid var(--line)}
+  .transport .yr{font-family:var(--mono);font-size:15px;color:var(--gold);min-width:108px}
+  .transport input[type=range]{flex:1}
+  /* timeline */
+  .tlwrap{position:relative}
+  /* verdict */
+  .verdict{border-radius:9px;padding:11px 12px;border:1px solid var(--line)}
+  .verdict.ok{background:rgba(95,208,138,.10);border-color:rgba(95,208,138,.45)}
+  .verdict.partial{background:rgba(231,182,87,.10);border-color:rgba(231,182,87,.45)}
+  .verdict.fail{background:rgba(239,111,99,.10);border-color:rgba(239,111,99,.45)}
+  .verdict .vh{font-weight:700;font-size:13.5px;margin-bottom:3px}
+  .scoretable{width:100%;border-collapse:collapse;font-size:11.5px;margin-top:6px}
+  .scoretable th,.scoretable td{text-align:left;padding:3px 5px;border-bottom:1px solid var(--line)}
+  .scoretable th{color:var(--faint);font-weight:500;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em}
+  .pill{font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:999px;white-space:nowrap}
+  .pill.hit{background:rgba(95,208,138,.18);color:var(--hit)}
+  .pill.miss{background:rgba(239,111,99,.18);color:var(--miss)}
+  .pill.early{background:rgba(90,169,230,.18);color:var(--early)}
+  .pill.never{background:rgba(99,125,146,.2);color:var(--never)}
+  /* tabs */
+  .tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:10px;flex-wrap:wrap}
+  .tab{cursor:pointer;padding:6px 9px;font-size:11.5px;color:var(--dim);border-bottom:2px solid transparent;margin-bottom:-1px}
+  .tab.active{color:var(--teal);border-color:var(--teal)}
+  .tabpane{display:none}
+  .tabpane.active{display:block}
+  .trace{font-family:var(--mono);font-size:11px;max-height:340px;overflow:auto;line-height:1.55}
+  .trace .ln{padding:3px 0;border-bottom:1px solid rgba(31,59,84,.5)}
+  .trace .yr{color:var(--gold)}
+  .trace .arrow{color:var(--teal)}
+  .trace .why{color:var(--faint)}
+  .ev{margin:9px 0;padding-left:10px;border-left:2px solid var(--line)}
+  .ev .evh{font-weight:600;color:var(--ink)}
+  .ev .evd{color:var(--dim);font-size:12px}
+  .ev .cite{color:var(--faint);font-size:11px;font-style:italic}
+  .debate{margin:10px 0;padding:9px 10px;background:var(--panel2);border:1px solid var(--line);border-radius:8px}
+  .debate .q{font-weight:600;color:var(--gold);font-size:12.5px}
+  .debate .pos{font-size:11.5px;color:var(--dim);margin-top:3px}
+  .debate .pos b{color:var(--ink)}
+  .refs{font-size:11px;color:var(--dim);line-height:1.5}
+  .refs li{margin-bottom:4px}
+  .inspect{font-size:11.5px}
+  .inspect table{width:100%;border-collapse:collapse;margin-top:6px}
+  .inspect td,.inspect th{padding:3px 5px;border-bottom:1px solid var(--line);text-align:left;font-size:11px}
+  .inspect th{color:var(--faint);font-weight:500}
+  .small{font-size:11px}
+  .kv{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;padding:2px 0}
+  .kv .k{color:var(--faint)}
+  .kv .v{font-family:var(--mono);color:var(--ink)}
+  .note{background:var(--panel2);border:1px dashed var(--line);border-radius:7px;padding:8px 10px;font-size:11px;color:var(--dim);margin-top:8px}
+  details summary{cursor:pointer;color:var(--teal);font-size:11.5px;margin-top:6px}
+  hr.sep{border:none;border-top:1px solid var(--line);margin:11px 0}
+  @media (max-width:1240px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="row">
+      <div class="lede">
+        <h1>The Wayfinders' Atlas</h1>
+        <div class="thesis">
+          A runnable model of how Austronesian peoples crossed the Pacific — from the homeland off Taiwan out to the
+          three corners of the Polynesian Triangle (<b>Hawaiʻi, Rapa&nbsp;Nui, Aotearoa</b>). The map and timeline below are
+          built from the real record (radiocarbon, genetics, linguistics, oceanography). The simulation lays voyaging
+          physics over that world and asks the headline question:
+          <b>what must the canoes and the strategy have been capable of to reproduce the spread we observe — and which
+          assumptions fail?</b>
+        </div>
+        <div style="margin-top:7px">
+          <span class="badge">offline · single file</span>
+          <span class="badge">no build step</span>
+          <span class="badge">falsifiable</span>
+          <span class="badge">sources cited</span>
+        </div>
+      </div>
+    </div>
+    <div class="presets" id="presets"></div>
+  </header>
+
+  <div class="grid">
+    <!-- LEFT: controls -->
+    <div class="col">
+      <div class="card">
+        <h3>Voyaging assumptions</h3>
+        <div class="sub" style="margin-bottom:10px">Change these and re-run. Each is a knob on the canoe and the crew, not the geography.</div>
+        <div id="controls"></div>
+        <div class="btnrow">
+          <button class="act" id="run">Run spread</button>
+          <button class="act ghost" id="replay">Replay animation</button>
+        </div>
+        <div class="note" id="paramNote"></div>
+      </div>
+
+      <div class="card">
+        <h3>Display</h3>
+        <div class="toggle"><input type="checkbox" id="tgWind" checked><label for="tgWind">Trade winds &amp; westerly windows</label></div>
+        <div class="toggle"><input type="checkbox" id="tgCur"><label for="tgCur">Ocean currents</label></div>
+        <div class="toggle"><input type="checkbox" id="tgTracks" checked><label for="tgTracks">Colonising voyage tracks</label></div>
+        <div class="toggle"><input type="checkbox" id="tgFail"><label for="tgFail">Attempted-but-failed crossings</label></div>
+        <div class="toggle"><input type="checkbox" id="tgLabels" checked><label for="tgLabels">Island labels</label></div>
+        <div class="toggle"><input type="checkbox" id="tgWindow"><label for="tgWindow">Show wind during a westerly window</label></div>
+      </div>
+    </div>
+
+    <!-- CENTER: map + transport + timeline -->
+    <div class="col">
+      <div class="card pad0">
+        <div class="mapwrap">
+          <canvas id="map" width="1000" height="620"></canvas>
+          <div class="maptools">
+            <span class="sub" style="background:rgba(8,18,30,.78);border:1px solid var(--line);border-radius:6px;padding:3px 8px">Click an island to inspect its routes →</span>
+          </div>
+          <div class="legend" id="legend"></div>
+        </div>
+        <div class="transport">
+          <button class="act" id="play" style="min-width:64px">▶ Play</button>
+          <span class="yr mono" id="yearLabel">3000 BC</span>
+          <input type="range" id="time" min="0" max="1000" value="1000">
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Settlement timeline — simulation vs. the archaeological record</h3>
+        <div class="sub" style="margin-bottom:6px">
+          Grey bars = the date range the evidence allows (radiocarbon / tephra / dated faunal proxies). Markers = the date
+          <i>this run</i> settled each region. The point is the fit, including the <b>West Polynesian "long pause"</b> and
+          whether the run reaches the corners at all.
+        </div>
+        <canvas id="timeline" width="1000" height="300"></canvas>
+      </div>
+    </div>
+
+    <!-- RIGHT: verdict + model + trace -->
+    <div class="col">
+      <div class="card">
+        <div class="verdict" id="verdict"></div>
+        <table class="scoretable" id="scoreTable"></table>
+      </div>
+
+      <div class="card">
+        <div class="tabs" id="tabs">
+          <div class="tab active" data-tab="model">World model</div>
+          <div class="tab" data-tab="trace">Run trace</div>
+          <div class="tab" data-tab="inspect">Inspect</div>
+          <div class="tab" data-tab="debates">Debates</div>
+          <div class="tab" data-tab="refs">Sources</div>
+        </div>
+
+        <div class="tabpane active" data-pane="model" id="paneModel"></div>
+        <div class="tabpane" data-pane="trace">
+          <div class="sub" style="margin-bottom:6px">Every successful colonising hop this run made, in order. Each line shows the limiting physics.</div>
+          <div class="trace" id="trace"></div>
+        </div>
+        <div class="tabpane" data-pane="inspect" id="paneInspect">
+          <div class="inspect sub">Click any island on the map to see why it was (or wasn't) settled, and the feasibility of every route into it under the current assumptions.</div>
+        </div>
+        <div class="tabpane" data-pane="debates" id="paneDebates"></div>
+        <div class="tabpane" data-pane="refs" id="paneRefs"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer style="margin-top:24px;border-top:1px solid var(--line);padding-top:12px" class="sub">
+    Built as a galaxy-brain submission for <span class="mono">polynesian-spread</span> · harness <span class="mono">cursor</span> · model <span class="mono">fable-5-thinking-high</span>.
+    Dates are presented with the uncertainty the evidence carries; the simulation is a deliberately simple, inspectable
+    physics model, not a claim of precision. See the <b>Sources</b> tab.
+  </footer>
+</div>
+
+<script>
+"use strict";
+/* ============================================================================
+   THE WAYFINDERS' ATLAS
+   A world model + voyaging simulation of the Austronesian/Polynesian spread.
+
+   Everything is self-contained and runs offline. Three layers:
+     1. DATA      — island nodes, dated evidence windows, a plausible voyaging
+                    network, and the contested debates. Grounded in the record.
+     2. PHYSICS   — a simple, legible oceanography (trade winds, ENSO westerly
+                    windows, currents) and a canoe polar (speed, range, upwind
+                    ability), used to score each inter-island crossing.
+     3. SOLVER    — given fixed voyaging assumptions, compute when (if ever)
+                    the spread reaches each island, as a shortest-arrival-time
+                    problem. Then render the map, timeline, trace and verdict.
+
+   The model is intentionally falsifiable: downwind-drift-only or no-upwind
+   regimes fail to enter East Polynesia (cf. Levison, Ward & Webb 1973); too
+   little provisioning range strands the far corners; weatherly two-way
+   voyaging with usable wind windows reproduces the observed spread.
+   ============================================================================ */
+
+/* ---------- small geo helpers (Pacific-centred longitudes) ---------------- */
+const D2R = Math.PI/180, R2D = 180/Math.PI;
+const lonP = lon => lon < 0 ? lon + 360 : lon;        // continuous Pacific longitude
+const rad = d => d*D2R, deg = r => r*R2D;
+function nmDist(a,b){                                  // great-circle nautical miles
+  const la1=rad(a.lat), la2=rad(b.lat), dla=rad(b.lat-a.lat), dlo=rad(a.lonP-b.lonP);
+  const h=Math.sin(dla/2)**2 + Math.cos(la1)*Math.cos(la2)*Math.sin(dlo/2)**2;
+  const km = 6371*2*Math.asin(Math.min(1,Math.sqrt(h)));
+  return km/1.852;
+}
+function bearing(a,b){                                 // initial bearing a->b, deg (0=N,90=E)
+  const la1=rad(a.lat), la2=rad(b.lat), dlo=rad(b.lonP-a.lonP);
+  const y=Math.sin(dlo)*Math.cos(la2);
+  const x=Math.cos(la1)*Math.sin(la2)-Math.sin(la1)*Math.cos(la2)*Math.cos(dlo);
+  return (deg(Math.atan2(y,x))+360)%360;
+}
+function angDiff(a,b){ let d=Math.abs(a-b)%360; return d>180?360-d:d; }   // 0..180
+function lerp(t,a,b){ return a+(b-a)*t; }
+function clamp(v,lo,hi){ return Math.max(lo,Math.min(hi,v)); }
+function fmtYear(y){ y=Math.round(y); return y<0 ? (-y)+" BC" : (y===0?"1 AD":y+" AD"); }
+function fmtYearShort(y){ y=Math.round(y); return y<0 ? (-y)+"BC" : y+"AD"; }
+
+/* ============================================================================
+   1. DATA — the world model
+   Each island carries:  position, a settlement-evidence window [lo,hi] in
+   calendar years (negative = BC), a "screen" = effective target width in km
+   (how findable it is from open ocean: island height + archipelago spread +
+   the swell/cloud/bird halo around it), and a short evidence note + citation.
+   ============================================================================ */
+const RAW = [
+  {id:"taiwan", name:"Taiwan (homeland)", region:"Homeland", lat:23.7, lon:121.0, screen:800,
+   ev:null, origin:true,
+   note:"Out-of-Taiwan origin of the Austronesian expansion, ~5500–5000 BP, from Neolithic Taiwan.",
+   cite:"Bellwood 2005; Gray, Drummond & Greenhill 2009 (Science)"},
+  {id:"phil", name:"Philippines", region:"ISEA", lat:16.0, lon:120.5, screen:700,
+   ev:[-2500,-1800],
+   note:"Austronesian arrival in the northern Philippines (e.g. Nagsabaran) ~4200–3800 BP.",
+   cite:"Hung et al. 2011; Bellwood 2005"},
+  {id:"bismarck", name:"Bismarck Arch. (Lapita origin)", region:"Near Oceania", lat:-5.5, lon:150.8, screen:600,
+   ev:[-1500,-1250], milestone:"Lapita appears",
+   note:"Earliest Lapita dentate-stamped pottery, Bismarck Archipelago, ~3470–3250 cal BP.",
+   cite:"Specht et al. 2014; Denham et al. 2012"},
+  {id:"solomon", name:"Solomon Islands", region:"Near Oceania", lat:-9.5, lon:160.0, screen:480,
+   ev:[-1300,-1050],
+   note:"Near-continuous intervisible chain; Lapita passes through rapidly ~3300–3100 BP.",
+   cite:"Sheppard 2011"},
+  {id:"reefsc", name:"Reef / Santa Cruz", region:"Remote Oceania (gateway)", lat:-10.7, lon:166.0, screen:200,
+   ev:[-1250,-1000], milestone:"Into Remote Oceania",
+   note:"First crossing into Remote Oceania (no land in sight); Lapita ~3200–3000 BP.",
+   cite:"Sheppard 2011; Green 1991"},
+  {id:"vanuatu", name:"Vanuatu (Teouma)", region:"Remote Oceania", lat:-17.7, lon:168.3, screen:300,
+   ev:[-1150,-900],
+   note:"Teouma Lapita cemetery, Efate, ~3000 BP; first-generation Remote Oceanians.",
+   cite:"Bedford et al. 2006; Skoglund et al. 2016 (aDNA)"},
+  {id:"newcal", name:"New Caledonia", region:"Remote Oceania", lat:-21.5, lon:165.8, screen:350,
+   ev:[-1100,-900],
+   note:"Lapita (Site 13, Foué) ~3000 BP.", cite:"Sand 2010"},
+  {id:"fiji", name:"Fiji", region:"Remote Oceania", lat:-17.8, lon:178.0, screen:350,
+   ev:[-1100,-850],
+   note:"Bourewa and other Lapita sites ~3050–2900 BP; gateway to West Polynesia.",
+   cite:"Nunn et al. 2004"},
+  {id:"tonga", name:"Tonga (Nukuleka)", region:"West Polynesia", lat:-21.2, lon:-175.2, screen:250,
+   ev:[-900,-800], milestone:"West Polynesia settled",
+   note:"Nukuleka, Tongatapu — among the founding Polynesian sites, ~2838 cal BP.",
+   cite:"Burley, Barton, Dickinson et al. 2012 (PNAS)"},
+  {id:"samoa", name:"Samoa (Mulifanua)", region:"West Polynesia", lat:-13.9, lon:-171.8, screen:250,
+   ev:[-900,-650],
+   note:"Mulifanua submerged Lapita site ~2900–2750 BP; visibility of earliest layers debated.",
+   cite:"Petchey 2001; Rieth & Hunt 2008"},
+  // ---- the West Polynesian long pause (~1.5–2 kyr) lies across the gap below ----
+  {id:"cook", name:"Cook Islands (Rarotonga)", region:"Central East Polynesia", lat:-21.2, lon:-159.8, screen:190,
+   ev:[1000,1300],
+   note:"Settlement ~AD 1000–1300 on the short chronology.", cite:"Wilmshurst et al. 2011 (PNAS)"},
+  {id:"society", name:"Society Is. (Tahiti)", region:"Central East Polynesia", lat:-17.6, lon:-149.5, screen:240,
+   ev:[1000,1150], milestone:"East Polynesia hub",
+   note:"Central East Polynesia colonised ~AD 1025–1120 — the dispersal hub.",
+   cite:"Wilmshurst, Hunt, Lipo & Anderson 2011 (PNAS)"},
+  {id:"austral", name:"Austral Islands", region:"East Polynesia", lat:-23.4, lon:-149.5, screen:160,
+   ev:[1000,1300],
+   note:"Settled within the rapid East Polynesian pulse, ~AD 1000–1300.", cite:"Anderson et al. 2003"},
+  {id:"tuamotu", name:"Tuamotu Archipelago", region:"East Polynesia", lat:-16.0, lon:-145.5, screen:230,
+   ev:[1000,1250],
+   note:"Vast low-atoll screen; settled in the pulse ~AD 1000–1250.", cite:"Wilmshurst et al. 2011"},
+  {id:"marq", name:"Marquesas", region:"East Polynesia", lat:-8.9, lon:-140.1, screen:200,
+   ev:[1000,1250], milestone:"Marquesas",
+   note:"High, compact group; once claimed ~200 BC, now ~AD 1000–1250 (short chronology).",
+   cite:"Allen 2014; Wilmshurst et al. 2011"},
+  {id:"mangareva", name:"Mangareva (Gambier)", region:"East Polynesia", lat:-23.1, lon:-135.0, screen:120,
+   ev:[1050,1300],
+   note:"Staging point for Rapa Nui & Pitcairn; ~AD 1050–1300.", cite:"Kirch et al. 2010"},
+  {id:"pitcairn", name:"Pitcairn / Henderson", region:"East Polynesia", lat:-25.1, lon:-130.1, screen:60,
+   ev:[1100,1400],
+   note:"'Mystery islands' — settled then abandoned; ~AD 1100–1400.", cite:"Weisler 1995"},
+  {id:"hawaii", name:"Hawaiʻi", region:"Corner — North", lat:19.6, lon:-155.5, screen:380,
+   ev:[1000,1250], corner:true, milestone:"Corner: Hawaiʻi",
+   note:"Northern corner; high islands, large swell/cloud halo. ~AD 1000–1250.",
+   cite:"Wilmshurst et al. 2011; Athens et al. 2014"},
+  {id:"rapanui", name:"Rapa Nui (Easter)", region:"Corner — East", lat:-27.1, lon:-109.4, screen:95,
+   ev:[1150,1280], corner:true, milestone:"Corner: Rapa Nui",
+   note:"Eastern corner; tiny, the most isolated target on Earth. ~AD 1200 (older 400–800 AD rejected).",
+   cite:"Hunt & Lipo 2006 (Science); Wilmshurst et al. 2011"},
+  {id:"kermadec", name:"Kermadec Is.", region:"Stepping stone", lat:-29.3, lon:-177.9, screen:120,
+   ev:[1100,1400],
+   note:"Way-station on the run to Aotearoa; intermittently occupied.", cite:"Anderson 2001"},
+  {id:"nz", name:"Aotearoa (New Zealand)", region:"Corner — South", lat:-37.0, lon:175.2, screen:720,
+   ev:[1230,1300], corner:true, milestone:"Corner: Aotearoa",
+   note:"Southern corner; huge target. Kaharoa tephra (~AD 1314) caps settlement; ~AD 1230–1280.",
+   cite:"Wilmshurst et al. 2008 (PNAS); Lowe et al. 2000"},
+];
+RAW.forEach(d => { d.lonP = lonP(d.lon); });
+const NODES = Object.fromEntries(RAW.map(d=>[d.id,d]));
+
+/* A plausible voyaging network. Edges are undirected; the physics scores each
+   direction. Western hops are short (dense, intervisible chains); the West→East
+   transition is a long open-ocean gap — the geography of the "long pause". */
+const EDGES = [
+  ["taiwan","phil"],["phil","bismarck"],["bismarck","solomon"],["solomon","reefsc"],
+  ["reefsc","vanuatu"],["vanuatu","newcal"],["vanuatu","fiji"],["newcal","fiji"],
+  ["fiji","tonga"],["fiji","samoa"],["tonga","samoa"],
+  // ---- the gap into East Polynesia ----
+  ["samoa","cook"],["samoa","society"],["tonga","cook"],
+  ["cook","society"],["cook","austral"],
+  // ---- East Polynesia core (short hops, dense archipelagos) ----
+  ["society","austral"],["society","tuamotu"],["society","marq"],
+  ["tuamotu","marq"],["tuamotu","mangareva"],["austral","mangareva"],
+  ["mangareva","pitcairn"],
+  // ---- the three corners (long jumps from the core) ----
+  ["pitcairn","rapanui"],["mangareva","rapanui"],
+  ["marq","hawaii"],["society","hawaii"],
+  ["tonga","kermadec"],["cook","kermadec"],["austral","kermadec"],
+  ["kermadec","nz"],["cook","nz"],["austral","nz"],
+];
+
+/* Milestones used for the verdict / scoring (the spine of the spread). */
+const MILESTONES = ["bismarck","reefsc","fiji","tonga","samoa","society","marq","hawaii","rapanui","nz"];
+
+/* ============================================================================
+   2. PHYSICS — oceanography + canoe polar
+   ============================================================================ */
+// Tunables surfaced for honesty/inspection (also lightly used by the trace).
+const CFG = {
+  SIM_START:-3000, SIM_END:1500,
+  DETECT_K:1.55,        // landfall-finding gain
+  CONSOLIDATE:18,       // yrs to establish & provision before pushing on
+  HOP_FREE:200,         // nm of upwind a short hop gets "for free" before window scarcity bites
+  WINDOW_REACH:430,     // nm scale over which sustained westerly windows get rarer
+  ORIGIN_YEAR:-3000,
+};
+
+/* Wind: direction the wind BLOWS FROM (bearing deg). A deliberately simple but
+   honest tropical Pacific: SE trades dominate the south, NE trades the north,
+   light variable/counter-flow near the equator, westerlies in the far south. */
+function windFrom(lat){
+  if (lat < -32) return 250;          // Southern Ocean westerlies (blow from WSW) → eastward help near NZ
+  if (lat > 22)  return 65;           // NE trades (blow from NE) → westward set, Hawaiʻi latitudes
+  if (lat > 8)   return 70;           // NE trade band
+  if (lat > 2)   return 250;          // equatorial counter-flow / monsoon westerlies (light)
+  return 115;                          // S tropical SE trades (blow from ESE) — the great eastward obstacle
+}
+function sampleWindFrom(a,b){          // average wind-from along the great circle
+  let sx=0, sy=0;
+  for (let t=0;t<=1;t+=0.25){
+    const lat=lerp(t,a.lat,b.lat), w=rad(windFrom(lat));
+    sx+=Math.sin(w); sy+=Math.cos(w);
+  }
+  return (deg(Math.atan2(sx,sy))+360)%360;
+}
+/* Surface currents: bearing the water FLOWS TOWARD + speed (kn). */
+function current(lat){
+  if (lat < -32) return {to:90, sp:0.4};        // eastward drift (W wind belt)
+  if (lat > 8 && lat < 22) return {to:280, sp:0.5}; // North Equatorial Current → W
+  if (lat >= 3 && lat <= 8) return {to:95, sp:0.5};  // Equatorial Counter Current → E
+  if (lat < 3 && lat > -25) return {to:280, sp:0.6}; // South Equatorial Current → W (opposes eastward voyaging)
+  return {to:280, sp:0.25};
+}
+function currentProj(a,b,brg){         // knots of current resolved along travel bearing
+  let s=0,n=0;
+  for (let t=0;t<=1;t+=0.5){
+    const lat=lerp(t,a.lat,b.lat), c=current(lat);
+    s += c.sp*Math.cos(rad(c.to-brg)); n++;
+  }
+  return s/n;
+}
+
+/* Canoe polar: given the angle off the wind (gamma: 0 = dead upwind … 180 =
+   dead downwind), the pointing angle p the hull can make good, the through-water
+   speed, the along-track current, distance and provisioning range — return the
+   crossing time and whether it's even survivable. */
+function sailLeg(gamma, p, speed, cur, distNm, rangeDays){
+  let factor, mode;
+  if (gamma >= p){                                   // can lay the course directly
+    const t = (gamma - p)/(180 - p);
+    factor = Math.max(0.55, 0.50 + 0.50*Math.sin(clamp(t,0,1)*Math.PI)); // reach-peaked polar
+    mode = gamma > 150 ? "running downwind" : "reaching";
+  } else {                                            // destination is upwind of what we can point
+    if (p >= 88) return {feasible:false, mode:"in irons (square sail, no windward ability)", days:Infinity, ground:0};
+    factor = Math.cos(rad(p))*0.80 * (0.55 + 0.45*(gamma/p));            // slow VMG, tacking
+    mode = "beating to windward";
+  }
+  const ground = factor*speed + cur;                  // knots over the ground
+  if (ground <= 0.15) return {feasible:false, mode:"pinned by foul wind + current", days:Infinity, ground};
+  const days = distNm/(ground*24);
+  return {feasible: days <= rangeDays, days, ground, mode, factor};
+}
+
+/* Probability a single launched exploratory voyage actually FINDS the target. */
+function detectProb(distNm, screenKm, nav){
+  const distKm = distNm*1.852;
+  return clamp(1 - Math.exp(-nav * (screenKm/distKm) * CFG.DETECT_K), 0, 0.985);
+}
+function pointingAngle(upwind){ return 90 - 42*clamp(upwind,0,1); }      // 90° (none) … 48° (very weatherly)
+function windowReturnYears(freq, distNm){                                // mean yrs to catch a usable westerly window over this gap
+  const p = clamp(freq * Math.exp(-Math.max(0,distNm-CFG.HOP_FREE)/CFG.WINDOW_REACH), 0, 1);
+  return p>0 ? 1/p : Infinity;
+}
+
+/* Score one directed crossing A→B under voyaging params P. Returns the expected
+   calendar time for the colonising wave to make the hop, plus the limiting
+   factor for the trace/inspector. */
+function computeEdge(A, B, P, allowRecurse=true){
+  const dist = nmDist(A,B), brg = bearing(A,B);
+  const wf = sampleWindFrom(A,B), gamma = angDiff(brg, wf);
+  const cur = currentProj(A,B,brg), p = pointingAngle(P.upwind);
+  const interval = P.attemptInterval, detect = detectProb(dist, B.screen, P.nav);
+
+  // Option 1: sail it on the prevailing wind (reach/run, or beat if weatherly enough).
+  const direct = sailLeg(gamma, p, P.speed, cur, dist, P.rangeDays);
+  // Option 2: wait for a westerly wind window that reverses the trades, then run across.
+  const gammaW = angDiff(brg, (wf+180)%360);
+  const win = sailLeg(gammaW, p, P.speed, cur, dist, P.rangeDays);
+  const winWaitBase = windowReturnYears(P.windowFreq, dist);
+
+  let best = {wait:Infinity};
+  if (direct.feasible && detect>0.02){
+    const wait = interval/detect + direct.days/365 + CFG.CONSOLIDATE;
+    if (wait < best.wait) best = {wait, via:"prevailing wind", leg:direct, detect, gamma, dist, brg, cur, p, winWait:0};
+  }
+  if (win.feasible && isFinite(winWaitBase) && detect>0.02){
+    const wait = (interval + winWaitBase)/detect + win.days/365 + CFG.CONSOLIDATE;
+    if (wait < best.wait) best = {wait, via:"westerly window", leg:win, detect, gamma, dist, brg, cur, p, winWait:winWaitBase};
+  }
+
+  let feasible = isFinite(best.wait);
+  let limiting = "";
+  if (!feasible){
+    if (!direct.feasible && !win.feasible){
+      if (gamma < p && p>=88) limiting = "dead upwind for a square sail — no windward ability, and no usable wind window";
+      else if (direct.days>P.rangeDays && win.days>P.rangeDays) limiting = `${Math.round(Math.min(direct.days,win.days))}-day crossing exceeds ${P.rangeDays}-day provisioning range`;
+      else limiting = "foul wind + adverse current cancel headway";
+    } else if (detect<=0.02){
+      limiting = `target too small/distant to find (landfall odds ${(detect*100).toFixed(1)}%)`;
+    } else if (!isFinite(winWaitBase)){
+      limiting = "upwind gap too long; no wind window ever sustains the crossing";
+    }
+  } else {
+    limiting = `${Math.round(best.leg.days)}d ${best.leg.mode} via ${best.via}; landfall odds ${(best.detect*100).toFixed(0)}%`;
+  }
+
+  // Two-way voyaging: a deliberate wayfinder only commits if the return is also
+  // feasible (Irwin's "safe" upwind-search strategy). Blocks one-way drifts.
+  if (feasible && P.twoWay && allowRecurse){
+    const back = computeEdge(B, A, P, false);
+    if (!back.feasible){ feasible=false; limiting = "no safe return passage (two-way voyaging required) — wayfinders won't commit"; best={wait:Infinity}; }
+  }
+  return {feasible, wait:best.wait, dist, gamma, detect, via:best.via, leg:best.leg, winWait:best.winWait, limiting, brg, cur, p};
+}
+
+/* ============================================================================
+   3. SOLVER — shortest arrival time over the network (Dijkstra)
+   ============================================================================ */
+function runModel(P){
+  const ids = RAW.map(d=>d.id);
+  const arrival = {}, fromEdge = {};
+  ids.forEach(id=>arrival[id]=Infinity);
+  const origin = "taiwan";
+  arrival[origin] = CFG.ORIGIN_YEAR;
+
+  // adjacency
+  const adj = {}; ids.forEach(id=>adj[id]=[]);
+  EDGES.forEach(([a,b])=>{ adj[a].push(b); adj[b].push(a); });
+
+  const visited = {};
+  while (true){
+    let u=null, best=Infinity;
+    for (const id of ids) if (!visited[id] && arrival[id]<best){ best=arrival[id]; u=id; }
+    if (u===null) break;
+    visited[u]=true;
+    if (arrival[u] > CFG.SIM_END+4000) continue;     // unreachable frontier
+    for (const v of adj[u]){
+      if (visited[v]) continue;
+      const e = computeEdge(NODES[u], NODES[v], P);
+      if (!e.feasible) continue;
+      const cand = arrival[u] + e.wait;
+      if (cand < arrival[v]){ arrival[v]=cand; fromEdge[v]={from:u, edge:e}; }
+    }
+  }
+
+  // Build the ordered trace of colonising hops actually used.
+  const trace = ids.filter(id=>fromEdge[id] && isFinite(arrival[id]))
+    .sort((a,b)=>arrival[a]-arrival[b])
+    .map(id=>({to:id, year:arrival[id], from:fromEdge[id].from, edge:fromEdge[id].edge}));
+
+  // For the inspector: feasibility of every incoming edge to every node.
+  const incoming = {};
+  ids.forEach(id=>{
+    incoming[id] = adj[id].map(n=>({from:n, e:computeEdge(NODES[n], NODES[id], P), srcYear:arrival[n]}))
+      .sort((x,y)=> (x.e.feasible===y.e.feasible) ? x.e.wait-y.e.wait : (x.e.feasible?-1:1));
+  });
+
+  return {arrival, fromEdge, trace, incoming, P};
+}
+
+/* Classify a milestone's outcome against its evidence window. */
+function classify(id, arrival){
+  const ev = NODES[id].ev; const y = arrival[id];
+  if (!isFinite(y)) return {k:"never", label:"not reached"};
+  if (!ev) return {k:"hit", label:fmtYearShort(y)};
+  if (y < ev[0]-150) return {k:"early", label:fmtYearShort(y)+" (too early)"};
+  if (y > ev[1]+150) return {k:"miss", label:fmtYearShort(y)+" (too late)"};
+  return {k:"hit", label:fmtYearShort(y)};
+}
+
+/* ============================================================================
+   PARAMETERS / PRESETS / UI STATE
+   ============================================================================ */
+const PARAMS = [
+  {key:"speed", label:"Canoe speed (favourable wind)", min:1.5, max:7, step:0.1, val:4.8, unit:" kn",
+   hint:"Through-water speed of a laden double-hulled voyaging canoe on its best point of sail."},
+  {key:"rangeDays", label:"Provisioning range", min:5, max:40, step:1, val:22, unit:" days",
+   hint:"Days of water & food at sea — sets the longest crossing the crew can survive."},
+  {key:"upwind", label:"Windward ability", min:0, max:1, step:0.01, val:0.55, unit:"",
+   hint:"0 = square sail, downwind only · 1 = highly weatherly (can beat ~48° off the wind). The crab-claw sail was weatherly."},
+  {key:"nav", label:"Navigation / landfall skill", min:0.05, max:1, step:0.01, val:0.7, unit:"",
+   hint:"Skill at expanding a target with birds, swell, cloud and dead-reckoning — sets how findable distant land is."},
+  {key:"windowFreq", label:"Westerly wind windows (ENSO)", min:0, max:1, step:0.01, val:0.45, unit:"",
+   hint:"How often El Niño / monsoon westerlies reverse the trades, opening an eastward door. Rarer for longer gaps."},
+  {key:"attemptInterval", label:"Voyaging cadence", min:4, max:60, step:1, val:14, unit:" yr/try",
+   hint:"Years between exploratory voyages from a settled frontier (population pressure & voyaging culture)."},
+];
+let TWO_WAY = true;          // two-way (return) voyaging required — handled as a checkbox in controls
+let MODEL = null;            // last run
+let SELECTED = null;         // inspected island
+let ANIM = {playing:false, t:1, raf:null};
+
+const PRESETS = [
+  {name:"Weatherly two-way wayfinding", tag:"reproduces the record",
+   desc:"Irwin/Finney: weatherly canoes, navigated two-way search, real wind windows. The intended success regime.",
+   p:{speed:4.8, rangeDays:22, upwind:0.55, nav:0.72, windowFreq:0.45, attemptInterval:13}, twoWay:true},
+  {name:"Drift voyaging only (Sharp 1956)", tag:"fails to reach East Polynesia",
+   desc:"Square sails, no windward ability, one-way drifting, almost no wind windows. Cf. Levison–Ward–Webb 1973.",
+   p:{speed:3.0, rangeDays:12, upwind:0.0, nav:0.18, windowFreq:0.03, attemptInterval:25}, twoWay:false},
+  {name:"Marginal canoes, small holds", tag:"strands the far corners",
+   desc:"Some windward skill and return voyaging, but too little provisioning range to span the longest jumps.",
+   p:{speed:3.6, rangeDays:12, upwind:0.30, nav:0.45, windowFreq:0.30, attemptInterval:18}, twoWay:true},
+  {name:"Climate-driven (heavy ENSO windows)", tag:"alternative success path",
+   desc:"Anderson/Goodwin: only modest boats, but frequent westerly windows do the upwind work. Also reproduces the spread.",
+   p:{speed:4.2, rangeDays:20, upwind:0.28, nav:0.62, windowFreq:0.82, attemptInterval:14}, twoWay:true},
+];
+
+/* ---------------- build controls ---------------- */
+const controlsEl = document.getElementById("controls");
+function buildControls(){
+  controlsEl.innerHTML = "";
+  PARAMS.forEach(P=>{
+    const wrap=document.createElement("div"); wrap.className="ctrl";
+    wrap.innerHTML = `<label>${P.label}<span class="val" id="v_${P.key}"></span></label>
+      <input type="range" id="c_${P.key}" min="${P.min}" max="${P.max}" step="${P.step}" value="${P.val}">
+      <div class="hint">${P.hint}</div>`;
+    controlsEl.appendChild(wrap);
+    const inp=wrap.querySelector("input");
+    inp.addEventListener("input", ()=>{ P.val=parseFloat(inp.value); updateValLabels(); scheduleRun(); markPresetDirty(); });
+  });
+  const tw=document.createElement("label"); tw.className="toggle";
+  tw.innerHTML = `<input type="checkbox" id="c_twoway" ${TWO_WAY?"checked":""}> Require two-way (return) voyaging
+    <span class="faint" style="font-size:10.5px">— deliberate, not drift</span>`;
+  controlsEl.appendChild(tw);
+  tw.querySelector("input").addEventListener("change", e=>{ TWO_WAY=e.target.checked; scheduleRun(); markPresetDirty(); });
+  updateValLabels();
+}
+function updateValLabels(){
+  PARAMS.forEach(P=>{
+    const el=document.getElementById("v_"+P.key); if(!el) return;
+    let txt;
+    if (P.key==="upwind") txt = P.val<=0?"none":(P.val>=0.9?"very high":P.val>=0.5?"high":P.val>=0.25?"some":"low")+` (${Math.round(pointingAngle(P.val))}°)`;
+    else if (P.key==="nav"||P.key==="windowFreq") txt = Math.round(P.val*100)+"%";
+    else txt = P.val+P.unit;
+    el.textContent = txt;
+  });
+}
+function getParams(){
+  const o={twoWay:TWO_WAY};
+  PARAMS.forEach(P=>o[P.key]=P.val);
+  return o;
+}
+
+/* ---------------- presets ---------------- */
+const presetsEl=document.getElementById("presets");
+let activePreset=0;
+function buildPresets(){
+  presetsEl.innerHTML="";
+  PRESETS.forEach((pr,i)=>{
+    const el=document.createElement("div"); el.className="preset"+(i===activePreset?" active":"");
+    el.innerHTML=`<div class="pt">${pr.name}</div><div class="pd">${pr.desc}</div>`;
+    el.addEventListener("click",()=>applyPreset(i));
+    presetsEl.appendChild(el);
+  });
+}
+function applyPreset(i){
+  activePreset=i; const pr=PRESETS[i];
+  PARAMS.forEach(P=>{ if(pr.p[P.key]!==undefined) P.val=pr.p[P.key]; });
+  TWO_WAY=pr.twoWay;
+  PARAMS.forEach(P=>{ const inp=document.getElementById("c_"+P.key); if(inp) inp.value=P.val; });
+  const tw=document.getElementById("c_twoway"); if(tw) tw.checked=TWO_WAY;
+  updateValLabels(); buildPresets();
+  doRun(true);
+}
+function markPresetDirty(){ activePreset=-1; buildPresets(); }
+
+/* ---------------- run + (re)render ---------------- */
+let runTimer=null;
+function scheduleRun(){ clearTimeout(runTimer); runTimer=setTimeout(()=>doRun(false),120); }
+function doRun(animate){
+  MODEL = runModel(getParams());
+  if (animate){ ANIM.t=0; }
+  renderAll();
+  renderParamNote();
+  if (animate) startAnim();
+}
+function renderParamNote(){
+  const P=getParams();
+  const el=document.getElementById("paramNote");
+  el.innerHTML = `Canoe makes good ~<b>${Math.round(pointingAngle(P.upwind))}°</b> off the wind; carries <b>${P.rangeDays}</b> days at ~<b>${P.speed}</b> kn ≈ a <b>${Math.round(P.speed*24*0.7*P.rangeDays).toLocaleString()}</b> nm reaching range. Westerly door opens for a 1,000 nm gap on average every <b>${isFinite(windowReturnYears(P.windowFreq,1000))?Math.round(windowReturnYears(P.windowFreq,1000)):"∞"}</b> yr.`;
+}
+
+/* ============================================================================
+   RENDERING
+   ============================================================================ */
+const mapC=document.getElementById("map"), mctx=mapC.getContext("2d");
+const tlC=document.getElementById("timeline"), tctx=tlC.getContext("2d");
+const VIEW={lonMin:108,lonMax:255,latMin:-50,latMax:32};
+function fitCanvas(c){ const r=c.getBoundingClientRect(); const dpr=window.devicePixelRatio||1;
+  c.width=Math.max(640,r.width)*dpr; c.height=(c===mapC?620:300)*dpr; const ctx=c.getContext("2d");
+  ctx.setTransform(dpr,0,0,dpr,0,0); return {w:c.width/dpr,h:c.height/dpr}; }
+function proj(lonp,lat,w,h){
+  return {x:(lonp-VIEW.lonMin)/(VIEW.lonMax-VIEW.lonMin)*w, y:(VIEW.latMax-lat)/(VIEW.latMax-VIEW.latMin)*h};
+}
+function unproj(px,py,w,h){
+  return {lonp:VIEW.lonMin+px/w*(VIEW.lonMax-VIEW.lonMin), lat:VIEW.latMax-py/h*(VIEW.latMax-VIEW.latMin)};
+}
+
+// Coarse landmasses (very simplified) just for orientation. lon in Pacific coords.
+const LAND=[
+  {name:"Asia",   poly:[[108,32],[122,33],[126,24],[120,15],[122,8],[112,3],[108,12]]},
+  {name:"Australia", poly:[[112,-12],[131,-12],[142,-11],[150,-22],[153,-28],[146,-39],[136,-35],[129,-32],[115,-34],[113,-22]]},
+  {name:"N. Guinea", poly:[[131,-1],[141,-2],[150,-7],[146,-9],[138,-9],[131,-3]]},
+];
+function drawMap(){
+  const {w,h}=fitCanvas(mapC);
+  mctx.clearRect(0,0,w,h);
+  // ocean
+  const g=mctx.createLinearGradient(0,0,0,h); g.addColorStop(0,"#0a1f33"); g.addColorStop(1,"#081627");
+  mctx.fillStyle=g; mctx.fillRect(0,0,w,h);
+  // graticule
+  mctx.strokeStyle="rgba(22,48,73,.7)"; mctx.fillStyle="#3a566e"; mctx.font="10px var(--mono,monospace)"; mctx.lineWidth=1;
+  for(let lon=120;lon<=250;lon+=20){ const p=proj(lon,VIEW.latMax,w,h); mctx.beginPath(); mctx.moveTo(p.x,0); mctx.lineTo(p.x,h); mctx.stroke();
+    const ll = lon>180?(360-lon)+"°W":lon+"°E"; mctx.fillText(ll,p.x+3,h-6); }
+  for(let lat=-40;lat<=20;lat+=20){ const p=proj(VIEW.lonMin,lat,w,h); mctx.beginPath(); mctx.moveTo(0,p.y); mctx.lineTo(w,p.y); mctx.stroke();
+    mctx.fillText((lat<0?(-lat)+"°S":lat+"°N"),4,p.y-3); }
+  // equator emphasis
+  const eq=proj(VIEW.lonMin,0,w,h); mctx.strokeStyle="rgba(60,90,120,.9)"; mctx.setLineDash([4,4]); mctx.beginPath(); mctx.moveTo(0,eq.y); mctx.lineTo(w,eq.y); mctx.stroke(); mctx.setLineDash([]);
+  // land
+  mctx.fillStyle="#13283b"; mctx.strokeStyle="#1d3a52";
+  LAND.forEach(L=>{ mctx.beginPath(); L.poly.forEach((pt,i)=>{ const p=proj(pt[0],pt[1],w,h); i?mctx.lineTo(p.x,p.y):mctx.moveTo(p.x,p.y); }); mctx.closePath(); mctx.fill(); mctx.stroke(); });
+  // Polynesian Triangle outline
+  const tri=["hawaii","rapanui","nz"].map(id=>proj(NODES[id].lonP,NODES[id].lat,w,h));
+  mctx.strokeStyle="rgba(236,193,92,.28)"; mctx.setLineDash([6,5]); mctx.lineWidth=1.3;
+  mctx.beginPath(); tri.forEach((p,i)=>i?mctx.lineTo(p.x,p.y):mctx.moveTo(p.x,p.y)); mctx.closePath(); mctx.stroke(); mctx.setLineDash([]);
+
+  // wind / current fields
+  if (document.getElementById("tgWind").checked) drawField(w,h,"wind");
+  if (document.getElementById("tgCur").checked) drawField(w,h,"current");
+
+  // tracks
+  if (MODEL) drawTracks(w,h);
+
+  // nodes
+  if (MODEL) drawNodes(w,h);
+  drawLegend();
+}
+function drawField(w,h,kind){
+  const showWindow = kind==="wind" && document.getElementById("tgWindow").checked;
+  const stepX=46, stepY=44;
+  for(let py=stepY/2; py<h; py+=stepY){
+    for(let px=stepX/2; px<w; px+=stepX){
+      const {lat}=unproj(px,py,w,h);
+      let toBrg, sp, col;
+      if (kind==="wind"){
+        let wf=windFrom(lat);
+        if (showWindow && lat<=2 && lat>-25) wf=295;   // westerly window flips S-tropical trades
+        toBrg=(wf+180)%360; sp=1; col= (showWindow && lat<=2 && lat>-25) ? "rgba(157,139,224,.85)" : "rgba(90,169,230,.55)";
+      } else {
+        const c=current(lat); toBrg=c.to; sp=c.sp; col="rgba(63,199,207,.5)";
+      }
+      drawArrow(px,py,toBrg,kind==="wind"?13:9*(0.6+sp),col);
+    }
+  }
+}
+function drawArrow(x,y,brg,len,col){
+  const a=rad(brg-90); // bearing->screen angle (0deg bearing = up = -90 screen)
+  const dx=Math.cos(rad(90-brg)), dy=-Math.sin(rad(90-brg));
+  const ex=x+dx*len, ey=y+dy*len;
+  mctx.strokeStyle=col; mctx.fillStyle=col; mctx.lineWidth=1.4;
+  mctx.beginPath(); mctx.moveTo(x-dx*len,y-dy*len); mctx.lineTo(ex,ey); mctx.stroke();
+  // head
+  const ah=4.5, ang=Math.atan2(ey-(y-dy*len),ex-(x-dx*len));
+  mctx.beginPath(); mctx.moveTo(ex,ey);
+  mctx.lineTo(ex-ah*Math.cos(ang-0.4),ey-ah*Math.sin(ang-0.4));
+  mctx.lineTo(ex-ah*Math.cos(ang+0.4),ey-ah*Math.sin(ang+0.4));
+  mctx.closePath(); mctx.fill();
+}
+function curYear(){ return lerp(ANIM.t, CFG.SIM_START, CFG.SIM_END); }
+function drawTracks(w,h){
+  const showTracks=document.getElementById("tgTracks").checked;
+  const showFail=document.getElementById("tgFail").checked;
+  const yNow=curYear();
+  // failed attempts (dashed faint) — edges that are infeasible from a settled node
+  if (showFail){
+    const P=getParams();
+    EDGES.forEach(([a,b])=>{
+      [[a,b],[b,a]].forEach(([s,d])=>{
+        if (!isFinite(MODEL.arrival[s])) return;
+        if (isFinite(MODEL.arrival[d]) && MODEL.arrival[d]<=MODEL.arrival[s]+1) return;
+        const e=computeEdge(NODES[s],NODES[d],P);
+        if (e.feasible) return;
+        const p1=proj(NODES[s].lonP,NODES[s].lat,w,h), p2=proj(NODES[d].lonP,NODES[d].lat,w,h);
+        mctx.strokeStyle="rgba(239,111,99,.18)"; mctx.setLineDash([3,4]); mctx.lineWidth=1;
+        mctx.beginPath(); mctx.moveTo(p1.x,p1.y); mctx.lineTo(p2.x,p2.y); mctx.stroke(); mctx.setLineDash([]);
+      });
+    });
+  }
+  if (!showTracks) return;
+  MODEL.trace.forEach(t=>{
+    if (t.year>yNow) return;
+    const A=NODES[t.from], B=NODES[t.to];
+    const p1=proj(A.lonP,A.lat,w,h), p2=proj(B.lonP,B.lat,w,h);
+    const corner = B.corner;
+    const win = t.edge.via==="westerly window";
+    mctx.strokeStyle = corner ? "rgba(236,193,92,.85)" : (win?"rgba(157,139,224,.7)":"rgba(63,199,207,.6)");
+    mctx.lineWidth = corner?2.1:1.4;
+    mctx.beginPath(); mctx.moveTo(p1.x,p1.y); mctx.lineTo(p2.x,p2.y); mctx.stroke();
+    // animated canoe glyph if just activated within window
+    if (yNow-t.year < (CFG.SIM_END-CFG.SIM_START)*0.02){
+      const f=clamp((yNow-t.year)/((CFG.SIM_END-CFG.SIM_START)*0.02),0,1);
+      const cx=lerp(f,p1.x,p2.x), cy=lerp(f,p1.y,p2.y);
+      mctx.fillStyle="#ffe"; mctx.beginPath(); mctx.arc(cx,cy,2.4,0,7); mctx.fill();
+    }
+  });
+}
+function drawNodes(w,h){
+  const showLabels=document.getElementById("tgLabels").checked;
+  const yNow=curYear();
+  RAW.forEach(d=>{
+    const p=proj(d.lonP,d.lat,w,h);
+    const settled = isFinite(MODEL.arrival[d.id]) && MODEL.arrival[d.id]<=yNow;
+    const reachable = isFinite(MODEL.arrival[d.id]);
+    let col = d.origin?"#ecc15c":(d.corner?"#ecc15c":"#3fc7cf");
+    // base ring
+    mctx.beginPath(); mctx.arc(p.x,p.y,d.corner?6.5:5,0,7);
+    if (settled){ mctx.fillStyle=col; mctx.fill(); mctx.strokeStyle="rgba(255,255,255,.65)"; mctx.lineWidth=1.2; mctx.stroke(); }
+    else { mctx.fillStyle="rgba(99,125,146,.25)"; mctx.fill(); mctx.strokeStyle= reachable?"rgba(99,125,146,.7)":"rgba(239,111,99,.55)"; mctx.lineWidth=1; mctx.stroke(); }
+    if (d.corner){ mctx.beginPath(); mctx.arc(p.x,p.y,9.5,0,7); mctx.strokeStyle="rgba(236,193,92,.5)"; mctx.lineWidth=1; mctx.stroke(); }
+    if (SELECTED===d.id){ mctx.beginPath(); mctx.arc(p.x,p.y,12,0,7); mctx.strokeStyle="#fff"; mctx.lineWidth=1.5; mctx.stroke(); }
+    if (showLabels){
+      mctx.fillStyle= settled?"#dbe8f0":"#6f8499"; mctx.font=(d.corner||d.milestone)?"bold 10.5px var(--sans)":"10px var(--sans)";
+      const short=d.name.split(" (")[0].replace(" Islands","").replace(" Archipelago","");
+      const tx=p.x+8, ty=p.y+3;
+      mctx.fillText(short, tx, ty);
+      if (settled){ mctx.fillStyle="#ecc15c"; mctx.font="9px var(--mono,monospace)"; mctx.fillText(fmtYearShort(MODEL.arrival[d.id]), tx, ty+11); }
+    }
+  });
+}
+function drawLegend(){
+  const showWindow=document.getElementById("tgWindow").checked;
+  const el=document.getElementById("legend");
+  el.innerHTML = `
+    <div class="lr"><span class="dot" style="background:#ecc15c"></span> origin / triangle corner &nbsp; <span class="dot" style="background:#3fc7cf"></span> settled island</div>
+    <div class="lr"><span class="dot" style="background:rgba(99,125,146,.5)"></span> reachable (not yet) &nbsp; <span class="dot" style="background:rgba(239,111,99,.7)"></span> never reached this run</div>
+    <div class="lr"><span style="display:inline-block;width:16px;border-top:2px solid #3fc7cf"></span> hop on prevailing wind &nbsp; <span style="display:inline-block;width:16px;border-top:2px solid #9d8be0"></span> via westerly window</div>
+    <div class="lr"><span style="display:inline-block;width:16px;border-top:2px solid #ecc15c"></span> reaching a corner &nbsp; <span style="display:inline-block;width:16px;border-top:2px dashed rgba(239,111,99,.6)"></span> attempted, failed</div>
+    ${document.getElementById("tgWind").checked?`<div class="lr"><span class="dot" style="background:#5aa9e6"></span> trade winds (blow toward arrow)${showWindow?` &nbsp;<span class="dot" style="background:#9d8be0"></span> westerly window`:""}</div>`:""}`;
+}
+
+/* ---------------- timeline ---------------- */
+function drawTimeline(){
+  const {w,h}=fitCanvas(tlC);
+  tctx.clearRect(0,0,w,h);
+  const rows=MILESTONES, padL=132, padR=18, padT=20, padB=24;
+  const x0=padL, x1=w-padR, plotW=x1-x0;
+  const tMin=CFG.SIM_START, tMax=CFG.SIM_END;
+  const X=y=> x0 + (y-tMin)/(tMax-tMin)*plotW;
+  const rowH=(h-padT-padB)/rows.length;
+  // time axis
+  tctx.strokeStyle="rgba(31,59,84,.8)"; tctx.fillStyle="#637d92"; tctx.font="10px var(--mono,monospace)";
+  [-3000,-2000,-1000,0,1000,1500].forEach(yr=>{ const x=X(yr); tctx.beginPath(); tctx.moveTo(x,padT-6); tctx.lineTo(x,h-padB+2); tctx.stroke(); tctx.fillText(fmtYearShort(yr),x-12,h-8); });
+  // "long pause" band (Samoa ~ -750 .. Society ~ 1050)
+  const pb0=X(-750), pb1=X(1000);
+  tctx.fillStyle="rgba(157,139,224,.08)"; tctx.fillRect(pb0,padT-2,pb1-pb0,h-padT-padB+2);
+  tctx.fillStyle="rgba(157,139,224,.7)"; tctx.font="italic 10px var(--sans)"; tctx.fillText("the West Polynesian \"long pause\"", pb0+6, padT+10);
+
+  rows.forEach((id,i)=>{
+    const d=NODES[id], yc=padT+i*rowH+rowH/2;
+    // label
+    tctx.fillStyle= d.corner?"#ecc15c":"#cfe0ec"; tctx.font=(d.corner?"bold ":"")+"11px var(--sans)";
+    const nm=d.name.split(" (")[0].replace(" Islands","").replace(" Archipelago","");
+    tctx.textAlign="right"; tctx.fillText(nm, padL-8, yc+3); tctx.textAlign="left";
+    // evidence window bar
+    if (d.ev){ const bx0=X(d.ev[0]), bx1=X(d.ev[1]);
+      tctx.fillStyle="rgba(155,180,198,.22)"; tctx.fillRect(bx0,yc-6,Math.max(2,bx1-bx0),12);
+      tctx.strokeStyle="rgba(155,180,198,.5)"; tctx.strokeRect(bx0,yc-6,Math.max(2,bx1-bx0),12);
+    }
+    // sim marker
+    const y=MODEL?MODEL.arrival[id]:Infinity;
+    const cls=MODEL?classify(id,MODEL.arrival):{k:"never"};
+    const colmap={hit:"#5fd08a",miss:"#ef6f63",early:"#5aa9e6",never:"#637d92"};
+    if (isFinite(y)){
+      const mx=clamp(X(y),x0-4,x1+4);
+      tctx.fillStyle=colmap[cls.k];
+      tctx.beginPath(); tctx.moveTo(mx,yc-7); tctx.lineTo(mx+6,yc); tctx.lineTo(mx,yc+7); tctx.lineTo(mx-6,yc); tctx.closePath(); tctx.fill();
+      tctx.fillStyle="#0a1726"; // tiny center
+    } else {
+      tctx.fillStyle="#ef6f63"; tctx.font="9px var(--mono,monospace)"; tctx.fillText("never reached", x1-72, yc+3);
+    }
+  });
+  // current-year cursor
+  if (MODEL){ const cx=X(curYear()); tctx.strokeStyle="rgba(236,193,92,.55)"; tctx.setLineDash([3,3]); tctx.beginPath(); tctx.moveTo(cx,padT-4); tctx.lineTo(cx,h-padB); tctx.stroke(); tctx.setLineDash([]); }
+}
+
+/* ---------------- verdict + score ---------------- */
+function renderVerdict(){
+  const arr=MODEL.arrival;
+  const corners=["hawaii","rapanui","nz"];
+  const cReached=corners.filter(id=>isFinite(arr[id]));
+  const milestoneCls=MILESTONES.map(id=>classify(id,arr));
+  const hits=milestoneCls.filter(c=>c.k==="hit").length;
+  const reachedEP = isFinite(arr["society"]);
+  const epEarly = isFinite(arr["society"]) && arr["society"] < NODES["society"].ev[0]-200;
+
+  const vEl=document.getElementById("verdict");
+  let cls,head,body;
+  if (cReached.length===3 && hits>=7){
+    cls="ok"; head="✓ Reproduces the spread";
+    body=`All three corners reached, ${hits}/${MILESTONES.length} milestones land in their evidence windows. This is what the canoes and crews had to be capable of: weatherly, provisioned, navigated, two-way voyaging — with the eastward push gated by the wind.`;
+  } else if (cReached.length===3 && epEarly){
+    cls="partial"; head="◐ Reaches everywhere — but too fast";
+    body=`All corners reached, but East Polynesia is settled far earlier than the record allows. With these assumptions there is no "long pause": nothing holds the wave back at Samoa. The evidence demands that the eastward door be harder to open.`;
+  } else if (cReached.length>0 && cReached.length<3){
+    cls="partial"; head=`◐ Stalls — ${cReached.length}/3 corners reached`;
+    const missed=corners.filter(id=>!isFinite(arr[id])).map(id=>NODES[id].name.split(" (")[0]);
+    body=`Reaches the East Polynesian core but strands: <b>${missed.join(", ")}</b>. The longest jumps (provisioning range, windward ability or finding a tiny target) are beyond these canoes.`;
+  } else if (cReached.length===0 && reachedEP){
+    cls="partial"; head="◐ Enters East Polynesia, reaches no corner";
+    body="The wave crosses the gap but cannot make the long final jumps to the triangle's corners.";
+  } else {
+    cls="fail"; head="✗ Never enters East Polynesia";
+    body="The spread dies in West Polynesia. With no way to make ground to windward and no wind windows, the eastward ocean is a wall — exactly the result Levison, Ward & Webb (1973) found for pure drift voyaging.";
+  }
+  vEl.className="verdict "+cls;
+  vEl.innerHTML=`<div class="vh">${head}</div><div class="sub" style="color:var(--dim)">${body}</div>`;
+
+  // score table
+  const tEl=document.getElementById("scoreTable");
+  let rows=`<tr><th>milestone</th><th>evidence</th><th>this run</th><th></th></tr>`;
+  MILESTONES.forEach(id=>{
+    const d=NODES[id], c=classify(id,arr);
+    const ev=d.ev?`${fmtYearShort(d.ev[0])}–${fmtYearShort(d.ev[1])}`:"origin";
+    rows+=`<tr><td>${d.name.split(" (")[0]}${d.corner?' <span class="faint">◆</span>':''}</td>
+      <td class="faint">${ev}</td>
+      <td class="mono">${isFinite(arr[id])?fmtYearShort(arr[id]):"—"}</td>
+      <td><span class="pill ${c.k}">${c.k}</span></td></tr>`;
+  });
+  tEl.innerHTML=rows;
+}
+
+/* ---------------- trace ---------------- */
+function renderTrace(){
+  const el=document.getElementById("trace");
+  if (!MODEL.trace.length){ el.innerHTML='<div class="faint">No colonising hops — the wave never left the homeland chain.</div>'; return; }
+  el.innerHTML = MODEL.trace.map(t=>{
+    const A=NODES[t.from], B=NODES[t.to], e=t.edge;
+    const wtag = e.via==="westerly window"?'<span style="color:#9d8be0">⟲ window</span> ':'';
+    return `<div class="ln"><span class="yr">${fmtYearShort(t.year).padStart(6)}</span> &nbsp;
+      ${A.name.split(" (")[0]} <span class="arrow">→</span> <b>${B.name.split(" (")[0]}</b>
+      <div class="why">${Math.round(e.dist)} nm · ${e.leg?e.leg.mode:""} ${wtag}· γ=${Math.round(e.gamma)}° off wind · landfall ${(e.detect*100).toFixed(0)}%${e.winWait? ' · waited ~'+Math.round(e.winWait)+' yr for a window':''}</div></div>`;
+  }).join("");
+}
+
+/* ---------------- inspector ---------------- */
+function renderInspect(){
+  const el=document.getElementById("paneInspect");
+  if (!SELECTED){ el.innerHTML='<div class="inspect sub">Click any island on the map to see why it was (or wasn\'t) settled, and the feasibility of every route into it.</div>'; return; }
+  const d=NODES[SELECTED], arr=MODEL.arrival[SELECTED];
+  const inc=MODEL.incoming[SELECTED];
+  let html=`<div class="inspect">
+    <h4>${d.name}</h4>
+    <div class="kv"><span class="k">region</span><span class="v">${d.region}</span></div>
+    <div class="kv"><span class="k">evidence window</span><span class="v">${d.ev?fmtYearShort(d.ev[0])+"–"+fmtYearShort(d.ev[1]):"origin"}</span></div>
+    <div class="kv"><span class="k">this run</span><span class="v" style="color:${isFinite(arr)?'#5fd08a':'#ef6f63'}">${isFinite(arr)?fmtYear(arr):"never reached"}</span></div>
+    <div class="kv"><span class="k">target screen</span><span class="v">${d.screen} km</span></div>
+    <div class="small faint" style="margin:6px 0">${d.note}<br><i>${d.cite}</i></div>
+    <h4 style="margin-top:10px">Routes in (current assumptions)</h4>
+    <table><tr><th>from</th><th>nm</th><th>γ</th><th>find</th><th>status</th></tr>`;
+  inc.forEach(r=>{
+    const e=r.e, ok=e.feasible;
+    html+=`<tr><td>${NODES[r.from].name.split(" (")[0]}</td>
+      <td class="mono">${Math.round(e.dist)}</td>
+      <td class="mono">${Math.round(e.gamma)}°</td>
+      <td class="mono">${(e.detect*100).toFixed(0)}%</td>
+      <td style="color:${ok?'#5fd08a':'#ef6f63'};font-size:10.5px">${ok?(e.via==="westerly window"?"window":"sail"):"blocked"}</td></tr>
+      <tr><td colspan="5" class="faint" style="font-size:10px;padding-top:0;border:none">${e.limiting}</td></tr>`;
+  });
+  html+=`</table></div>`;
+  el.innerHTML=html;
+}
+
+/* ---------------- static panes (model / debates / refs) ---------------- */
+function renderModelPane(){
+  const el=document.getElementById("paneModel");
+  const seq=[
+    ["Out of Taiwan","~5500–5000 BP","Austronesian expansion begins from Neolithic Taiwan; rapid spread through the Philippines and Island SE Asia. Linguistics (Austronesian tree) and farming/material culture agree.","Gray, Drummond & Greenhill 2009; Bellwood 2005"],
+    ["The Lapita pulse","~3350–2800 BP","Lapita dentate-stamped pottery appears in the Bismarcks and races east through the intervisible Solomons into Remote Oceania (Vanuatu, New Caledonia, Fiji) — the first true open-ocean colonisation.","Specht et al. 2014; Sheppard 2011"],
+    ["West Polynesia","~2850 BP","Tonga (Nukuleka) and Samoa settled; the eastern frontier of Lapita. Ancient DNA shows the first Remote Oceanians were ~unadmixed East-Asian/Austronesian; Papuan ancestry arrived later.","Burley et al. 2012; Skoglund et al. 2016; Lipson et al. 2018"],
+    ["The long pause","~2800 BP → ~AD 1000","~1,800 years with no eastward expansion. The single most contested feature of the spread (see Debates).","Wilmshurst et al. 2011; Allen 2014"],
+    ["The East Polynesian pulse","~AD 1000–1300","An explosive dispersal: the Societies/central archipelagos first (~1025–1120), then the margins. Suggests a matured, deliberate, two-way voyaging system.","Wilmshurst, Hunt, Lipo & Anderson 2011 (PNAS)"],
+    ["The three corners","~AD 1000–1300","Hawaiʻi, Rapa Nui and Aotearoa — the last and longest jumps. Rapa Nui (tiny, most isolated) and the huge target of Aotearoa cap the expansion.","Hunt & Lipo 2006; Wilmshurst et al. 2008"],
+  ];
+  el.innerHTML = `<div class="sub" style="margin-bottom:6px">The spread in six movements, with the evidence behind each and its uncertainty. Dates are <b>ranges</b>, not points.</div>` +
+    seq.map(s=>`<div class="ev"><div class="evh">${s[0]} <span class="faint mono" style="font-weight:400">${s[1]}</span></div>
+      <div class="evd">${s[2]}</div><div class="cite">${s[3]}</div></div>`).join("") +
+    `<div class="note">Why the headline question matters: the <b>same canoes</b> that settled West Polynesia by ~2850 BP did not reach East Polynesia for ~1,800 years, then settled an ocean the size of a continent in ~300. Either the boats/strategy changed, or the climate did — and the simulation lets you test which assumptions can reproduce that shape.</div>`;
+}
+function renderDebatesPane(){
+  const el=document.getElementById("paneDebates");
+  const debates=[
+    ["The West Polynesian \"long pause\"",
+     [["Voyaging-technology threshold","The dead-upwind gap east of Samoa couldn't be crossed reliably until more weatherly hulls/sails and two-way navigation matured. <i>Try: lower windward ability — the wave stalls at Samoa.</i>"],
+      ["Climate windows (ENSO)","Anderson & Goodwin: a shift toward more frequent westerly-wind episodes after ~AD 800–1300 opened an eastward door that wasn't there before. <i>Try: the heavy-ENSO preset.</i>"],
+      ["A dating artefact","Some argue the 'pause' partly reflects gaps in preservation/sampling rather than true absence — though the high-precision chronology has largely held."]]],
+    ["Tempo of the East Polynesian expansion",
+     [["Short chronology (favoured)","Wilmshurst et al. 2011: central EP ~AD 1025–1120, margins ~1190–1290 — a fast pulse.","ok"],
+      ["Long chronology (older)","Earlier work put the Marquesas ~200 BC – AD 300; now rejected on chronometric-hygiene grounds."]]],
+    ["Upwind vs. downwind colonisation",
+     [["Intentional, upwind search","Irwin: explore <i>into</i> the wind so return is a safe downwind run — a systematic strategy that fits the eastward push.","ok"],
+      ["Accidental drift","Sharp 1956: one-way accidental voyages. Levison, Ward & Webb's 1973 simulation showed drift <b>cannot</b> populate East Polynesia eastward. <i>Try: the drift preset.</i>"]]],
+    ["Two-way voyaging & the Americas",
+     [["Return voyaging was real","Sustained two-way contact (e.g. Mangareva–Pitcairn 'archaic' exchange) and re-supply imply navigated round trips."],
+      ["Contact with South America","The sweet potato (kumara) in East Polynesia by ~AD 1000–1200, plus recent genomic signals, point to at least one Polynesia–South America contact — long-distance two-way capability at the extreme.","Ioannidis et al. 2020 (Nature); Roullier et al. 2013"]]],
+    ["When was Rapa Nui settled?",
+     [["~AD 1200 (favoured)","Hunt & Lipo: late settlement, rapid landscape change.","ok"],
+      ["Earlier (400–800 AD)","Older estimates now largely rejected; the island is the hardest target modelled here."]]],
+  ];
+  el.innerHTML = `<div class="sub" style="margin-bottom:8px">The spread has genuinely contested pieces. The simulation is built to let you take sides and watch the consequences.</div>` +
+    debates.map(d=>`<div class="debate"><div class="q">${d[0]}</div>` +
+      d[1].map(p=>`<div class="pos"><b>${p[0]}.</b> ${p[1]}</div>`).join("") + `</div>`).join("");
+}
+function renderRefsPane(){
+  const el=document.getElementById("paneRefs");
+  const refs=[
+    "Levison, M., Ward, R.G. & Webb, J.W. (1973). <i>The Settlement of Polynesia: A Computer Simulation.</i> Univ. of Minnesota Press. — the direct ancestor of this model; showed drift voyaging cannot explain the eastward spread.",
+    "Irwin, G. (1992). <i>The Prehistoric Exploration and Colonisation of the Pacific.</i> Cambridge UP. — upwind 'safe' search strategy.",
+    "Finney, B. (1994). <i>Voyage of Rediscovery.</i> — Hōkūleʻa experimental voyaging; demonstrated windward capability & non-instrument navigation.",
+    "Wilmshurst, J.M., Hunt, T.L., Lipo, C.P. & Anderson, A.J. (2011). 'High-precision radiocarbon dating shows recent and rapid initial human colonization of East Polynesia.' <i>PNAS</i> 108(5):1815–1820.",
+    "Wilmshurst, J.M. et al. (2008). 'Dating the late prehistoric dispersal of Polynesians to New Zealand.' <i>PNAS</i> 105(22):7676–7680.",
+    "Gray, R.D., Drummond, A.J. & Greenhill, S.J. (2009). 'Language phylogenies reveal expansion pulses and pauses in Pacific settlement.' <i>Science</i> 323:479–483.",
+    "Burley, D., Barton, A., Dickinson, W. et al. (2012). 'Nukuleka as a Founder Colony for West Polynesian Settlement.' <i>J. Pacific Archaeology / PNAS-linked dating.</i>",
+    "Hunt, T.L. & Lipo, C.P. (2006). 'Late Colonization of Easter Island.' <i>Science</i> 311:1603–1606.",
+    "Skoglund, P. et al. (2016). 'Genomic insights into the peopling of the Southwest Pacific.' <i>Nature</i> 538:510–513. · Lipson, M. et al. (2018), <i>Current Biology.</i>",
+    "Anderson, A. (2000/2001). On drift, errantry and the role of climate/ENSO in Pacific colonisation. · Goodwin, Browning & Anderson (2014), <i>PNAS</i> 111(41):14716–14721 — climate windows for voyaging.",
+    "Montenegro, Á., Callaghan, R.T. & Fitzpatrick, S.M. (2016). 'Using seafaring simulations… to test Pacific colonization.' <i>PNAS</i> 113(45):12685–12690.",
+    "Ioannidis, A.G. et al. (2020). 'Native American gene flow into Polynesia.' <i>Nature</i> 583:572–577. · Roullier et al. (2013), <i>PNAS</i> (sweet potato).",
+    "Kirch, P.V. (2017). <i>On the Road of the Winds</i> (rev. ed.). — the standard synthesis.",
+  ];
+  el.innerHTML = `<div class="sub" style="margin-bottom:8px">Primary sources behind the dates, the oceanography, and the modelling lineage.</div>
+    <ul class="refs">${refs.map(r=>`<li>${r}</li>`).join("")}</ul>
+    <div class="note">Model honesty: the oceanography here is a deliberately coarse analytic field (not a reanalysis dataset), and crossing outcomes are reduced to an expected arrival time. It is built to be <b>legible and falsifiable</b>, not numerically authoritative. The robust results are qualitative regimes (drift fails; weatherly two-way voyaging with wind windows succeeds), which match the literature above.</div>`;
+}
+
+/* ---------------- master render ---------------- */
+function renderAll(){
+  drawMap(); drawTimeline(); renderVerdict(); renderTrace(); renderInspect();
+}
+
+/* ---------------- animation ---------------- */
+const playBtn=document.getElementById("play"), timeSlider=document.getElementById("time"), yearLabel=document.getElementById("yearLabel");
+function setYearUI(){ timeSlider.value=Math.round(ANIM.t*1000); yearLabel.textContent=fmtYear(curYear()); }
+function startAnim(){ ANIM.playing=true; playBtn.textContent="⏸ Pause"; if(ANIM.raf) cancelAnimationFrame(ANIM.raf); loop(); }
+function stopAnim(){ ANIM.playing=false; playBtn.textContent="▶ Play"; if(ANIM.raf) cancelAnimationFrame(ANIM.raf); }
+let last=0;
+function loop(ts){
+  if (!ANIM.playing) return;
+  if (!last) last=ts; const dt=(ts-last)/1000; last=ts;
+  ANIM.t = Math.min(1, ANIM.t + dt/14);   // ~14s full sweep
+  setYearUI(); drawMap(); drawTimeline();
+  if (ANIM.t>=1){ stopAnim(); last=0; return; }
+  ANIM.raf=requestAnimationFrame(loop);
+}
+playBtn.addEventListener("click",()=>{ if(ANIM.playing) stopAnim(); else { if(ANIM.t>=1) ANIM.t=0; last=0; startAnim(); } });
+timeSlider.addEventListener("input",()=>{ stopAnim(); ANIM.t=timeSlider.value/1000; yearLabel.textContent=fmtYear(curYear()); drawMap(); drawTimeline(); });
+
+/* ---------------- map interaction ---------------- */
+mapC.addEventListener("click",(e)=>{
+  const r=mapC.getBoundingClientRect(); const w=r.width, h=620;
+  const mx=(e.clientX-r.left), my=(e.clientY-r.top);
+  let best=null,bd=18;
+  RAW.forEach(d=>{ const p=proj(d.lonP,d.lat,w,h); const dist=Math.hypot(p.x-mx,p.y-my); if(dist<bd){bd=dist;best=d.id;} });
+  SELECTED=best; setTab("inspect"); renderInspect(); drawMap();
+});
+
+/* ---------------- tabs + toggles ---------------- */
+function setTab(name){
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.tab===name));
+  document.querySelectorAll(".tabpane").forEach(p=>p.classList.toggle("active",p.dataset.pane===name));
+}
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>setTab(t.dataset.tab)));
+["tgWind","tgCur","tgTracks","tgFail","tgLabels","tgWindow"].forEach(id=>document.getElementById(id).addEventListener("change",()=>{drawMap();}));
+document.getElementById("run").addEventListener("click",()=>doRun(true));
+document.getElementById("replay").addEventListener("click",()=>{ ANIM.t=0; last=0; startAnim(); });
+window.addEventListener("resize",()=>{ if(MODEL){ drawMap(); drawTimeline(); } });
+
+/* ---------------- boot ---------------- */
+buildControls(); buildPresets(); renderModelPane(); renderDebatesPane(); renderRefsPane();
+applyPreset(0);     // load the success regime and animate
+</script>
+</body>
+</html>
