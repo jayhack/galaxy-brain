@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>fishtank-water-sim — cursor-fable-5</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  body { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #cfe9f4; }
+  #app { position: fixed; inset: 0; }
+  #ui {
+    position: fixed; top: 16px; left: 16px; z-index: 10;
+    background: rgba(8, 14, 18, 0.72);
+    border: 1px solid rgba(120, 200, 235, 0.25);
+    border-radius: 10px;
+    padding: 12px 14px;
+    backdrop-filter: blur(6px);
+    user-select: none;
+    max-width: 300px;
+  }
+  #ui h1 { margin: 0 0 6px; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: #9fdcf2; }
+  #ui p { margin: 0 0 10px; font-size: 11px; line-height: 1.55; color: #8aa7b4; }
+  #row { display: flex; align-items: center; gap: 10px; }
+  #reset {
+    font: inherit; font-size: 12px; cursor: pointer;
+    color: #06222e; background: #69cdec;
+    border: 0; border-radius: 6px; padding: 7px 14px;
+    transition: filter 0.15s ease;
+  }
+  #reset:hover { filter: brightness(1.15); }
+  #state { font-size: 11px; color: #5e8fa3; }
+  #err {
+    position: fixed; inset: 0; display: none; z-index: 20;
+    align-items: center; justify-content: center; text-align: center;
+    color: #f0a0a0; font-size: 14px; padding: 24px; background: #000;
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="ui">
+  <h1>FISH TANK · POUR SIM</h1>
+  <p>drag&nbsp;— orbit camera · scroll&nbsp;— zoom<br/>move mouse over water&nbsp;— disturb it<br/>R&nbsp;— reset the pour</p>
+  <div id="row">
+    <button id="reset">Reset pour</button>
+    <span id="state">pouring…</span>
+  </div>
+</div>
+<div id="err">WebGL is unavailable in this browser, so the tank cannot render.</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+// ---------- constants ----------
+const N = 96;                       // heightfield resolution (N x N)
+const W = 2.2, D = 2.2, H = 1.5;    // inner tank dimensions (x, z, y)
+const X0 = -W / 2, Z0 = -D / 2;
+const DX = W / (N - 1), DZ = D / (N - 1);
+const FILL_START = 0.03;
+const FILL_TARGET = 1.0;            // resting water depth after the pour
+const POUR_TIME = 6.5;              // seconds to fill
+const WAVE_K = 0.45;                // wave propagation factor (stable <= 0.5)
+const WAVE_DAMP = 0.9966;           // per-step velocity damping (low => long slosh)
+const STEP = 1 / 60;
+const GRAVITY = 7.5;
+const DROPS = 160;
+
+// ---------- renderer / scene ----------
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+} catch (e) {
+  document.getElementById('err').style.display = 'flex';
+  throw e;
+}
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+document.getElementById('app').appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x000000);
+
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(3.0, 2.1, 3.6);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 0.62, 0);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.minDistance = 1.8;
+controls.maxDistance = 12;
+controls.maxPolarAngle = Math.PI * 0.62;
+
+const sun = new THREE.DirectionalLight(0xffffff, 1.4);
+sun.position.set(3.5, 6, 2.5);
+scene.add(sun);
+scene.add(new THREE.AmbientLight(0x223038, 0.6));
+
+// ---------- floor (very dark, so the cube doesn't float in pure void) ----------
+const floor = new THREE.Mesh(
+  new THREE.CircleGeometry(7, 48),
+  new THREE.MeshStandardMaterial({ color: 0x05070a, roughness: 0.32, metalness: 0.75, envMapIntensity: 0.35 })
+);
+floor.rotation.x = -Math.PI / 2;
+floor.position.y = -0.022;
+scene.add(floor);
+
+// ---------- glass tank (open top: 4 walls + bottom) ----------
+const GW = W + 0.08, GD = D + 0.08, GH = H + 0.05;
+const glassMat = new THREE.MeshPhysicalMaterial({
+  color: 0xcfe6f2, roughness: 0.04, metalness: 0,
+  transparent: true, opacity: 0.12, side: THREE.DoubleSide,
+  depthWrite: false, envMapIntensity: 1.6, clearcoat: 1, clearcoatRoughness: 0.05
+});
+const glass = new THREE.Group();
+function glassPlane(w, h, px, py, pz, ry) {
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), glassMat);
+  m.position.set(px, py, pz);
+  m.rotation.y = ry;
+  m.renderOrder = 3;
+  return m;
+}
+glass.add(glassPlane(GW, GH, 0, GH / 2 - 0.02, GD / 2, 0));
+glass.add(glassPlane(GW, GH, 0, GH / 2 - 0.02, -GD / 2, Math.PI));
+glass.add(glassPlane(GD, GH, GW / 2, GH / 2 - 0.02, 0, -Math.PI / 2));
+glass.add(glassPlane(GD, GH, -GW / 2, GH / 2 - 0.02, 0, Math.PI / 2));
+const glassBottom = new THREE.Mesh(new THREE.PlaneGeometry(GW, GD), glassMat);
+glassBottom.rotation.x = -Math.PI / 2;
+glassBottom.position.y = -0.02;
+glassBottom.renderOrder = 3;
+glass.add(glassBottom);
+scene.add(glass);
+
+const edges = new THREE.LineSegments(
+  new THREE.EdgesGeometry(new THREE.BoxGeometry(GW, GH, GD)),
+  new THREE.LineBasicMaterial({ color: 0x9adfff, transparent: true, opacity: 0.45 })
+);
+edges.position.y = GH / 2 - 0.02;
+scene.add(edges);
+
+// ---------- spout ----------
+const spout = new THREE.Vector3(-0.45, H + 0.85, -0.15);
+const pipe = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.065, 0.075, 0.5, 20),
+  new THREE.MeshStandardMaterial({ color: 0x5b666e, roughness: 0.35, metalness: 0.9 })
+);
+pipe.position.set(spout.x, spout.y + 0.27, spout.z);
+scene.add(pipe);
+
+// ---------- water simulation state ----------
+const heights = new Float32Array(N * N); // displacement from flat fill level
+const vel = new Float32Array(N * N);
+let fill = FILL_START;
+let pouring = true;
+let simTime = 0;
+
+function splash(wx, wz, strength, radius) {
+  const ci = (wx - X0) / DX, cj = (wz - Z0) / DZ;
+  const r = Math.ceil(radius);
+  const i0 = Math.max(0, Math.floor(ci - r)), i1 = Math.min(N - 1, Math.ceil(ci + r));
+  const j0 = Math.max(0, Math.floor(cj - r)), j1 = Math.min(N - 1, Math.ceil(cj + r));
+  for (let j = j0; j <= j1; j++) {
+    for (let i = i0; i <= i1; i++) {
+      const d2 = ((i - ci) * (i - ci) + (j - cj) * (j - cj)) / (radius * radius);
+      if (d2 < 1) vel[j * N + i] -= strength * 0.012 * Math.exp(-d2 * 4);
+    }
+  }
+}
+
+function waveStep() {
+  // velocity update from neighbor average (reflective boundaries)
+  for (let j = 0; j < N; j++) {
+    const jm = (j > 0 ? j - 1 : 0) * N;
+    const jp = (j < N - 1 ? j + 1 : N - 1) * N;
+    const jc = j * N;
+    for (let i = 0; i < N; i++) {
+      const im = i > 0 ? i - 1 : 0;
+      const ip = i < N - 1 ? i + 1 : N - 1;
+      const avg = (heights[jc + im] + heights[jc + ip] + heights[jm + i] + heights[jp + i]) * 0.25;
+      vel[jc + i] = (vel[jc + i] + (avg - heights[jc + i]) * WAVE_K) * WAVE_DAMP;
+    }
+  }
+  // gentle ambient swell so the water never goes perfectly still
+  const sx = Math.sin(simTime * 0.9) * 7e-6;
+  const sz = Math.cos(simTime * 0.63) * 5e-6;
+  let mean = 0;
+  for (let j = 0; j < N; j++) {
+    const zn = (j / (N - 1) - 0.5) * 2;
+    for (let i = 0; i < N; i++) {
+      const xn = (i / (N - 1) - 0.5) * 2;
+      const idx = j * N + i;
+      vel[idx] += sx * xn + sz * zn;
+      heights[idx] += vel[idx];
+      mean += heights[idx];
+    }
+  }
+  // conserve volume (splashes inject net negative velocity)
+  mean /= N * N;
+  const hMax = H - fill - 0.02, hMin = -fill + 0.015;
+  for (let k = 0; k < N * N; k++) {
+    heights[k] -= mean;
+    if (heights[k] > hMax) heights[k] = hMax;
+    else if (heights[k] < hMin) heights[k] = hMin;
+  }
+}
+
+function sloshKick(strength) {
+  for (let j = 0; j < N; j++) {
+    for (let i = 0; i < N; i++) {
+      const xn = (i / (N - 1) - 0.5) * 2;
+      vel[j * N + i] += xn * strength;
+    }
+  }
+}
+
+// ---------- water volume meshes (displaced top + 4 walls + bottom) ----------
+const waterMat = new THREE.MeshPhysicalMaterial({
+  color: 0x1392c4, roughness: 0.07, metalness: 0,
+  transparent: true, opacity: 0.82, side: THREE.DoubleSide,
+  envMapIntensity: 1.25, clearcoat: 0.6, clearcoatRoughness: 0.12
+});
+
+// top surface
+const topGeo = new THREE.BufferGeometry();
+{
+  const pos = new Float32Array(N * N * 3);
+  for (let j = 0; j < N; j++) {
+    for (let i = 0; i < N; i++) {
+      const k = (j * N + i) * 3;
+      pos[k] = X0 + i * DX;
+      pos[k + 1] = fill;
+      pos[k + 2] = Z0 + j * DZ;
+    }
+  }
+  const idx = [];
+  for (let j = 0; j < N - 1; j++) {
+    for (let i = 0; i < N - 1; i++) {
+      const a = j * N + i, b = a + 1, c = a + N, d = c + 1;
+      idx.push(a, c, b, b, c, d);
+    }
+  }
+  topGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  topGeo.setIndex(idx);
+  topGeo.computeVertexNormals();
+}
+const topMesh = new THREE.Mesh(topGeo, waterMat);
+topMesh.renderOrder = 1;
+scene.add(topMesh);
+
+// 4 side walls: 2 rows (top follows boundary heights, bottom fixed at 0)
+function makeWall(boundary, normal) {
+  const geo = new THREE.BufferGeometry();
+  const pos = new Float32Array(N * 2 * 3);
+  const nor = new Float32Array(N * 2 * 3);
+  for (let r = 0; r < 2; r++) {
+    for (let i = 0; i < N; i++) {
+      const k = (r * N + i) * 3;
+      const [wx, wz] = boundary(i);
+      pos[k] = wx; pos[k + 1] = r === 0 ? fill : 0; pos[k + 2] = wz;
+      nor[k] = normal[0]; nor[k + 1] = 0; nor[k + 2] = normal[1];
+    }
+  }
+  const idx = [];
+  for (let i = 0; i < N - 1; i++) {
+    const a = i, b = i + 1, c = N + i, d = N + i + 1;
+    idx.push(a, c, b, b, c, d);
+  }
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+  geo.setIndex(idx);
+  const mesh = new THREE.Mesh(geo, waterMat);
+  mesh.renderOrder = 1;
+  scene.add(mesh);
+  return { geo, boundary };
+}
+const walls = [
+  makeWall((i) => [X0 + i * DX, Z0], [0, -1]),          // back  (heights row j=0)
+  makeWall((i) => [X0 + i * DX, Z0 + D], [0, 1]),       // front (row j=N-1)
+  makeWall((i) => [X0, Z0 + i * DZ], [-1, 0]),          // left  (col i=0)
+  makeWall((i) => [X0 + W, Z0 + i * DZ], [1, 0]),       // right (col i=N-1)
+];
+const wallIndex = [
+  (i) => i,                 // j = 0 row
+  (i) => (N - 1) * N + i,   // j = N-1 row
+  (i) => i * N,             // i = 0 column
+  (i) => i * N + (N - 1),   // i = N-1 column
+];
+
+const waterBottom = new THREE.Mesh(new THREE.PlaneGeometry(W, D), waterMat);
+waterBottom.rotation.x = -Math.PI / 2;
+waterBottom.position.y = 0.002;
+waterBottom.renderOrder = 1;
+scene.add(waterBottom);
+
+function updateWaterMeshes() {
+  const pos = topGeo.attributes.position.array;
+  for (let k = 0; k < N * N; k++) pos[k * 3 + 1] = fill + heights[k];
+  topGeo.attributes.position.needsUpdate = true;
+  topGeo.computeVertexNormals();
+
+  for (let w = 0; w < 4; w++) {
+    const wp = walls[w].geo.attributes.position.array;
+    const map = wallIndex[w];
+    for (let i = 0; i < N; i++) {
+      const y = fill + heights[map(i)];
+      wp[i * 3 + 1] = y > 0.012 ? y : 0.012;
+    }
+    walls[w].geo.attributes.position.needsUpdate = true;
+  }
+}
+
+// ---------- pour stream (instanced droplets) ----------
+const dropMesh = new THREE.InstancedMesh(
+  new THREE.SphereGeometry(0.03, 10, 10),
+  new THREE.MeshPhysicalMaterial({
+    color: 0x7fd4ef, roughness: 0.05, metalness: 0,
+    transparent: true, opacity: 0.92, envMapIntensity: 1.4,
+    emissive: 0x0b2e3d, emissiveIntensity: 0.7
+  }),
+  DROPS
+);
+dropMesh.renderOrder = 2;
+scene.add(dropMesh);
+const dropState = new Float32Array(DROPS * 7); // active, x, y, z, vx, vy, vz
+const dummy = new THREE.Object3D();
+let spawnAcc = 0;
+
+function updateDrops(dt) {
+  if (pouring) {
+    spawnAcc += dt * 120;
+    for (let n = 0; n < DROPS && spawnAcc >= 1; n++) {
+      const s = n * 7;
+      if (dropState[s] === 0) {
+        spawnAcc -= 1;
+        const a = Math.random() * Math.PI * 2, r = Math.random() * 0.045;
+        dropState[s] = 1;
+        dropState[s + 1] = spout.x + Math.cos(a) * r;
+        dropState[s + 2] = spout.y - Math.random() * 0.06;
+        dropState[s + 3] = spout.z + Math.sin(a) * r;
+        dropState[s + 4] = (Math.random() - 0.5) * 0.06;
+        dropState[s + 5] = -0.7;
+        dropState[s + 6] = (Math.random() - 0.5) * 0.06;
+      }
+    }
+    spawnAcc = Math.min(spawnAcc, 4);
+  }
+  for (let n = 0; n < DROPS; n++) {
+    const s = n * 7;
+    if (dropState[s] === 1) {
+      dropState[s + 5] -= GRAVITY * dt;
+      dropState[s + 1] += dropState[s + 4] * dt;
+      dropState[s + 2] += dropState[s + 5] * dt;
+      dropState[s + 3] += dropState[s + 6] * dt;
+      if (dropState[s + 2] <= fill + 0.02) {
+        splash(dropState[s + 1], dropState[s + 3], 1.1, 2.6);
+        dropState[s] = 0;
+      }
+    }
+    if (dropState[s] === 1) {
+      dummy.position.set(dropState[s + 1], dropState[s + 2], dropState[s + 3]);
+      const stretch = 1 + Math.min(-dropState[s + 5] * 0.16, 1.4);
+      dummy.scale.set(1, stretch, 1);
+    } else {
+      dummy.position.set(0, -10, 0);
+      dummy.scale.setScalar(0.0001);
+    }
+    dummy.updateMatrix();
+    dropMesh.setMatrixAt(n, dummy.matrix);
+  }
+  dropMesh.instanceMatrix.needsUpdate = true;
+}
+
+// ---------- mouse interaction ----------
+const raycaster = new THREE.Raycaster();
+const ndc = new THREE.Vector2();
+const hitPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+const hitPoint = new THREE.Vector3();
+let lastPX = null, lastPY = null;
+
+renderer.domElement.addEventListener('pointermove', (e) => {
+  const speed = lastPX === null ? 6 : Math.hypot(e.clientX - lastPX, e.clientY - lastPY);
+  lastPX = e.clientX; lastPY = e.clientY;
+  ndc.set((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1);
+  raycaster.setFromCamera(ndc, camera);
+  hitPlane.constant = -fill;
+  if (raycaster.ray.intersectPlane(hitPlane, hitPoint)) {
+    if (Math.abs(hitPoint.x) < W / 2 && Math.abs(hitPoint.z) < D / 2) {
+      const strength = Math.min(0.25 + speed / 22, 1.8);
+      splash(hitPoint.x, hitPoint.z, strength * 1.5, 4.5);
+    }
+  }
+});
+
+// ---------- reset ----------
+const stateLabel = document.getElementById('state');
+function reset() {
+  heights.fill(0);
+  vel.fill(0);
+  dropState.fill(0);
+  fill = FILL_START;
+  pouring = true;
+  simTime = 0;
+  spawnAcc = 0;
+  stateLabel.textContent = 'pouring…';
+}
+document.getElementById('reset').addEventListener('click', reset);
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'r' || e.key === 'R') reset();
+});
+
+// ---------- main loop ----------
+const clock = new THREE.Clock();
+let acc = 0;
+
+function physicsStep() {
+  simTime += STEP;
+  if (pouring) {
+    fill += ((FILL_TARGET - FILL_START) / POUR_TIME) * STEP;
+    if (fill >= FILL_TARGET) {
+      fill = FILL_TARGET;
+      pouring = false;
+      sloshKick(0.0025); // send the freshly filled tank into a side-to-side slosh
+      stateLabel.textContent = 'sloshing — move the mouse';
+    }
+  }
+  waveStep();
+  updateDrops(STEP);
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  acc += Math.min(clock.getDelta(), 0.05);
+  let steps = 0;
+  while (acc >= STEP && steps < 4) {
+    physicsStep();
+    acc -= STEP;
+    steps++;
+  }
+  updateWaterMeshes();
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+reset();
+animate();
+</script>
+</body>
+</html>

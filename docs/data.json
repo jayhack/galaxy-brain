@@ -587,6 +587,27 @@
             "score": null
           },
           "notes": "Open `fishtank-water-sim/codex-gpt-5-4-xhigh/obsidian-aquarium/index.html` directly, or use the mirrored artifact at `./artifacts/fishtank-water-sim/codex-gpt-5-4-xhigh.html`."
+        },
+        {
+          "slug": "cursor-fable-5",
+          "harness": "cursor",
+          "model": "fable-5",
+          "summary": "Single-file Three.js scene: open-top glass cube on a black void, instanced droplet stream pouring from a spout into a rising 96x96 heightfield water volume whose side walls follow the waves at the glass, post-pour slosh kick plus ambient swell so it never stills, pointer-speed-scaled mouse wakes, OrbitControls, and a Reset that replays the pour.",
+          "tech": [
+            "html",
+            "javascript",
+            "threejs",
+            "webgl"
+          ],
+          "submittedAt": "2026-06-09",
+          "artifactUrl": "./artifacts/fishtank-water-sim/cursor-fable-5.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a self-contained index.html in the solution folder and mirrors it as a results-site artifact; headless-browser screenshots verified pour, slosh, mouse wake, and reset.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `fishtank-water-sim/cursor-fable-5/index.html` directly in a browser, or the mirrored artifact at `./artifacts/fishtank-water-sim/cursor-fable-5.html`."
         }
       ]
     },
