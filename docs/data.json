@@ -587,6 +587,29 @@
             "score": null
           },
           "notes": "Open `fishtank-water-sim/codex-gpt-5-4-xhigh/obsidian-aquarium/index.html` directly, or use the mirrored artifact at `./artifacts/fishtank-water-sim/codex-gpt-5-4-xhigh.html`."
+        },
+        {
+          "slug": "codex-gpt-5-4-mini",
+          "harness": "codex",
+          "model": "gpt-5-4-mini",
+          "projectName": "glass-current",
+          "summary": "Single-file Three.js fish-tank sim with an open-top glass cube, overhead pour stream, visible water volume and rippled surface, mouse-driven surface impulses, custom drag-orbit camera with zoom, and Reset to replay the pour.",
+          "tech": [
+            "html",
+            "javascript",
+            "css",
+            "threejs",
+            "webgl"
+          ],
+          "submittedAt": "2026-06-07",
+          "artifactUrl": "./artifacts/fishtank-water-sim/codex-gpt-5-4-mini.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a self-contained index.html under the solution folder and mirrors it into public/artifacts for GitHub Pages review.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `fishtank-water-sim/codex-gpt-5-4-mini/index.html` directly in a browser, or use the mirrored artifact at `./artifacts/fishtank-water-sim/codex-gpt-5-4-mini.html`."
         }
       ]
     },
