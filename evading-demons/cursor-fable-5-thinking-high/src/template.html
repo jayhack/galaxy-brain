@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sunspire Galleria — evading demons</title>
+<style>
+  :root {
+    --teal: #2f8f83;
+    --gold: #ffd166;
+    --rose: #ff5d73;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow: hidden; background: #04030f; }
+  body {
+    font-family: "Avenir Next", Avenir, Futura, "Trebuchet MS", "Segoe UI", sans-serif;
+    color: #eef7ef;
+    user-select: none;
+  }
+  canvas#game { display: block; width: 100%; height: 100%; }
+
+  /* HUD */
+  #hud {
+    position: fixed; top: 16px; left: 18px;
+    display: flex; flex-direction: column; gap: 4px;
+    pointer-events: none; z-index: 5;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.55);
+  }
+  #hud-clock {
+    font-size: 30px; font-weight: 700; letter-spacing: 1px;
+    font-variant-numeric: tabular-nums;
+  }
+  #hud-phase { font-size: 14px; font-weight: 600; letter-spacing: 0.6px; }
+  #hud-phase.day   { color: var(--gold); }
+  #hud-phase.dusk  { color: #f2a3ff; }
+  #hud-phase.night { color: var(--rose); }
+  #hud-demons { font-size: 13px; color: #ff9c9c; font-weight: 600; }
+  #hud-best { font-size: 12px; color: #9fd3c2; }
+
+  #hint {
+    position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%);
+    font-size: 12.5px; letter-spacing: 0.4px; color: rgba(238,247,239,0.75);
+    background: rgba(6,10,12,0.45); border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 999px; padding: 7px 16px; z-index: 5; pointer-events: none;
+    backdrop-filter: blur(6px);
+  }
+  #hint b { color: var(--gold); font-weight: 700; }
+
+  /* Intro card */
+  #intro {
+    position: fixed; top: 18px; left: 50%; transform: translateX(-50%);
+    max-width: 430px; text-align: center; z-index: 6; pointer-events: none;
+    background: linear-gradient(160deg, rgba(10,28,24,0.82), rgba(8,14,24,0.82));
+    border: 1px solid rgba(127,200,168,0.35); border-radius: 14px;
+    padding: 14px 22px 12px;
+    transition: opacity 1.4s ease, transform 1.4s ease;
+    backdrop-filter: blur(8px);
+  }
+  #intro.fade { opacity: 0; transform: translateX(-50%) translateY(-12px); }
+  #intro h1 {
+    font-size: 19px; letter-spacing: 3px; color: var(--gold); font-weight: 800;
+  }
+  #intro p { font-size: 12.5px; line-height: 1.5; color: #cfe8d8; margin-top: 6px; }
+  #intro p em { color: var(--rose); font-style: normal; font-weight: 700; }
+
+  /* Night vignette */
+  #vignette {
+    position: fixed; inset: 0; pointer-events: none; z-index: 4; opacity: 0;
+    background: radial-gradient(ellipse at center,
+      rgba(0,0,0,0) 42%, rgba(10,2,26,0.66) 100%);
+    transition: opacity 0.6s linear;
+  }
+
+  /* Death flash + overlay */
+  #flash {
+    position: fixed; inset: 0; background: rgba(255,30,40,0.45);
+    opacity: 0; pointer-events: none; z-index: 8; transition: opacity 0.25s;
+  }
+  #flash.show { opacity: 1; }
+
+  #death {
+    position: fixed; inset: 0; z-index: 9;
+    display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(ellipse at center,
+      rgba(20,0,16,0.55), rgba(4,0,10,0.88));
+    opacity: 0; pointer-events: none; transition: opacity 0.5s ease;
+  }
+  #death.show { opacity: 1; pointer-events: auto; }
+  #death .card {
+    text-align: center; padding: 36px 52px;
+    border: 1px solid rgba(255,93,115,0.4); border-radius: 18px;
+    background: rgba(12,4,18,0.72); backdrop-filter: blur(10px);
+    box-shadow: 0 0 80px rgba(255,40,80,0.18);
+  }
+  #death h2 {
+    font-size: 34px; letter-spacing: 6px; color: var(--rose); font-weight: 800;
+    text-shadow: 0 0 24px rgba(255,60,90,0.6);
+  }
+  #death-stats { margin-top: 12px; font-size: 15px; color: #e8d9e2; }
+  #death-stats b { color: var(--gold); }
+  #death .sub { margin-top: 4px; font-size: 12.5px; color: #9b8aa6; }
+  #restart-btn {
+    margin-top: 20px; cursor: pointer;
+    font: inherit; font-size: 15px; font-weight: 700; letter-spacing: 2px;
+    color: #07140f; background: linear-gradient(120deg, #8ee6b8, var(--gold));
+    border: none; border-radius: 999px; padding: 12px 34px;
+  }
+  #restart-btn:hover { filter: brightness(1.1); }
+
+  #err {
+    display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 99;
+    background: #2a0008; color: #ffb3b3; font: 12px/1.5 monospace;
+    padding: 8px 12px; white-space: pre-wrap;
+  }
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="hud">
+  <div id="hud-clock">0:00</div>
+  <div id="hud-phase" class="day">Day 1 — the atrium hums</div>
+  <div id="hud-demons"></div>
+  <div id="hud-best"></div>
+</div>
+
+<div id="intro">
+  <h1>SUNSPIRE GALLERIA</h1>
+  <p>
+    The garden mall is safe while the sun holds. When the sky tears into the
+    void, <em>demons</em> pour from the rifts — one touch and you are gone.<br/>
+    <b>Arrow keys</b> run &nbsp;·&nbsp; <b>Space</b> jumps. Survive the nights.
+  </p>
+</div>
+
+<div id="vignette"></div>
+<div id="flash"></div>
+
+<div id="death">
+  <div class="card">
+    <h2>TAKEN BY THE DARK</h2>
+    <div id="death-stats"></div>
+    <div class="sub">press R or the button to run again</div>
+    <button id="restart-btn" type="button">RUN AGAIN</button>
+  </div>
+</div>
+
+<div id="hint"><b>←↑↓→</b> run &nbsp;&nbsp; <b>Space</b> jump</div>
+<pre id="err"></pre>
+
+<script>
+  window.addEventListener("error", function (e) {
+    var el = document.getElementById("err");
+    el.style.display = "block";
+    el.textContent += (e.message || e.error) + "\n";
+  });
+</script>
+<script>
+/* three.js r147 (MIT) — inlined so this file plays from file:// with no network */
+%%THREE_JS%%
+</script>
+<script>
+%%GAME_JS%%
+</script>
+</body>
+</html>
