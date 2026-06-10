@@ -21,7 +21,32 @@
         "html"
       ],
       "createdAt": "2026-06-10",
-      "solutions": []
+      "solutions": [
+        {
+          "slug": "cursor-fable-5-thinking-high",
+          "harness": "cursor",
+          "model": "fable-5-thinking-high",
+          "projectName": "the-wayfinders-atlas",
+          "summary": "A single-file, offline 'Wayfinders' Atlas' that is both a sourced world model of the Austronesian/Polynesian spread and a runnable, falsifiable voyaging simulation. The world model is 21 island nodes from the real record (out-of-Taiwan origin; the Lapita pulse through the Bismarcks, Solomons, Vanuatu, New Caledonia and Fiji into Remote Oceania; West Polynesia at Tonga/Samoa ~2850 BP; the ~1,800-year West Polynesian 'long pause'; the explosive East Polynesian pulse ~AD 1000-1300; and the three corners Hawaiʻi, Rapa Nui and Aotearoa), each carrying a settlement-evidence window shown as a range with a cited note (Wilmshurst et al. 2011, Burley et al. 2012, Hunt & Lipo 2006, Skoglund et al. 2016, etc.). Over that it lays a legible physics layer — analytic trade winds, equatorial counter-flow, ENSO westerly windows and surface currents, plus a canoe polar (speed, provisioning range, windward ability, navigation/landfall skill) — and a Dijkstra shortest-arrival-time solver that computes when, if ever, the spread reaches each island. The page renders an animated map (winds/currents/voyage tracks/failed crossings), a settlement timeline against the evidence windows with the long-pause band drawn in, a per-hop run trace showing the limiting physics, a click-any-island route inspector, a verdict, and World-model / Debates / Sources tabs. Four presets make it falsifiable: weatherly two-way wayfinding reproduces the record; drift-only (Sharp 1956) fails to enter East Polynesia (cf. Levison, Ward & Webb 1973); marginal range reaches the EP core but strands the far corners; heavy-ENSO windows are an alternative success path.",
+          "tech": [
+            "html",
+            "css",
+            "javascript",
+            "canvas",
+            "simulation",
+            "world-model"
+          ],
+          "submittedAt": "2026-06-10",
+          "artifactUrl": "./artifacts/polynesian-spread/cursor-fable-5-thinking-high.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a single self-contained index.html (vanilla JS + HTML5 canvas, no dependencies, no network) that renders the full world model and simulation from a fresh clone, and mirrors it under public/artifacts for one-click review. Reads the spread with sourced, uncertainty-ranged dates (radiocarbon/tephra/genetics/linguistics) and surfaces the contested questions in a Debates tab. The simulation is genuinely falsifiable: sliders and presets produce regimes that fail (pure drift never enters East Polynesia; marginal range strands Hawaiʻi and Rapa Nui) and regimes that succeed (weatherly two-way voyaging; frequent ENSO windows), and every result is traceable to the winds, currents, distances and decision rules via the map overlays, run trace, and per-island route inspector.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `polynesian-spread/cursor-fable-5-thinking-high/index.html` directly in a desktop browser, or use the mirrored artifact at `./artifacts/polynesian-spread/cursor-fable-5-thinking-high.html`. Change the voyaging sliders (windward ability, provisioning range, ENSO windows, two-way voyaging) or click a preset, then Run spread; click any island to inspect why each route is feasible or blocked."
+        }
+      ]
     },
     {
       "slug": "surf-lodge-scout",
