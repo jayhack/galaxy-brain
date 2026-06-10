@@ -215,7 +215,10 @@
       <li><code>hue</code> 0–1 — cosmetic tint, lets you watch lineages visually.</li>
     </ul>
     <p>Genes are visible on the body: <code>size</code> scales the whole animal, <code>speed</code> stretches
-    it, <code>sense</code> grows the head, <code>camo</code>/<code>hue</code>/<code>nocturnal</code> set its color.</p>
+    the torso and lengthens legs (and a stalker's tail), <code>sense</code> grows the head — a glimmer's
+    ears, a skitter's eye stalks, a stalker's snout — and <code>camo</code>/<code>hue</code>/<code>nocturnal</code>
+    set the coloring. Each species has its own body plan: round grazers with tall ears and a puff tail,
+    low six-legged scavengers with eye stalks and a beak, and lean spike-backed predators with a long snout.</p>
     <h3>Species & ecology</h3>
     <ul>
       <li><b>Glimmers</b> (grazers) eat growing plants. Plants only regrow in daylight, so overgrazing
@@ -268,6 +271,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 /* ============================== RNG & noise ============================== */
 function xmur3(str) {
@@ -643,7 +647,11 @@ class Simulation {
     this.group.add(trunks, fronds);
   }
 
-  /* ---------- organism meshes (instanced, per species per part) ---------- */
+  /* ---------- organism meshes (instanced, per species per part) ----------
+     Each species is a small rig of GPU-instanced parts. Local space: +z is
+     forward (yaw = -heading + PI/2), origin at body center. `place(c, d)`
+     poses the shared dummy from a per-organism context computed once per
+     frame; `shade` tints the organism's genome color (null = dark eyes). */
   buildOrganismMeshes() {
     this.meshes = {};
     const mk = (geo, cap) => {
@@ -654,20 +662,123 @@ class Simulation {
       this.group.add(m);
       return m;
     };
+    const sph = (r, w = 8, h = 6) => new THREE.SphereGeometry(r, w, h);
+    const cone = (r, h, s = 6) => new THREE.ConeGeometry(r, h, s);
+    const at = (g, x, y, z) => { g.translate(x, y, z); return g; };
+    const legSet = (spots, len, r, baseY) => mergeGeometries(spots.map(([lx, lz, tilt]) => {
+      const g = new THREE.CylinderGeometry(r * 0.7, r, len, 5);
+      if (tilt) g.rotateZ(tilt);
+      g.translate(lx, baseY, lz);
+      return g;
+    }));
+
+    // shared placement helpers
+    const bodyPlace = (c, d) => {
+      d.position.set(c.x, c.y, c.z);
+      d.rotation.set(0, c.yaw, c.tilt);
+      d.scale.set(c.S * c.bs[0], c.S * c.bs[1] * (c.asleep ? 0.78 : 1), c.S * c.bs[2] * c.elong);
+    };
+    const headPlace = (c, d) => {
+      d.position.set(c.hx, c.hy, c.hz);
+      d.rotation.set(0, c.yaw, 0);
+      d.scale.setScalar(c.hs);
+    };
+    const legsPlace = (c, d) => {
+      d.position.set(c.x, c.y, c.z);
+      d.rotation.set(0, c.yaw, 0);
+      d.scale.set(c.S, c.S * (c.asleep ? 0.35 : c.legY), c.S * c.elong);
+    };
+    const rearPlace = (back, up) => (c, d) => {
+      const bz = back * c.S * c.elong;
+      d.position.set(c.x + Math.cos(c.heading) * bz, c.y + up * c.S, c.z + Math.sin(c.heading) * bz);
+      d.rotation.set(0, c.yaw, 0);
+      d.scale.setScalar(c.S);
+    };
+
+    // Glimmer — round-bodied grazer: tall ears, puff tail, four stubby legs
     {
-      const body = new THREE.SphereGeometry(0.62, 10, 8);
-      const head = new THREE.SphereGeometry(0.3, 8, 6);
-      this.meshes.glimmer = { body: mk(body, SPECIES.glimmer.cap), head: mk(head, SPECIES.glimmer.cap), map: [] };
+      const cap = SPECIES.glimmer.cap;
+      const ears = mergeGeometries([
+        at(cone(0.1, 0.42, 5).rotateZ(-0.24), 0.14, 0.42, -0.04),
+        at(cone(0.1, 0.42, 5).rotateZ(0.24), -0.14, 0.42, -0.04),
+      ]);
+      this.meshes.glimmer = {
+        vis: { lift: 0.56, bs: [1.05, 0.95, 1.22], headF: 0.78, headUp: 0.34 },
+        map: [],
+        parts: [
+          { mesh: mk(sph(0.62, 10, 8), cap), shade: 1, place: bodyPlace },
+          { mesh: mk(sph(0.3, 8, 6), cap), shade: 0.85, place: headPlace },
+          { mesh: mk(ears, cap), shade: 0.75, place: headPlace },
+          { mesh: mk(sph(0.14, 6, 5), cap), shade: 1.25, place: rearPlace(-0.68, 0.22) },
+          { mesh: mk(legSet([[0.27, 0.32], [-0.27, 0.32], [0.27, -0.32], [-0.27, -0.32]], 0.5, 0.08, -0.45), cap),
+            shade: 0.55, place: legsPlace },
+        ],
+      };
     }
+
+    // Skitter — low crab-like scavenger: flat shell, beak, eye stalks, six splayed legs
     {
-      const body = new THREE.SphereGeometry(0.55, 9, 7);
-      const head = new THREE.BoxGeometry(0.34, 0.22, 0.5);
-      this.meshes.skitter = { body: mk(body, SPECIES.skitter.cap), head: mk(head, SPECIES.skitter.cap), map: [] };
+      const cap = SPECIES.skitter.cap;
+      const head = mergeGeometries([
+        sph(0.19, 8, 6),
+        at(cone(0.13, 0.42, 6).rotateX(Math.PI / 2), 0, 0, 0.3),
+      ]);
+      const eyes = mergeGeometries([
+        at(new THREE.CylinderGeometry(0.025, 0.035, 0.18, 4), 0.1, 0.2, 0.08),
+        at(new THREE.CylinderGeometry(0.025, 0.035, 0.18, 4), -0.1, 0.2, 0.08),
+        at(sph(0.06, 6, 5), 0.1, 0.31, 0.08),
+        at(sph(0.06, 6, 5), -0.1, 0.31, 0.08),
+      ]);
+      this.meshes.skitter = {
+        vis: { lift: 0.42, bs: [1.18, 0.6, 1.12], headF: 0.68, headUp: 0.1 },
+        map: [],
+        parts: [
+          { mesh: mk(sph(0.55, 9, 7), cap), shade: 1, place: bodyPlace },
+          { mesh: mk(head, cap), shade: 0.85, place: headPlace },
+          { mesh: mk(eyes, cap), shade: null, place: headPlace },
+          { mesh: mk(legSet([
+              [0.42, 0.3, -0.5], [-0.42, 0.3, 0.5],
+              [0.46, 0, -0.55], [-0.46, 0, 0.55],
+              [0.42, -0.3, -0.5], [-0.42, -0.3, 0.5],
+            ], 0.4, 0.055, -0.28), cap),
+            shade: 0.55, place: legsPlace },
+        ],
+      };
     }
+
+    // Stalker — lean wolf-like predator: snout + ears, spine spikes, long legs, speed-scaled tail
     {
-      const body = new THREE.SphereGeometry(0.68, 10, 8);
-      const head = new THREE.ConeGeometry(0.34, 0.95, 7); head.rotateX(Math.PI / 2);
-      this.meshes.stalker = { body: mk(body, SPECIES.stalker.cap), head: mk(head, SPECIES.stalker.cap), map: [] };
+      const cap = SPECIES.stalker.cap;
+      const head = mergeGeometries([
+        sph(0.28, 8, 6),
+        at(cone(0.19, 0.55, 7).rotateX(Math.PI / 2), 0, -0.02, 0.36),
+        at(cone(0.07, 0.2, 4).rotateZ(-0.2), 0.13, 0.3, -0.06),
+        at(cone(0.07, 0.2, 4).rotateZ(0.2), -0.13, 0.3, -0.06),
+      ]);
+      const spikes = mergeGeometries([
+        at(cone(0.1, 0.24, 4), 0, 0.58, -0.28),
+        at(cone(0.11, 0.28, 4), 0, 0.63, 0),
+        at(cone(0.1, 0.24, 4), 0, 0.58, 0.28),
+      ]);
+      const tail = at(cone(0.09, 0.85, 6).rotateX(-Math.PI / 2).rotateX(0.55), 0, 0.1, -0.32);
+      const tailPlace = (c, d) => {
+        const bz = -0.6 * c.S * c.elong;
+        d.position.set(c.x + Math.cos(c.heading) * bz, c.y + 0.1 * c.S, c.z + Math.sin(c.heading) * bz);
+        d.rotation.set(0, c.yaw, 0);
+        d.scale.set(c.S, c.S, c.S * (0.6 + 0.55 * c.g.speed));   // fast lineages grow long tails
+      };
+      this.meshes.stalker = {
+        vis: { lift: 0.62, bs: [0.84, 0.84, 1.32], headF: 0.95, headUp: 0.24 },
+        map: [],
+        parts: [
+          { mesh: mk(sph(0.68, 10, 8), cap), shade: 1, place: bodyPlace },
+          { mesh: mk(head, cap), shade: 0.8, place: headPlace },
+          { mesh: mk(spikes, cap), shade: 0.5, place: bodyPlace },
+          { mesh: mk(tail, cap), shade: 0.7, place: tailPlace },
+          { mesh: mk(legSet([[0.28, 0.36], [-0.28, 0.36], [0.28, -0.38], [-0.28, -0.38]], 0.62, 0.085, -0.5), cap),
+            shade: 0.5, place: legsPlace },
+        ],
+      };
     }
   }
 
@@ -1187,9 +1298,10 @@ class Simulation {
     cm.count = cn;
     cm.instanceMatrix.needsUpdate = true;
 
-    // organisms
+    // organisms — pose every part of each species' rig from one shared context
     for (const sk of SPECIES_KEYS) {
       const M = this.meshes[sk];
+      const V = M.vis;
       let i = 0;
       M.map.length = 0;
       for (const o of this.organisms) {
@@ -1198,36 +1310,37 @@ class Simulation {
         const y = Math.max(this.heightAt(o.x, o.z), WORLD.waterY - 0.2);
         const asleep = o.state === 'sleep';
         const bob = asleep ? 0 : Math.abs(Math.sin(o.phase)) * 0.16 * g.size;
-        const baseY = y + 0.45 * g.size + bob;
         const elong = 1 + (g.speed - 1.2) * 0.45;
         const grow = Math.min(1, 0.45 + 0.55 * (o.age / (SPECIES[sk].mature * 1.4)));
         const S = g.size * grow;
-
-        dummy.position.set(o.x, asleep ? baseY - 0.18 * S : baseY, o.z);
-        dummy.rotation.set(0, -o.heading + Math.PI / 2, asleep ? 0.5 : Math.sin(o.phase) * 0.06);
-        dummy.scale.set(S, S * (asleep ? 0.72 : 1), S * elong);
-        dummy.updateMatrix();
-        M.body.setMatrixAt(i, dummy.matrix);
-        M.body.setColorAt(i, o.color);
-
-        // head: in front along heading, scaled by sense
-        const hd = 0.62 * S * elong;
-        const hs = S * (0.7 + (g.sense - 1.2) * 0.5);
-        dummy.position.set(o.x + Math.cos(o.heading) * hd, (asleep ? baseY - 0.18 * S : baseY) + 0.18 * S, o.z + Math.sin(o.heading) * hd);
-        dummy.rotation.set(0, -o.heading + Math.PI / 2, 0);
-        dummy.scale.set(hs, hs, hs);
-        dummy.updateMatrix();
-        M.head.setMatrixAt(i, dummy.matrix);
-        M.head.setColorAt(i, tmpColor.copy(o.color).multiplyScalar(0.8));
-
+        const cy = y + V.lift * S + bob - (asleep ? 0.18 * S : 0);
+        const hs = S * (0.7 + (g.sense - 1.2) * 0.5);     // sense grows head, ears, eyes
+        const hd = V.headF * S * elong;
+        const c = {
+          x: o.x, y: cy, z: o.z,
+          yaw: -o.heading + Math.PI / 2, heading: o.heading,
+          tilt: asleep ? 0.5 : Math.sin(o.phase) * 0.06,
+          S, elong, asleep, g, bs: V.bs, hs,
+          legY: 0.65 + 0.4 * g.speed,                     // fast lineages get longer legs
+          hx: o.x + Math.cos(o.heading) * hd, hy: cy + V.headUp * S, hz: o.z + Math.sin(o.heading) * hd,
+        };
+        for (const p of M.parts) {
+          p.place(c, dummy);
+          dummy.updateMatrix();
+          p.mesh.setMatrixAt(i, dummy.matrix);
+          if (p.shade === null) p.mesh.setColorAt(i, tmpColor.setRGB(0.07, 0.07, 0.09));
+          else if (p.shade === 1) p.mesh.setColorAt(i, o.color);
+          else p.mesh.setColorAt(i, tmpColor.copy(o.color).multiplyScalar(p.shade));
+        }
         M.map[i] = o;
         i++;
         if (i >= SPECIES[sk].cap) break;
       }
-      M.body.count = M.head.count = i;
-      M.body.instanceMatrix.needsUpdate = M.head.instanceMatrix.needsUpdate = true;
-      if (M.body.instanceColor) M.body.instanceColor.needsUpdate = true;
-      if (M.head.instanceColor) M.head.instanceColor.needsUpdate = true;
+      for (const p of M.parts) {
+        p.mesh.count = i;
+        p.mesh.instanceMatrix.needsUpdate = true;
+        if (p.mesh.instanceColor) p.mesh.instanceColor.needsUpdate = true;
+      }
     }
 
     // gentle water shimmer
@@ -1344,7 +1457,7 @@ renderer.domElement.addEventListener('pointerup', e => {
   let hit = null, hitD = Infinity;
   for (const sk of SPECIES_KEYS) {
     const M = sim.meshes[sk];
-    for (const mesh of [M.body, M.head]) {
+    for (const { mesh } of M.parts) {
       const its = raycaster.intersectObject(mesh);
       if (its.length && its[0].distance < hitD) {
         const o = M.map[its[0].instanceId];
@@ -1362,6 +1475,7 @@ function select(o) {
 }
 window.__select = select;
 window.__camera = camera; window.__controls = controls;
+window.__render = () => { updateSky(); sim.syncVisuals(performance.now() / 1000); controls.update(); renderer.render(scene, camera); };
 function deselect() {
   selected = null; follow = false;
   selRing.visible = false;
