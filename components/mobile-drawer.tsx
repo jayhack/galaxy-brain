@@ -28,14 +28,14 @@ export function MobileDrawer({ evals }: { evals: EvalNavItem[] }) {
         <button
           type="button"
           aria-label="Open menu"
-          className="inline-flex size-10 items-center justify-center border border-ink bg-paper text-ink hover:bg-paper-soft lg:hidden"
+          className="inline-flex size-12 items-center justify-center border border-ink bg-paper text-ink hover:bg-paper-soft lg:hidden"
         >
-          <Menu className="size-5" />
+          <Menu className="size-6" />
         </button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-72 p-0">
+      <SheetContent side="left" className="w-80 max-w-[calc(100vw-1rem)] p-0">
         <SheetTitle className="sr-only">Navigation</SheetTitle>
-        <SiteSidebar evals={evals} />
+        <SiteSidebar evals={evals} variant="mobile" />
       </SheetContent>
     </Sheet>
   );

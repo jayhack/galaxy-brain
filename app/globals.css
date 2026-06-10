@@ -416,6 +416,9 @@
   color: var(--ink);
   line-height: 1.05;
 }
+.logo-wordmark--mobile {
+  font-size: 1.1rem;
+}
 
 /* ===== SECTION DIVIDER WITH GLOBULE ============================== */
 .g-rule {

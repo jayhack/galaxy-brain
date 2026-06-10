@@ -88,15 +88,22 @@ export default function RootLayout({
                   className="flex min-w-0 items-center gap-2"
                   aria-label="galaxy-brain - home"
                 >
-                  <Monogram modifier="logo-monogram--sm" />
-                  <span className="logo-wordmark truncate">galaxy-brain</span>
+                  <Monogram />
+                  <span className="logo-wordmark logo-wordmark--mobile truncate">
+                    galaxy-brain
+                  </span>
                 </Link>
               </div>
               <HeaderBreadcrumb
                 evalTitles={evalTitles}
                 className="hidden min-w-0 lg:flex"
               />
-              <Button asChild variant="ghost" size="xs" className="text-ink/70">
+              <Button
+                asChild
+                variant="ghost"
+                size="xs"
+                className="h-10 px-3 text-xs text-ink/70 sm:h-7 sm:px-[11px] sm:text-[11px]"
+              >
                 <a
                   href={repo}
                   target="_blank"
@@ -109,7 +116,7 @@ export default function RootLayout({
               </Button>
             </header>
 
-            <main className="mx-auto w-full flex-1 px-4 py-8 sm:px-6 lg:px-10">
+            <main className="mx-auto w-full flex-1 px-4 py-4 sm:px-6 sm:py-8 lg:px-10">
               {children}
             </main>
           </div>

@@ -3,13 +3,31 @@ import Link from "next/link";
 import { Monogram } from "@/components/globule";
 import { SidebarNav, type EvalNavItem } from "@/components/sidebar-nav";
 
-export function SiteSidebar({ evals }: { evals: EvalNavItem[] }) {
+export function SiteSidebar({
+  evals,
+  variant = "default",
+}: {
+  evals: EvalNavItem[];
+  variant?: "default" | "mobile";
+}) {
+  const mobile = variant === "mobile";
+
   return (
     <div className="flex h-full flex-col">
-      <div className="flex h-16 shrink-0 items-center border-b border-ink px-4">
+      <div
+        className={
+          mobile
+            ? "flex h-20 shrink-0 items-center border-b border-ink px-4 pr-16"
+            : "flex h-16 shrink-0 items-center border-b border-ink px-4"
+        }
+      >
         <Link
           href="/"
-          className="flex min-w-0 flex-1 items-center gap-2.5 no-underline"
+          className={
+            mobile
+              ? "flex min-w-0 flex-1 items-center gap-3 no-underline"
+              : "flex min-w-0 flex-1 items-center gap-2.5 no-underline"
+          }
         >
           <Monogram />
           <span className="flex min-w-0 flex-1 flex-col">
@@ -20,7 +38,13 @@ export function SiteSidebar({ evals }: { evals: EvalNavItem[] }) {
           </span>
         </Link>
       </div>
-      <SidebarNav evals={evals} className="flex-1 overflow-y-auto p-2" />
+      <SidebarNav
+        evals={evals}
+        size={mobile ? "mobile" : "default"}
+        className={
+          mobile ? "flex-1 overflow-y-auto p-3" : "flex-1 overflow-y-auto p-2"
+        }
+      />
       <div className="stamp-block shrink-0 border-t border-ink px-4 py-3 opacity-70">
         cream &middot; ink &middot; six globules
       </div>

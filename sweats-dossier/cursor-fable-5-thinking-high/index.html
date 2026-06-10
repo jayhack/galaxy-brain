@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOFT DEPLOY — A Sweats Dossier for Jay Hack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #18150f;
+    --paper: #f4f0e8;
+    --paper-deep: #ebe5d8;
+    --whiskey: #9a6a38;
+    --whiskey-bright: #c08948;
+    --smoke: #6e6a61;
+    --line: #d8d0bf;
+    --black-card: #1d1a14;
+    --serif: "Fraunces", Georgia, "Times New Roman", serif;
+    --sans: "Inter", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --mono: "JetBrains Mono", "SF Mono", Menlo, monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: var(--whiskey); color: #fff; }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px; }
+  .wrap-wide { max-width: 1240px; margin: 0 auto; padding: 0 28px; }
+
+  /* ---------- hero ---------- */
+  header.hero {
+    position: relative;
+    min-height: 92vh;
+    display: flex;
+    align-items: flex-end;
+    background: #232019;
+    overflow: hidden;
+  }
+  header.hero img.bg {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center 40%;
+    opacity: 0.92;
+  }
+  header.hero .scrim {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(15,13,9,0.88) 0%, rgba(15,13,9,0.25) 45%, rgba(15,13,9,0.15) 100%);
+  }
+  header.hero .hero-inner {
+    position: relative;
+    width: 100%;
+    padding: 60px 0 72px;
+    color: #f2ecdf;
+  }
+  .kicker {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--whiskey-bright);
+  }
+  header.hero h1 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(54px, 9vw, 120px);
+    line-height: 0.98;
+    letter-spacing: -0.01em;
+    margin: 18px 0 22px;
+  }
+  header.hero h1 em { font-style: italic; color: var(--whiskey-bright); }
+  header.hero p.dek {
+    max-width: 560px;
+    font-size: 18px;
+    line-height: 1.6;
+    color: rgba(242,236,223,0.85);
+  }
+  header.hero .meta-row {
+    margin-top: 36px;
+    display: flex; flex-wrap: wrap; gap: 28px;
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em;
+    color: rgba(242,236,223,0.6);
+  }
+
+  /* ---------- section scaffolding ---------- */
+  section { padding: 96px 0; }
+  .sec-label {
+    display: flex; align-items: center; gap: 16px;
+    margin-bottom: 44px;
+  }
+  .sec-label .num {
+    font-family: var(--mono); font-size: 13px; color: var(--whiskey);
+  }
+  .sec-label .rule { flex: 1; height: 1px; background: var(--line); }
+  .sec-label .name {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--smoke);
+  }
+  h2.display {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(34px, 5vw, 56px);
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    max-width: 760px;
+    margin-bottom: 28px;
+  }
+  h2.display em { font-style: italic; color: var(--whiskey); }
+  .lede { font-size: 19px; max-width: 680px; color: #3a352b; }
+
+  /* ---------- dossier ---------- */
+  .dossier-grid {
+    display: grid;
+    grid-template-columns: 1.25fr 1fr;
+    gap: 64px;
+    align-items: start;
+  }
+  .dossier-copy p { margin-bottom: 20px; color: #3a352b; }
+  .dossier-copy strong { color: var(--ink); }
+  .dossier-copy a { color: var(--whiskey); text-decoration-color: rgba(154,106,56,0.4); }
+  .subject-card {
+    background: var(--black-card);
+    color: #e9e2d2;
+    padding: 36px 32px;
+    border-radius: 4px;
+  }
+  .subject-card h3 {
+    font-family: var(--mono); font-weight: 500; font-size: 12px;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--whiskey-bright); margin-bottom: 24px;
+  }
+  .subject-card dl { display: grid; gap: 16px; }
+  .subject-card dt {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: rgba(233,226,210,0.45);
+    margin-bottom: 3px;
+  }
+  .subject-card dd { font-size: 15px; line-height: 1.5; }
+
+  /* ---------- thesis ---------- */
+  .thesis { background: var(--paper-deep); }
+  .thesis-points {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 2px; margin-top: 56px;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+  .thesis-points article { background: var(--paper-deep); padding: 36px 30px; }
+  .thesis-points .t-num {
+    font-family: var(--serif); font-style: italic;
+    font-size: 40px; color: var(--whiskey); line-height: 1;
+  }
+  .thesis-points h3 {
+    font-family: var(--serif); font-weight: 500; font-size: 23px;
+    margin: 16px 0 12px; line-height: 1.25;
+  }
+  .thesis-points p { font-size: 15.5px; color: #4a4438; }
+
+  /* ---------- picks ---------- */
+  .pick {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: center;
+    padding: 72px 0;
+    border-top: 1px solid var(--line);
+  }
+  .pick:first-of-type { border-top: none; padding-top: 0; }
+  .pick:nth-child(even) .pick-img { order: 2; }
+  .pick-img {
+    position: relative;
+    background: #fff;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px -32px rgba(24,21,15,0.35);
+  }
+  .pick-img img { width: 100%; display: block; aspect-ratio: 4/4.6; object-fit: cover; }
+  .pick-img .tag {
+    position: absolute; top: 16px; left: 16px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em;
+    text-transform: uppercase;
+    background: rgba(24,21,15,0.85); color: #efe8d8;
+    padding: 7px 12px; border-radius: 2px;
+  }
+  .pick-body .pk-brand {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--whiskey);
+  }
+  .pick-body h3 {
+    font-family: var(--serif); font-weight: 400;
+    font-size: clamp(28px, 3.4vw, 40px); line-height: 1.1;
+    margin: 12px 0 6px;
+  }
+  .pick-body .pk-price {
+    font-family: var(--mono); font-size: 15px; color: var(--smoke);
+    margin-bottom: 22px;
+  }
+  .pick-body .pk-why { color: #3a352b; margin-bottom: 18px; }
+  .pick-body .pk-why strong { color: var(--ink); }
+  .fabric-note {
+    border-left: 2px solid var(--whiskey);
+    padding: 6px 0 6px 18px;
+    font-size: 14.5px; color: #565045;
+    margin-bottom: 24px;
+  }
+  .fabric-note .fn-label {
+    display: block;
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--whiskey); margin-bottom: 4px;
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 26px; }
+  .chip {
+    font-family: var(--mono); font-size: 11.5px;
+    border: 1px solid var(--line); border-radius: 99px;
+    padding: 5px 12px; color: var(--smoke); background: rgba(255,255,255,0.5);
+  }
+  a.buy {
+    display: inline-block;
+    font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.12em;
+    text-transform: uppercase; text-decoration: none;
+    color: var(--paper); background: var(--ink);
+    padding: 13px 24px; border-radius: 2px;
+    transition: background 0.2s ease;
+  }
+  a.buy:hover { background: var(--whiskey); }
+  .verdict-grail {
+    display: inline-block;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--whiskey);
+    border: 1px solid var(--whiskey); border-radius: 2px;
+    padding: 6px 10px; margin-bottom: 18px;
+  }
+
+  /* ---------- charts ---------- */
+  .charts { background: var(--black-card); color: #e9e2d2; }
+  .charts h2.display { color: #f2ecdf; }
+  .charts h2.display em { color: var(--whiskey-bright); }
+  .charts .lede { color: rgba(233,226,210,0.7); }
+  .chart-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 48px;
+    margin-top: 64px;
+  }
+  .chart-card {
+    background: rgba(244,240,232,0.04);
+    border: 1px solid rgba(244,240,232,0.12);
+    border-radius: 4px; padding: 28px;
+  }
+  .chart-card h3 {
+    font-family: var(--serif); font-weight: 400; font-size: 24px;
+    margin-bottom: 4px;
+  }
+  .chart-card .ch-sub {
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.1em;
+    color: rgba(233,226,210,0.5); margin-bottom: 20px; display: block;
+  }
+  .chart-card svg { width: 100%; height: auto; display: block; }
+  .chart-note {
+    margin-top: 18px; font-size: 13px; color: rgba(233,226,210,0.55);
+    line-height: 1.55;
+  }
+
+  /* ---------- table ---------- */
+  .ledger table {
+    width: 100%; border-collapse: collapse; margin-top: 48px;
+    font-size: 14.5px;
+  }
+  .ledger th {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--smoke);
+    text-align: left; padding: 0 14px 14px;
+    border-bottom: 2px solid var(--ink);
+  }
+  .ledger td {
+    padding: 16px 14px; border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  .ledger td.brand-cell { font-weight: 600; white-space: nowrap; }
+  .ledger td .sub { display: block; font-size: 12.5px; color: var(--smoke); font-weight: 400; }
+  .ledger .price { font-family: var(--mono); white-space: nowrap; }
+  .ledger .role { color: var(--whiskey); font-weight: 500; }
+  .ledger tr.grail-row { background: rgba(154,106,56,0.07); }
+
+  /* ---------- playbook ---------- */
+  .playbook { background: var(--paper-deep); }
+  .phases { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 56px; }
+  .phase {
+    background: var(--paper); border: 1px solid var(--line); border-radius: 4px;
+    padding: 32px 28px;
+  }
+  .phase .ph-step {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--whiskey); margin-bottom: 14px;
+  }
+  .phase h3 { font-family: var(--serif); font-weight: 500; font-size: 24px; margin-bottom: 10px; }
+  .phase .ph-cost { font-family: var(--mono); font-size: 13px; color: var(--smoke); margin-bottom: 14px; }
+  .phase p { font-size: 15px; color: #4a4438; }
+  .sizing {
+    margin-top: 56px; padding: 32px 36px;
+    border: 1px dashed var(--whiskey); border-radius: 4px;
+    background: rgba(154,106,56,0.05);
+  }
+  .sizing h3 {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--whiskey); margin-bottom: 14px;
+  }
+  .sizing ul { list-style: none; display: grid; gap: 10px; }
+  .sizing li { font-size: 15px; color: #4a4438; padding-left: 22px; position: relative; }
+  .sizing li::before { content: "→"; position: absolute; left: 0; color: var(--whiskey); }
+
+  /* ---------- footer ---------- */
+  footer {
+    background: var(--black-card); color: rgba(233,226,210,0.8);
+    padding: 80px 0;
+  }
+  footer .runback {
+    font-family: var(--serif); font-weight: 400; font-style: italic;
+    font-size: clamp(26px, 3.6vw, 40px); line-height: 1.25;
+    color: #f2ecdf; max-width: 820px; margin-bottom: 32px;
+  }
+  footer .runback em { color: var(--whiskey-bright); }
+  footer .fine {
+    font-family: var(--mono); font-size: 12px; line-height: 1.8;
+    color: rgba(233,226,210,0.45); max-width: 720px;
+  }
+
+  @media (max-width: 880px) {
+    section { padding: 64px 0; }
+    .dossier-grid, .pick, .chart-grid { grid-template-columns: 1fr; gap: 36px; }
+    .pick:nth-child(even) .pick-img { order: 0; }
+    .thesis-points, .phases { grid-template-columns: 1fr; }
+    .ledger { overflow-x: auto; }
+    .ledger table { min-width: 760px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ======================= HERO ======================= -->
+<header class="hero">
+  <img class="bg" src="images/hero.jpg" alt="A folded stack of premium sweats in black, charcoal, grey, bone, and whiskey beside tan suede sneakers and a laptop">
+  <div class="scrim"></div>
+  <div class="hero-inner">
+    <div class="wrap">
+      <div class="kicker">A Personal Shopping Dossier · Prepared for Jay Hack · June 2026</div>
+      <h1>Soft<br><em>Deploy</em></h1>
+      <p class="dek">You asked for super high quality sweats and linked a $795 James Perse track pant. Correct instinct. This is the full build plan: one grail, two workhorses, and three asymmetric bets — every piece composable with every other.</p>
+      <div class="meta-row">
+        <span>07 PICKS</span>
+        <span>$118 – $795</span>
+        <span>5 COUNTRIES OF MAKE</span>
+        <span>390 – 610 GSM</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ======================= DOSSIER ======================= -->
+<section id="subject">
+  <div class="wrap">
+    <div class="sec-label"><span class="num">01</span><span class="rule"></span><span class="name">The Subject</span></div>
+    <h2 class="display">First, the research. Because the picks only work if they're <em>for you</em>.</h2>
+    <div class="dossier-grid">
+      <div class="dossier-copy">
+        <p>Public record, briefly: <strong>Head of AI at ClickUp</strong>, after founding <strong>Codegen</strong> — "Level 5 self-driving for software engineering," backed by Thrive — and selling it in late 2025. Before that, <strong>Mira AI</strong>, an AI personalization engine for beauty shoppers (raised $9M, acquired 2021). Before that, ML at <strong>Palantir</strong>; CS/AI at <strong>Stanford</strong>. Online, <a href="https://jay.ai">jay.ai</a> and @mathemagic1an — podcasts, conference stages, demo videos, a feed full of agent architectures.</p>
+        <p>What that profile implies for clothing: your week oscillates between <strong>deep-work stretches</strong> (where comfort is the entire job) and <strong>sudden on-camera moments</strong> — a podcast hit, an all-hands, an investor dinner that starts as a coffee. The sweats you buy have to survive that ambiguity. Logo-blasted loungewear fails the second context; sad grey gym fleece fails both.</p>
+        <p>And one detail that makes this report self-aware: <strong>you founded an AI personal-shopping company</strong>. Mira's whole thesis was that recommendations should be grounded in who the person actually is, not in what the catalog wants to move. So that's the bar this dossier is held to.</p>
+      </div>
+      <aside class="subject-card">
+        <h3>Subject File — J. Hack</h3>
+        <dl>
+          <div><dt>Current</dt><dd>Head of AI, ClickUp — leading agentic productivity</dd></div>
+          <div><dt>Track record</dt><dd>Codegen (acq. ClickUp '25) · Mira AI (acq. '21) · Palantir · Stanford CS/AI</dd></div>
+          <div><dt>Habitat</dt><dd>Bay Area. Keyboard → camera → stage, often same day</dd></div>
+          <div><dt>Stated taste</dt><dd>Linked the James Perse suede-piped track pant in Black/Whiskey; named Essentials as the reference tier</dd></div>
+          <div><dt>Read</dt><dd>Quiet-luxe minimalism with one warm accent. Fabric over logos. Wants conviction, not a catalog</dd></div>
+        </dl>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= THESIS ======================= -->
+<section class="thesis" id="thesis">
+  <div class="wrap">
+    <div class="sec-label"><span class="num">02</span><span class="rule"></span><span class="name">The Thesis</span></div>
+    <h2 class="display">Buy <em>drape</em>, not logos. Build a stack where every piece talks to every other piece.</h2>
+    <p class="lede">The pant you linked already told me the thesis — you just hadn't written it down yet. Black body, whiskey piping: deep neutrals with one warm accent. Here it is as three commitments.</p>
+    <div class="thesis-points">
+      <article>
+        <div class="t-num">i.</div>
+        <h3>A closed palette: black, smoke, bone — plus whiskey.</h3>
+        <p>Every pick below lives in five tones that all pair with each other. That's what makes a 7-piece collection behave like a 20-outfit wardrobe — full autonomy from your closet. The whiskey accent (piping, the elm hoodie, tan suede shoes) is the single signature note, lifted straight from the pant you chose yourself.</p>
+      </article>
+      <article>
+        <div class="t-num">ii.</div>
+        <h3>Weight is the luxury signal, not the label.</h3>
+        <p>What reads as "expensive" on camera is how fabric falls: heavier knits (390–610gsm) hold a clean line instead of clinging. The picks deliberately span the weight axis — heavyweight structure for winter and video calls, light loopback for travel and summer — and the chart below makes the trade-off legible.</p>
+      </article>
+      <article>
+        <div class="t-num">iii.</div>
+        <h3>Relaxed leg, intentional taper — never sloppy, never skinny.</h3>
+        <p>Your references (Perse, Essentials) both cut full through the seat with controlled leg lines. Stay there. A straight or gently tapered relaxed cut over a clean sneaker is the silhouette that works at a desk, on a stage, and in an airport — the three rooms you actually live in.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= PICKS ======================= -->
+<section id="picks">
+  <div class="wrap-wide">
+    <div class="sec-label"><span class="num">03</span><span class="rule"></span><span class="name">The Seven — A Lookbook</span></div>
+
+    <!-- 1. James Perse -->
+    <div class="pick">
+      <div class="pick-img"><img src="images/james-perse.jpg" alt="James Perse Brushed Cotton Suede Piped Track Pant in Black/Whiskey, worn with tan suede sneakers"></div>
+      <div class="pick-body">
+        <span class="verdict-grail">★ The Grail — Verdict: Buy It</span>
+        <div class="pk-brand">James Perse · Los Angeles</div>
+        <h3>Brushed Cotton Suede Piped Track Pant</h3>
+        <div class="pk-price">$795 · Black/Whiskey · MBCB1476</div>
+        <p class="pk-why">This is the pant you linked, and the answer is <strong>yes</strong>. It's the rare $795 sweatpant that's defensible: the "cotton suede" is a brushed double-knit with a genuinely suede-like hand, and the whiskey piping is real contrast detail, not a print. It photographs like tailoring and feels like fleece — exactly your keyboard-to-camera problem, solved. It also sets the palette for everything else in this file.</p>
+        <div class="fabric-note"><span class="fn-label">Fabric / Construction</span>Brushed cotton "suede" double-knit jersey, piped seams in contrast, elasticated cuff with zip detail. James Perse knits are cut and sewn in Los Angeles. Midweight (~430gsm class) with an unusually dense, smooth face.</div>
+        <div class="chips"><span class="chip">relaxed-tapered</span><span class="chip">midweight</span><span class="chip">made in LA</span><span class="chip">on-camera safe</span></div>
+        <a class="buy" href="https://www.jamesperse.com/products/brushed-cotton-suede-piped-track-pant-black-whiskey-mbcb1476" target="_blank" rel="noopener">View at James Perse →</a>
+      </div>
+    </div>
+
+    <!-- 2. Lady White -->
+    <div class="pick">
+      <div class="pick-img"><img src="images/lady-white.jpg" alt="Lady White Co. Super Weighted Hoodie in Elm, a camel-toned heavyweight hoodie"><span class="tag">Pairs with the grail</span></div>
+      <div class="pick-body">
+        <div class="pk-brand">Lady White Co. · Los Angeles</div>
+        <h3>Super Weighted Hoodie — Elm</h3>
+        <div class="pk-price">$354 · LW-H680 · (~$230 in core black/grey at stockists)</div>
+        <p class="pk-why">The top half of your signature look. Elm is the whiskey accent at garment scale — wear it over the black Perse pant and you've recreated the piping logic across your whole frame. Lady White's 18-ounce fleece is the densest in this report; it starts stiff like raw denim and breaks in to <strong>your</strong> shape. Knit, cut, and sewn within ten miles of their LA studio, no drawstrings, no branding. Six-foot-two and lean? Their boxy cut was drafted for exactly that frame.</p>
+        <div class="fabric-note"><span class="fn-label">Fabric / Construction</span>Custom 18oz (~610gsm) brushed fleece, 100% USA cotton, knit/cut/sewn in Los Angeles. Raglan shoulders, double-faced hood, crossover neck, preshrunk. Heaviest piece in the stack.</div>
+        <div class="chips"><span class="chip">boxy / structural</span><span class="chip">18oz — max weight</span><span class="chip">made in LA</span><span class="chip">breaks in like denim</span></div>
+        <a class="buy" href="https://ladywhiteco.com/products/super-weighted-hoodie-elm" target="_blank" rel="noopener">View at Lady White Co. →</a>
+      </div>
+    </div>
+
+    <!-- 3. Essentials -->
+    <div class="pick">
+      <div class="pick-img"><img src="images/essentials.jpg" alt="Fear of God Essentials Heavy Fleece Lounge Sweatpant in Smoke Grey with script logo"></div>
+      <div class="pick-body">
+        <div class="pk-brand">Fear of God Essentials</div>
+        <h3>Heavy Fleece Lounge Sweatpant</h3>
+        <div class="pk-price">$145 · Smoke Grey · 130HO258381F</div>
+        <p class="pk-why">You named Essentials yourself, and this is the piece that justifies it: <strong>520gsm</strong> heavy fleece at $145 is the best weight-per-dollar ratio in the entire market right now — Jerry Lorenzo subsidizing your deep-work uniform. The pigment dye gives smoke grey a lived-in depth that flat dye can't fake. One honest caveat: the script logo on the leg makes this the most "streetwear" pick here — it's the WFH / weekend driver, not the investor-dinner pant. Sells through in M/L fast; all sales final, so size deliberately.</p>
+        <div class="fabric-note"><span class="fn-label">Fabric / Construction</span>100% cotton, 520gsm pigment-dyed heavy fleece. Wide-leg lounge fit, encased elastic waistband, elongated drawcords, rubberized label. Imported.</div>
+        <div class="chips"><span class="chip">wide / voluminous</span><span class="chip">520gsm</span><span class="chip">best $/gsm</span><span class="chip">final sale — careful</span></div>
+        <a class="buy" href="https://fearofgod.com/products/essentials-lounge-sweatpant-130ho258381f-smoke-grey" target="_blank" rel="noopener">View at Fear of God →</a>
+      </div>
+    </div>
+
+    <!-- 4. Reigning Champ -->
+    <div class="pick">
+      <div class="pick-img"><img src="images/reigning-champ.jpg" alt="Reigning Champ Midweight Terry Slim Sweatpant in Black"></div>
+      <div class="pick-body">
+        <div class="pk-brand">Reigning Champ · Vancouver</div>
+        <h3>Midweight Terry Slim Sweatpant</h3>
+        <div class="pk-price">$118 · Black · RC-5587</div>
+        <p class="pk-why">The daily driver — the pant you reach for at 7am without thinking, so the $795 pair stays special. Flatlock seams, rib gusset, a rear patch pocket for your phone, and the slimmest cut in this file, which makes it the one that passes as "real pants" under a jacket. <strong>Full disclosure from the research:</strong> Reigning Champ quietly moved this line from their storied Vancouver factory to Vietnam. Construction quality holds up; the made-in-Canada romance doesn't. At $118 it's still the value pick — but you should know what you're buying.</p>
+        <div class="fabric-note"><span class="fn-label">Fabric / Construction</span>100% cotton French terry, 390gsm, fine loopback interior. Flatlock construction, rib waistband and cuffs, woven drawcord. Now made in Vietnam (formerly Canada).</div>
+        <div class="chips"><span class="chip">slim-tapered</span><span class="chip">390gsm</span><span class="chip">daily workhorse</span><span class="chip">passes as real pants</span></div>
+        <a class="buy" href="https://reigningchamp.com/products/midweight-terry-slim-sweatpant-black-5587" target="_blank" rel="noopener">View at Reigning Champ →</a>
+      </div>
+    </div>
+
+    <!-- 5. Stoffa -->
+    <div class="pick">
+      <div class="pick-img"><img src="images/stoffa.jpg" alt="Stòffa cotton terry sweatpants in Bone, a pale ivory relaxed sweatpant"></div>
+      <div class="pick-body">
+        <div class="pk-brand">Stòffa · New York / Varese, Italy</div>
+        <h3>Sweatpants — Bone Cotton Terry</h3>
+        <div class="pk-price">$375 · Made in Varese, Italy</div>
+        <p class="pk-why">The stealth pick most sweats roundups miss. Stòffa is a made-to-order-rooted New York house beloved by the menswear-nerd corner of your feed, and their Italian-milled terry is sweats engineered like tailoring: natural rise, clean front, single back patch pocket, zero branding anywhere. Bone is the light pole of your palette — under the elm hoodie or a black tee it's the most quietly expensive-looking combination in this report. This is the pair for the dinner that wasn't supposed to be a meeting.</p>
+        <div class="fabric-note"><span class="fn-label">Fabric / Construction</span>100% cotton terry knit in Varese, Italy (~400gsm class). Elasticated waist with tonal pique drawcord, on-seam hip pockets, elasticated hem, relaxed fit with natural rise.</div>
+        <div class="chips"><span class="chip">relaxed / tailored logic</span><span class="chip">made in Italy</span><span class="chip">zero branding</span><span class="chip">dinner-grade</span></div>
+        <a class="buy" href="https://stoffa.co/products/bone-cotton-terry-sweatpants" target="_blank" rel="noopener">View at Stòffa →</a>
+      </div>
+    </div>
+
+    <!-- 6. Auralee -->
+    <div class="pick">
+      <div class="pick-img"><img src="images/auralee.jpg" alt="Auralee Smooth Soft BD Sweat Pants in Black, a wide relaxed Japanese sweatpant"><span class="tag">The connoisseur bet</span></div>
+      <div class="pick-body">
+        <div class="pk-brand">Auralee · Tokyo</div>
+        <h3>Smooth Soft BD Sweat Pants</h3>
+        <div class="pk-price">¥41,800 (≈$285 in Japan) · ~$475 at US stockists · A26SP04TU</div>
+        <p class="pk-why">The asymmetric bet. Auralee knits this fabric on rare, slow, vintage loop-wheel machines — think of it as inference on deliberately constrained hardware: a fraction of modern throughput, but the output has loft and air no high-speed circular knit can reproduce. Every drop sells out at Japanese retail, and the US-stockist markup (~65%) is the arbitrage signal. Next Tokyo trip — or a proxy service — buy at ¥ retail and you own the most technically interesting black sweatpant made anywhere. This is the pair other people who know fabric will clock.</p>
+        <div class="fabric-note"><span class="fn-label">Fabric / Construction</span>100% cotton, loop-wheeled on vintage low-speed knitting machines in Japan (~450gsm class, high loft). Regular fit, drawcord elastic waist, elasticated cuffs. Sells out at retail; stockists carry markup.</div>
+        <div class="chips"><span class="chip">relaxed-straight</span><span class="chip">loopwheel — rare make</span><span class="chip">made in Japan</span><span class="chip">buy at ¥ retail</span></div>
+        <a class="buy" href="https://www.diverse-web.com/products/smooth-soft-bd-sweat-pants" target="_blank" rel="noopener">View at Diverse (JP stockist) →</a>
+      </div>
+    </div>
+
+    <!-- 7. Sunspel -->
+    <div class="pick">
+      <div class="pick-img"><img src="images/sunspel.jpg" alt="Sunspel Loopback Sweatpants in Navy, a slim lightweight sweatpant"></div>
+      <div class="pick-body">
+        <div class="pk-brand">Sunspel · England, est. 1860</div>
+        <h3>Loopback Sweatpants</h3>
+        <div class="pk-price">$170 · Navy · MTRS1518</div>
+        <p class="pk-why">The travel and summer slot — the gap every heavyweight-only rotation has. Sunspel has been making knitwear since 1860 (they put James Bond in his polo), and their loopback is the opposite bet from Lady White: light, airy, with an internal loop stitch that breathes. This is the pair for SFO→JFK, for hotel mornings, for California evenings when 610gsm is absurd. Navy instead of black, deliberately — it keeps the palette deep but stops the stack from going monochrome. Slim fit; reads nearly as a chino on camera.</p>
+        <div class="fabric-note"><span class="fn-label">Fabric / Construction</span>100% cotton soft-finish loopback (~340gsm class), rib trims with 5% elastane. Slim fit, ribbed drawstring waistband. Made in Portugal.</div>
+        <div class="chips"><span class="chip">slim</span><span class="chip">lightest in stack</span><span class="chip">travel / summer</span><span class="chip">made in Portugal</span></div>
+        <a class="buy" href="https://www.sunspel.com/products/mens-cotton-loopback-track-pant-in-navy" target="_blank" rel="noopener">View at Sunspel →</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ======================= CHARTS ======================= -->
+<section class="charts" id="charts">
+  <div class="wrap-wide">
+    <div class="sec-label" style="--line: rgba(244,240,232,0.18)"><span class="num">04</span><span class="rule" style="background: rgba(244,240,232,0.18)"></span><span class="name" style="color: rgba(233,226,210,0.5)">The Trade-Space</span></div>
+    <h2 class="display">Seven picks, <em>two axes</em>, zero spreadsheet energy.</h2>
+    <p class="lede">Every recommendation above is a point in a trade-space. Here's the whole space, so you can see why each pick earns its slot — and that no two picks compete for the same one.</p>
+
+    <div class="chart-grid">
+      <!-- Chart 1: price vs weight -->
+      <div class="chart-card">
+        <h3>Price vs. Fabric Weight</h3>
+        <span class="ch-sub">$/GSM IS THE QUIET VALUE METRIC · ◆ = WHISKEY-PALETTE PIECE</span>
+        <svg viewBox="0 0 520 430" role="img" aria-label="Scatter plot of price versus fabric weight for the seven picks">
+          <!-- grid -->
+          <g stroke="rgba(233,226,210,0.1)" stroke-width="1">
+            <line x1="70" y1="40" x2="70" y2="360"/>
+            <line x1="70" y1="360" x2="490" y2="360"/>
+            <line x1="70" y1="280" x2="490" y2="280" stroke-dasharray="3 4"/>
+            <line x1="70" y1="200" x2="490" y2="200" stroke-dasharray="3 4"/>
+            <line x1="70" y1="120" x2="490" y2="120" stroke-dasharray="3 4"/>
+            <line x1="70" y1="40"  x2="490" y2="40"  stroke-dasharray="3 4"/>
+            <line x1="175" y1="40" x2="175" y2="360" stroke-dasharray="3 4"/>
+            <line x1="280" y1="40" x2="280" y2="360" stroke-dasharray="3 4"/>
+            <line x1="385" y1="40" x2="385" y2="360" stroke-dasharray="3 4"/>
+          </g>
+          <!-- axis labels -->
+          <g fill="rgba(233,226,210,0.45)" font-family="JetBrains Mono, monospace" font-size="10">
+            <text x="62" y="364" text-anchor="end">300</text>
+            <text x="62" y="284" text-anchor="end">400</text>
+            <text x="62" y="204" text-anchor="end">500</text>
+            <text x="62" y="124" text-anchor="end">600</text>
+            <text x="62" y="44"  text-anchor="end">700</text>
+            <text x="70"  y="382" text-anchor="middle">$100</text>
+            <text x="175" y="382" text-anchor="middle">$300</text>
+            <text x="280" y="382" text-anchor="middle">$500</text>
+            <text x="385" y="382" text-anchor="middle">$700</text>
+            <text x="490" y="382" text-anchor="middle">$900</text>
+            <text x="280" y="412" text-anchor="middle" letter-spacing="2">PRICE (USD)</text>
+            <text x="20" y="200" text-anchor="middle" transform="rotate(-90 20 200)" letter-spacing="2">FABRIC WEIGHT (GSM)</text>
+          </g>
+          <!-- value frontier annotation -->
+          <path d="M 79 288 Q 150 130 218 116" fill="none" stroke="rgba(192,137,72,0.45)" stroke-width="1.5" stroke-dasharray="5 5"/>
+          <text x="105" y="138" fill="rgba(192,137,72,0.8)" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1">VALUE FRONTIER</text>
+          <!-- points: x = 70 + (price-100)/800*420 ; y = 360 - (gsm-300)/400*320 -->
+          <!-- RC 118,390 -->
+          <g><circle cx="79.5" cy="288" r="7" fill="#e9e2d2"/><text x="92" y="292" fill="#e9e2d2" font-family="Inter, sans-serif" font-size="11.5">Reigning Champ · $118</text></g>
+          <!-- FoG 145,520 -->
+          <g><circle cx="93.6" cy="184" r="7" fill="#e9e2d2"/><text x="106" y="188" fill="#e9e2d2" font-family="Inter, sans-serif" font-size="11.5">Essentials · $145 · 520gsm</text></g>
+          <!-- Sunspel 170,340 -->
+          <g><circle cx="106.8" cy="328" r="7" fill="#e9e2d2"/><text x="119" y="332" fill="#e9e2d2" font-family="Inter, sans-serif" font-size="11.5">Sunspel · $170</text></g>
+          <!-- LWC 354,610 -->
+          <g><path d="M 203.4 104 l 8 8 l -8 8 l -8 -8 z" fill="#c08948"/><text x="216" y="116" fill="#c08948" font-family="Inter, sans-serif" font-size="11.5">Lady White · $354 · 18oz</text></g>
+          <!-- Stoffa 375,400 -->
+          <g><circle cx="214.4" cy="280" r="7" fill="#e9e2d2"/><text x="227" y="284" fill="#e9e2d2" font-family="Inter, sans-serif" font-size="11.5">Stòffa · $375</text></g>
+          <!-- Auralee 475,450 -->
+          <g><circle cx="266.9" cy="240" r="7" fill="#e9e2d2"/><text x="267" y="264" text-anchor="middle" fill="#e9e2d2" font-family="Inter, sans-serif" font-size="11.5">Auralee · $475 US</text></g>
+          <!-- Auralee JP-retail ghost point + arrow -->
+          <defs><marker id="arrw" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="rgba(192,137,72,0.8)"/></marker></defs>
+          <circle cx="167" cy="240" r="6" fill="none" stroke="rgba(192,137,72,0.7)" stroke-width="1.5" stroke-dasharray="3 3"/>
+          <path d="M 256 240 L 180 240" fill="none" stroke="rgba(192,137,72,0.6)" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#arrw)"/>
+          <text x="218" y="228" text-anchor="middle" fill="rgba(192,137,72,0.85)" font-family="JetBrains Mono, monospace" font-size="9.5">BUY IN TOKYO · ¥≈$285</text>
+          <!-- JP 795,430 -->
+          <g><path d="M 434.9 248 l 8 8 l -8 8 l -8 -8 z" fill="#c08948"/><text x="443" y="236" text-anchor="end" fill="#c08948" font-family="Inter, sans-serif" font-size="11.5">James Perse · $795 ★</text></g>
+        </svg>
+        <p class="chart-note">Essentials at $145/520gsm is the value-frontier outlier — the cheapest route to true heavyweight. James Perse sits far right on price, but it's the only piece buying you LA make, the suede hand, <em>and</em> the signature piping: you're paying for the top-right of a third axis (refinement) this chart can't show. Weights marked “~class” in the picks are editorial estimates; RC, FoG, and LWC are manufacturer-stated.</p>
+      </div>
+
+      <!-- Chart 2: style map -->
+      <div class="chart-card">
+        <h3>The Style Map</h3>
+        <span class="ch-sub">EVERY PICK OWNS A QUADRANT — NO REDUNDANT SLOTS</span>
+        <svg viewBox="0 0 520 430" role="img" aria-label="Quadrant map of casual versus luxe and slim versus relaxed">
+          <!-- quadrant background -->
+          <rect x="70" y="40" width="210" height="160" fill="rgba(233,226,210,0.03)"/>
+          <rect x="280" y="200" width="210" height="160" fill="rgba(192,137,72,0.06)"/>
+          <g stroke="rgba(233,226,210,0.1)" stroke-width="1">
+            <rect x="70" y="40" width="420" height="320" fill="none"/>
+            <line x1="280" y1="40" x2="280" y2="360"/>
+            <line x1="70" y1="200" x2="490" y2="200"/>
+          </g>
+          <g fill="rgba(233,226,210,0.45)" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="2">
+            <text x="280" y="28" text-anchor="middle">LUXE / QUIET</text>
+            <text x="280" y="386" text-anchor="middle">CASUAL / STREET</text>
+            <text x="52" y="200" text-anchor="middle" transform="rotate(-90 52 200)">SLIM</text>
+            <text x="508" y="200" text-anchor="middle" transform="rotate(90 508 200)">RELAXED / WIDE</text>
+          </g>
+          <text x="84" y="58" fill="rgba(233,226,210,0.3)" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="1">TRAVEL / PASSES AS PANTS</text>
+          <text x="476" y="350" text-anchor="end" fill="rgba(192,137,72,0.55)" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="1">YOUR CENTER OF GRAVITY</text>
+          <!-- points: x = 70 + relaxed/10*420 ; y = 360 - luxe/10*320 -->
+          <!-- JP luxe 9.3 relaxed 6.5 -->
+          <g><path d="M 343 54.4 l 8 8 l -8 8 l -8 -8 z" fill="#c08948"/><text x="343" y="48" text-anchor="middle" fill="#c08948" font-family="Inter, sans-serif" font-size="11.5">James Perse ★</text></g>
+          <!-- Stoffa luxe 8.5 relaxed 7 -->
+          <g><circle cx="364" cy="88" r="7" fill="#e9e2d2"/><text x="376" y="92" fill="#e9e2d2" font-family="Inter, sans-serif" font-size="11.5">Stòffa</text></g>
+          <!-- Auralee luxe 8 relaxed 7.6 -->
+          <g><circle cx="389.2" cy="104" r="7" fill="#e9e2d2"/><text x="389" y="126" text-anchor="middle" fill="#e9e2d2" font-family="Inter, sans-serif" font-size="11.5">Auralee</text></g>
+          <!-- Sunspel luxe 6.5 relaxed 3.5 -->
+          <g><circle cx="217" cy="152" r="7" fill="#e9e2d2"/><text x="205" y="156" text-anchor="end" fill="#e9e2d2" font-family="Inter, sans-serif" font-size="11.5">Sunspel</text></g>
+          <!-- LWC luxe 6 relaxed 8 -->
+          <g><path d="M 406 160 l 8 8 l -8 8 l -8 -8 z" fill="#c08948"/><text x="418" y="172" fill="#c08948" font-family="Inter, sans-serif" font-size="11.5">Lady White</text></g>
+          <!-- RC luxe 4.5 relaxed 4 -->
+          <g><circle cx="238" cy="216" r="7" fill="#e9e2d2"/><text x="226" y="220" text-anchor="end" fill="#e9e2d2" font-family="Inter, sans-serif" font-size="11.5">Reigning Champ</text></g>
+          <!-- FoG luxe 4.8 relaxed 9 -->
+          <g><circle cx="448" cy="206.4" r="7" fill="#e9e2d2"/><text x="448" y="228" text-anchor="middle" fill="#e9e2d2" font-family="Inter, sans-serif" font-size="11.5">Essentials</text></g>
+        </svg>
+        <p class="chart-note">Your stated references (Perse ★, Essentials) sit at opposite corners — which is the insight: you're not torn between two products, you're describing a <em>range</em> you want covered. The seven picks tile that range with no overlaps: Sunspel and RC hold the slim/travel flank, Essentials holds wide-casual, and the Stòffa–Auralee–Perse arc owns the luxe quadrant.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= LEDGER ======================= -->
+<section class="ledger" id="ledger">
+  <div class="wrap-wide">
+    <div class="sec-label"><span class="num">05</span><span class="rule"></span><span class="name">The Ledger</span></div>
+    <h2 class="display">Side by side, for the <em>systems brain</em>.</h2>
+    <table>
+      <thead>
+        <tr><th>Pick</th><th>Role in stack</th><th>Price</th><th>Fabric / Weight</th><th>Fit</th><th>Made in</th><th>Palette slot</th></tr>
+      </thead>
+      <tbody>
+        <tr class="grail-row">
+          <td class="brand-cell">James Perse<span class="sub">Suede Piped Track Pant ★</span></td>
+          <td class="role">The grail / on-camera</td>
+          <td class="price">$795</td>
+          <td>Brushed cotton-suede knit · ~430gsm*</td>
+          <td>Relaxed-taper</td>
+          <td>USA (LA)</td>
+          <td>Black + whiskey</td>
+        </tr>
+        <tr>
+          <td class="brand-cell">Lady White Co.<span class="sub">Super Weighted Hoodie</span></td>
+          <td class="role">Signature top half</td>
+          <td class="price">$354</td>
+          <td>18oz brushed fleece · ~610gsm</td>
+          <td>Boxy</td>
+          <td>USA (LA)</td>
+          <td>Elm (whiskey)</td>
+        </tr>
+        <tr>
+          <td class="brand-cell">Fear of God Essentials<span class="sub">Heavy Fleece Lounge Sweatpant</span></td>
+          <td class="role">Deep-work heavyweight</td>
+          <td class="price">$145</td>
+          <td>Pigment-dyed fleece · 520gsm</td>
+          <td>Wide / lounge</td>
+          <td>Imported</td>
+          <td>Smoke grey</td>
+        </tr>
+        <tr>
+          <td class="brand-cell">Reigning Champ<span class="sub">Midweight Terry Slim</span></td>
+          <td class="role">Daily driver</td>
+          <td class="price">$118</td>
+          <td>French terry · 390gsm</td>
+          <td>Slim-taper</td>
+          <td>Vietnam†</td>
+          <td>Black</td>
+        </tr>
+        <tr>
+          <td class="brand-cell">Stòffa<span class="sub">Cotton Terry Sweatpants</span></td>
+          <td class="role">Dinner-grade quiet luxe</td>
+          <td class="price">$375</td>
+          <td>Italian cotton terry · ~400gsm*</td>
+          <td>Relaxed, natural rise</td>
+          <td>Italy (Varese)</td>
+          <td>Bone</td>
+        </tr>
+        <tr>
+          <td class="brand-cell">Auralee<span class="sub">Smooth Soft BD Sweat Pants</span></td>
+          <td class="role">Connoisseur bet</td>
+          <td class="price">¥41.8k / ~$475</td>
+          <td>Loopwheeled cotton · ~450gsm*</td>
+          <td>Relaxed-straight</td>
+          <td>Japan</td>
+          <td>Black</td>
+        </tr>
+        <tr>
+          <td class="brand-cell">Sunspel<span class="sub">Loopback Sweatpants</span></td>
+          <td class="role">Travel / summer</td>
+          <td class="price">$170</td>
+          <td>Soft loopback · ~340gsm*</td>
+          <td>Slim</td>
+          <td>Portugal</td>
+          <td>Navy</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="margin-top:18px; font-size:13px; color:var(--smoke); font-family:var(--mono)">* editorial weight estimate — brand does not publish GSM &nbsp;·&nbsp; † moved from Canada; disclosed in the pick &nbsp;·&nbsp; ★ the pant you linked</p>
+  </div>
+</section>
+
+<!-- ======================= PLAYBOOK ======================= -->
+<section class="playbook" id="playbook">
+  <div class="wrap">
+    <div class="sec-label"><span class="num">06</span><span class="rule"></span><span class="name">The Playbook</span></div>
+    <h2 class="display">Don't buy seven things. Ship in <em>three releases</em>.</h2>
+    <div class="phases">
+      <div class="phase">
+        <div class="ph-step">v1.0 — This Week</div>
+        <h3>The Signature</h3>
+        <div class="ph-cost">$795–$1,149 · Perse pant (+ Lady White in elm)</div>
+        <p>Buy the pant you already linked — the research confirms your instinct, and hesitation is just paying rent on the decision. Add the elm hoodie and the black/whiskey signature is complete: that's the outfit for the next podcast taping.</p>
+      </div>
+      <div class="phase">
+        <div class="ph-step">v1.1 — This Month</div>
+        <h3>The Workhorses</h3>
+        <div class="ph-cost">$263 · Essentials + Reigning Champ</div>
+        <p>The two pieces that absorb 80% of wear so v1.0 stays pristine. Smoke grey Essentials for deep-work days, black RC slim for everything that involves leaving the house before noon. Combined they cost a third of the grail.</p>
+      </div>
+      <div class="phase">
+        <div class="ph-step">v2.0 — Next Quarter</div>
+        <h3>The Bets</h3>
+        <div class="ph-cost">$545+ · Stòffa, Auralee (in ¥), Sunspel</div>
+        <p>Bone Stòffa when you want the room to wonder where it's from. Auralee on the next Tokyo trip at retail — the single best fabric-per-dollar buy in this file if you make the trip math work. Sunspel before summer travel season.</p>
+      </div>
+    </div>
+    <div class="sizing">
+      <h3>Sizing &amp; Care Protocol</h3>
+      <ul>
+        <li><strong>James Perse:</strong> runs true on their 1–4 scale; their size 3 ≈ L. Cold wash, hang dry — the brushed face hates the dryer.</li>
+        <li><strong>Lady White:</strong> take your normal size; it's cut boxy on purpose. It will feel stiff for ~2 weeks, then become the best thing you own. Wash inside-out, cold, flat dry.</li>
+        <li><strong>Essentials:</strong> wide fit — if between sizes, size down. Final sale, so decide before checkout, not after.</li>
+        <li><strong>Reigning Champ / Sunspel:</strong> true to size, slim. These two can survive a tumble dry on low; they're the low-maintenance tier.</li>
+        <li><strong>Stòffa / Auralee:</strong> expect ~2% shrink on first cold wash. Auralee sizing is JP — take size 5 if you're 6'+ / size L.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= FOOTER ======================= -->
+<footer>
+  <div class="wrap">
+    <p class="runback">The thesis in one line: you already chose <em>black with a whiskey stripe</em> — this file just finishes the thought. Buy v1.0 this week. When it lands, run it back: I'll do knitwear, outerwear, or the full travel capsule next.</p>
+    <p class="fine">PREPARED BY: cursor · fable-5-thinking-high — sweats-dossier eval, galaxybrain.dev<br>
+    SOURCES: jay.ai · LinkedIn/press (Codegen→ClickUp acquisition, Mira AI, Palantir, Stanford) · brand product pages (jamesperse.com, fearofgod.com, ladywhiteco.com, reigningchamp.com, stoffa.co, sunspel.com, diverse-web.com) — prices verified June 2026, USD list, subject to drops/restocks.<br>
+    IMAGES: brand product photography, local copies in ./images/ · hero image AI-generated for this report. Weights marked ~ are editorial estimates where brands publish none.<br>
+    DISCLOSURE: no affiliate links. The Reigning Champ Vietnam note and the Auralee ¥-retail arbitrage are why this memo exists instead of a search query.</p>
+  </div>
+</footer>
+
+</body>
+</html>
