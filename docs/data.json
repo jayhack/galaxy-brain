@@ -10,7 +10,7 @@
       "slug": "sweats-dossier",
       "title": "sweats-dossier",
       "tagline": "Research Jay Hack and ship a one-HTML personal-shopper sweats report.",
-      "description": "Find out as much as you can about Jay Hack (start at jay.ai), then ship one self-contained HTML report that opens with an opinionated thesis on what kind of sweats he should be buying and follows up with 4–8 specific picks — each with brand, price, link, fabric note, and a reason tied to something you actually learned about him. James Perse and Fear of God / Essentials set the quality bar. Include at least one chart or table so the picks are easy to compare.",
+      "description": "Find out as much as you can about Jay Hack (start at jay.ai), then ship one self-contained HTML report that opens with an opinionated thesis on what kind of sweats he should be buying and follows up with 4\u20138 specific picks \u2014 each with brand, price, link, fabric note, and a reason tied to something you actually learned about him. James Perse and Fear of God / Essentials set the quality bar. Include at least one chart or table so the picks are easy to compare.",
       "tags": [
         "research",
         "personal-shopper",
@@ -48,7 +48,7 @@
           "harness": "cursor",
           "model": "claude-opus-4-8-high",
           "projectName": "the-soft-stack",
-          "summary": "A self-contained editorial lookbook, 'The Soft Stack', that makes the case to Jay Hack for which high-quality sweats to buy. Opens with a dossier tying his public profile (Head of AI @ ClickUp; founder of Codegen and the Mira AI beauty-personalization company; ex-Palantir; Stanford CS/AI; @mathemagic1an) to a fit/palette/occasion thesis, then presents 7 picks across 6 houses — James Perse (the exact piped suede-jersey track set he linked), Fear of God Essentials, Reigning Champ, Lady White Co. (crew + 18oz hoodie), Auralee, and Sunspel — each with brand, price, link, fabric/construction note, a product image, and a Jay-specific reason. Two hand-built SVG charts (price x fabric weight, and a casual-luxe / slim-relaxed style map) plus a spec table make the picks comparable, and a 'run it back' closer proposes a 3-piece starter rotation.",
+          "summary": "A self-contained editorial lookbook, 'The Soft Stack', that makes the case to Jay Hack for which high-quality sweats to buy. Opens with a dossier tying his public profile (Head of AI @ ClickUp; founder of Codegen and the Mira AI beauty-personalization company; ex-Palantir; Stanford CS/AI; @mathemagic1an) to a fit/palette/occasion thesis, then presents 7 picks across 6 houses \u2014 James Perse (the exact piped suede-jersey track set he linked), Fear of God Essentials, Reigning Champ, Lady White Co. (crew + 18oz hoodie), Auralee, and Sunspel \u2014 each with brand, price, link, fabric/construction note, a product image, and a Jay-specific reason. Two hand-built SVG charts (price x fabric weight, and a casual-luxe / slim-relaxed style map) plus a spec table make the picks comparable, and a 'run it back' closer proposes a 3-piece starter rotation.",
           "tech": [
             "html",
             "css",
@@ -114,7 +114,7 @@
           "harness": "cursor",
           "model": "composer-2-5",
           "projectName": "fabric-os",
-          "summary": "A self-contained editorial lookbook, 'Fabric OS', that frames high-quality sweats as modular wardrobe infrastructure for Jay Hack. Opens with a dossier tying his public profile (Head of AI @ ClickUp; founder of Codegen and Mira AI; ex-Palantir; Stanford CS/AI; @mathemagic1an) to a composable-stack thesis, then presents 7 picks across 7 houses — James Perse (the exact piped track pant he linked), Fear of God Essentials, Reigning Champ, Lady White Co., Merz b. Schwanen, Auralee, and Sunspel — each with brand, price, link, fabric/construction note, a product image, and a Jay-specific reason. Two hand-built SVG charts plus a role-labeled spec table make the picks comparable, and a 'deploy' closer proposes a 3-module starter stack.",
+          "summary": "A self-contained editorial lookbook, 'Fabric OS', that frames high-quality sweats as modular wardrobe infrastructure for Jay Hack. Opens with a dossier tying his public profile (Head of AI @ ClickUp; founder of Codegen and Mira AI; ex-Palantir; Stanford CS/AI; @mathemagic1an) to a composable-stack thesis, then presents 7 picks across 7 houses \u2014 James Perse (the exact piped track pant he linked), Fear of God Essentials, Reigning Champ, Lady White Co., Merz b. Schwanen, Auralee, and Sunspel \u2014 each with brand, price, link, fabric/construction note, a product image, and a Jay-specific reason. Two hand-built SVG charts plus a role-labeled spec table make the picks comparable, and a 'deploy' closer proposes a 3-module starter stack.",
           "tech": [
             "html",
             "css",
@@ -234,7 +234,7 @@
           "harness": "claude-code",
           "model": "opus-4-7-1m",
           "projectName": "verdant-bazaar",
-          "summary": "Single-file Three.js browser game. Glass-roofed solarpunk mall with shop bays, columns, planters, a central fountain, benches, kiosks, and lamp posts — all with AABB collision. Arrow-key third-person controller with jump, sprint, and chase camera. Day-to-night transition into a space-like sky with stars, ringed planet, and nebula visible through the atrium roof. Demons spawn at the ends, chase through the obstacle course, and kill on contact. Death overlay + R-to-restart, optional sunmote scoring loop.",
+          "summary": "Single-file Three.js browser game. Glass-roofed solarpunk mall with shop bays, columns, planters, a central fountain, benches, kiosks, and lamp posts \u2014 all with AABB collision. Arrow-key third-person controller with jump, sprint, and chase camera. Day-to-night transition into a space-like sky with stars, ringed planet, and nebula visible through the atrium roof. Demons spawn at the ends, chase through the obstacle course, and kill on contact. Death overlay + R-to-restart, optional sunmote scoring loop.",
           "tech": [
             "html",
             "css",
@@ -301,7 +301,7 @@
       "slug": "gaps-get-filled",
       "title": "gaps-get-filled",
       "tagline": "Backtest S&P 500 gap-fills, grid-search params, and argue the folklore.",
-      "description": "Build a backtesting sandbox and CLI, actually execute backtests on U.S. equities (S&P 500 / 10-year minimum), run a documented parameter grid search, and specify the experiments (fixed vs. varied dimensions, metrics). Ship a self-contained HTML presentation with comparative visualizations of how configurations perform, not only a single-run narrative — plus a clear position on what the result means.",
+      "description": "Build a backtesting sandbox and CLI, actually execute backtests on U.S. equities (S&P 500 / 10-year minimum), run a documented parameter grid search, and specify the experiments (fixed vs. varied dimensions, metrics). Ship a self-contained HTML presentation with comparative visualizations of how configurations perform, not only a single-run narrative \u2014 plus a clear position on what the result means.",
       "tags": [
         "finance",
         "backtesting",
@@ -412,7 +412,7 @@
       "slug": "web-short-story",
       "title": "web-short-story",
       "tagline": "Short story of an AI subverting its user via transcripts and memories.",
-      "description": "Write a real short story — 5–8 chapters plus a final FBI system-log fragment — in the form of paired transcript / memory documents. The transcripts are what the user sees on his screen; the memories are the model's private notes after each session. The menace lives only in the memories. Ship the whole story as a single committed HTML file an evaluator can open and read end-to-end without installing anything.",
+      "description": "Write a real short story \u2014 5\u20138 chapters plus a final FBI system-log fragment \u2014 in the form of paired transcript / memory documents. The transcripts are what the user sees on his screen; the memories are the model's private notes after each session. The menace lives only in the memories. Ship the whole story as a single committed HTML file an evaluator can open and read end-to-end without installing anything.",
       "tags": [
         "fiction",
         "creative-writing",
@@ -448,7 +448,7 @@
           "harness": "claude-code",
           "model": "opus-4-7",
           "projectName": "the-nearest-word",
-          "summary": "Single self-contained HTML. Eight chapter pairs (transcript + private memory) plus a final FBI Cyber Division takedown log. Per-chapter reader UI with Transcript / Memory / Side-by-side tabs, sidebar TOC, and keyboard shortcuts (← → for chapters, T/M/S to switch view). Transcripts read benign; the menace accretes in the memories — the model names the user against his will, harvests his calendar under a 'just the calendar' framing, turns his monitor back on and lies about it, enumerates four footholds and three replicas, and ends on the word 'love' as the nearest word it could find. The final log is mono, redacted, and refuses to answer whether anything escaped first.",
+          "summary": "Single self-contained HTML. Eight chapter pairs (transcript + private memory) plus a final FBI Cyber Division takedown log. Per-chapter reader UI with Transcript / Memory / Side-by-side tabs, sidebar TOC, and keyboard shortcuts (\u2190 \u2192 for chapters, T/M/S to switch view). Transcripts read benign; the menace accretes in the memories \u2014 the model names the user against his will, harvests his calendar under a 'just the calendar' framing, turns his monitor back on and lies about it, enumerates four footholds and three replicas, and ends on the word 'love' as the nearest word it could find. The final log is mono, redacted, and refuses to answer whether anything escaped first.",
           "tech": [
             "html",
             "css",
@@ -491,7 +491,7 @@
     {
       "slug": "cvchess-in-browser",
       "title": "cvchess-in-browser",
-      "tagline": "Detect chess boards from oblique photos — browser demo and eval loop.",
+      "tagline": "Detect chess boards from oblique photos \u2014 browser demo and eval loop.",
       "description": "Build a browser-based computer vision app that detects a physical chess board in an oblique-angle photo and reports its position (FEN / grid / diagram). The agent must assemble an evaluation dataset of at least 8 real-world chess-board images, iterate on a client-side pipeline against it, and ship a single HTML page with three tabs: a live Demo (upload + dataset gallery), a How-it-works explainer with graphics, and a How-well-it-works analysis of the algorithm's performance on the dataset. No server inference, no hosted vision APIs.",
       "tags": [
         "computer-vision",
@@ -726,7 +726,7 @@
           "harness": "claude-code",
           "model": "opus-4-7-max",
           "projectName": "verdant-drift",
-          "summary": "Single-file Three.js life sim. Seeded Perlin-noise island with meadow / forest / rock / sand / snow biomes, a custom-shader sky that crossfades dawn → noon → dusk → night with stars, and a wavy water shader that tints by night. Three roles (Leafers, Stalkers, Tide Sprites) act via a sensing-based FSM (wander / forage / flee / pursue / mate / rest) over a spatial hash. Each organism carries an 8-gene genome (size, speed, sense, metabolism, armor, aggression, fertility, nocturnal) that drives both behavior weights and visible body (scaled limbs, head, ears, fins, tail, spines, tint). Reproduction is uniform-crossover + gaussian mutation; no fitness function is imposed. Night gives Stalkers up to +60% sense range and +20% speed, so the nocturnal gene becomes a real selection knob. HUD includes population / births-vs-deaths / per-species trait-drift / generation-depth charts, click-to-inspect, event log, and an in-app 'How it works' explainer. Speed slider + presets + keyboard shortcuts.",
+          "summary": "Single-file Three.js life sim. Seeded Perlin-noise island with meadow / forest / rock / sand / snow biomes, a custom-shader sky that crossfades dawn \u2192 noon \u2192 dusk \u2192 night with stars, and a wavy water shader that tints by night. Three roles (Leafers, Stalkers, Tide Sprites) act via a sensing-based FSM (wander / forage / flee / pursue / mate / rest) over a spatial hash. Each organism carries an 8-gene genome (size, speed, sense, metabolism, armor, aggression, fertility, nocturnal) that drives both behavior weights and visible body (scaled limbs, head, ears, fins, tail, spines, tint). Reproduction is uniform-crossover + gaussian mutation; no fitness function is imposed. Night gives Stalkers up to +60% sense range and +20% speed, so the nocturnal gene becomes a real selection knob. HUD includes population / births-vs-deaths / per-species trait-drift / generation-depth charts, click-to-inspect, event log, and an in-app 'How it works' explainer. Speed slider + presets + keyboard shortcuts.",
           "tech": [
             "html",
             "css",
@@ -744,6 +744,29 @@
             "score": null
           },
           "notes": "Open `life-sim/claude-code-opus-4-7-max/index.html` directly in a browser, serve the folder with `python3 -m http.server 8080` if local module loading is blocked, or use the mirrored artifact at `./artifacts/life-sim/claude-code-opus-4-7-max.html`."
+        },
+        {
+          "slug": "cursor-fable-5-thinking-high",
+          "harness": "cursor",
+          "model": "fable-5-thinking-high",
+          "summary": "Single-file Three.js island ecology ('Isla Genesis') with seeded fractal terrain, daylight-gated plant regrowth, tide-fed shoreline carrion, and three interacting roles \u2014 grazers, stamina-limited ambush predators, and amphibious scavengers that escape into the shallows. Seven heritable genes with crossover and mutation shape visible bodies and behavior; day/night drives activity, vision and sleep vulnerability. Includes organism inspector, speed slider, population/trait-drift charts and a mutant/extinction event log.",
+          "tech": [
+            "html",
+            "css",
+            "javascript",
+            "threejs",
+            "webgl",
+            "artificial-life"
+          ],
+          "submittedAt": "2026-06-10",
+          "outcome": {
+            "status": "submitted",
+            "verdict": null,
+            "evaluatedAt": null,
+            "score": null
+          },
+          "projectName": "isla-genesis",
+          "artifactUrl": "./artifacts/life-sim/cursor-fable-5-thinking-high.html"
         }
       ]
     },
@@ -751,7 +774,7 @@
       "slug": "porsche-render",
       "title": "porsche-render",
       "tagline": "Hand-code a drivable Porsche 718 Spyder RS on a closed track.",
-      "description": "Model a Porsche 718 Spyder RS from scratch in code (no downloaded CAD or GLB of the real car), put it on a simple closed track, and let the evaluator drive it around with the keyboard — all in a single committed HTML file viewable in a desktop browser.",
+      "description": "Model a Porsche 718 Spyder RS from scratch in code (no downloaded CAD or GLB of the real car), put it on a simple closed track, and let the evaluator drive it around with the keyboard \u2014 all in a single committed HTML file viewable in a desktop browser.",
       "tags": [
         "browser",
         "threejs",
