@@ -7,6 +7,40 @@
   },
   "evals": [
     {
+      "slug": "polynesian-spread",
+      "title": "polynesian-spread",
+      "tagline": "Model how Polynesians crossed the Pacific — then simulate the voyaging it took.",
+      "description": "Build a computer model of how the Polynesians spread from the Austronesian homeland out to Hawaiʻi, Rapa Nui, and Aotearoa, grounded in the real record: radiocarbon and settlement dates, genetic dating, linguistic phylogeny, and Pacific oceanography (winds, currents, ENSO reversals, swell, inter-island distances). Then make the model runnable — let an evaluator change voyaging assumptions (boat speed and range, upwind ability, provisioning, navigation, return voyages) and watch which regimes reproduce the archaeologically-attested spread within the time frames the evidence allows, and which fail. Ship one committed static HTML page that is both the world model and the simulation, surfaces the contested questions (the West Polynesia long pause, the tempo of the East Polynesian expansion, upwind vs. downwind colonization), and stays inspectable through maps, timelines, and traces. The headline question: what were the boats and the voyaging strategy capable of?",
+      "tags": [
+        "simulation",
+        "world-model",
+        "geospatial",
+        "archaeology",
+        "oceanography",
+        "history",
+        "html"
+      ],
+      "createdAt": "2026-06-10",
+      "solutions": []
+    },
+    {
+      "slug": "surf-lodge-scout",
+      "title": "surf-lodge-scout",
+      "tagline": "Scout real Hawaiian listings for a surf lodge — with satellite receipts.",
+      "description": "Act as a site scout for an investor with a $4M acquisition budget who wants a boutique Hawaiian surf lodge. Find real, currently-listed properties, scout them from satellite/aerial imagery, ground the surf story in real swell and buoy data, surface Hawaii's deal-breakers (lava zones, tsunami and flood zones, zoning, leasehold vs fee simple), and deliver one committed static HTML page that makes a persuasive, verifiable case for where to put the money. How the narrative is assembled is up to the agent — persuasiveness grounded in checkable evidence (live listing links, coordinates that hold up in Google Maps) is the judging axis.",
+      "tags": [
+        "research",
+        "geospatial",
+        "satellite",
+        "real-estate",
+        "scraping",
+        "report",
+        "html"
+      ],
+      "createdAt": "2026-06-10",
+      "solutions": []
+    },
+    {
       "slug": "sweats-dossier",
       "title": "sweats-dossier",
       "tagline": "Research Jay Hack and ship a one-HTML personal-shopper sweats report.",
