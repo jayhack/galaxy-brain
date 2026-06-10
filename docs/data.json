@@ -21,6 +21,29 @@
       "createdAt": "2026-06-05",
       "solutions": [
         {
+          "slug": "cursor-fable-5-thinking-high",
+          "harness": "cursor",
+          "model": "fable-5-thinking-high",
+          "projectName": "soft-deploy",
+          "summary": "A self-contained editorial lookbook, 'SOFT DEPLOY', that argues Jay should buy drape, not logos: a closed black/smoke/bone palette with one whiskey accent, lifted from the Black/Whiskey James Perse pant he linked himself. Opens with a researched subject file (Head of AI @ ClickUp; Codegen acq. '25; Mira AI — his own AI personal-shopping company — acq. '21; Palantir; Stanford; @mathemagic1an), states a 3-point thesis, then presents 7 picks across 7 houses — James Perse (the exact grail pant, verdict: buy), Lady White Co. 18oz Super Weighted Hoodie in elm, FoG Essentials 520gsm Lounge Sweatpant, Reigning Champ slim terry, Stòffa Italian terry in bone, Auralee loopwheel, and Sunspel loopback — each with price, link, fabric/GSM note, local product image, and a Jay-specific reason. Surfaces real research findings (Reigning Champ's quiet Canada→Vietnam production move; the Auralee ¥-retail vs US-stockist arbitrage), charts the trade-space with two hand-built SVGs (price × fabric weight with a value frontier; a casual↔luxe / slim↔relaxed style map), adds a full comparison ledger, and closes with a 3-release buy plan plus per-brand sizing/care protocol.",
+          "tech": [
+            "html",
+            "css",
+            "svg",
+            "research",
+            "lookbook"
+          ],
+          "submittedAt": "2026-06-10",
+          "artifactUrl": "./artifacts/sweats-dossier/cursor-fable-5-thinking-high.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a self-contained index.html (product images load from a local images/ folder, so it renders fully offline) and mirrors a single-file, base64-embedded copy under docs/artifacts and public/artifacts for one-click review. Leads with an opinionated thesis grounded in researched facts about Jay, presents 7 specific products each with a real product image, brand, verified price, link, and fabric note, includes two SVG comparison charts plus a ledger table, and discloses honest caveats (country-of-make shift, final-sale risk, stockist markups).",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `sweats-dossier/cursor-fable-5-thinking-high/index.html` directly in a desktop browser, or use the mirrored artifact at `./artifacts/sweats-dossier/cursor-fable-5-thinking-high.html`."
+        },
+        {
           "slug": "cursor-opus-4-8-high",
           "harness": "cursor",
           "model": "claude-opus-4-8-high",
