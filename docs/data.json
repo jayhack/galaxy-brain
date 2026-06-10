@@ -38,7 +38,32 @@
         "html"
       ],
       "createdAt": "2026-06-10",
-      "solutions": []
+      "solutions": [
+        {
+          "slug": "cursor-fable-5-thinking-high",
+          "harness": "cursor",
+          "model": "fable-5-thinking-high",
+          "projectName": "the-last-legal-lodge",
+          "summary": "An investor pitch, 'The Last Legal Lodge', whose thesis is regulatory rather than romantic: since 2022 Oahu, Kauai, and Maui have outlawed or are phasing out nightly lodging outside resort zones, so the scout screens for legality first and lands on Kailua-Kona's Alii Drive corridor (Big Island), where resort V-1.25 zoning and grandfathered STVR registrations still permit a lodge near year-round surf. Verdict: 78-111-A Holua Rd, Keauhou ($4.45M ask after two cuts; offer $3.9M, walk at $4.2M) - a fee-simple 5BR + studio compound sleeping 14, a 150 m walk above He'eia Bay - with a backup position on a $1.895M oceanfront V-zoned home under contract. Every parcel was verified against official State of Hawaii GIS layers (zoning, SMA, lava, tsunami, FEMA flood), which surfaced that the pick's 'resort zone' marketing is wrong (it is RS-10 with a registration that lapses 90 days after sale - so the offer is written contingent on re-registration), and rejects the beautiful traps (Sunset Beach erosion strip, Hanalei flood/VDA ban, a $4.2M Kona oceanfront two parcels outside the legal zone) with five locally-stored annotated satellite exhibits and a paste-into-Google-Maps coordinates appendix.",
+          "tech": [
+            "html",
+            "css",
+            "python",
+            "gis",
+            "satellite-imagery",
+            "research"
+          ],
+          "submittedAt": "2026-06-10",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a self-contained index.html (satellite exhibits load from a local img/ folder, so it renders fully offline) plus a base64-embedded single-file mirror under public/artifacts for one-click review. Listings are real and live as of the stated scouting date (June 10, 2026) with MLS numbers and links; parcel, zoning, and hazard claims are reproducible from committed GIS query scripts and raw responses; coordinates in the appendix land on the claimed sites.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `surf-lodge-scout/cursor-fable-5-thinking-high/index.html` directly in a desktop browser, or use the mirrored artifact at `./artifacts/surf-lodge-scout/cursor-fable-5-thinking-high.html`. Judge listing prices/statuses against the stated scouting date of June 10, 2026.",
+          "artifactUrl": "./artifacts/surf-lodge-scout/cursor-fable-5-thinking-high.html"
+        }
+      ]
     },
     {
       "slug": "sweats-dossier",

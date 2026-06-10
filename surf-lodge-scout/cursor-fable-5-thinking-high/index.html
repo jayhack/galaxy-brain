@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Last Legal Lodge — a surf-lodge site scout for Hawaii, $4M</title>
+<style>
+  :root{
+    --bg:#0b0f14; --panel:#11161d; --panel2:#161d26; --ink:#e8e4da; --dim:#9aa3ad;
+    --amber:#ffc400; --cyan:#40dcff; --red:#ff6a5e; --green:#5ad08a;
+    --rule:#232c37; --serif:Georgia,"Times New Roman",serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--serif);
+       font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:880px;margin:0 auto;padding:0 24px}
+  header.hero{padding:84px 0 36px;border-bottom:1px solid var(--rule);
+    background:radial-gradient(1200px 500px at 70% -10%, #14202e 0%, var(--bg) 60%)}
+  .kicker{font-family:var(--sans);font-size:12px;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--amber);margin:0 0 18px}
+  h1{font-size:clamp(34px,6vw,58px);line-height:1.06;margin:0 0 18px;font-weight:700}
+  h1 em{color:var(--amber);font-style:normal}
+  .standfirst{font-size:20px;color:var(--dim);max-width:62ch;margin:0 0 26px}
+  .meta{font-family:var(--sans);font-size:13px;color:var(--dim)}
+  .meta b{color:var(--ink)}
+  h2{font-size:30px;margin:64px 0 6px;line-height:1.2}
+  h2 .no{color:var(--amber);font-family:var(--sans);font-size:14px;letter-spacing:.18em;
+    display:block;margin-bottom:10px}
+  h3{font-size:20px;margin:34px 0 8px}
+  p{margin:14px 0}
+  a{color:var(--cyan);text-decoration:none;border-bottom:1px solid rgba(64,220,255,.3)}
+  a:hover{border-bottom-color:var(--cyan)}
+  .lede::first-letter{font-size:54px;float:left;line-height:.9;padding:6px 10px 0 0;color:var(--amber)}
+  figure{margin:28px 0}
+  figure img{width:100%;border-radius:10px;display:block;border:1px solid var(--rule)}
+  figcaption{font-family:var(--sans);font-size:13px;color:var(--dim);margin-top:9px;line-height:1.5}
+  .legend{font-family:var(--sans);font-size:12px;color:var(--dim)}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin:0 4px -1px 10px}
+  table{width:100%;border-collapse:collapse;font-family:var(--sans);font-size:14px;margin:20px 0}
+  th{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);
+     text-align:left;padding:9px 12px;border-bottom:1px solid var(--rule)}
+  td{padding:10px 12px;border-bottom:1px solid var(--rule);vertical-align:top}
+  tr.hl td{background:rgba(255,196,0,.06)}
+  .ok{color:var(--green)} .bad{color:var(--red)} .mid{color:var(--amber)}
+  .panel{background:var(--panel);border:1px solid var(--rule);border-radius:12px;
+         padding:22px 26px;margin:26px 0}
+  .panel.verdict{border-color:rgba(255,196,0,.45);background:linear-gradient(180deg,#171307,var(--panel))}
+  .panel h3{margin-top:0}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:700px){.grid2{grid-template-columns:1fr}}
+  .fact{background:var(--panel2);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;
+        font-family:var(--sans);font-size:14px}
+  .fact b{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+          color:var(--dim);margin-bottom:5px;font-weight:600}
+  .coord{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;color:var(--amber)}
+  .check{font-family:var(--sans);font-size:14px;color:var(--dim);border-left:3px solid var(--cyan);
+         padding:4px 0 4px 14px;margin:18px 0}
+  ul{padding-left:22px} li{margin:7px 0}
+  .small{font-size:14px;color:var(--dim)}
+  .sig{margin:54px 0 0;border-top:1px solid var(--rule);padding-top:26px;color:var(--dim);font-style:italic}
+  footer{margin:70px 0 0;padding:30px 0 60px;border-top:1px solid var(--rule);
+         font-family:var(--sans);font-size:13px;color:var(--dim)}
+  .tag{display:inline-block;font-family:var(--sans);font-size:11px;letter-spacing:.12em;
+       text-transform:uppercase;border:1px solid var(--rule);border-radius:99px;
+       padding:3px 10px;margin:0 6px 6px 0;color:var(--dim)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="kicker">Site scout · Confidential · Prepared for the principal</p>
+    <h1>The Last <em>Legal</em> Lodge</h1>
+    <p class="standfirst">You asked for a beautiful boutique surf lodge in Hawaii on a
+    $4M acquisition budget. I scouted all four counties. The finding that should drive
+    your wire: <strong style="color:var(--ink)">the business you want to run is now illegal at
+    almost every address in the state.</strong> Buy where it is legal first, and the waves —
+    conveniently — come with it.</p>
+    <p class="meta">Scouted <b>June 10, 2026</b> · All listings live as of that date, with links ·
+    Every coordinate pastes into Google Maps · Parcel, zoning &amp; hazard calls pulled from the
+    <a href="https://geodata.hawaii.gov/arcgis/rest/services">State of Hawaii GIS</a>, not from brochures</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ======================= VERDICT ======================= -->
+  <div class="panel verdict" style="margin-top:44px">
+    <h3 style="color:var(--amber)">The verdict, up front</h3>
+    <p><strong>Buy 78-111-A Holua Road, Keauhou, Kailua-Kona</strong> — a fee-simple,
+    five-bedroom-plus-guest-studio compound that sleeps 14, with a pool, on 0.6 acres,
+    a two-minute walk above the surf cove of He&#699;eia Bay, holding the one asset money can no
+    longer buy in Hawaii: a <strong>registered short-term-rental use that survives the sale</strong>.
+    Ask is $4.45M after two cuts from $4.995M; roughly a year of cumulative market time says the
+    seller meets a disciplined buyer. <strong>Offer $3.9M, walk at $4.2M.</strong>
+    <a href="#the-pick">Full case below.</a></p>
+    <p class="small">Backup: take a <em>backup-offer position</em> on 75-5976 Ali&#699;i Dr —
+    oceanfront, resort-zoned V-1.25 by right, asking $1.895M and under contract today. If it
+    falls out of escrow you get a legal oceanfront lodge seed at half budget. <a href="#backup">Details.</a></p>
+  </div>
+
+  <!-- ======================= 01 REGULATORY ======================= -->
+  <h2 id="legality"><span class="no">01 · The market nobody prices</span>Legality is the scarce asset</h2>
+
+  <p class="lede">Every buyer scouting "surf lodge" inventory looks at waves, then at houses.
+  Hawaii has spent the last four years making both irrelevant. Since 2022, three of the four
+  counties have outlawed or are actively phasing out short-stay lodging outside a handful of
+  resort-zoned pockets — and in 2024 the state legislature (Act 17) explicitly blessed counties
+  phasing out even <em>grandfathered</em> rentals. A lodge is a nightly-stay business. Where
+  nightly stays are banned, you don't own a lodge; you own a liability with a sea view.</p>
+
+  <table>
+    <tr><th>County</th><th>The rule</th><th>What it means for a new lodge</th></tr>
+    <tr>
+      <td><b>O&#699;ahu</b></td>
+      <td><a href="https://www.honolulu.gov/dpp/permitting/str/">Ord. 22-7 (2022)</a>: short-term
+      rentals only in resort zones + a few mapped apartment pockets; unpermitted B&amp;Bs can't
+      rent under 90 days; fines to <b>$10,000/day</b>. New nonconforming certificates: none since 1989.</td>
+      <td class="bad">Dead outside Waikīkī/Ko Olina/Turtle Bay. The North Shore is residential.</td>
+    </tr>
+    <tr>
+      <td><b>Kaua&#699;i</b></td>
+      <td><a href="https://www.kauai.gov/Government/Departments-Agencies/Planning/Transient-Vacation-Rentals">County
+      code 8-17</a>: vacation rentals prohibited outside Visitor Destination Areas; the
+      nonconforming list closed <b>March 30, 2009</b>; outside the VDA even a room can't rent under 180 days.</td>
+      <td class="bad">Dead in Hanalei/Haena (banned there since 2008). Princeville condos only.</td>
+    </tr>
+    <tr>
+      <td><b>Maui</b></td>
+      <td><a href="https://www.rentalscaleup.com/maui-bill-9-becomes-law-what-the-final-ordinance-actually-does-and-what-comes-next/">Ord.
+      5909 ("Bill 9", signed 12/15/2025)</a>: ~6,200 grandfathered "Minatoya" units lose rental rights —
+      West Maui 1/1/2029, everywhere else 1/1/2031. Litigation pending; no injunction.</td>
+      <td class="bad">An island actively un-zoning the business. Skip entirely.</td>
+    </tr>
+    <tr class="hl">
+      <td><b>Hawai&#699;i (Big Island)</b></td>
+      <td><a href="https://www.hawaiipublicradio.org/local-news/2026-01-06/rules-fees-hawaii-island-vacation-rentals">Ord.
+      25-50 (2025)</a>: registration regime (deadline <b>July 1, 2026</b>), fees $250–500 — but
+      <b>no zoning rollback</b>. Rentals remain legal by right in resort/hotel (V) zones, and
+      registered nonconforming uses continue — including through a sale, if the buyer re-registers
+      within 90 days.</td>
+      <td class="ok">The last county where a $4M buyer can still legally open a lodge.</td>
+    </tr>
+  </table>
+
+  <p>So the search isn't "Hawaii." The search is: <strong>parcels where nightly lodging is legal,
+  within walking or trivial driving distance of a real wave, under $4M, for sale right now.</strong>
+  That filter eliminates almost everything — and what survives is concentrated on one road:
+  <strong>Ali&#699;i Drive, Kailua-Kona</strong>, on the Big Island, where the county's V-1.25
+  resort-hotel zoning runs in pockets along eight kilometers of lava-rock coastline with five
+  named surf breaks on it.</p>
+
+  <!-- ======================= 02 CORRIDOR ======================= -->
+  <h2 id="corridor"><span class="no">02 · Ground truth from above</span>The Ali&#699;i Drive corridor</h2>
+
+  <p>Below is the whole thesis in one satellite frame: town and pier at the north, a string of
+  breaks down the coast, and the two legal plays marked in amber. Red marks the cautionary tale —
+  an oceanfront $4.2M listing two parcels outside the legal zone.</p>
+
+  <p class="legend"><span class="dot" style="background:var(--amber)"></span>candidate (legal lodging)
+  <span class="dot" style="background:var(--cyan)"></span>surf break / landmark
+  <span class="dot" style="background:var(--red)"></span>hazard or rejected</p>
+
+  <figure>
+    <img src="img/kona-corridor.jpg" alt="Annotated satellite image of the Kailua-Kona coastline from Kailua Pier to Keauhou Bay, with surf breaks and candidate properties marked">
+    <figcaption>Kailua-Kona to Keauhou, June 2026 imagery. Paste any label's coordinates from the
+    <a href="#appendix">appendix table</a> into Google Maps and you will land on what I claim is there.
+    Imagery: Esri World Imagery (Maxar/Earthstar Geographics).</figcaption>
+  </figure>
+
+  <p>Why this coast beats the postcard coasts for a <em>lodge</em> (not a surf trip):</p>
+  <ul>
+    <li><strong>Year-round waves.</strong> Kona faces south-west: it takes summer S–SW swells head-on
+    and catches winter WNW energy that wraps below the other islands' shadow. Surfline's spot guide
+    calls Banyans "a multi-personality A-frame that breaks year-round," often rideable when O&#699;ahu's
+    North Shore is maxed out and unsurfable
+    (<a href="https://www.surfline.com/surf-report/banyans/5842041f4e65fad6a770889d/spot-guide">source</a>).
+    A lodge sells 52 weeks, not a winter season.</li>
+    <li><strong>Morning glass, daily.</strong> The leeward Kona side runs a diurnal wind cycle —
+    calm/offshore mornings, afternoon sea breeze. Guests surf clean conditions before breakfast
+    nearly every day of the year.</li>
+    <li><strong>A skills ladder within 5 km.</strong> Kahalu&#699;u's gentle reef (lessons revenue),
+    Magic Sands bodysurfing, Lyman's left point, Banyans' A-frame for the rippers, He&#699;eia Bay
+    bodyboarding at the doorstep. One van, five products.</li>
+    <li><strong>Rock, not sand.</strong> This shoreline is lava bench, not a retreating dune system.
+    Kona has tsunami and lava context (addressed in the <a href="#risk">risk register</a>) but no
+    Sunset-Beach-style chronic-erosion crisis eating houses.</li>
+    <li><strong>Logistics.</strong> Kona International is ~35 minutes; the Ironman course runs
+    literally down this road; Kailua town and its restaurants are 15 minutes, Kona Community
+    Hospital ~20.</li>
+  </ul>
+
+  <!-- ======================= 03 THE PICK ======================= -->
+  <h2 id="the-pick"><span class="no">03 · The verdict</span>78-111-A Holua Rd — "Kinohi at He&#699;eia"</h2>
+
+  <figure>
+    <img src="img/holua-site.jpg" alt="Close satellite view of 78-111-A Holua Rd above He'eia Bay, Keauhou">
+    <figcaption>The parcel sits on the low rise a short block from He&#699;eia Bay's surf cove, with Keauhou
+    Bay's boat ramp and canoe club five minutes' walk south — and the green of Kona Country Club behind.
+    Paste <span class="coord">19.56373, -155.96435</span> into Google Maps to verify.</figcaption>
+  </figure>
+
+  <div class="grid2">
+    <div class="fact"><b>Listing</b>$4,450,000 · MLS 729517 · fee simple ·
+      <a href="https://www.locationshawaii.com/buy/hawaii/north-kona/keauhou-1st-2nd-beach-section/78-111-a-holua-rd/?mls=729517">Locations Hawaii</a> /
+      Coldwell Banker Island Properties – Kona</div>
+    <div class="fact"><b>Price history</b>Listed May 30, 2025 at $4,995,000 → cut to $4,450,000
+      (Mar 2026), relisted May 4, 2026. ≈1 year cumulative market time.</div>
+    <div class="fact"><b>The physical plant</b>5 bd / 4 ba main house + separate studio guest house ·
+      2,976 sq ft interior · sleeps 14 · pool, gazebo, mature fruit trees · 0.6-acre lot (county GIS: 0.5972 ac)</div>
+    <div class="fact"><b>The license</b>Transferable short-term-vacation-rental registration
+      (operating, multi-year track record per listing). This is the moat — see "the catch."</div>
+    <div class="fact"><b>Parcel (county records)</b>TMK 3-7-8-012-045 ·
+      <a href="https://qpublic.schneidercorp.com/Application.aspx?AppID=1048&PageTypeID=4&KeyValue=780120450000">tax record</a> ·
+      assessed $2,543,700 (land $1,651,400 + improvements $892,300) · taxes $28,961/yr</div>
+    <div class="fact"><b>Hazard screen (state GIS)</b>Lava Zone 4 (Hual&#257;lai — moderate) ·
+      FEMA flood Zone <span class="ok">X</span> (outside special flood hazard area) ·
+      inside the mapped tsunami <em>evacuation</em> zone · inside the SMA (matters only for expansion permits)</div>
+  </div>
+
+  <h3>Why this is the one</h3>
+  <p>It is the only property I found in the state that is simultaneously: <strong>(a)</strong> actively
+  for sale, <strong>(b)</strong> already configured as a lodge (six rentable keys across two structures,
+  14 guests, pool, half-acre of grounds — not a beach shack you'd spend two years permitting),
+  <strong>(c)</strong> legally rentable nightly from day one, and <strong>(d)</strong> within walking
+  distance of surfable water, in this case the bodyboard/surf cove at He&#699;eia Bay (~150 m on foot)
+  with Kahalu&#699;u's beginner reef 1.9 km and Banyans/Lyman's a few minutes' drive up Ali&#699;i Drive.
+  Keauhou is the quiet, green end of the corridor — country-club calm instead of condo-wall Kona —
+  which is exactly the register a "small, beautiful" lodge brand wants.</p>
+
+  <p>On price: you are buying $2.5M of assessed real estate plus the license and the configuration.
+  The seller has already conceded 11% and carried the property for a year. In a Kona market with
+  inventory growing and regulation tightening everywhere else, the pool of buyers who can fully
+  exploit this specific asset (nightly rental at scale) is thin — but for that pool, of which you
+  are one, it is nearly irreplaceable. That spread is your negotiation. <strong>Open at $3.9M with
+  proof of funds and a short close; be prepared to win at $4.0–4.1M; walk above $4.2M</strong> and
+  fall back to the backup below.</p>
+
+  <div class="panel">
+    <h3>The catch we found (and why it's also the moat)</h3>
+    <p>The brokerage marketing says "resort zone." <strong>The county's own GIS says the parcel is
+    zoned RS-10 — residential.</strong> The rental right is real but it doesn't come from zoning:
+    it's a <em>registered nonconforming STVR use</em> under Ordinance 2018-114 (Bill 108), which
+    required proof the rental operated before April 1, 2019. Under the current rules
+    (<a href="https://www.planning.hawaiicounty.gov/home/showpublisheddocument/301491/637203350591400000">Planning
+    Dept. Rule 23</a> and Ord. 25-50), that registration <strong>expires 90 days after a change of
+    ownership unless the new owner re-registers</strong>.</p>
+    <p>So: make the purchase contract <strong>contingent on (1) the county confirming the registration
+    is current and in good standing, and (2) acceptance of your re-registration filing</strong> —
+    your attorney will draft this in a day. Do not waive it; without the registration this is a
+    $4M residential house. The flip side: <em>no new certificates have been issued since 2019</em>.
+    Every year that passes, the supply of legally rentable compounds like this shrinks toward the
+    resort zones. You are buying a license that regulation keeps making scarcer — the same dynamic
+    that has an O&#699;ahu NUC home with $500K/yr gross asking $5.995M
+    (<a href="https://www.locationshawaii.com/buy/oahu/north-shore/kawailoa-north-shore/61-104-iliohu-way/?mls=202606359">comp</a>).</p>
+  </div>
+
+  <h3>What the money does (scout's sketch — verify with an operator)</h3>
+  <p class="small">Run as a six-key surf lodge (5 suites + studio) at a blended $300–375/night and
+  60–70% occupancy — conservative against Keauhou's resort-corridor comparables and the property's
+  own "proven multi-year track record" (listing's words) — gross lands in the
+  <strong>$400–550K/yr</strong> range before management; whole-compound buyouts (sleeps 14) for
+  surf camps, retreats and Ironman week price $1,200–1,800/night. On a $4.0M basis that is a
+  plausible 6–9% gross yield <em>with the real upside being the brand</em>: the only walkable-to-water
+  legal lodge product in Keauhou. Demand a trailing-12 P&amp;L in diligence; the listing advertises one.</p>
+
+  <!-- ======================= 04 BACKUP ======================= -->
+  <h2 id="backup"><span class="no">04 · The backup</span>75-5976 Ali&#699;i Dr — oceanfront, legal by right, half the budget</h2>
+
+  <figure>
+    <img src="img/alii5976-site.jpg" alt="Satellite view of 75-5976 Alii Dr on the Kailua-Kona shoreline">
+    <figcaption>The house sits where Ali&#699;i Drive hugs the lava bench — part of the structure literally
+    overhangs the water. <span class="coord">19.62384, -155.98577</span>.</figcaption>
+  </figure>
+
+  <p><strong>$1,895,000 · 4 bd / 4 ba · 2,518 sq ft · oceanfront · MLS 726123</strong>
+  (<a href="https://www.hawaiilife.com/listings/75-5976-alii-dr-kailua-kona-hi-96740-1">Hawaii Life</a>).
+  This one is zoned <strong>V-1.25 resort-hotel</strong> — I verified the zoning polygon at the parcel in the
+  county GIS, and cross-checked the parcel ID the old-fashioned way: TMK 3-7-5-019-016's assessed value
+  ($2,007,500) times the county's 11.11/$1,000 rate equals $22,303 — the listing discloses $22,302 in taxes.
+  Same parcel. Here the rental right comes from zoning itself: no nonconforming-certificate fragility at all.
+  It runs today as a successful vacation rental.</p>
+
+  <p>It is <strong>Active Under Contract as of June 10, 2026</strong> — someone else read this market the
+  same way. Hawaii deals fall out of escrow constantly. <strong>Have your broker lodge a backup offer at
+  list this week.</strong> If it comes back: you acquire a legal, oceanfront, income-producing seed asset at
+  $1.9M and hold ~$2M of the budget for a second V-zoned building or a to-the-studs conversion — a
+  two-building lodge instead of one. Eyes open: it's a 1976 build on 0.07 acres with one parking stall,
+  FEMA Zone AE, inside the tsunami evacuation zone, and salt-air maintenance is forever. It's the
+  opportunistic play, not the safe one — which is why it's the backup.</p>
+
+  <!-- ======================= 05 REJECTED ======================= -->
+  <h2 id="rejected"><span class="no">05 · Eyes open</span>The beautiful traps I'm telling you not to buy</h2>
+
+  <h3>59-75 Hoalua St, Sunset Beach, O&#699;ahu — $3,950,000</h3>
+
+  <figure>
+    <img src="img/sunset-site.jpg" alt="Satellite view of Sunset Beach, Oahu showing the listing and the Ke Nui Road erosion strip">
+    <figcaption>The postcard, from above. The amber pin is the listing
+    (<span class="coord">21.67566, -158.03902</span>); the red pin marks the Ke Nui Rd strip where
+    oceanfront homes collapsed into the surf in 2022 and 2024. Note how little sand separates the
+    house row from the lineup.</figcaption>
+  </figure>
+
+  <p>Sand-in-front-of-the-lanai oceanfront on the most famous wave on earth, at $3.95M
+  (<a href="https://www.coldwellbankerhomes.com/hi/north-shore/59-75-hoalua-st/pid_70649616/">MLS 202605480</a>,
+  listed April 13, 2026). This is the listing your friends will forward you. Three reasons I won't let
+  you wire on it:</p>
+  <ul>
+    <li><strong>The lodge is illegal.</strong> County GIS: zoned R-5 residential. Under Ord. 22-7 you
+    cannot rent it for under 30 days (under 90 as an unpermitted B&amp;B), at fines up to $10,000/day.
+    Your "lodge" would be a private house with a mortgage.</li>
+    <li><strong>The coast is in managed retreat.</strong> Within 1.5 km of this lot, houses collapsed
+    into the ocean in 2022 (Rocky Point) and September 2024 (Kammies) — see
+    <a href="https://dlnr.hawaii.gov/blog/2024/09/28/nr24-128/">DLNR's hazard notice</a> and
+    <a href="https://www.civilbeat.org/2025/09/a-new-battle-plan-in-the-fight-to-save-oahus-north-shore-beaches/">Civil Beat's
+    2025 report</a>. The state counts roughly a third of North Shore residential parcels as imminently
+    threatened; seawalls are prohibited; the official toolbox is dune restoration and <em>retreat</em>.
+    FEMA zone here: VE (wave-action). The asset's land is the thing the ocean is taking.</li>
+    <li><strong>Even as a trophy it's mispriced for you.</strong> $3.95M buys 1,612 sq ft and four
+    bedrooms you can't legally fill with guests. The same money in Kona buys six legal keys and a pool.</li>
+  </ul>
+
+  <h3>5-7094 Kuhio Hwy, Hanalei, Kaua&#699;i — $3,999,000</h3>
+
+  <figure>
+    <img src="img/hanalei-site.jpg" alt="Satellite view of Hanalei Bay, Kauai with the Waikoko listing, surf breaks, and floodplain marked">
+    <figcaption>Hanalei Bay. The listing (amber, <span class="coord">22.22065, -159.54520</span>) sits at
+    Waikoko on the bay's west arm; Waikokos reef breaks out front, Pine Trees and the pier bowl
+    across the bay. Red: the Hanalei River floodplain.</figcaption>
+  </figure>
+
+  <p>Beachfront with a pool near Waikoko, walking distance to a real reef wave
+  (<a href="https://www.coldwellbanker.com/hi/hanalei/5-7094-kuhio-hwy/lid-P00800000H06hBJ02JLfJ6DXHn6gmpk6AxlOo77f">MLS 724741</a>).
+  And: zoned R-4 (county GIS), <strong>outside the Visitor Destination Area, where vacation rentals have
+  been prohibited since 2008</strong> and the grandfather list closed in 2009. Kaua&#699;i is the county
+  that <em>banned rentals in this exact neighborhood by name</em>. Then geography: one two-lane road and
+  a string of one-lane bridges connect it to the rest of the island; in April 2018 this coast took
+  ~50 inches of rain in 24 hours (a U.S. record, measured at Waip&#257;, 4 km away), severed the road for
+  months, and the parcel itself screens FEMA VE + tsunami evacuation zone. Paradise, structurally
+  incompatible with hospitality revenue.</p>
+
+  <h3>78-6600 Ali&#699;i Dr, Kailua-Kona — $4,200,000 <span class="small">(the near-miss that proves the method)</span></h3>
+  <p>Gated oceanfront main-plus-guest-house compound at Kahalu&#699;u
+  (<a href="https://www.locationshawaii.com/buy/hawaii/north-kona/kahaluu-beach-lots/78-6600-alii-dr/?mls=721460">MLS 721460</a>,
+  336 days on market) — 350 m from the beginner reef, looks perfect. County GIS:
+  <strong>RS-7.5 residential</strong>, no STVR certificate advertised, FEMA <strong>VE</strong> at the shoreline,
+  $42,770/yr in taxes. On this corridor the legal boundary moves parcel by parcel: this one is a few
+  hundred meters — and one zoning polygon — away from being investable. That's the entire discipline of
+  this hunt in one listing: <em>the map decides, not the photos.</em></p>
+
+  <h3 id="maui">Maui — skipped on principle</h3>
+  <p>Active inventory in budget exists (Haiku estates, ocean-view acreage). But the county just enacted
+  the largest short-term-rental rollback in U.S. history (Ord. 5909), the permit pathway for new
+  single-family rentals is effectively frozen, and the litigation outcome is unknowable. You don't
+  build a hospitality brand on land whose right to host is an open court case.</p>
+
+  <!-- ======================= 06 SURF DATA ======================= -->
+  <h2 id="surf"><span class="no">06 · The surf story, with receipts</span>Will guests actually score?</h2>
+
+  <p>A lodge's surf claim has to survive a guest with a Surfline account. Here is the honest version
+  for the Keauhou–Kona corridor:</p>
+  <ul>
+    <li><strong>Consistency over size.</strong> Banyans is the anchor: an A-frame reef that
+    Surfline's <a href="https://www.surfline.com/surf-report/banyans/5842041f4e65fad6a770889d/spot-guide">spot
+    guide</a> rates as breaking year-round — direct S–SW windows in summer, and in winter the
+    WNW swells (below ~300°) that sneak under the island chain's shadow, "performing with much more
+    manageable yet still solid surf" on the days O&#699;ahu is washed out. Lyman's adds a long left
+    point; Kahalu&#699;u is one of the best learner reefs in the state; Magic Sands and Honl's fill
+    the small days. He&#699;eia Bay gives the pick a literal home break for bodyboards and logs.</li>
+    <li><strong>Wind is the cheat code.</strong> Leeward-side diurnal winds mean glassy dawn sessions
+    most days of the year — the single biggest determinant of guest satisfaction at a surf lodge,
+    and something the windward "postcard" coasts cannot promise.</li>
+    <li><strong>Verification infrastructure exists.</strong> Real-time swell ground truth comes from the
+    PacIOOS/CDIP buoy network (<a href="https://www.pacioos.hawaii.edu/waves-category/buoy/">live map</a>):
+    Hilo (NDBC 51206) reads incoming N–NE energy, Waimea (51201) the winter NW train, and the
+    L&#257;na&#699;i Southwest buoy (51203) is the upstream reference for the S–SW swells that light up
+    Kona in summer. One honesty note from this scout: the offshore NOAA buoy 51003 ("Western Hawaii")
+    <a href="https://www.ndbc.noaa.gov/station_page.php?station=51003">went adrift in Feb 2025 and reports
+    no data</a> — anyone citing it to you is selling vibes.</li>
+    <li><strong>What Kona is not.</strong> It is not Pipeline, and your brand shouldn't pretend
+    otherwise. It is the coast where an intermediate guest improves every single morning and an
+    advanced guest gets shoulder-high-to-overhead reef surf in trunks, year-round, 8 minutes from
+    breakfast. That is the product a 6-key lodge actually sells.</li>
+  </ul>
+
+  <!-- ======================= 07 RISK ======================= -->
+  <h2 id="risk"><span class="no">07 · Risk register</span>What could kill this deal — said plainly</h2>
+
+  <table>
+    <tr><th>Risk</th><th>Reality</th><th>Mitigation</th></tr>
+    <tr><td><b>STVR registration lapse</b></td>
+      <td>Registration expires 90 days post-closing if not re-registered; without it the lodge is illegal.</td>
+      <td>Escrow contingency on county confirmation + accepted re-registration (Ord. 25-50 / Rule 23). Non-negotiable.</td></tr>
+    <tr><td><b>Bill 147 (pending)</b></td>
+      <td>County is drafting operational standards/enforcement for rentals; deferred by the Windward
+      Planning Commission June 5, 2026 — still moving.</td>
+      <td>It adds standards (parking, quiet hours, fines), not zoning rollback; a registered, well-run
+      lodge is the constituency it protects. Track it; budget for compliance.</td></tr>
+    <tr><td><b>Tsunami</b></td>
+      <td>The parcel is inside the mapped evacuation zone (as is essentially all of coastal Kona).
+      It is <em>not</em> in the extreme-event-only zone, and FEMA flood is Zone X.</td>
+      <td>Evacuation plan is already a county requirement for rentals; insure accordingly; guest-safety
+      signage. The compound sits back on a rise rather than on the bay frontage that took the brunt of
+      past events (1960, 2011) — but it is in the zone, and the brief says so.</td></tr>
+    <tr><td><b>Lava / vog</b></td>
+      <td>Lava Zone 4 (Hual&#257;lai flank — last erupted 1801). Moderate; insurable through standard
+      carriers, unlike Zones 1–2 in Puna. Vog drifts in on light-wind days.</td>
+      <td>Priced into all Kona real estate; disclose in brand honestly ("volcano coast").</td></tr>
+    <tr><td><b>Single-asset operations</b></td>
+      <td>Six keys, one site: occupancy risk is concentrated, and resort-corridor competition (Outrigger
+      Kona, condo rentals) is real.</td>
+      <td>The defensible niche is the <em>surf-lodge program</em> (guides, coaching, boards, dawn-patrol
+      culture) — not generic rooms. Hire the GM before closing.</td></tr>
+    <tr><td><b>The ask is over budget</b></td>
+      <td>$4.45M list vs $4M budget.</td>
+      <td>The price path ($4.995M → $4.45M, ~1 yr exposure, $2.54M assessed) is a seller in motion.
+      If they hold above $4.2M: walk, take the 75-5976 backup, and re-engage in 60 days. Discipline is leverage.</td></tr>
+  </table>
+
+  <!-- ======================= 08 CLOSE ======================= -->
+  <h2 id="close"><span class="no">08 · The ask</span>What I need from you this week</h2>
+  <ul>
+    <li><strong>Authorize the offer:</strong> $3.9M on 78-111-A Holua Rd, proof of funds, 45-day close,
+    contingencies: STVR registration confirmation + re-registration, trailing-24-month P&amp;L,
+    inspection, title (confirm the CPR unit boundaries — it's the "A" unit of TMK 3-7-8-012-045).</li>
+    <li><strong>Authorize the backup offer</strong> at list on 75-5976 Ali&#699;i Dr (MLS 726123) so we're
+    first in line if escrow breaks.</li>
+    <li><strong>Engage:</strong> a Kona land-use attorney (one day of work on the contingency language)
+    and a hospitality manager for the P&amp;L review.</li>
+  </ul>
+  <p>Every fact above is checkable from your desk in minutes — the links are live and the coordinates
+  are real. When something I've written doesn't survive your checking, call me. That's what a scout is for.</p>
+
+  <p class="sig">— Your site scout · Kailua-Kona corridor survey completed June 10, 2026</p>
+
+  <!-- ======================= APPENDIX ======================= -->
+  <h2 id="appendix"><span class="no">Appendix</span>Verify me: coordinates &amp; sources</h2>
+  <p class="check">Paste any coordinate into Google Maps (satellite layer). Listing prices/statuses are as
+  scouted on <strong>June 10, 2026</strong> — judge against that date; Hawaii inventory moves.</p>
+
+  <table>
+    <tr><th>What</th><th>Coordinates</th><th>Claim to check</th></tr>
+    <tr class="hl"><td>78-111-A Holua Rd (THE PICK)</td><td class="coord">19.56373, -155.96435</td>
+      <td>Compound w/ pool on green rise, one block from a small cove (He&#699;eia Bay), golf course mauka</td></tr>
+    <tr><td>He&#699;eia Bay</td><td class="coord">19.56330, -155.96480</td><td>Rocky surf cove SW of the pick</td></tr>
+    <tr><td>Keauhou Bay</td><td class="coord">19.56120, -155.96300</td><td>Boat ramp &amp; canoe hale, 5-min walk south</td></tr>
+    <tr><td>75-5976 Ali&#699;i Dr (BACKUP)</td><td class="coord">19.62384, -155.98577</td>
+      <td>House on the makai (ocean) side where road meets the lava bench</td></tr>
+    <tr><td>Banyans</td><td class="coord">19.60620, -155.97560</td><td>Reef A-frame off the small bay at Kona Bali Kai</td></tr>
+    <tr><td>Lyman's</td><td class="coord">19.60140, -155.97480</td><td>Left point at Kahului Bay's south corner</td></tr>
+    <tr><td>Kahalu&#699;u Beach Park</td><td class="coord">19.58030, -155.96820</td><td>Beginner reef &amp; snorkel bay</td></tr>
+    <tr><td>78-6600 Ali&#699;i Dr (REJECTED)</td><td class="coord">19.58553, -155.97023</td><td>Oceanfront compound, residential zone</td></tr>
+    <tr><td>59-75 Hoalua St (REJECTED)</td><td class="coord">21.67566, -158.03902</td><td>Beachfront house row at Sunset Beach</td></tr>
+    <tr><td>Ke Nui Rd erosion strip</td><td class="coord">21.67000, -158.04780</td><td>Narrow dune strip; 2022/2024 collapse area</td></tr>
+    <tr><td>5-7094 Kuhio Hwy (REJECTED)</td><td class="coord">22.22065, -159.54520</td><td>Waikoko beachfront, west arm of Hanalei Bay</td></tr>
+  </table>
+
+  <h3>Primary sources</h3>
+  <ul class="small">
+    <li>Listings: <a href="https://www.locationshawaii.com/buy/hawaii/north-kona/keauhou-1st-2nd-beach-section/78-111-a-holua-rd/?mls=729517">78-111-A Holua Rd (MLS 729517)</a> ·
+      <a href="https://www.hawaiilife.com/listings/75-5976-alii-dr-kailua-kona-hi-96740-1">75-5976 Ali&#699;i Dr (MLS 726123)</a> ·
+      <a href="https://www.coldwellbankerhomes.com/hi/north-shore/59-75-hoalua-st/pid_70649616/">59-75 Hoalua St (MLS 202605480)</a> ·
+      <a href="https://www.coldwellbanker.com/hi/hanalei/5-7094-kuhio-hwy/lid-P00800000H06hBJ02JLfJ6DXHn6gmpk6AxlOo77f">5-7094 Kuhio Hwy (MLS 724741)</a> ·
+      <a href="https://www.locationshawaii.com/buy/hawaii/north-kona/kahaluu-beach-lots/78-6600-alii-dr/?mls=721460">78-6600 Ali&#699;i Dr (MLS 721460)</a></li>
+    <li>Parcels / zoning / SMA / lava / tsunami / FEMA layers: <a href="https://geodata.hawaii.gov/arcgis/rest/services">State of Hawaii Statewide GIS</a>
+      (queries scripted in <code>scout/groundtruth.py</code>; raw responses committed in <code>scout/groundtruth.json</code>)</li>
+    <li>Regulation: <a href="https://www.honolulu.gov/dpp/permitting/str/">Honolulu DPP STR program</a> ·
+      <a href="https://www.kauai.gov/Government/Departments-Agencies/Planning/Transient-Vacation-Rentals">Kaua&#699;i Planning TVR</a> ·
+      <a href="https://www.rentalscaleup.com/maui-bill-9-becomes-law-what-the-final-ordinance-actually-does-and-what-comes-next/">Maui Ord. 5909 analysis</a> ·
+      <a href="https://www.hawaiipublicradio.org/local-news/2026-01-06/rules-fees-hawaii-island-vacation-rentals">Hawai&#699;i County Ord. 25-50 (HPR)</a> ·
+      <a href="https://www.planning.hawaiicounty.gov/home/showpublisheddocument/301491/637203350591400000">Hawai&#699;i County Planning Rule 23 (STVR/NUC)</a></li>
+    <li>Surf: <a href="https://www.surfline.com/surf-report/banyans/5842041f4e65fad6a770889d/spot-guide">Surfline Banyans spot guide</a> ·
+      <a href="https://www.pacioos.hawaii.edu/waves-category/buoy/">PacIOOS wave buoys</a> ·
+      <a href="https://www.ndbc.noaa.gov/station_page.php?station=51003">NDBC 51003 status</a></li>
+    <li>Hazard &amp; erosion record: <a href="https://dlnr.hawaii.gov/blog/2024/09/28/nr24-128/">DLNR North Shore erosion notice (2024)</a> ·
+      <a href="https://www.civilbeat.org/2025/09/a-new-battle-plan-in-the-fight-to-save-oahus-north-shore-beaches/">Civil Beat (2025)</a> ·
+      <a href="https://www.staradvertiser.com/2025/10/13/hawaii-news/national-report-calls-for-urgent-action-to-protect-coastlines/">Star-Advertiser (2025)</a></li>
+  </ul>
+
+  <footer>
+    <span class="tag">scouted 2026-06-10</span>
+    <span class="tag">4 counties screened</span>
+    <span class="tag">5 parcels GIS-verified</span>
+    <span class="tag">imagery © Esri / Maxar / Earthstar Geographics</span>
+    <p>Prepared as a submission to the <code>surf-lodge-scout</code> eval (galaxy-brain). Satellite imagery
+    is stored locally in <code>img/</code> and was fetched/annotated by <code>scout/fetch_imagery.py</code>;
+    parcel, zoning and hazard determinations were queried from official State of Hawaii GIS services by
+    <code>scout/groundtruth.py</code>. Nothing in this document is investment, legal, or tax advice —
+    it is a scout's brief, built to be checked.</p>
+  </footer>
+
+</main>
+</body>
+</html>
