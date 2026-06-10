@@ -249,6 +249,28 @@
             "score": null
           },
           "notes": "Open `lumina-atrium/index.html` directly in the solution, or use the mirrored artifact at `./artifacts/evading-demons/cursor-gemini-3-1-pro.html`."
+        },
+        {
+          "slug": "cursor-fable-5-thinking-high",
+          "harness": "cursor",
+          "model": "fable-5-thinking-high",
+          "projectName": "sunspire-galleria",
+          "summary": "Fully self-contained single-file Three.js game (three.js inlined, plays from file:// with no network). Third-person runner with arrow-key movement, jump physics, and a trailing chase camera inside a solarpunk mall: glass atrium roof, ivy-wrapped columns, living walls, potted trees, fountain, kiosks, benches, and glowing storefront signs. A timed cycle tears the sky into a space-like night with stars, nebulae, and a ringed planet; violet rifts open and demons pour out, steering with per-demon wobble and separation so they flank. Tall structure blocks everyone, low greenery blocks only the player unless jumped — demons drift over it — and a timed jump clears a demon's reach. Contact kills instantly; death overlay shows time and nights survived, with in-place restart via R or button.",
+          "tech": [
+            "html",
+            "css",
+            "javascript",
+            "threejs"
+          ],
+          "submittedAt": "2026-06-09",
+          "artifactUrl": "./artifacts/evading-demons/cursor-fable-5-thinking-high.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a zero-dependency playable HTML game (three.js inlined, works offline from file://) and mirrors it into the results site for one-click evaluation. Movement, jump, dusk transition, demon pursuit, contact death, and restart verified headlessly in Chrome.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `evading-demons/cursor-fable-5-thinking-high/index.html` directly in a desktop browser, or use the mirrored artifact at `./artifacts/evading-demons/cursor-fable-5-thinking-high.html`. Debug params: `?t=0.62&demons=5` jumps straight to a night chase."
         }
       ]
     },
