@@ -7,6 +7,21 @@
   },
   "evals": [
     {
+      "slug": "economic-strength",
+      "title": "economic-strength",
+      "tagline": "Make the evidence-grounded case for how the US economy is really doing.",
+      "description": "There are competing claims about how well the US economy is performing. Compile a comprehensive, statistics-driven case for how the economy is doing and how ordinary Americans are actually experiencing it: are they facing economic hardship, and how do they compare with the rest of the world? Ship a single committed HTML artifact that communicates the conclusions with whatever multimedia fits best \u2014 graphs, figures, maps \u2014 grounded in the best available data.",
+      "tags": [
+        "research",
+        "economics",
+        "data-viz",
+        "report",
+        "html"
+      ],
+      "createdAt": "2026-06-26",
+      "solutions": []
+    },
+    {
       "slug": "polynesian-spread",
       "title": "polynesian-spread",
       "tagline": "Model how Polynesians crossed the Pacific — then simulate the voyaging it took.",
