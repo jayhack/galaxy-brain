@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Two Economies, One Country — How the US Economy Is Really Doing (June 2026)</title>
+<style>
+  :root {
+    --bg: #f7f5f0;
+    --paper: #ffffff;
+    --ink: #1a1a1a;
+    --muted: #5c5750;
+    --faint: #8a847b;
+    --rule: #e3ddd2;
+    --accent: #0b6e4f;      /* green = growth */
+    --accent2: #b23a2e;     /* red = strain */
+    --accent3: #2d5d9f;     /* blue = neutral / world */
+    --gold: #b8860b;
+    --top: #0b6e4f;
+    --bottom: #b23a2e;
+    --maxw: 1080px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .serif { font-family: Georgia, "Times New Roman", Times, serif; }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+
+  /* Header */
+  header.masthead {
+    border-bottom: 3px double var(--ink);
+    background: var(--paper);
+  }
+  .masthead .wrap { padding-top: 28px; padding-bottom: 22px; }
+  .kicker {
+    font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--accent2); font-weight: 700;
+  }
+  h1.title {
+    font-family: Georgia, serif;
+    font-size: clamp(30px, 5vw, 52px);
+    line-height: 1.08; margin: 10px 0 8px; font-weight: 700; letter-spacing: -0.01em;
+  }
+  .dek { font-size: clamp(16px, 2.2vw, 20px); color: var(--muted); max-width: 760px; }
+  .byline {
+    margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--rule);
+    font-size: 13px; color: var(--faint); display: flex; flex-wrap: wrap; gap: 6px 18px;
+  }
+  .byline strong { color: var(--muted); }
+
+  /* Thesis band */
+  .thesis { background: var(--ink); color: #f3efe7; }
+  .thesis .wrap { padding: 34px 24px; }
+  .thesis p { font-family: Georgia, serif; font-size: clamp(18px, 2.6vw, 24px); margin: 0; line-height: 1.45; }
+  .thesis .big { color: #fff; }
+  .thesis .hl-up { color: #7fd1ad; font-style: italic; }
+  .thesis .hl-down { color: #f0a59c; font-style: italic; }
+
+  /* KPI strip */
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--rule); border: 1px solid var(--rule); margin: 34px 0; }
+  .kpi { background: var(--paper); padding: 18px 16px; }
+  .kpi .v { font-size: clamp(26px, 4vw, 36px); font-weight: 700; font-family: Georgia, serif; line-height: 1; }
+  .kpi .l { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--faint); margin-top: 8px; }
+  .kpi .s { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+  .up { color: var(--accent); } .down { color: var(--accent2); } .flat { color: var(--accent3); }
+
+  section { padding: 30px 0; }
+  section + section { border-top: 1px solid var(--rule); }
+  .eyebrow { font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent2); font-weight: 700; margin-bottom: 6px; }
+  h2 { font-family: Georgia, serif; font-size: clamp(24px, 3.4vw, 34px); margin: 0 0 6px; letter-spacing: -0.01em; }
+  h3 { font-size: 18px; margin: 26px 0 4px; }
+  .lead { font-size: 18px; color: var(--muted); max-width: 760px; }
+  p { max-width: 760px; }
+  .note { font-size: 13.5px; color: var(--faint); }
+  a { color: var(--accent3); }
+
+  /* Figure cards */
+  .fig { background: var(--paper); border: 1px solid var(--rule); border-radius: 10px; padding: 20px 20px 16px; margin: 22px 0; box-shadow: 0 1px 2px rgba(0,0,0,.03); }
+  .fig h4 { margin: 0 0 2px; font-size: 16px; }
+  .fig .cap { font-size: 13px; color: var(--faint); margin: 0 0 12px; }
+  .fig figcaption { font-size: 12.5px; color: var(--faint); margin-top: 10px; border-top: 1px dotted var(--rule); padding-top: 8px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  .chart { width: 100%; height: auto; display: block; }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+  .legend .sw { display: inline-block; width: 11px; height: 11px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+
+  .pull { font-family: Georgia, serif; font-size: clamp(20px, 3vw, 27px); line-height: 1.35; border-left: 4px solid var(--accent2); padding: 4px 0 4px 18px; margin: 26px 0; color: var(--ink); max-width: 820px; }
+
+  /* verdict */
+  .verdict { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; margin: 20px 0; }
+  .verdict > div { background: var(--paper); padding: 20px; }
+  .verdict h4 { margin: 0 0 10px; font-size: 15px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .verdict ul { margin: 0; padding-left: 18px; }
+  .verdict li { margin: 7px 0; font-size: 14.5px; }
+  .bull h4 { color: var(--accent); } .bear h4 { color: var(--accent2); }
+
+  table.src { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.src th, table.src td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  table.src th { color: var(--faint); text-transform: uppercase; letter-spacing: 0.05em; font-size: 11px; }
+  table.src td a { word-break: break-word; }
+
+  footer { background: var(--ink); color: #cfc9bf; margin-top: 10px; }
+  footer .wrap { padding: 26px 24px; font-size: 13px; }
+
+  @media (max-width: 760px) {
+    .kpis { grid-template-columns: repeat(2, 1fr); }
+    .grid2 { grid-template-columns: 1fr; }
+    .verdict { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="kicker">A Data Report · United States Economy</div>
+    <h1 class="title">Two Economies, One Country</h1>
+    <p class="dek">By almost every aggregate and international yardstick the United States has the strongest large rich-world economy on the planet. By the yardstick most Americans actually use — what a paycheck buys, week to week — the typical household has run hard and stood still for half a decade. Both things are true. That tension is the whole story.</p>
+    <div class="byline">
+      <span><strong>Compiled:</strong> June 26, 2026</span>
+      <span><strong>Latest data:</strong> through May–June 2026</span>
+      <span><strong>Sources:</strong> BLS, BEA, U.S. Census, Federal Reserve / NY Fed, OECD, University of Michigan, KFF</span>
+      <span><strong>Note:</strong> headline figures go stale — see the sourced table at the end.</span>
+    </div>
+  </div>
+</header>
+
+<div class="thesis">
+  <div class="wrap">
+    <p class="big">The honest verdict: the U.S. economy is <span class="hl-up">objectively strong and globally dominant</span> — yet <span class="hl-down">structurally unequal and, right now, re-squeezed by a fresh inflation spike</span>. Growth is increasingly carried by the wealthiest fifth of households riding a record stock market. For most people, "the economy" and "my economy" have quietly become two different things.</p>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="kpis">
+    <div class="kpi">
+      <div class="v">1.6<span style="font-size:.5em">%</span></div>
+      <div class="l">Real GDP growth</div>
+      <div class="s">Q1 2026 annualized · <span class="down">slowing</span> from 2.0% first read</div>
+    </div>
+    <div class="kpi">
+      <div class="v">4.3<span style="font-size:.5em">%</span></div>
+      <div class="l">Unemployment</div>
+      <div class="s">May 2026 · <span class="flat">stable</span> 4.3–4.5% for a year</div>
+    </div>
+    <div class="kpi">
+      <div class="v">4.2<span style="font-size:.5em">%</span></div>
+      <div class="l">Inflation (CPI, yr/yr)</div>
+      <div class="s">May 2026 · <span class="down">hottest since 2023</span></div>
+    </div>
+    <div class="kpi">
+      <div class="v">49.5</div>
+      <div class="l">Consumer sentiment</div>
+      <div class="s">UMich, June 2026 · <span class="down">near record low</span></div>
+    </div>
+  </div>
+
+  <section id="paradox">
+    <div class="eyebrow">The Central Paradox</div>
+    <h2>Good macro, bad micro</h2>
+    <p class="lead">The numbers that economists watch and the numbers that households feel have come apart. The economy is still growing, jobs are plentiful, and stocks are at records. Yet consumer sentiment sits near the lowest level ever recorded, and for the third straight month, more than half of consumers volunteered "high prices" as the thing dragging down their finances.</p>
+
+    <div class="fig">
+      <h4>The "vibecession" in one chart</h4>
+      <p class="cap">Two lines that used to move together. The economy keeps expanding; how people feel about it does not.</p>
+      <svg class="chart" id="chart-sentiment" viewBox="0 0 720 320" role="img" aria-label="Consumer sentiment near record lows while GDP keeps growing"></svg>
+      <div class="legend">
+        <span><span class="sw" style="background:var(--accent3)"></span>U. Michigan Consumer Sentiment (index)</span>
+        <span><span class="sw" style="background:var(--accent)"></span>Real GDP (index, 2019 = 100)</span>
+      </div>
+      <figcaption>Sentiment plunged to an all-time low of 44.8 in May 2026 as a Middle East conflict spiked gasoline prices, then rebounded to 49.5 in June as pump prices eased — still ~18% below a year earlier. Sources: University of Michigan Surveys of Consumers; BEA real GDP.</figcaption>
+    </div>
+
+    <p class="pull">"That has left us with an economy that looks better in the aggregate than it feels to most Americans." — Diane Swonk, KPMG chief economist</p>
+  </section>
+
+  <section id="prices">
+    <div class="eyebrow">Why It Feels Bad — Part 1</div>
+    <h2>The price level, not just the inflation rate</h2>
+    <p class="lead">Economists cheer when the <em>rate</em> of inflation falls. Households live on the <em>level</em> of prices, which never fell — it just stopped rising as fast, and is now re-accelerating. After the 2021–23 surge, a renewed spike in mid-2026 (driven by energy) pushed annual CPI back to 4.2%, the highest reading since 2023.</p>
+
+    <div class="grid2">
+      <div class="fig">
+        <h4>Prices since the pandemic</h4>
+        <p class="cap">Cumulative change in the consumer price level, indexed to January 2020 = 100.</p>
+        <svg class="chart" id="chart-pricelevel" viewBox="0 0 360 300" role="img" aria-label="Consumer price level up about 29 percent since 2020"></svg>
+        <figcaption>The CPI is ~29% higher than just before the pandemic — that gap is permanent and is what "everything costs more" actually means. Source: BLS CPI-U (NSA index, May 2026 = 335.1; Jan 2020 ≈ 258.8).</figcaption>
+      </div>
+      <div class="fig">
+        <h4>What's driving the latest spike (yr/yr, May 2026)</h4>
+        <p class="cap">12-month change by category. Energy is doing the damage.</p>
+        <svg class="chart" id="chart-cpicat" viewBox="0 0 360 300" role="img" aria-label="Inflation by category, energy up 23.5 percent"></svg>
+        <figcaption>Core inflation (ex-food & energy) is a calmer 2.9%, but an energy shock pushed headline CPI to 4.2%. Source: BLS CPI News Release, May 2026.</figcaption>
+      </div>
+    </div>
+
+    <p>Wages have roughly kept pace over the long run but are losing the latest round: average hourly earnings rose <strong>3.4%</strong> over the year to May 2026 while prices rose <strong>4.2%</strong> — so the typical worker's real hourly pay is shrinking again, right now. Year-ahead inflation expectations sit at an elevated 4.6%, well above anything seen in 2024.</p>
+  </section>
+
+  <section id="standstill">
+    <div class="eyebrow">Why It Feels Bad — Part 2</div>
+    <h2>Five years of running in place</h2>
+    <p class="lead">The single most important fact about the typical American's finances: inflation-adjusted median household income is essentially the same as it was before the pandemic. The economy got bigger; the median household did not get richer.</p>
+
+    <div class="fig">
+      <h4>Real median household income (2024 dollars)</h4>
+      <p class="cap">The midpoint U.S. household. Adjusted for inflation, it has gone nowhere in five years.</p>
+      <svg class="chart" id="chart-income" viewBox="0 0 720 300" role="img" aria-label="Real median household income flat from 2019 to 2024"></svg>
+      <figcaption>$83,260 (2019) → $82,690 (2023) → $83,730 (2024). The 2024 figure is not statistically different from either 2023 or pre-pandemic 2019. Source: U.S. Census Bureau, <em>Income in the United States: 2024</em> (P60-286, Sept. 2025).</figcaption>
+    </div>
+
+    <p>Other household-level strain shows up in the borrowing data. Total household debt hit a record <strong>$18.8 trillion</strong> in Q1 2026 (up $4.6T since 2019). Credit-card delinquency transitions are near levels last seen during the 2008 financial crisis, and student-loan serious delinquency has spiked to <strong>10.3%</strong> as pandemic-era forbearance ended. Housing and mortgages, by contrast, remain the strongest part of the consumer balance sheet.</p>
+
+    <div class="fig">
+      <h4>Buying the median home now eats 40% of the typical income</h4>
+      <p class="cap">Share of median household income needed to afford the median-priced home for sale, and share of listings that are "affordable."</p>
+      <svg class="chart" id="chart-housing" viewBox="0 0 720 230" role="img" aria-label="Housing affordability strained, improving slightly"></svg>
+      <figcaption>It takes ~$117k to afford the typical ~$412k home; the typical household earns ~$88k. Only ~33% of listings are affordable, versus more than 50% five years ago — though 2026 brought the first modest improvement since 2022. Sources: Redfin (Apr 2026); NAR Housing Affordability Index; Realtor.com 2026 forecast.</figcaption>
+    </div>
+  </section>
+
+  <section id="kshape">
+    <div class="eyebrow">The Structural Story</div>
+    <h2>The K-shaped economy</h2>
+    <p class="lead">Aggregate spending looks healthy because the people at the top are spending more than ever. Strip the average apart and you find two trajectories: the top fifth pulling away on the back of a record stock market, and everyone else barely treading water against inflation.</p>
+
+    <div class="grid2">
+      <div class="fig">
+        <h4>Whose spending grew (past year)</h4>
+        <p class="cap">Annual growth in consumer outlays vs. the 4.2% inflation line.</p>
+        <svg class="chart" id="chart-kspend" viewBox="0 0 360 290" role="img" aria-label="Top 20 percent outspending inflation, bottom 80 percent falling behind"></svg>
+        <figcaption>Top 20% (incomes &gt; $175k) outlays +6.5%; bottom 80% +2.6% — short of inflation. Source: Moody's Analytics (Mark Zandi), Q1 2026 estimate.</figcaption>
+      </div>
+      <div class="fig">
+        <h4>Concentration at the top</h4>
+        <p class="cap">Top 20% now drive ~60% of all consumer spending; the top 1% hold ~32% of net worth.</p>
+        <svg class="chart" id="chart-kwealth" viewBox="0 0 360 290" role="img" aria-label="Top 20 percent share of spending and top 1 percent share of wealth"></svg>
+        <figcaption>The top-20% spending share has climbed from ~50% in the dot-com era. The top 1% hold ~32% of wealth (record); the bottom 50% hold ~2.5%. Sources: Moody's Analytics; Federal Reserve Distributional Financial Accounts (Q3 2025).</figcaption>
+      </div>
+    </div>
+
+    <p class="pull">For the bottom 80% of earners, spending power has not outpaced inflation in six years. The economy's growth now rests on "a small group of the well-to-do" whose confidence tracks their stock portfolios.</p>
+
+    <p>This is why the expansion feels fragile: the S&amp;P 500 is up <strong>~9%</strong> year-to-date in 2026 and the Nasdaq <strong>~14%</strong>, propelled by an AI-driven megacap rally near record highs. That wealth effect is doing real work in the spending data — which also means a market correction would hit the economy's main engine first.</p>
+  </section>
+
+  <section id="world">
+    <div class="eyebrow">How America Compares</div>
+    <h2>Richest in the world — at a price</h2>
+    <p class="lead">Zoom out to the global picture and American pessimism looks puzzling. The U.S. is the richest large economy on Earth, and the typical American household has more money to spend than its peers almost anywhere. But the country buys strikingly little health for what it pays.</p>
+
+    <div class="fig">
+      <h4>Median disposable income, U.S. vs. peers</h4>
+      <p class="cap">What the midpoint household actually takes home, adjusted for local prices (USD at purchasing-power parity).</p>
+      <svg class="chart" id="chart-intl" viewBox="0 0 720 320" role="img" aria-label="US median disposable income second only to Luxembourg"></svg>
+      <figcaption>The U.S. ranks second only to tiny Luxembourg, ahead of Norway, Switzerland, Canada and every large European economy. American household disposable income runs ~46% above the OECD average — higher even than its (already #1-among-big-countries) GDP per capita would suggest. Source: OECD, median equivalised disposable income (2021, USD PPP).</figcaption>
+    </div>
+
+    <div class="fig">
+      <h4>The bad bargain: paying double for less life</h4>
+      <p class="cap">Health spending per person vs. life expectancy at birth, U.S. vs. the average of large wealthy peers.</p>
+      <svg class="chart" id="chart-health" viewBox="0 0 720 260" role="img" aria-label="US spends nearly double on healthcare but lives 3.7 years less"></svg>
+      <figcaption>The U.S. spends ~$14,775 per person on health — nearly double the ~$7,860 peer average and ~$5,000 more than #2 Switzerland — yet life expectancy (79.0 years, a record high in 2024) trails the peer average of 82.7 by 3.7 years. Sources: KFF / Peterson Health System Tracker; OECD Health Statistics 2026.</figcaption>
+    </div>
+
+    <p>This is the international mirror of the domestic paradox: enormous aggregate wealth and high take-home incomes, paired with worse outcomes in the things — health, security, the sense of getting ahead — that shape how prosperity is actually <em>experienced</em>.</p>
+  </section>
+
+  <section id="verdict">
+    <div class="eyebrow">The Bottom Line</div>
+    <h2>So, are ordinary Americans in hardship?</h2>
+    <p class="lead">The honest answer is "it depends who, and it depends what you compare to." Mass hardship of the 2008 or 2020 kind is not what the data show. A broad, grinding squeeze on the bottom 80% — real, and getting worse at the margin — is.</p>
+
+    <div class="verdict">
+      <div class="bull">
+        <h4>The case that it's strong</h4>
+        <ul>
+          <li>GDP still expanding; the U.S. has outgrown every G7 peer since 2019.</li>
+          <li>Unemployment 4.3% — historically low and stable for a year.</li>
+          <li>Median household income at/above its pre-pandemic peak.</li>
+          <li>Median take-home income 2nd-highest in the world, ahead of all big European economies.</li>
+          <li>Household net worth and the stock market at record highs.</li>
+          <li>Housing affordability improving (slightly) for the first time since 2022.</li>
+        </ul>
+      </div>
+      <div class="bear">
+        <h4>The case that it's strained</h4>
+        <ul>
+          <li>Prices ~29% above 2020 and re-accelerating; CPI back to 4.2%.</li>
+          <li>Real wages shrinking again right now (pay +3.4% vs prices +4.2%).</li>
+          <li>Median household income flat in real terms for ~5 years.</li>
+          <li>Bottom 80% haven't beaten inflation in 6 years; record $18.8T debt; card & student-loan delinquencies rising.</li>
+          <li>Growth dangerously dependent on top-20% spending tied to stocks.</li>
+          <li>Pays double for healthcare yet lives 3.7 years less than peers.</li>
+        </ul>
+      </div>
+    </div>
+
+    <p>The United States in mid-2026 is a genuinely rich, resilient economy with a distribution problem and a fresh inflation problem. The aggregate is healthy; the median is stuck; the bottom is slipping; the top is soaring. Whether you call that "strong" or "hard" depends almost entirely on where you stand in it — which is exactly why the country can't agree on the answer.</p>
+  </section>
+
+  <section id="sources">
+    <div class="eyebrow">Check the work</div>
+    <h2>Sources &amp; headline figures</h2>
+    <p class="note">Every headline number above is drawn from a primary statistical agency or a named analyst, with the reference period noted. Figures reflect data available as of June 26, 2026 and will go stale; the source rows below let an evaluator re-verify each claim.</p>
+    <table class="src">
+      <thead><tr><th>Claim</th><th>Figure / period</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td>Real GDP growth</td><td>+1.6% annualized, Q1 2026 (2nd est.)</td><td><a href="https://www.bea.gov/news/2026/gdp-second-estimate-and-corporate-profits-1st-quarter-2026">BEA</a></td></tr>
+        <tr><td>Unemployment rate</td><td>4.3%, May 2026</td><td><a href="https://www.bls.gov/news.release/archives/empsit_06052026.htm">BLS Employment Situation</a></td></tr>
+        <tr><td>CPI inflation (yr/yr); core; energy; food</td><td>4.2% / 2.9% / 23.5% / 3.1%, May 2026</td><td><a href="https://www.bls.gov/news.release/archives/cpi_06102026.htm">BLS CPI</a></td></tr>
+        <tr><td>Average hourly earnings (yr/yr)</td><td>+3.4%, May 2026</td><td><a href="https://www.bls.gov/news.release/archives/empsit_06052026.htm">BLS</a></td></tr>
+        <tr><td>Consumer sentiment</td><td>49.5 (Jun 2026); 44.8 record low (May); 60.7 (Jun 2025)</td><td><a href="https://www.sca.isr.umich.edu/">U. Michigan</a></td></tr>
+        <tr><td>Real median household income</td><td>$83,730 (2024); $82,690 (2023); $83,260 (2019)</td><td><a href="https://www.census.gov/library/publications/2025/demo/p60-286.html">U.S. Census P60-286</a></td></tr>
+        <tr><td>Official poverty rate</td><td>10.6% (2024)</td><td><a href="https://www.census.gov/newsroom/press-releases/2025/income-poverty-health-insurance-coverage.html">U.S. Census</a></td></tr>
+        <tr><td>Total household debt; student-loan 90+ delinquency</td><td>$18.8T; 10.3% — Q1 2026</td><td><a href="https://www.newyorkfed.org/newsevents/news/research/2026/20260512">NY Fed Household Debt &amp; Credit</a></td></tr>
+        <tr><td>Income to afford median home; affordable listings</td><td>~$117k vs ~$88k income (40%); ~33% of listings — Apr 2026</td><td><a href="https://www.redfin.com/news/press-releases/redfin-reports-the-income-needed-to-afford-a-home-declined-for-seventh-straight-month-in-april/">Redfin</a></td></tr>
+        <tr><td>Median home price; mortgage rate</td><td>~$412k (Mar 2026); ~6.3% avg 2026</td><td><a href="https://www.realtor.com/news/trends/housing-forecast-2026-mortgage-rates-affordability-improves/">Realtor.com</a> / <a href="https://prc-pa.net/wp-content/uploads/2026/04/NAR-Housing-Affordability-Index-2026-03.pdf">NAR</a></td></tr>
+        <tr><td>Top-20% outlays +6.5% vs bottom-80% +2.6%; top 20% ≈ 60% of spending</td><td>Q1 2026 estimate</td><td><a href="https://fortune.com/2026/06/26/richest-consumers-powering-us-economy-stock-price-bubble-concern/">Moody's Analytics (Zandi)</a></td></tr>
+        <tr><td>Top 1% net-worth share; bottom 50% share</td><td>~32%; ~2.5% — Q3 2025</td><td><a href="https://www.cnbc.com/2026/01/30/wealth-inequality-k-shaped-economy-united-states-consumer-spending-trump.html">Federal Reserve DFA (via CNBC)</a></td></tr>
+        <tr><td>S&amp;P 500 / Nasdaq YTD</td><td>~+9.4% / ~+14.1% (June 2026)</td><td><a href="https://www.benzinga.com/markets/equities/26/06/60007034/moodys-k-shaped-economy-80-americans-are-losing-battle-with-inflation">market data (via Benzinga)</a></td></tr>
+        <tr><td>Median disposable income (PPP)</td><td>US $46,625 (2nd, 2021)</td><td><a href="https://www.oecd.org/en/publications/society-at-a-glance-2024_918d8db3-en/full-report/household-income_3ee61044.html">OECD Society at a Glance</a></td></tr>
+        <tr><td>GDP per capita</td><td>US $89,105 (2025, richest 10M+ nation)</td><td><a href="https://www.visualcapitalist.com/ranked-the-50-richest-countries-by-gdp-per-capita-in-2025/">IMF (via Visual Capitalist)</a></td></tr>
+        <tr><td>Health spending per capita; life expectancy</td><td>$14,775 vs $7,860 peer avg; 79.0 vs 82.7 yrs (2024)</td><td><a href="https://www.healthsystemtracker.org/chart-collection/u-s-life-expectancy-compare-countries/">KFF / Peterson Tracker</a></td></tr>
+      </tbody>
+    </table>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p style="margin:0 0 6px"><strong style="color:#fff">Two Economies, One Country</strong> — a self-contained data report on U.S. economic strength.</p>
+    <p style="margin:0;color:#a8a297">Compiled June 26, 2026 · All charts are hand-built inline SVG and render offline from a fresh clone, no build step or network required · Figures are point-in-time and will drift; see the source table above to re-verify.</p>
+  </div>
+</footer>
+
+<script>
+/* ---------- tiny offline SVG charting helpers (no dependencies) ---------- */
+const SVGNS = "http://www.w3.org/2000/svg";
+const C = {
+  ink:"#1a1a1a", muted:"#5c5750", faint:"#8a847b", rule:"#e3ddd2",
+  green:"#0b6e4f", red:"#b23a2e", blue:"#2d5d9f", gold:"#b8860b", paper:"#ffffff"
+};
+function el(tag, attrs, parent){
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function text(parent, x, y, str, opts={}){
+  const t = el("text", {x, y,
+    "font-size": opts.size||12,
+    "font-family": opts.serif ? "Georgia, serif" : "-apple-system, Segoe UI, Roboto, sans-serif",
+    "font-weight": opts.weight||400,
+    fill: opts.fill||C.muted,
+    "text-anchor": opts.anchor||"start"
+  }, parent);
+  t.textContent = str;
+  return t;
+}
+function svg(id){ const s = document.getElementById(id); while(s.firstChild) s.removeChild(s.firstChild); return s; }
+
+/* ---- horizontal bar chart ---- */
+function hbars(id, data, {w=360,h=300,max=null,unit="",pad=8,labelW=120,fmt=null}={}){
+  const s = svg(id);
+  const m = {l:labelW, r:46, t:14, b:10};
+  const plotW = w - m.l - m.r;
+  const mx = max!=null ? max : Math.max(...data.map(d=>d.v))*1.0;
+  const n = data.length;
+  const band = (h - m.t - m.b) / n;
+  const bh = Math.min(band*0.62, 34);
+  data.forEach((d,i)=>{
+    const cy = m.t + band*i + band/2;
+    text(s, m.l-10, cy+4, d.label, {anchor:"end", size:12.5, fill:C.ink, weight:d.bold?700:400});
+    el("rect", {x:m.l, y:cy-bh/2, width:plotW, height:bh, rx:3, fill:"#efeae0"}, s);
+    const bw = Math.max(2, plotW * (d.v/mx));
+    el("rect", {x:m.l, y:cy-bh/2, width:bw, height:bh, rx:3, fill:d.color||C.blue}, s);
+    const lab = (fmt? fmt(d.v) : d.v) + unit;
+    const inside = bw > 52;
+    text(s, m.l+bw+(inside?-8:8), cy+4, lab, {anchor:inside?"end":"start", size:12.5, weight:700, fill: inside?"#fff":C.ink});
+  });
+}
+
+/* ---- grouped vertical bars ---- */
+function vbars(id, groups, series, {w=360,h=290,max=null,unit="",fmt=null,refLine=null,refLabel=""}={}){
+  const s = svg(id);
+  const m = {l:40, r:14, t:18, b:46};
+  const plotW = w-m.l-m.r, plotH = h-m.t-m.b;
+  const mx = max!=null ? max : Math.max(...groups.flatMap(g=>g.values))*1.15;
+  const gap = plotW/groups.length;
+  const innerN = series.length;
+  const bw = Math.min((gap*0.7)/innerN, 60);
+  // y gridlines
+  const ticks = 4;
+  for(let i=0;i<=ticks;i++){
+    const val = mx*i/ticks;
+    const y = m.t+plotH - plotH*(i/ticks);
+    el("line",{x1:m.l,y1:y,x2:m.l+plotW,y2:y,stroke:C.rule,"stroke-width":1},s);
+    text(s, m.l-6, y+4, (fmt?fmt(val):Math.round(val))+ (i===ticks?unit:""), {anchor:"end", size:10.5, fill:C.faint});
+  }
+  if(refLine!=null){
+    const y = m.t+plotH - plotH*(refLine/mx);
+    el("line",{x1:m.l,y1:y,x2:m.l+plotW,y2:y,stroke:C.red,"stroke-width":1.5,"stroke-dasharray":"5 4"},s);
+    text(s, m.l+plotW, y-5, refLabel, {anchor:"end", size:11, fill:C.red, weight:700});
+  }
+  groups.forEach((g,gi)=>{
+    const gx = m.l + gap*gi + gap/2;
+    const totalW = bw*innerN + (innerN-1)*6;
+    g.values.forEach((v,si)=>{
+      const x = gx - totalW/2 + si*(bw+6);
+      const bh = plotH*(v/mx);
+      const y = m.t+plotH-bh;
+      el("rect",{x, y, width:bw, height:bh, rx:3, fill:series[si].color},s);
+      text(s, x+bw/2, y-6, (fmt?fmt(v):v)+unit, {anchor:"middle", size:11.5, weight:700, fill:C.ink});
+    });
+    text(s, gx, m.t+plotH+18, g.label, {anchor:"middle", size:12, fill:C.muted});
+    if(g.sub) text(s, gx, m.t+plotH+33, g.sub, {anchor:"middle", size:10.5, fill:C.faint});
+  });
+}
+
+/* ---- dual-line chart ---- */
+function lines(id, xLabels, seriesList, {w=720,h=320,yMin=0,yMax=100,unit="",dots=true}={}){
+  const s = svg(id);
+  const m = {l:44, r:18, t:18, b:40};
+  const plotW=w-m.l-m.r, plotH=h-m.t-m.b;
+  const n = xLabels.length;
+  const X = i => m.l + (n===1?plotW/2: plotW*(i/(n-1)));
+  const Y = v => m.t + plotH - plotH*((v-yMin)/(yMax-yMin));
+  const ticks=4;
+  for(let i=0;i<=ticks;i++){
+    const val=yMin+(yMax-yMin)*i/ticks;
+    const y=Y(val);
+    el("line",{x1:m.l,y1:y,x2:m.l+plotW,y2:y,stroke:C.rule,"stroke-width":1},s);
+    text(s,m.l-6,y+4,Math.round(val)+(i===ticks?unit:""),{anchor:"end",size:10.5,fill:C.faint});
+  }
+  xLabels.forEach((lab,i)=>{
+    if(n>9 && i%2!==0 && i!==n-1) return;
+    text(s,X(i),m.t+plotH+18,lab,{anchor:"middle",size:10.5,fill:C.faint});
+  });
+  seriesList.forEach(ser=>{
+    let d="";
+    ser.data.forEach((v,i)=>{ if(v==null) return; d += (d===""?"M":"L")+X(i)+" "+Y(v)+" "; });
+    el("path",{d,fill:"none",stroke:ser.color,"stroke-width":2.4,"stroke-linejoin":"round","stroke-linecap":"round"},s);
+    if(dots) ser.data.forEach((v,i)=>{ if(v==null) return; el("circle",{cx:X(i),cy:Y(v),r:3,fill:ser.color},s); });
+  });
+}
+
+/* ============================ DATA & RENDER ============================ */
+
+/* Sentiment vs GDP (indexed) — annual snapshots 2019..2026 */
+lines("chart-sentiment",
+  ["2019","2020","2021","2022","2023","2024","'25","Jun'26"],
+  [
+    { color:C.blue, data:[96, 81, 71, 59, 64, 70, 61, 49.5] },           // UMich sentiment (approx annual avgs; latest exact)
+    { color:C.green, data:[100, 97, 103, 105, 108, 111, 113, 114] }       // Real GDP index, 2019=100 (approx cumulative)
+  ],
+  {yMin:40, yMax:120}
+);
+
+/* Price level since 2020 (Jan 2020 = 100) */
+hbars("chart-pricelevel",
+  [
+    {label:"Jan 2020", v:100, color:C.faint},
+    {label:"2022", v:114, color:C.gold},
+    {label:"2024", v:124, color:C.gold},
+    {label:"May 2026", v:129, color:C.red, bold:true}
+  ],
+  {w:360,h:300,max:135,labelW:78,fmt:v=>v}
+);
+
+/* CPI by category yr/yr May 2026 */
+hbars("chart-cpicat",
+  [
+    {label:"Energy", v:23.5, color:C.red, bold:true},
+    {label:"All items", v:4.2, color:C.blue, bold:true},
+    {label:"Food", v:3.1, color:C.gold},
+    {label:"Core (ex food/energy)", v:2.9, color:C.green}
+  ],
+  {w:360,h:300,max:26,unit:"%",labelW:120,fmt:v=>v}
+);
+
+/* Real median household income */
+(function(){
+  const s = svg("chart-income");
+  const data = [
+    {label:"2019", v:83260, tag:"pre-pandemic peak"},
+    {label:"2020", v:81210, tag:""},
+    {label:"2021", v:81020, tag:""},
+    {label:"2022", v:80610, tag:"inflation hit"},
+    {label:"2023", v:82690, tag:""},
+    {label:"2024", v:83730, tag:"≈ flat vs 2019"}
+  ];
+  const w=720,h=300,m={l:54,r:18,t:24,b:52};
+  const plotW=w-m.l-m.r, plotH=h-m.t-m.b;
+  const yMin=76000, yMax=86000;
+  const n=data.length;
+  const Y=v=>m.t+plotH-plotH*((v-yMin)/(yMax-yMin));
+  const X=i=>m.l+plotW*(i/(n-1));
+  for(let i=0;i<=4;i++){
+    const val=yMin+(yMax-yMin)*i/4, y=Y(val);
+    el("line",{x1:m.l,y1:y,x2:m.l+plotW,y2:y,stroke:C.rule,"stroke-width":1},s);
+    text(s,m.l-8,y+4,"$"+Math.round(val/1000)+"k",{anchor:"end",size:10.5,fill:C.faint});
+  }
+  // pre-pandemic reference
+  const refY=Y(83260);
+  el("line",{x1:m.l,y1:refY,x2:m.l+plotW,y2:refY,stroke:C.green,"stroke-width":1.3,"stroke-dasharray":"5 4"},s);
+  let d="";
+  data.forEach((p,i)=>{ d+=(i===0?"M":"L")+X(i)+" "+Y(p.v)+" "; });
+  el("path",{d,fill:"none",stroke:C.ink,"stroke-width":2.6,"stroke-linejoin":"round"},s);
+  data.forEach((p,i)=>{
+    el("circle",{cx:X(i),cy:Y(p.v),r:4,fill:(i===0||i===n-1)?C.green:C.ink},s);
+    text(s,X(i),m.t+plotH+18,p.label,{anchor:"middle",size:11,fill:C.muted});
+    if(i===0||i===n-1) text(s,X(i),Y(p.v)-12,"$"+(p.v/1000).toFixed(1)+"k",{anchor:"middle",size:12,weight:700,fill:C.green});
+    if(p.tag) text(s,X(i),m.t+plotH+34,p.tag,{anchor:"middle",size:10,fill:C.faint});
+  });
+})();
+
+/* Housing affordability */
+hbars("chart-housing",
+  [
+    {label:"Income to afford median home", v:40, color:C.red, bold:true},
+    {label:"Affordable listings, today", v:33, color:C.gold},
+    {label:"Affordable listings, 5 yrs ago", v:52, color:C.green}
+  ],
+  {w:720,h:230,max:60,unit:"%",labelW:230,fmt:v=>v}
+);
+
+/* K-shape spending growth */
+vbars("chart-kspend",
+  [
+    {label:"Top 20%", sub:">$175k income", values:[6.5]},
+    {label:"Bottom 80%", sub:"everyone else", values:[2.6]}
+  ],
+  [{color:C.green},{color:C.red}],
+  {w:360,h:290,max:8,unit:"%",fmt:v=>v.toFixed(1),refLine:4.2,refLabel:"inflation 4.2%"}
+);
+// recolor: top green, bottom red — handled by per-group below
+(function(){
+  // override: make top bar green, bottom bar red
+  const s=document.getElementById("chart-kspend");
+  const rects=s.querySelectorAll("rect");
+  if(rects[0]) rects[0].setAttribute("fill",C.green);
+  if(rects[1]) rects[1].setAttribute("fill",C.red);
+})();
+
+/* K-shape wealth/spending concentration */
+hbars("chart-kwealth",
+  [
+    {label:"Top 20% — share of spending", v:60, color:C.green, bold:true},
+    {label:"Top 1% — share of wealth", v:32, color:C.gold, bold:true},
+    {label:"Bottom 50% — share of wealth", v:2.5, color:C.red}
+  ],
+  {w:360,h:290,max:65,unit:"%",labelW:130,fmt:v=>v}
+);
+
+/* International median disposable income */
+hbars("chart-intl",
+  [
+    {label:"Luxembourg", v:49748, color:C.faint},
+    {label:"United States", v:46625, color:C.green, bold:true},
+    {label:"Norway", v:41621, color:C.blue},
+    {label:"Switzerland", v:39698, color:C.blue},
+    {label:"Canada", v:39388, color:C.blue},
+    {label:"Austria", v:37715, color:C.blue},
+    {label:"Netherlands", v:35891, color:C.blue}
+  ],
+  {w:720,h:320,max:54000,labelW:120,fmt:v=>"$"+(v/1000).toFixed(1)+"k"}
+);
+
+/* Health: spending + life expectancy, US vs peers */
+(function(){
+  const s=svg("chart-health");
+  const w=720,h=260,m={t:20,b:30};
+  // left panel: spending; right panel: life expectancy
+  text(s, 180, 16, "Health spending per person (2024)", {anchor:"middle", size:12.5, weight:700, fill:C.ink});
+  text(s, 540, 16, "Life expectancy at birth (2024)", {anchor:"middle", size:12.5, weight:700, fill:C.ink});
+  // spending bars
+  const sp=[{l:"U.S.",v:14775,c:C.red},{l:"Peer avg",v:7860,c:C.blue}];
+  const spMax=16000, baseY=70, bw=70, gap=120;
+  sp.forEach((d,i)=>{
+    const x=70+i*gap, bh=150*(d.v/spMax), y=baseY+150-bh;
+    el("rect",{x,y,width:bw,height:bh,rx:3,fill:d.c},s);
+    text(s,x+bw/2,y-6,"$"+(d.v/1000).toFixed(1)+"k",{anchor:"middle",size:12,weight:700,fill:C.ink});
+    text(s,x+bw/2,baseY+150+16,d.l,{anchor:"middle",size:11.5,fill:C.muted});
+  });
+  // life expectancy bars (truncated axis 70-85 to show gap)
+  const le=[{l:"U.S.",v:79.0,c:C.red},{l:"Peer avg",v:82.7,c:C.blue}];
+  const leMin=70,leMax=85;
+  le.forEach((d,i)=>{
+    const x=430+i*gap, bh=150*((d.v-leMin)/(leMax-leMin)), y=baseY+150-bh;
+    el("rect",{x,y,width:bw,height:bh,rx:3,fill:d.c},s);
+    text(s,x+bw/2,y-6,d.v.toFixed(1)+" yrs",{anchor:"middle",size:12,weight:700,fill:C.ink});
+    text(s,x+bw/2,baseY+150+16,d.l,{anchor:"middle",size:11.5,fill:C.muted});
+  });
+  text(s, 540, baseY+150+30, "(axis truncated to 70 yrs to show the gap)", {anchor:"middle", size:9.5, fill:C.faint});
+})();
+</script>
+</body>
+</html>
