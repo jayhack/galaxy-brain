@@ -1,0 +1,21 @@
+{
+  "name": "galaxy-brain-solver",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Spin up a Daytona sandbox, drop a coding-agent CLI (codex / cursor / claude) into the galaxy-brain repo with an eval prompt, and let it submit a solution PR.",
+  "bin": {
+    "solve": "./bin/solve.mjs"
+  },
+  "scripts": {
+    "solve": "node ./bin/solve.mjs",
+    "evals": "node ./bin/solve.mjs evals",
+    "harnesses": "node ./bin/solve.mjs harnesses"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@daytona/sdk": "^0.184.0"
+  }
+}
