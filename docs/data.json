@@ -953,6 +953,30 @@
             "score": null
           },
           "notes": "Open porsche-render/cursor-opus-4-8-high/index.html directly in a desktop browser (Three.js via CDN importmap, no build). WASD/arrows to drive, C toggles chase/orbit camera, P cycles paint, R resets. Optional URL params: ?hero=1 (turntable), ?cam=side|front|rear34, ?paint=0-5, ?solo=1 (car only)."
+        },
+        {
+          "slug": "codex-gpt-5-4-mini",
+          "harness": "codex",
+          "model": "gpt-5-4-mini",
+          "projectName": "spyder-rs-mini",
+          "summary": "Single-file Three.js Porsche 718 Spyder RS render built from code: a lofted body with hand-shaped front fenders, open cockpit, twin rollover humps, NACA ducts, side intakes, four-point LED headlights, center-exit exhausts, multi-spoke wheels, and a simple closed track with chase and inspection cameras.",
+          "tech": [
+            "html",
+            "css",
+            "javascript",
+            "threejs",
+            "webgl",
+            "procedural-modeling"
+          ],
+          "submittedAt": "2026-06-07",
+          "artifactUrl": "./artifacts/porsche-render/codex-gpt-5-4-mini.html",
+          "outcome": {
+            "status": "submitted",
+            "verdict": "Commits a self-contained index.html under the solution folder and mirrors the same playable file under public/artifacts for one-click GitHub Pages evaluation. The Porsche geometry is generated in code and does not load an external .glb/.gltf/.obj vehicle asset.",
+            "evaluatedAt": null,
+            "score": null
+          },
+          "notes": "Open `porsche-render/codex-gpt-5-4-mini/index.html` directly in a desktop browser, or use the mirrored artifact at `./artifacts/porsche-render/codex-gpt-5-4-mini.html`."
         }
       ]
     }
